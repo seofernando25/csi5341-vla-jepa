@@ -54,3 +54,18 @@ This experiment branch (`exp-vla-jepa-quant`) adapts the LeRobot VLA-JEPA + LFM2
   * Tensors present: `ah.*` (DiT-B action head), `vit.*` (Qwen3-VL vision encoder), `vlm.*` (Qwen3 language model backbone), `token_embd.weight`. World-model predictor is dropped upstream as documented.
   * Architecture prefix observation: Action head weights in `vla-jepa.gguf` utilize the `ah.` namespace (e.g., `ah.act_enc.*`, `ah.timestep_encoder.*`), compared to standard LeRobot checkpoints which expose `model.action_model.*`. The compatibility loader gracefully logs a warning and falls back to default initialization when prefixes do not match, without crashing.
 
+### 3. Closed-Loop LeRobot Simulation Evaluation (`libero_spatial`)
+Executed closed-loop evaluation rollouts across all 10 tasks in `libero_spatial` (1 episode per task, 10 episodes total, 20 Hz, relative control mode):
+
+| Model / Policy | Checkpoint / Init | Success Rate | Avg Reward | Mean Ep Duration | Total Eval Time |
+|---|---|---:|---:|---:|---:|
+| **`vla_jepa` (Official Qwen Baseline)** | `lerobot/VLA-JEPA-LIBERO` | **100.0% (10/10)** | 1.0 | 6.54s | 65.40s |
+| **`vla_jepa_lfm` (Quant Target Init)** | `vrfai/vla-jepa-libero` (untrained) | **0.0% (0/10)** | 0.0 | 8.65s | 86.52s |
+
+* **Analysis**:
+  * Official `lerobot/VLA-JEPA-LIBERO` reproduces perfect 10/10 (100.0%) success on the local RTX 5060 Ti host, establishing the ground truth baseline performance.
+  * Untrained `vla_jepa_lfm` yields 0/10 (0.0%) success as expected, because:
+    1. The LFM bridge and projection adapter weights are randomly initialized.
+    2. Because `vrfai/vla-jepa-libero` utilizes the `ah.` prefix in its GGUF layout while `init_prefixes` targets `model.action_model.`, the action head also remained at default initialization without transferring pretrained flow-matching weights.
+
+
