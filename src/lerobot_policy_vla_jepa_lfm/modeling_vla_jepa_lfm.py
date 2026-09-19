@@ -138,10 +138,63 @@ class VLAJEPALFMPolicy(VLAJEPAPolicy):
 
         if is_gguf:
             import gguf
+
             reader = gguf.GGUFReader(str(model_file))
+            ah_proj = {
+                "ah.act_enc.l1.weight": "model.action_model.action_encoder.layer1.weight",
+                "ah.act_enc.l1.bias": "model.action_model.action_encoder.layer1.bias",
+                "ah.act_enc.l2.weight": "model.action_model.action_encoder.layer2.weight",
+                "ah.act_enc.l2.bias": "model.action_model.action_encoder.layer2.bias",
+                "ah.act_enc.l3.weight": "model.action_model.action_encoder.layer3.weight",
+                "ah.act_enc.l3.bias": "model.action_model.action_encoder.layer3.bias",
+                "ah.state_enc.l1.weight": "model.action_model.state_encoder.layer1.weight",
+                "ah.state_enc.l1.bias": "model.action_model.state_encoder.layer1.bias",
+                "ah.state_enc.l2.weight": "model.action_model.state_encoder.layer2.weight",
+                "ah.state_enc.l2.bias": "model.action_model.state_encoder.layer2.bias",
+                "ah.act_dec.l1.weight": "model.action_model.action_decoder.layer1.weight",
+                "ah.act_dec.l1.bias": "model.action_model.action_decoder.layer1.bias",
+                "ah.act_dec.l2.weight": "model.action_model.action_decoder.layer2.weight",
+                "ah.act_dec.l2.bias": "model.action_model.action_decoder.layer2.bias",
+                "ah.time_emb.l1.weight": "model.action_model.model.timestep_encoder.timestep_embedder.linear_1.weight",
+                "ah.time_emb.l1.bias": "model.action_model.model.timestep_encoder.timestep_embedder.linear_1.bias",
+                "ah.time_emb.l2.weight": "model.action_model.model.timestep_encoder.timestep_embedder.linear_2.weight",
+                "ah.time_emb.l2.bias": "model.action_model.model.timestep_encoder.timestep_embedder.linear_2.bias",
+                "ah.proj_out1.weight": "model.action_model.model.proj_out_1.weight",
+                "ah.proj_out1.bias": "model.action_model.model.proj_out_1.bias",
+                "ah.proj_out2.weight": "model.action_model.model.proj_out_2.weight",
+                "ah.proj_out2.bias": "model.action_model.model.proj_out_2.bias",
+                "ah.future_tokens": "model.action_model.future_tokens.weight",
+                "ah.pos_embd": "model.action_model.position_embedding.weight",
+            }
+            dit_map = {
+                "adaln.weight": "norm1.linear.weight",
+                "adaln.bias": "norm1.linear.bias",
+                "attn_q.weight": "attn1.to_q.weight",
+                "attn_q.bias": "attn1.to_q.bias",
+                "attn_k.weight": "attn1.to_k.weight",
+                "attn_k.bias": "attn1.to_k.bias",
+                "attn_v.weight": "attn1.to_v.weight",
+                "attn_v.bias": "attn1.to_v.bias",
+                "attn_o.weight": "attn1.to_out.0.weight",
+                "attn_o.bias": "attn1.to_out.0.bias",
+                "ff0.weight": "ff.net.0.proj.weight",
+                "ff0.bias": "ff.net.0.proj.bias",
+                "ff2.weight": "ff.net.2.weight",
+                "ff2.bias": "ff.net.2.bias",
+            }
             for tensor in reader.tensors:
                 key = tensor.name
                 candidate_keys = [key]
+                if key in ah_proj:
+                    candidate_keys.append(ah_proj[key])
+                elif key.startswith("ah.dit."):
+                    parts = key.split(".")
+                    layer_idx = parts[2]
+                    sub = ".".join(parts[3:])
+                    if sub in dit_map:
+                        candidate_keys.append(
+                            f"model.action_model.model.transformer_blocks.{layer_idx}.{dit_map[sub]}"
+                        )
                 if not key.startswith("model."):
                     candidate_keys.append("model." + key)
                 for k in candidate_keys:
@@ -149,7 +202,12 @@ class VLAJEPALFMPolicy(VLAJEPAPolicy):
                         continue
                     if k not in current:
                         continue
-                    t = torch.from_numpy(tensor.data.copy())
+                    raw = torch.from_numpy(tensor.data.copy())
+                    if raw.dtype == torch.uint8:
+                        pt_shape = tuple(int(x) for x in reversed(tensor.shape))
+                        t = raw.view(torch.bfloat16).reshape(pt_shape)
+                    else:
+                        t = raw
                     if t.shape != current[k].shape:
                         mismatched.append(f"{k}: {tuple(t.shape)} != {tuple(current[k].shape)}")
                         continue

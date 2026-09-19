@@ -116,3 +116,37 @@ def test_load_compatible_weights_safetensors(tmp_path):
     loaded = mock_policy.load_state_dict.call_args[0][0]
     assert "model.action_model.weight" in loaded
     assert torch.equal(loaded["model.action_model.weight"], torch.ones((2, 3)))
+
+
+def test_load_compatible_weights_gguf_ah_mapping(tmp_path):
+    from unittest.mock import MagicMock
+
+    import gguf
+    import numpy as np
+
+    from lerobot_policy_vla_jepa_lfm.modeling_vla_jepa_lfm import VLAJEPALFMPolicy
+
+    fpath = tmp_path / "model.gguf"
+    writer = gguf.GGUFWriter(str(fpath), "vla_jepa")
+    writer.add_tensor("ah.act_enc.l1.weight", np.ones((768, 7), dtype=np.float32))
+    writer.add_tensor("ah.dit.0.attn_q.weight", np.ones((768, 768), dtype=np.float32))
+    writer.write_header_to_file()
+    writer.write_kv_data_to_file()
+    writer.write_tensors_to_file()
+    writer.close()
+
+    mock_policy = MagicMock()
+    mock_policy.state_dict.return_value = {
+        "model.action_model.action_encoder.layer1.weight": torch.zeros((768, 7), dtype=torch.float32),
+        "model.action_model.model.transformer_blocks.0.attn1.to_q.weight": torch.zeros(
+            (768, 768), dtype=torch.float32
+        ),
+    }
+    mock_policy.load_state_dict.return_value = ([], [])
+    VLAJEPALFMPolicy._load_compatible_vla_jepa_weights(
+        mock_policy, str(fpath), ("model.action_model.",)
+    )
+    loaded = mock_policy.load_state_dict.call_args[0][0]
+    assert "model.action_model.action_encoder.layer1.weight" in loaded
+    assert "model.action_model.model.transformer_blocks.0.attn1.to_q.weight" in loaded
+
