@@ -14,6 +14,7 @@ dependencies = [
   "huggingface-hub>=0.34",
   "safetensors>=0.5",
   "gguf>=0.10.0",
+  "num2words>=0.5.14",
 ]
 
 [project.optional-dependencies]
