@@ -68,4 +68,16 @@ Executed closed-loop evaluation rollouts across all 10 tasks in `libero_spatial`
     1. The LFM bridge and projection adapter weights are randomly initialized.
     2. Because `vrfai/vla-jepa-libero` utilizes the `ah.` prefix in its GGUF layout while `init_prefixes` targets `model.action_model.`, the action head also remained at default initialization without transferring pretrained flow-matching weights.
 
+## Conclusion & Strategic Decision
+
+1. **Rejection of the `vla.cpp` External Toolchain**:
+   * `vrfai/vla-jepa-libero` is not a standard Hugging Face / LeRobot checkpoint; it is a custom GGUF artifact compiled specifically for inference via `vla.cpp` (an external C++ server built on `llama.cpp`).
+   * It strips critical LeRobot metadata (`config.json`, processor normalization safetensors) and renames all 248 DiT action head tensors into C++ internal keys (`ah.*`), breaking native LeRobot compatibility.
+   * As decided, this research repository remains strictly within native **LeRobot** (`AGENTS.md`), avoiding out-of-process C++ inference engines and non-standard tensor mappings.
+
+2. **Retention of Official LeRobot Baseline & Confirmation Target**:
+   * The baseline reference for all confirmation rollouts and future comparative evaluations remains the official PyTorch safetensors checkpoint **`lerobot/VLA-JEPA-LIBERO`**.
+   * Verified ground-truth baseline success rate: **100.0% (10/10)** on `libero_spatial` via native `lerobot-eval`.
+
+
 

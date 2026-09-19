@@ -4,7 +4,7 @@
   "suite": "libero_spatial",
   "n_episodes": 10,
   "eval_batch_size": 1,
-  "qwen_checkpoint": "vrfai/vla-jepa-libero",
-  "note": "Quantized GGUF confirmation template (vrfai/vla-jepa-libero) for edge and resource-constrained benchmarking.",
+  "qwen_checkpoint": "lerobot/VLA-JEPA-LIBERO",
+  "note": "Single matched confirmation run protocol. Fresh training from scratch; Qwen is never trained and is evaluation-only.",
   "expected_suite_rollouts": 100
 }
