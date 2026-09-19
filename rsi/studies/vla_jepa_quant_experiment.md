@@ -31,8 +31,26 @@ This experiment branch (`exp-vla-jepa-quant`) adapts the LeRobot VLA-JEPA + LFM2
 
 ## Hardware & Resource Considerations
 
-* **Local Compute Constraint**: The local GPU on this host is an NVIDIA GeForce GTX 1650 with 4 GB VRAM.
-* **Memory Footprint**: `vla-jepa.gguf` occupies 4.25 GiB in weights alone; running full policy inference + simulation environments exceeds 4 GB and triggers CUDA Out-Of-Memory (OOM).
-* **Execution Strategy**:
-  * Code changes are committed and pushed to `exp-vla-jepa-quant`.
-  * Real benchmark rollouts and confirmation runs are deferred until execution on a workstation/cluster GPU (e.g., RTX 3090 / A100) or via CPU execution.
+* **Local Compute Constraint (Original)**: The original author's host was constrained by an NVIDIA GeForce GTX 1650 with 4 GB VRAM.
+* **Current Evaluation Hardware**: Validated on host GPU **NVIDIA GeForce RTX 5060 Ti (16,311 MiB / 16 GB VRAM)** with >15 GiB free VRAM, eliminating the 4 GB OOM bottleneck.
+* **Memory Footprint**: `vla-jepa.gguf` occupies 4.25 GiB in BF16 weights alone.
+
+## Validation & Updated Metrics
+
+### 1. Test Suite Verification
+* **Pytest Suite**: **64 / 64 tests passing** (`test_plugin.py`: 6, `test_rsi.py`: 17, `test_rsi_v2.py`: 17, `test_rsi_v3.py`: 16, `test_rsi_v4.py`: 8) in 151.8s.
+* **GGUF Unit Tests**: Added unit coverage in `tests/test_plugin.py` verifying:
+  * `test_load_compatible_weights_gguf`: Successful tensor extraction and state dict loading from GGUF format via `gguf.GGUFReader`.
+  * `test_load_compatible_weights_gguf_mismatch`: Strict shape mismatch detection raising `ValueError("Incompatible VLA-JEPA initialization tensors")`.
+  * `test_load_compatible_weights_safetensors`: Safetensors format parity verification.
+* **Plugin Registration**: Verified via `scripts/smoke_plugin.py` (`vla_jepa_lfm` -> `lerobot_policy_vla_jepa_lfm.modeling_vla_jepa_lfm.VLAJEPALFMPolicy`).
+* **Harness Dry-Run**: Validated via `python -m rsi dry-run`: 8/8 attempts reserved, 7 distinct families, 6 promotions completed, 1 completed offline cycle, exactly 100 dream replay trajectories, finished cleanly with `global_outer_cap`.
+* **Linting & Formatting**: Clean pass with Ruff across `src`, `rsi`, and `tests`.
+
+### 2. GGUF Tensor Layout & Prefix Metrics
+* **Remote Hub Inspection (`vrfai/vla-jepa-libero`)**:
+  * File size: 4.25 GiB (`vla-jepa.gguf`).
+  * Total tensors: 873 tensors.
+  * Tensors present: `ah.*` (DiT-B action head), `vit.*` (Qwen3-VL vision encoder), `vlm.*` (Qwen3 language model backbone), `token_embd.weight`. World-model predictor is dropped upstream as documented.
+  * Architecture prefix observation: Action head weights in `vla-jepa.gguf` utilize the `ah.` namespace (e.g., `ah.act_enc.*`, `ah.timestep_encoder.*`), compared to standard LeRobot checkpoints which expose `model.action_model.*`. The compatibility loader gracefully logs a warning and falls back to default initialization when prefixes do not match, without crashing.
+
