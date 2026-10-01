@@ -19,11 +19,7 @@
   "source_manifest": "plan.json, RSI-n0008 arm; payload hashes verified before launch",
   "lockfile_sha256": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa",
   "budget_usd": 14,
-  "hourly_compute_and_100gb_disk_usd": 0.4985185185185185,
-  "server_cleanup_hours_after_creation": [
-    6,
-    7
-  ],
+  "hourly_compute_and_100gb_disk_usd": 0.5355555555555556,
   "training_deadline_hours_after_creation": 3.5,
   "export": "Download complete 10k native checkpoint and optimizer state; verify every file hash before deleting rental",
   "post_training": {
@@ -38,5 +34,36 @@
       "final_libero": false
     }
   },
-  "comparison_limits": "Cloud optimizer continuation changes hardware; numerical equivalence is not assumed. Timing and VRAM results cannot be pooled with RTX 3090 measurements. A matched base arm and full development/final evaluation remain pending."
+  "comparison_limits": "Cloud optimizer continuation changes hardware; numerical equivalence is not assumed. Timing and VRAM results cannot be pooled with RTX 3090 measurements. A matched base arm and full development/final evaluation remain pending.",
+  "server_cleanup": {
+    "frequency": "DAILY",
+    "utc_hour": 23,
+    "first_deadline": "2026-10-01T23:00:00Z",
+    "rationale": "Explicit UTC hour; hourly scheduling executed at the next hour despite a future start timestamp"
+  },
+  "run_label": "RSI-n0008-5090-r2",
+  "operational_backups": {
+    "steps": [
+      5100,
+      6000,
+      8000
+    ],
+    "selection_use": false,
+    "retention": "Hash-verified downloads; remove temporary local backups after full 10k export verifies"
+  },
+  "cloud_output_directory": "outputs/evaluation/training/cloud-n0008-5090-r2/train",
+  "resume_config_amendment": "Only copied native output_dir changes, keeping original checkpoint files immutable and avoiding artifact-path collisions",
+  "operational_history": [
+    {
+      "gpu": "RTX 5090",
+      "status": "interrupted",
+      "cause": "Hourly cleanup misconfiguration; provider job ran at 17:00 UTC instead of requested 22:12 UTC",
+      "preflight_updates": 100,
+      "median_update_seconds": 0.5773690255045949,
+      "peak_allocated_bytes": 8078115840,
+      "full_continuation": "Logged steps beyond 5800; 5k source checkpoint remains local; new cloud checkpoints were not downloaded before deletion",
+      "spend_before_retry_usd": 0.4878558167,
+      "scientific_interpretation": "Runtime interruption, not evidence against the architecture"
+    }
+  ]
 }

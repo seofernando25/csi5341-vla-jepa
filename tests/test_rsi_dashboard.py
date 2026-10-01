@@ -150,3 +150,16 @@ def test_cloud_training_overrides_stale_local_confirmation(tmp_path):
     cloud.write_text(json.dumps({'status':'failed'}))
     assert dashboard.confirmation_live(tmp_path)['status'] == 'failed'
     assert local.read_bytes() == before
+
+
+def test_cloud_retry_does_not_reuse_interrupted_run_progress(tmp_path):
+    cloud = tmp_path/'outputs/cloud/remote-job.json'
+    cloud.parent.mkdir(parents=True)
+    cloud.write_text(json.dumps({'status':'preparing', 'training_label':'RSI-n0008-5090-r2'}))
+    old = tmp_path/'studies/evaluation/training/old'
+    old.mkdir(parents=True)
+    (old/'run.json').write_text(json.dumps({'variant':'RSI-n0008-5090', 'requested_steps':10000}))
+    (old/'metrics.jsonl').write_text(json.dumps({'phase':'training','step':5840,'loss':.3})+'\n')
+    result = dashboard.confirmation_live(tmp_path)
+    assert result['arm'] == 'RSI-n0008-5090-r2'
+    assert result.get('progress', {}).get('step', 0) != 5840

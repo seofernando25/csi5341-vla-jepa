@@ -140,12 +140,13 @@ def confirmation_live(root):
     path = root / 'outputs/confirmation/n0008-20261001/status.json'
     cloud_path = root / 'outputs/cloud/remote-job.json'
     cloud = read_record(cloud_path) if cloud_path.is_file() else {}
-    if cloud.get('status') in {'timing', 'training', 'trained', 'evaluating', 'completed', 'failed'}:
+    if cloud.get('status') in {'preparing', 'timing', 'training', 'trained', 'evaluating', 'completed', 'failed', 'interrupted'}:
         path = cloud_path
         status = {
-            'arm': 'RSI-n0008-5090-preflight' if cloud['status'] == 'timing' else 'RSI-n0008-5090',
+            'arm': cloud.get('preflight_label', 'RSI-n0008-5090-preflight') if cloud['status'] == 'timing'
+                   else cloud.get('training_label', 'RSI-n0008-5090'),
             'stage': 'RTX 5090 · ' + cloud['status'],
-            'status': cloud['status'] if cloud['status'] in {'completed', 'failed'} else 'running',
+            'status': cloud['status'] if cloud['status'] in {'completed', 'failed', 'interrupted'} else 'running',
             'cloud': True,
         }
     elif path.is_file():
@@ -153,7 +154,7 @@ def confirmation_live(root):
     else:
         return None
     label = status.get('arm')
-    if label not in {'RSI-n0008', 'SmolVLM-GPU-base', 'RSI-n0008-5090', 'RSI-n0008-5090-preflight'}:
+    if label not in {'RSI-n0008', 'SmolVLM-GPU-base'} and not re.fullmatch(r'RSI-n0008-5090(?:-r\d+)?(?:-preflight)?', label or ''):
         return status
     runs = []
     for record in sorted((root / 'studies/evaluation/training').glob('*/run.json')):
