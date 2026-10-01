@@ -1,0 +1,66 @@
+{
+  "diagnostic": "synthetic CPU vs GPU image preprocessing, not task performance",
+  "cpu_seconds": 2.087543017000371,
+  "gpu_seconds": [
+    0.023553051999897434,
+    0.008929046000048402,
+    0.008936187000017526,
+    0.008872005000284844
+  ],
+  "shape": [
+    2,
+    34,
+    3,
+    512,
+    512
+  ],
+  "shape_equal": true,
+  "mae": 0.0578768290579319,
+  "max_abs": 0.4135017991065979,
+  "mask_equal": true,
+  "metadata_equal": {},
+  "old_backend": "pil/Lanczos",
+  "new_backend": "torchvision/bicubic fallback",
+  "live_gpu_observation": {
+    "samples": 24,
+    "gpu_utilization_mean_percent": 91.5,
+    "gpu_utilization_min_percent": 65.0,
+    "gpu_utilization_max_percent": 100.0,
+    "interval_seconds": 12,
+    "purpose": "observed live GPU-processor baseline, not full-run profiling"
+  },
+  "recorded_at": "2026-10-01T03:23:59.789324+00:00",
+  "training_observation": {
+    "previous": [
+      {
+        "step": 450,
+        "data_seconds": 0.001,
+        "update_seconds": 2.973,
+        "step_seconds": 2.977
+      },
+      {
+        "step": 500,
+        "data_seconds": 0.001,
+        "update_seconds": 2.945,
+        "step_seconds": 2.949
+      }
+    ],
+    "gpu_pipeline": [
+      {
+        "step": 50,
+        "data_seconds": 0.547,
+        "update_seconds": 0.813,
+        "step_seconds": 1.363
+      },
+      {
+        "step": 100,
+        "data_seconds": 0.001,
+        "update_seconds": 0.803,
+        "step_seconds": 0.807
+      }
+    ],
+    "comparison": "single baseline runs; GPU observation is early, no accuracy claim",
+    "old_journal": ".rsi-archive-pil-20261001T031720Z",
+    "new_journal": ".rsi"
+  }
+}

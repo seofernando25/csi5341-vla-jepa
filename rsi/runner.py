@@ -37,6 +37,7 @@ from rsi.novelty import (
     normalize,
     parse_proposal,
 )
+from rsi.discovery_diagnostics import prepare_evidence
 from rsi.policy import Policy
 from rsi.process import OperatorStop, ProcessTimeout, codex_argv, isolated, run_logged
 
@@ -45,7 +46,7 @@ ROOT = {
     "parent": None,
     "score": None,
     "status": "root",
-    "summary": "Clean base LFM source; unmeasured, not a zero-quality baseline.",
+    "summary": "Clean base SmolVLM source; unmeasured, not a zero-quality baseline.",
 }
 
 
@@ -91,10 +92,8 @@ def classify_external_failure(exc, logs):
 
 def load_config(path):
     c = json.loads(Path(path).read_text())
-    if c.get("protocol_version") != "dream-rsi-v4-continuation":
-        raise ValueError(
-            "v4 requires a fresh dream-rsi-v4-continuation study; old state cannot be reused"
-        )
+    if c.get("protocol_version") != "dream-rsi":
+        raise ValueError("initialize a fresh dream-rsi study; historical state cannot be reused")
     for key in (
         "proposal_batch_size",
         "proposal_parallel_workers",
@@ -141,11 +140,8 @@ def load_config(path):
         raise ValueError("invalid root similarity threshold")
     if c["refinement_slots_per_batch"] + c["novel_slots_per_batch"] != c["proposal_batch_size"]:
         raise ValueError("mixed batch slots must equal proposal_batch_size")
-    anchors = c.get("continuation_anchor_ids")
-    if not isinstance(anchors, list) or not anchors or len(set(anchors)) != len(anchors):
-        raise ValueError("continuation_anchor_ids must be a nonempty unique list")
-    if not all(isinstance(x, str) and x.startswith("n") for x in anchors):
-        raise ValueError("invalid continuation anchor id")
+    if c.get("continuation_anchor_ids"):
+        raise ValueError("fresh studies cannot import historical anchors")
     if c["max_total_reservations"] < c["max_real_attempts"]:
         raise ValueError("max_total_reservations must cover max_real_attempts")
     if (
@@ -156,8 +152,8 @@ def load_config(path):
         or c["min_total_measured_nodes_before_stop"] > c["max_real_attempts"]
     ):
         raise ValueError("inconsistent coverage floors")
-    if c["novelty_reference"] != "rsi/studies/v1_novelty_reference.json":
-        raise ValueError("novelty reference must be the tracked trusted reference")
+    if c["novelty_reference"] is not None:
+        raise ValueError("fresh studies use only their own measured novelty history")
     if c["beta1"] < 0 or c["beta_diversity"] < 0 or c["failure_score"] >= 0:
         raise ValueError("invalid objective constants")
     return c
@@ -216,89 +212,14 @@ class Runner:
         if self.events():
             raise ValueError("already initialized; use status or run --resume")
         config = load_config(config_path)
-        if prior_study is None and not self.synthetic:
+        if prior_study is not None:
             raise ValueError(
-                "v4 continuation requires --prior-study pointing at the sealed V3 state"
+                "fresh studies do not import prior state; resume the same state instead"
             )
-
         prior_history, prior_roots, anchors = [], [], []
-        prior_path = Path(prior_study).resolve() if prior_study is not None else None
-        prior_status = "synthetic"
-        prior = []
-        if prior_path is not None:
-            if not (prior_path / "events").is_dir():
-                raise ValueError("prior study journal missing")
-            prior = Journal(prior_path).read()
-            prior_init = next(e for e in prior if e["kind"] == "initialized")
-            version = prior_init["config"]["protocol_version"]
-            if version not in {"dream-rsi-v2", "dream-rsi-v3-batched", "dream-rsi-v4-continuation"}:
-                raise ValueError("only v2/v3/v4 mechanism history may be imported")
-            attempts = [e for e in prior if e["kind"] == "attempt"]
-            outcomes = [e for e in prior if e["kind"] == "outcome"]
-            finished = any(e["kind"] == "finished" for e in prior)
-            exhausted = len(attempts) >= prior_init["config"]["max_real_attempts"] and len(
-                outcomes
-            ) == len(attempts)
-            if not finished and not exhausted:
-                raise ValueError(
-                    "prior study must be finished or exhausted with every reservation closed"
-                )
-            prior_status = "finished" if finished else "exhausted"
-            prior_history = list(prior_init.get("prior_history", [])) + [
-                compact_node(e["node"])
-                for e in prior
-                if e["kind"] == "outcome" and e["node"].get("proposal")
-            ]
-            prior_roots = list(prior_init.get("prior_roots", [])) + [
-                {k: e[k] for k in ("architecture_delta", "axes_signature")}
-                for e in prior
-                if e["kind"] == "proposal_accepted"
-                and e["parent"] == "root"
-                and not e.get("source_anchor")
-            ]
-
+        prior_path, prior_status = None, "fresh"
         source_contract(self.repo, self.state / "base")
-        anchor_root = self.state / "anchors"
-        anchor_root.mkdir()
-        if prior_path is None:
-            for index, identifier in enumerate(config["continuation_anchor_ids"]):
-                destination = anchor_root / identifier
-                shutil.copytree(self.state / "base", destination)
-                anchors.append(
-                    {
-                        "id": identifier,
-                        "score": -0.70 - index * 0.01,
-                        "status": "ok",
-                        "family_id": "synthetic anchor " + identifier,
-                        "mechanism_family": "synthetic anchor " + identifier,
-                        "architecture_axes": dict.fromkeys(AXES, identifier),
-                        "structural_change": "Synthetic continuation anchor",
-                        "workspace_hash": manifest(destination),
-                    }
-                )
-        else:
-            outcome_by_id = {e["attempt"]: e for e in prior if e["kind"] == "outcome"}
-            for identifier in config["continuation_anchor_ids"]:
-                if identifier not in outcome_by_id:
-                    raise ValueError(f"continuation anchor missing from prior study: {identifier}")
-                event = outcome_by_id[identifier]
-                node = event["node"]
-                if (
-                    node.get("status") != "ok"
-                    or not node.get("eligible")
-                    or not event.get("workspace_hash")
-                ):
-                    raise ValueError(
-                        f"continuation anchor is not an intact measured candidate: {identifier}"
-                    )
-                source = prior_path / "attempts" / identifier / "workspace"
-                if manifest(source) != event["workspace_hash"]:
-                    raise ValueError(f"continuation anchor workspace changed: {identifier}")
-                destination = anchor_root / identifier
-                shutil.copytree(source, destination)
-                anchor = compact_node(node)
-                anchor["workspace_hash"] = manifest(destination)
-                anchors.append(anchor)
+        (self.state / "anchors").mkdir()
 
         (self.state / "policies").mkdir()
         shutil.copyfile(self.repo / "rsi/policies/initial.py", self.state / "policies/p0.py")
@@ -328,7 +249,7 @@ class Runner:
     def verify(self):
         init = self.events("initialized")[0]
         c = load_config(self.state / "config.json")
-        if digest(c) != init["config_hash"] or harness_manifest(self.repo) != init["harness"]:
+        if digest(c) != init["config_hash"] or harness_manifest(self.repo) != (self.events("discovery_context_updated")[-1]["harness"] if self.events("discovery_context_updated") else init["harness"]):
             raise ValueError("frozen config/harness changed; initialize a separate study")
         if manifest(self.state / "base") != init["base"]:
             raise ValueError("base workspace changed")
@@ -337,8 +258,35 @@ class Runner:
                 raise ValueError(f"continuation anchor changed: {anchor['id']}")
         if self.synthetic != init["synthetic"]:
             raise ValueError("synthetic/real state cannot be mixed")
+        for event in self.events("budget_extended"):
+            c.update(event["limits"])
         self.config = c
         return init
+
+    def update_discovery_context(self, reason):
+        """Explicit operator amendment; scientific configuration and source stay frozen."""
+        init = self.events("initialized")[0]
+        prior = self.events("discovery_context_updated")
+        previous = prior[-1]["harness"] if prior else init["harness"]
+        current = harness_manifest(self.repo)
+        allowed = {"runner.py", "process.py", "__main__.py", "export.py",
+                   "prompts/discovery.txt", "discovery_diagnostics.py"}
+        changed = {k for k in previous.keys() | current.keys() if previous.get(k) != current.get(k)}
+        if not changed or not changed <= allowed or not reason.strip():
+            raise ValueError("discovery amendment requires a reason and only approved context/lifecycle files")
+        if digest(load_config(self.state / "config.json")) != init["config_hash"]:
+            raise ValueError("scientific configuration changed")
+        if manifest(self.state / "base") != init["base"]:
+            raise ValueError("base workspace changed")
+        for anchor in init["continuation_anchors"]:
+            if manifest(self.state / "anchors" / anchor["id"]) != anchor["workspace_hash"]:
+                raise ValueError("continuation anchor changed")
+        if self.synthetic != init["synthetic"]:
+            raise ValueError("synthetic/real state cannot be mixed")
+        self.journal.append("discovery_context_updated", previous_harness=previous,
+                            harness=current, changed_files=sorted(changed), reason=reason,
+                            applies_after_seq=self.events()[-1]["seq"], at=now())
+        self.verify()
 
     def anchor_metadata(self, identifier=None):
         anchors = self.events("initialized")[0].get("continuation_anchors", [])
@@ -381,7 +329,7 @@ class Runner:
             root.update(
                 score=event["metrics"]["score"],
                 status="ok",
-                summary="Measured clean base LFM under the fixed screening evaluator.",
+                summary="Measured clean base SmolVLM under the fixed screening evaluator.",
                 metrics=event["metrics"],
             )
         promoted = self.events("promotion_baseline")
@@ -397,7 +345,7 @@ class Runner:
     def tree(self, outer):
         nodes = [self.root_node()]
         for event in self.events("outcome"):
-            if event["outer"] != outer or not event["node"].get("proposal"):
+            if event["outer"] > outer or not event["node"].get("proposal"):
                 continue
             node = json.loads(json.dumps(event["node"]))
             promotion = self.promotion_for(event["attempt"])
@@ -409,10 +357,16 @@ class Runner:
     def ensure_baseline(self):
         if self.events("baseline"):
             return
-        if self.events("baseline_started"):
-            raise InterruptedError("baseline may have run; never relaunch in this study")
+        starts = self.events("baseline_started")
+        if starts:
+            resolved = {e["reservation"] for e in self.events("baseline_interrupted")}
+            for event in starts:
+                reservation = event.get("reservation", 1)
+                if reservation not in resolved:
+                    self.journal.append("baseline_interrupted", reservation=reservation, at=now())
         self.check_disk()
-        self.journal.append("baseline_started", at=now())
+        reservation = len(starts) + 1
+        self.journal.append("baseline_started", reservation=reservation, at=now())
         if self.synthetic:
             metrics = {
                 "score": -0.75,
@@ -422,16 +376,17 @@ class Runner:
                 "metric_provenance": "synthetic base; no training",
             }
         else:
-            output = self.state / "baseline" / "evaluation"
+            output = self.state / "baseline" / f"reservation-{reservation}" / "evaluation"
             output.mkdir(parents=True, exist_ok=True)
             metrics = self.evaluate_workspace(
                 self.state / "base",
                 output,
-                self.state / "baseline" / "probe",
+                self.state / "baseline" / f"reservation-{reservation}" / "probe",
                 steps=self.config["probe_steps"],
             )
         self.journal.append(
             "baseline",
+            reservation=reservation,
             metrics=metrics,
             workspace_hash=manifest(self.state / "base"),
             ended_at=now(),
@@ -670,7 +625,7 @@ class Runner:
         return prior + current
 
     def root_references(self):
-        reference = json.loads((self.repo / self.config["novelty_reference"]).read_text())
+        reference = {"fingerprint_version": 1, "roots": []}
         if reference["fingerprint_version"] != 1:
             raise ValueError("unsupported novelty fingerprint version")
         return (
@@ -744,6 +699,8 @@ class Runner:
                     }
                 )
             )
+        evidence = directory / "evidence"
+        prepare_evidence(self.state, getattr(self, "_frozen_evidence", self.events()), evidence)
         prompt = self.discovery_prompt(outer, parent, feedback)
         (directory / "prompt.txt").write_text(prompt)
         args = codex_argv()
@@ -754,7 +711,7 @@ class Runner:
             "/tmp/work/.proposal.json",
         ]
         run_logged(
-            isolated(args, self.repo, workspace),
+            isolated(args, self.repo, workspace, evidence=evidence),
             self.repo,
             directory / "discovery",
             self.config["agent_timeout_seconds"],
@@ -867,43 +824,12 @@ class Runner:
             self.config,
         )
         plan["source_anchors"] = [None] * len(plan["planned_actions"])
-        usage = Counter(
-            e.get("source_anchor") for e in self.events("attempt") if e.get("source_anchor")
-        )
-        unused = [a for a in self.config["continuation_anchor_ids"] if usage[a] == 0]
-        selected_anchors = set()
-        for slot, mode in enumerate(plan.get("modes", [])):
-            if mode != "refinement":
-                continue
-            anchor = None
-            if unused:
-                anchor = unused.pop(0)
-            elif plan["planned_actions"][slot] == "root":
-                candidates = [
-                    a for a in self.config["continuation_anchor_ids"] if a not in selected_anchors
-                ]
-                if candidates:
-                    anchor = min(
-                        candidates,
-                        key=lambda a: (
-                            usage[a],
-                            self.config["continuation_anchor_ids"].index(a),
-                        ),
-                    )
-            if anchor is not None:
-                requested = plan["planned_actions"][slot]
-                plan["planned_actions"][slot] = "root"
-                plan["source_anchors"][slot] = anchor
-                selected_anchors.add(anchor)
-                plan["substitutions"].append(
-                    {
-                        "batch_slot": slot,
-                        "requested": requested,
-                        "action": "root",
-                        "source_anchor": anchor,
-                        "reason": "continuation_anchor",
-                    }
-                )
+        plan["modes"] = [
+            "novel" if action == "root" and anchor is None else mode
+            for action, anchor, mode in zip(
+                plan["planned_actions"], plan["source_anchors"], plan["modes"], strict=True
+            )
+        ]
         plan["constrained_actions"] = len(plan["substitutions"])
         return plan
 
@@ -1065,6 +991,7 @@ class Runner:
         batch_id = f"b{len(self.events('batch_started')) + 1:04d}"
         history = (self.ledger(), [compact_node(n) for n in self.tree(outer)])
         self._frozen_history = history
+        self._frozen_evidence = self.events()
         references = self.root_references()
         self.journal.append(
             "batch_started",
@@ -1396,16 +1323,48 @@ class Runner:
             >= self.config["min_total_measured_nodes_before_stop"]
         )
 
+    def extend_budget(self, cycles):
+        """Append resource limits without changing the frozen scientific configuration."""
+        self.verify()
+        if type(cycles) is not int or cycles <= 0:
+            raise ValueError("cycles must be a positive integer")
+        increments = {
+            "max_outer_iterations": cycles,
+            "max_real_attempts": cycles * self.config["K1"],
+            "max_total_reservations": cycles
+            * (self.config["K1"] + self.config["proposal_batch_size"]),
+            "max_runtime_failures": cycles * 4,
+            "max_promotions": cycles * 2,
+        }
+        limits = {key: self.config[key] + amount for key, amount in increments.items()}
+        self.journal.append("budget_extended", limits=limits, cycles=cycles, at=now())
+        self.config.update(limits)
+
+    def pause(self, reason):
+        if (
+            not self.events()
+            or self.events()[-1].get("reason") != reason
+            or self.events()[-1]["kind"] != "paused"
+        ):
+            self.journal.append("paused", reason=reason, at=now())
+
     def run(self, resume=False):
         self.verify()
-        if self.events("finished"):
-            return
         if self.events("started") and not resume:
             raise ValueError("existing run requires explicit --resume")
         if self.stop.exists():
             if not resume:
                 raise ValueError("stop requested; explicit --resume required")
             self.stop.unlink()
+        for key, count, reason in (
+            ("max_real_attempts", self.research_attempt_count(), "global_attempt_cap"),
+            ("max_total_reservations", len(self.events("attempt")), "reservation_cap"),
+            ("max_runtime_failures", self.runtime_failure_count(), "runtime_failure_cap"),
+            ("max_outer_iterations", len(self.events("cycle_done")), "global_outer_cap"),
+        ):
+            if self.events()[-1]["kind"] == "paused" and count >= self.config[key]:
+                self.pause(reason)
+                return
         self.recover()
         self.ensure_baseline()
         self.journal.append("started", at=now(), resumed=resume)
@@ -1414,16 +1373,9 @@ class Runner:
             if self.stop.exists():
                 return
             if self.runtime_failure_count() >= self.config["max_runtime_failures"]:
-                self.journal.append("finished", reason="runtime_failure_cap", at=now())
+                self.pause("runtime_failure_cap")
                 return
             if any(e["outer"] == outer for e in self.events("cycle_done")):
-                done = next(e for e in self.events("online_done") if e["outer"] == outer)
-                if self.research_attempt_count() >= self.config["max_real_attempts"]:
-                    self.journal.append("finished", reason="global_attempt_cap", at=now())
-                    return
-                if done["reason"] == "policy_STOP" and self.global_stop_allowed(outer):
-                    self.journal.append("finished", reason="policy_STOP", at=now())
-                    return
                 continue
 
             previous = self.events("cycle_done")
@@ -1453,7 +1405,9 @@ class Runner:
 
                     nodes = self.tree(outer)
                     obs = observation(
-                        [compact_node(n) for n in nodes], self.config["K1"], self.config
+                        [compact_node(n) for n in nodes],
+                        len(nodes) - 1 + self.config["K1"] - self.research_attempt_count(outer),
+                        self.config,
                     )
                     self.check_disk()
                     size = min(
@@ -1479,14 +1433,14 @@ class Runner:
             if selected is None:
                 return
             if self.research_attempt_count() >= self.config["max_real_attempts"]:
-                self.journal.append("finished", reason="global_attempt_cap", at=now())
+                self.pause("global_attempt_cap")
                 return
             if reason in {"runtime_failure_cap", "reservation_cap"}:
-                self.journal.append("finished", reason=reason, at=now())
+                self.pause(reason)
                 return
             if reason == "policy_STOP":
                 if self.global_stop_allowed(outer):
-                    self.journal.append("finished", reason="policy_STOP", at=now())
+                    self.pause("policy_STOP")
                     return
                 self.journal.append(
                     "stop_deferred",
@@ -1496,11 +1450,14 @@ class Runner:
                     required_measured=self.config["min_total_measured_nodes_before_stop"],
                     at=now(),
                 )
-        self.journal.append("finished", reason="global_outer_cap", at=now())
+        self.pause("global_outer_cap")
 
     def status(self):
         events = self.events()
         promotions = self.events("promotion")
+        budget = dict(events[0]["config"]) if events else {}
+        for event in self.events("budget_extended"):
+            budget.update(event["limits"])
         return {
             "initialized": bool(events),
             "synthetic": self.synthetic,
@@ -1531,7 +1488,10 @@ class Runner:
             "completed_cycles": len(self.events("cycle_done")),
             "replay_trajectories": sum(e["trajectories"] for e in self.events("cycle_done")),
             "stop_requested": self.stop.exists(),
-            "finished": self.events("finished")[-1]["reason"] if self.events("finished") else None,
+            "paused": events[-1].get("reason")
+            if events and events[-1]["kind"] == "paused"
+            else None,
+            "budget": {k: v for k, v in budget.items() if k.startswith("max_")},
         }
 
 
@@ -1556,7 +1516,7 @@ def dry_run(repo):
     with tempfile.TemporaryDirectory(prefix="rsi-synthetic-") as tmp:
         runner = Runner(repo, Path(tmp), synthetic=True)
         config = json.loads((Path(repo) / "rsi/config.json").read_text())
-        # Keep dry-run intentionally one-cycle while exercising V4 mixed batches and promotions.
+        # Keep dry-run intentionally one-cycle while exercising mixed batches and promotions.
         config["max_outer_iterations"] = 1
         config["min_outer_iterations_before_stop"] = 1
         config["min_total_measured_nodes_before_stop"] = 1

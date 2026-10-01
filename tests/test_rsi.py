@@ -119,17 +119,17 @@ def test_workspace_allowlist_and_guards(tmp_path):
         or n in {"pyproject.toml", "uv.lock", "tests/test_contract.py", "proposal_schema.json"}
         for n in before
     )
-    new = workspace / "src/lerobot_policy_vla_jepa_lfm/new_arch.py"
+    new = workspace / "src/lerobot_policy_vla_jepa_smolvlm/new_arch.py"
     new.write_text("class Fusion: pass\n")
     candidate_guard(workspace, before)
     for cls, method in [
-        ("VLAJEPALFMModel", "forward"),
-        ("VLAJEPALFMModel", "_action_loss"),
-        ("VLAJEPALFMModel", "_world_model_loss"),
-        ("VLAJEPALFMModel", "predict_action"),
-        ("VLAJEPALFMPolicy", "forward"),
-        ("VLAJEPALFMPolicy", "predict_action_chunk"),
-        ("VLAJEPALFMPolicy", "select_action"),
+        ("VLAJEPASmolVLMModel", "forward"),
+        ("VLAJEPASmolVLMModel", "_action_loss"),
+        ("VLAJEPASmolVLMModel", "_world_model_loss"),
+        ("VLAJEPASmolVLMModel", "predict_action"),
+        ("VLAJEPASmolVLMPolicy", "forward"),
+        ("VLAJEPASmolVLMPolicy", "predict_action_chunk"),
+        ("VLAJEPASmolVLMPolicy", "select_action"),
     ]:
         new.write_text(f"class {cls}:\n    def {method}(self): pass\n")
         with pytest.raises(ValueError, match="protected override"):
@@ -146,8 +146,8 @@ def test_workspace_allowlist_and_guards(tmp_path):
 
 def test_fixed_codex_and_evaluator_contract():
     argv = codex_argv()
-    assert "--ephemeral" in argv and "gpt-6-astra" in argv
-    assert 'model_reasoning_effort="low"' in argv
+    assert "--ephemeral" in argv and "gpt-6.1-sol" in argv
+    assert 'model_reasoning_effort="high"' in argv
     assert "resume" not in argv and "fork" not in argv
     args = train_args(CONFIG)
     for flag in (
@@ -202,7 +202,7 @@ def test_restart_pending_is_closed_and_replaced_without_spending_research_budget
     assert outcomes[1]["node"]["status"] == "ok"
     assert runner.status()["research_attempts"] == 1
     assert runner.status()["replay_trajectories"] == 100
-    assert runner.status()["finished"] == "global_attempt_cap"
+    assert runner.status()["paused"] == "global_attempt_cap"
 
 
 def test_offline_resume_interrupted_revision_and_selection(tmp_path):

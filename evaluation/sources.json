@@ -1,0 +1,29 @@
+{
+  "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+  "models": {
+    "baseline": {
+      "repo": "lerobot/VLA-JEPA-LIBERO",
+      "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+    },
+    "smolvlm": {
+      "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+      "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+    },
+    "qwen": {
+      "repo": "Qwen/Qwen3-VL-2B-Instruct",
+      "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+    },
+    "world_model": {
+      "repo": "facebook/vjepa2-vitl-fpc64-256",
+      "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+    },
+    "pretrain": {
+      "repo": "lerobot/VLA-JEPA-Pretrain",
+      "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+    }
+  },
+  "simulator_assets": {
+    "repo": "lerobot/libero-assets",
+    "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+  }
+}

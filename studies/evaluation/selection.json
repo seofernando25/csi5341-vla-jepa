@@ -1,0 +1,56 @@
+{
+  "rule": "Lowest sample-weighted held-out total loss among steps 1500, 5000, 10000; ties choose fewer steps; simulator development scores are diagnostic only",
+  "selected_step": 10000,
+  "validation": {
+    "step": 10000,
+    "samples": 200,
+    "loss": 0.2537144820392132,
+    "action_loss": 0.13514214709401132,
+    "wm_loss": 0.11857233457267284
+  },
+  "checkpoint": {
+    "step": 10000,
+    "sha256": "139cd59bedced3e73562573ac232ddf1c7420e2e8ea89c09ecd768c7ee93e853",
+    "bytes": 2925620108,
+    "artifact": "outputs/evaluation/training/20260923T235515212892Z-S500-train/train/checkpoints/010000/pretrained_model"
+  },
+  "eligible_steps": [
+    1500,
+    5000,
+    10000
+  ],
+  "budget_sha256": "e3e0bb55a2228b3fb23c0b13b389f4efd33a8c6a57c7c2957ffcba4e1db31e1c",
+  "training_evidence": [
+    {
+      "run": "studies/evaluation/training/20260923T235515212892Z-S500-train",
+      "status": "completed",
+      "metrics_sha256": "3696e2806a6fa8ca2e641be596a73526efab096af744340869b8da182f36faa1",
+      "metadata_sha256": "c5ba184793af1c4e7396766aea6a325e4f9c28da77de6140b48c84fdb541e0c2"
+    },
+    {
+      "run": "studies/evaluation/training/20260923T235657557094Z-S500-train",
+      "status": "completed",
+      "metrics_sha256": "321f87bb74e425f4d110ea7eacda4923cb3b05c4ebab1def6115b46de0c9b863",
+      "metadata_sha256": "5c26b01ca95ce03e40afbb13a676e84f086ebf59e8c33471db9b6d1e8a6d5b6e"
+    },
+    {
+      "run": "studies/evaluation/training/20260924T024324465133Z-S500-train",
+      "status": "completed",
+      "metrics_sha256": "01130db12d04645b2c8b3aa349fa40e0eb535c60991bfbb3965dc2b934f4cce8",
+      "metadata_sha256": "c465086abb50dac14ebd312b862cfd70fe338f07d2144c5cd36fcf0bacf7abff"
+    },
+    {
+      "run": "studies/evaluation/training/20260924T051156983044Z-S500-train",
+      "status": "completed",
+      "metrics_sha256": "dfd80a20e817a68a5c5927827308fc2007a75532d12117546ae88f1d18d2541f",
+      "metadata_sha256": "f9d7426a2fd26cd847ae013beb3d7e287defd957b9276ac47d89ceb20908d5b1"
+    },
+    {
+      "run": "studies/evaluation/training/20260924T094420091953Z-S500-train",
+      "status": "completed",
+      "metrics_sha256": "a4a27797df700bb942b4b7d6600a7feeb4f39ffd24cf6b15751ec1bc453580e7",
+      "metadata_sha256": "478bacf6932a8e91dabd4fc728b3b8f9a57648e465a610d1d6e1ad3fbea0171d"
+    }
+  ],
+  "simulator_scores_used": false
+}

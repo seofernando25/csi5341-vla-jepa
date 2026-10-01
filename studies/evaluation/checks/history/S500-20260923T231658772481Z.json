@@ -1,0 +1,93 @@
+{
+  "run_id": "S500-20260923T231658772481Z",
+  "variant": "S500",
+  "kind": "GPU smoke test",
+  "environment": {
+    "recorded_at": "2026-09-23T23:16:58.781045+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "73149ca7df626d587bdb98c9e51ccb1cb143ce13",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/common.py": "30450a5c55ccb557dfe535de7095ca965e0a9286519d6741f65681b26aea8c3b",
+      "evaluation/figures.py": "6687b7d4337f2a129229ebe9713d046449b59abac5a7d60612dfa71e48f0958a",
+      "evaluation/libero_setup.py": "f05f3a5afa4b9155e87191f914ccc066f9dc763ee9057014cdfaec347085882a",
+      "evaluation/models.py": "14a4bc5b517fc1557f42ef98421e6bbf481b0b86775091ea3ace6241a63ab85e",
+      "evaluation/prepare.py": "5964552e5ecea0995c3cf6731de29138c60ac0d974011fd5557a5a22bb169baa",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/report.py": "ae14aac15aa8d1122a110b841a260d8b7b8c108fbdf764aace111af26747482b",
+      "evaluation/run.py": "49f36a680228e8d37dc1345c88c549c025ed8906e22dcca54dac8de9908ae5cc",
+      "evaluation/smoke.py": "49ffc5918e945f04babaf76adcf99270527f13a827aee8bf6c170adea400b91b",
+      "evaluation/sources.json": "9d8d2f948d374b616054cc4b5c0c4aadea2dfd5d1a850209f56a494e39a3b4fd",
+      "pyproject.toml": "c4e38080d8aa6fc3e8fd875efb86dc0cb4fc3395c8d2917d024a1ce771c37738",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "121b587ddc0eaa293d6da5c8d5abcdb90311a156f0df23802cc246eaa14a783a",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "c4ecaa55a35e78c6f2ed97d2bcd2087a16f0b4bb152a9d95050bbba3c14c403e",
+      "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "cuda_compute_verified": true,
+    "driver": "580.178.04"
+  },
+  "input": "synthetic zeros; not an efficiency benchmark or robot evaluation",
+  "status": "untrained_adapter_smoke_only",
+  "logical_parameters": 1148110023,
+  "quantized_modules": [],
+  "parameter_dtypes": {
+    "torch.bfloat16": 1477
+  },
+  "chunk_size": 7,
+  "n_action_steps": 7,
+  "num_inference_timesteps": 4,
+  "world_model_loaded": true,
+  "sources": {
+    "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+    "models": {
+      "baseline": {
+        "repo": "lerobot/VLA-JEPA-LIBERO",
+        "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+      },
+      "smolvlm": {
+        "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+      },
+      "qwen": {
+        "repo": "Qwen/Qwen3-VL-2B-Instruct",
+        "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+      },
+      "world_model": {
+        "repo": "facebook/vjepa2-vitl-fpc64-256",
+        "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+      },
+      "pretrain": {
+        "repo": "lerobot/VLA-JEPA-Pretrain",
+        "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+      }
+    },
+    "simulator_assets": {
+      "repo": "lerobot/libero-assets",
+      "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+    }
+  },
+  "checkpoint_compatibility": {},
+  "load_seconds": 10.782670409000048,
+  "outcome": "failed",
+  "error_type": "TypeError",
+  "error": "can't convert cuda:0 device type tensor to numpy. Use Tensor.cpu() to copy the tensor to host memory first."
+}

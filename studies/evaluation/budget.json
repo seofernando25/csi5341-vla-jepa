@@ -1,0 +1,27 @@
+{
+  "frozen_at": "2026-09-24T00:27:46.091943+00:00",
+  "checkpoints": [
+    1500,
+    5000,
+    10000
+  ],
+  "maximum_optimizer_steps": 10000,
+  "training_seeds": [
+    42
+  ],
+  "pilot_run": "studies/evaluation/training/20260923T235657557094Z-S500-train",
+  "pilot_metadata_sha256": "5c26b01ca95ce03e40afbb13a676e84f086ebf59e8c33471db9b6d1e8a6d5b6e",
+  "pilot_metrics_sha256": "321f87bb74e425f4d110ea7eacda4923cb3b05c4ebab1def6115b46de0c9b863",
+  "pilot_completed_steps": 500,
+  "pilot_segment_updates": 498,
+  "pilot_wall_seconds": 1816.9105865320003,
+  "mean_update_seconds": 3.002307756449783,
+  "peak_training_allocated_bytes": 8075417600,
+  "projected_10000_update_hours": 8.339743767916064,
+  "projected_10000_wall_hours": 10.134485645537708,
+  "estimated_gpu_hour_envelope": 12,
+  "budget_semantics": "Fixed 10000 optimizer-step cap; 12 GPU-hours is a planning estimate including validation and checkpoint I/O, not a changed learning-rate schedule. Simulator evaluation is additional.",
+  "selection": "Lowest sample-weighted held-out total loss at steps 1500, 5000, 10000; ties choose fewer steps; no simulator scores used.",
+  "seed_repeat_decision": "One training seed for this reduced-compute study. Three seeds would approximately triple the adaptation cost; training-seed uncertainty is not estimated.",
+  "rationale": "The completed pilot fits the RTX 3090 and projects approximately ten hours for 10000 steps including validation/checkpoint overhead. Retain all three proposed milestones from one continuing native optimizer/RNG/sampler state."
+}

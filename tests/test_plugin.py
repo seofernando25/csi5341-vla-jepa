@@ -3,14 +3,16 @@ from lerobot.configs import PreTrainedConfig
 from lerobot.policies import get_policy_class
 from lerobot.processor import TransitionKey
 
-import lerobot_policy_vla_jepa_lfm  # noqa: F401
-from lerobot_policy_vla_jepa_lfm.lfm_interface import ResidualRMSMLPAdapter, _LinearAdapter
-from lerobot_policy_vla_jepa_lfm.processor_vla_jepa_lfm import DropImagePadMasksProcessorStep
+import lerobot_policy_vla_jepa_smolvlm  # noqa: F401
+from lerobot_policy_vla_jepa_smolvlm.processor_vla_jepa_smolvlm import (
+    DropImagePadMasksProcessorStep,
+)
+from lerobot_policy_vla_jepa_smolvlm.smolvlm_interface import ResidualRMSMLPAdapter, _LinearAdapter
 
 
 def test_plugin_registration():
-    assert "vla_jepa_lfm" in PreTrainedConfig.get_known_choices()
-    assert get_policy_class("vla_jepa_lfm").name == "vla_jepa_lfm"
+    assert "vla_jepa_smolvlm" in PreTrainedConfig.get_known_choices()
+    assert get_policy_class("vla_jepa_smolvlm").name == "vla_jepa_smolvlm"
 
 
 def test_residual_adapter_matches_linear_at_initialization():
@@ -37,3 +39,141 @@ def test_drop_image_padding_masks_only():
     assert "observation.images.image" in obs
     assert "observation.images.image_is_pad" not in obs
     assert "observation.state" in obs
+
+
+def tiny_backbone():
+    from transformers import SmolVLMConfig, SmolVLMForConditionalGeneration
+
+    config = SmolVLMConfig(
+        image_token_id=3,
+        pad_token_id=0,
+        scale_factor=2,
+        text_config={
+            "model_type": "llama",
+            "vocab_size": 64,
+            "hidden_size": 16,
+            "intermediate_size": 32,
+            "num_hidden_layers": 2,
+            "num_attention_heads": 2,
+            "num_key_value_heads": 2,
+            "pad_token_id": 0,
+        },
+        vision_config={
+            "hidden_size": 16,
+            "intermediate_size": 32,
+            "num_hidden_layers": 1,
+            "num_attention_heads": 2,
+            "image_size": 8,
+            "patch_size": 4,
+        },
+    )
+    return SmolVLMForConditionalGeneration(config)
+
+
+def test_smolvlm_real_decoder_projection_and_gradients(monkeypatch):
+    from types import SimpleNamespace
+
+    from torch import nn
+
+    from lerobot_policy_vla_jepa_smolvlm import VLAJEPASmolVLMConfig
+    from lerobot_policy_vla_jepa_smolvlm import smolvlm_interface as interface
+    from lerobot_policy_vla_jepa_smolvlm.modeling_vla_jepa_smolvlm import VLAJEPASmolVLMModel
+
+    backbone = tiny_backbone()
+    monkeypatch.setattr(
+        interface.SmolVLMForConditionalGeneration, "from_pretrained", lambda *a, **k: backbone
+    )
+    monkeypatch.setattr(
+        interface.AutoProcessor,
+        "from_pretrained",
+        lambda *a, **k: SimpleNamespace(tokenizer=SimpleNamespace()),
+    )
+    monkeypatch.setattr(
+        interface.AutoImageProcessor, "from_pretrained", lambda *a, **k: SimpleNamespace()
+    )
+    cfg = VLAJEPASmolVLMConfig(torch_dtype="float32", conditioning_dim=32, init_from_vla_jepa=None)
+    adapter = interface.SmolVLMInterface(cfg)
+    model = VLAJEPASmolVLMModel.__new__(VLAJEPASmolVLMModel)
+    nn.Module.__init__(model)
+    model.qwen = adapter
+    inputs = {
+        "input_ids": torch.tensor([[1, 3, 4, 5]]),
+        "attention_mask": torch.ones(1, 4, dtype=torch.long),
+        "pixel_values": torch.rand(1, 1, 3, 8, 8),
+    }
+    hidden = model._qwen_last_decoder_hidden(inputs)
+    assert hidden.shape == (1, 4, 32)
+    hidden.square().mean().backward()
+    assert adapter.hidden_adapter.weight.grad is not None
+    assert all(p.grad is None for p in backbone.parameters())
+    assert not backbone.model.text_model.layers[-1]._forward_hooks
+    cfg.unfreeze_last_n = 1
+    cfg.train_multimodal_projector = True
+    adapter._configure_trainability()
+    assert all(p.requires_grad for p in backbone.model.text_model.layers[-1].parameters())
+    assert not any(p.requires_grad for p in backbone.model.text_model.layers[0].parameters())
+    assert all(p.requires_grad for p in backbone.model.connector.parameters())
+
+
+def test_smolvlm_processor_receives_batched_images_without_rescaling():
+    from types import SimpleNamespace
+
+    from transformers import BatchFeature
+
+    from lerobot_policy_vla_jepa_smolvlm import VLAJEPASmolVLMConfig
+    from lerobot_policy_vla_jepa_smolvlm.smolvlm_interface import SmolVLMInterface
+
+    calls = []
+
+    class Processor:
+        def apply_chat_template(self, messages, **kwargs):
+            return messages[0]["content"][-1]["text"]
+
+        def __call__(self, **kwargs):
+            calls.append(kwargs)
+            return BatchFeature(
+                {
+                    "input_ids": torch.ones(2, 3, dtype=torch.long),
+                    "pixel_values": torch.ones(2, 1, 3, 8, 8),
+                }
+            )
+
+    adapter = SmolVLMInterface.__new__(SmolVLMInterface)
+    torch.nn.Module.__init__(adapter)
+    adapter.config = VLAJEPASmolVLMConfig(torch_dtype="bfloat16")
+    adapter.model = SimpleNamespace(device=torch.device("cpu"))
+    adapter.processor = Processor()
+    images = [[torch.rand(3, 8, 8)], [torch.rand(3, 8, 8)]]
+    inputs = adapter.build_inputs(images, ["pick", "place"], "<a>", "<e>")
+    assert calls[0]["do_rescale"] is False
+    assert len(calls[0]["images"]) == 2
+    assert "pick" in calls[0]["text"][0] and "place" in calls[0]["text"][1]
+    assert inputs["input_ids"].dtype == torch.long
+    assert inputs["pixel_values"].dtype == torch.bfloat16
+
+
+def test_torchvision_input_path_never_copies_images_to_cpu(monkeypatch):
+    from types import SimpleNamespace
+    from transformers import BatchFeature
+    from lerobot_policy_vla_jepa_smolvlm import VLAJEPASmolVLMConfig
+    from lerobot_policy_vla_jepa_smolvlm.smolvlm_interface import SmolVLMInterface
+
+    calls=[]
+    class Processor:
+        def apply_chat_template(self, messages, **kwargs):
+            return messages[0]['content'][-1]['text']
+        def __call__(self, **kwargs):
+            calls.append(kwargs)
+            return BatchFeature({'input_ids':torch.ones(1,3,dtype=torch.long),
+                                 'pixel_values':torch.ones(1,1,3,8,8)})
+    def forbidden_cpu(*args, **kwargs):
+        raise AssertionError('Torchvision path copied an image to CPU')
+    monkeypatch.setattr(torch.Tensor,'cpu',forbidden_cpu)
+    adapter=SmolVLMInterface.__new__(SmolVLMInterface);torch.nn.Module.__init__(adapter)
+    adapter.config=VLAJEPASmolVLMConfig(image_processor_backend='torchvision')
+    adapter.model=SimpleNamespace(device=torch.device('cpu'));adapter.processor=Processor()
+    image=torch.rand(3,8,8)
+    out=adapter.build_inputs([[image]],['pick'],'<a>','<e>')
+    assert calls[0]['images_kwargs']['device']==adapter.model.device
+    assert calls[0]['images'][0][0].data_ptr()==image.data_ptr()
+    assert out['input_ids'].dtype==torch.long

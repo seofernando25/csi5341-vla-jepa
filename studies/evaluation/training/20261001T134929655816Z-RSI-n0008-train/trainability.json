@@ -1,0 +1,66 @@
+{
+  "model.qwen.model": {
+    "total": 507537984,
+    "trainable": 0
+  },
+  "model.qwen.hidden_adapter": {
+    "total": 1966080,
+    "trainable": 1966080
+  },
+  "model.qwen.decoder_adapter": {
+    "total": 246720,
+    "trainable": 246720
+  },
+  "model.action_model.model": {
+    "total": 150740992,
+    "trainable": 150740992
+  },
+  "model.action_model.action_encoder": {
+    "total": 1777152,
+    "trainable": 1777152
+  },
+  "model.action_model.action_decoder": {
+    "total": 1056775,
+    "trainable": 1056775
+  },
+  "model.action_model.state_encoder": {
+    "total": 796416,
+    "trainable": 796416
+  },
+  "model.action_model.future_tokens": {
+    "total": 24576,
+    "trainable": 24576
+  },
+  "model.action_model.position_embedding": {
+    "total": 786432,
+    "trainable": 786432
+  },
+  "model.video_encoder.encoder": {
+    "total": 303885312,
+    "trainable": 0
+  },
+  "model.video_encoder.predictor": {
+    "total": 22086016,
+    "trainable": 0
+  },
+  "model.video_predictor.predictor_embed": {
+    "total": 2098176,
+    "trainable": 2098176
+  },
+  "model.video_predictor.action_encoder": {
+    "total": 2098176,
+    "trainable": 2098176
+  },
+  "model.video_predictor.predictor_blocks": {
+    "total": 151154688,
+    "trainable": 151154688
+  },
+  "model.video_predictor.predictor_norm": {
+    "total": 2048,
+    "trainable": 2048
+  },
+  "model.video_predictor.predictor_proj": {
+    "total": 2099200,
+    "trainable": 2099200
+  }
+}

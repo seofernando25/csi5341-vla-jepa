@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "lerobot_policy_vla_jepa_lfm"
+name = "lerobot_policy_vla_jepa_smolvlm"
 version = "0.1.0"
-description = "LeRobot VLA-JEPA experiments with LFM2.5-VL"
+description = "LeRobot VLA-JEPA experiments with SmolVLM2"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = {text = "Apache-2.0"}
@@ -13,17 +13,22 @@ dependencies = [
   "lerobot[vla_jepa,training] @ git+https://github.com/huggingface/lerobot.git@30074f7f1358b3c015ae1750017200e86e9c4eb6",
   "huggingface-hub>=0.34",
   "safetensors>=0.5",
+  "num2words>=0.5.14",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.14"]
 eval = [
+  "bitsandbytes>=0.50.2",
   "hf-libero>=0.1.4,<0.2.0; sys_platform == 'linux'",
   "scipy>=1.14,<2.0",
 ]
+report = [
+    "matplotlib>=3.11.2",
+]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lerobot_policy_vla_jepa_lfm"]
+packages = ["src/lerobot_policy_vla_jepa_smolvlm"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

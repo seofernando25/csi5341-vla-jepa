@@ -1,0 +1,27 @@
+{
+  "kind": "CPU image preprocessing diagnostic",
+  "outcome": "passed",
+  "model": {
+    "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+    "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+  },
+  "transformers": "5.5.4",
+  "input": "one all-white RGB float image in [0,1], 224x224",
+  "output_shape": [
+    1,
+    17,
+    3,
+    512,
+    512
+  ],
+  "normalized_minimum": 1.0,
+  "normalized_maximum": 1.0,
+  "native_image_size": {
+    "longest_edge": 2048
+  },
+  "native_tile_size": {
+    "longest_edge": 512
+  },
+  "image_splitting": true,
+  "interpretation": "Native processor creates 17 tiles for this image. do_rescale=False is honored. This is a preprocessing diagnostic, not robot performance or timing."
+}

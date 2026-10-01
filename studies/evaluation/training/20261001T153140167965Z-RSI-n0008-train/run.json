@@ -1,0 +1,114 @@
+{
+  "run_id": "20261001T153140167965Z-RSI-n0008-train",
+  "variant": "RSI-n0008",
+  "architecture_source_manifest": {
+    "lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "876887c836432f5d3dcc966557aa857671cfc2eeb8059283609c41a93652e0bb"
+  },
+  "status": "failed",
+  "recipe": {
+    "seed": 42,
+    "batch_size": 2,
+    "num_workers": 2,
+    "validation_fraction": 0.1,
+    "validation_samples_per_task": 20,
+    "validation_seed": 73000,
+    "eval_steps": 500,
+    "save_freq": 500,
+    "learning_rate": 0.0001,
+    "warmup_steps": 100,
+    "decay_steps": 10000,
+    "decay_learning_rate": 2.5e-06,
+    "weight_decay": 1e-08,
+    "gradient_clip": 1.0,
+    "selection": "Lowest sample-weighted held-out total loss among steps 1500, 5000, 10000; ties choose fewer steps; simulator development scores are diagnostic only",
+    "normalization": "Published baseline processor statistics, held fixed across all variants",
+    "trainability": "FP32 optimizer parameters for adapter, action head and latent predictor; frozen BF16 SmolVLM and V-JEPA encoder; BF16 autocast"
+  },
+  "sources": {
+    "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+    "models": {
+      "baseline": {
+        "repo": "lerobot/VLA-JEPA-LIBERO",
+        "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+      },
+      "smolvlm": {
+        "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+      },
+      "qwen": {
+        "repo": "Qwen/Qwen3-VL-2B-Instruct",
+        "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+      },
+      "world_model": {
+        "repo": "facebook/vjepa2-vitl-fpc64-256",
+        "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+      },
+      "pretrain": {
+        "repo": "lerobot/VLA-JEPA-Pretrain",
+        "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+      }
+    },
+    "simulator_assets": {
+      "repo": "lerobot/libero-assets",
+      "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+    }
+  },
+  "environment": {
+    "recorded_at": "2026-10-01T15:31:40.176744+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "aaf8a80be2f978af04bcf1c3f18d93971673e29f",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/analysis.py": "01c31aa43fd10d94f5a2dc741dd1f6221606b20e152e5fe9d2ac0433e8527065",
+      "evaluation/common.py": "30450a5c55ccb557dfe535de7095ca965e0a9286519d6741f65681b26aea8c3b",
+      "evaluation/core_benchmark.py": "d5299f81f1dd89473951a0c398e37f49a368e4f893420361a90cd9e0f395e9b7",
+      "evaluation/figures.py": "6269e7c09f0c9af03eebe2d8225328e957d6322d20ce7c4d4ecfffd23b647baa",
+      "evaluation/hardware.py": "5af8ac76c4902fc74aae5836d90b1c321b165d487f42fa8210613d746ccb1370",
+      "evaluation/libero_setup.py": "f05f3a5afa4b9155e87191f914ccc066f9dc763ee9057014cdfaec347085882a",
+      "evaluation/models.py": "4a0bdeb26445389b59022b378d7ff8596df9de99bb395c47245c57fae9260849",
+      "evaluation/portability.py": "3d45b534598d3033a1d57e391ebce8a6f741917190a1ff59b2641f423f282080",
+      "evaluation/prepare.py": "a9df0c9a4046916d1e67a9a01f5f8c69804ba1f854517cffa1a7d3b661c84b07",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/report.py": "8bb1bbecc35907aac31248f0b56b4d5967da070fb85afd68a0f11535ecaf6ef9",
+      "evaluation/reproducibility.py": "4b8cce7f02e8cfa78aba56031ea30a2398759974b698e2c2cdc4cc10f6a226bb",
+      "evaluation/run.py": "cd188097447c715319175bb7596640f5796e1205196a6f48d16430b86ee6c537",
+      "evaluation/select_checkpoint.py": "5ad26dcf35daa48fd59da01ec5f5338ae298b0b4b63210d7b29d137899a424ff",
+      "evaluation/smoke.py": "49ffc5918e945f04babaf76adcf99270527f13a827aee8bf6c170adea400b91b",
+      "evaluation/sources.json": "9d8d2f948d374b616054cc4b5c0c4aadea2dfd5d1a850209f56a494e39a3b4fd",
+      "evaluation/train.py": "14663cce50dc4ea8681a5db51b1b48e78fb46f4aaae0617707dd8a530ea14ab6",
+      "evaluation/training_analysis.py": "ef7a878804002b4cc0525188c7153ac3258a13e1ed144c6143add862849358ca",
+      "evaluation/training_config.json": "7ebac50df79cb82f75bd68285095c387ad81bf5a4f24b029ab49f2e1faf0c6e5",
+      "pyproject.toml": "c4e38080d8aa6fc3e8fd875efb86dc0cb4fc3395c8d2917d024a1ce771c37738",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "87636b8e80a8e3f2109f2d61bf8712058df335579f776d51e2b867851a22394f",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "a18d8e6a9f833e348d401a9e0046c40d4bb1011162ce166d6434e0fc97558e78",
+      "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+    },
+    "cuda_available": false,
+    "torch_cuda": "12.8"
+  },
+  "requested_steps": 10000,
+  "purpose": "adaptation",
+  "resume_checkpoint_sha256": "633ea291621cdc12bb9b80a0400991d00822df7214d943734be5c20a42e495a2",
+  "error_type": "RuntimeError",
+  "error": "CUDA required",
+  "wall_seconds": 6.9399999347297125e-06
+}

@@ -1,0 +1,19 @@
+{
+  "seed": 42,
+  "batch_size": 2,
+  "num_workers": 2,
+  "validation_fraction": 0.1,
+  "validation_samples_per_task": 20,
+  "validation_seed": 73000,
+  "eval_steps": 500,
+  "save_freq": 500,
+  "learning_rate": 0.0001,
+  "warmup_steps": 100,
+  "decay_steps": 10000,
+  "decay_learning_rate": 0.0000025,
+  "weight_decay": 0.00000001,
+  "gradient_clip": 1.0,
+  "selection": "Lowest sample-weighted held-out total loss among steps 1500, 5000, 10000; ties choose fewer steps; simulator development scores are diagnostic only",
+  "normalization": "Published baseline processor statistics, held fixed across all variants",
+  "trainability": "FP32 optimizer parameters for adapter, action head and latent predictor; frozen BF16 SmolVLM and V-JEPA encoder; BF16 autocast"
+}

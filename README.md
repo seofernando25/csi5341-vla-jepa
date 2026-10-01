@@ -1,79 +1,29 @@
-# Dream-RSI for LeRobot VLA-JEPA + LFM2.5-VL
+# CSI 5341 — Efficient VLA-JEPA
 
-Computer-vision research project using a Dream-RSI-style exploration loop to discover improved LFM2.5-VL conditioning architectures for LeRobot VLA-JEPA.
+Course project by Noah Sprenger and Fernando Nogueira: evaluate how to reduce VLA-JEPA's hardware requirements while preserving robotic manipulation performance.
 
-The current protocol is **`dream-rsi-v4-continuation`**. It starts a fresh state from the sealed/exhausted V3 history rather than resuming V3.
+| Comparison | Scope |
+| --- | --- |
+| Baseline | Evaluate pretrained VLA-JEPA in LIBERO. |
+| Quantized inference | Compare reduced precision against the same baseline. |
+| Smaller backbone | Replace Qwen with SmolVLM2-500M and run reduced fine-tuning. |
+| Dream-RSI (optional) | Search for better SmolVLM conditioning architectures. |
 
-## V4 continuation
+Report task success, inference latency, peak GPU memory, and hardware under matched evaluation settings. Full training from scratch is outside scope. Track experiments, figures, and remaining deliverables in the [evaluation plan](studies/EVALUATION_PLAN.md).
 
-Each full logical batch has **2 structural refinements + 2 genuinely novel root families**. The first refinement lineage uses frozen copies of V3 candidates `n0018` (ordered visual relations), `n0014` (prompt-written sparse memory), and `n0017` (global spectral temporal conditioning). Later refinements may branch from strong V4 leaves.
+[Mac / next-agent handoff](HANDOFF.md) · [Working report](studies/evaluation/report/report.pdf) · [Reproduction commands](studies/evaluation/README.md) · [Hardware](studies/HARDWARE.md) · [Later cloud comparison](studies/CROSS_HARDWARE_PLAN.md)
 
-Every candidate receives the same **500-step** screen. Candidates within `0.005` of clean root may receive a separately recorded **1500-step matched promotion**, compared with a 1500-step clean-root baseline. Promotion does not replace the screening score and saves no search checkpoint.
-
-CUDA/driver failures and evaluator timeouts are recorded as runtime failures rather than architecture evidence. Runtime/interrupted reservations do not spend the 24 research-probe budget; replacements on explicit resume are bounded by 32 total reservations and four runtime failures.
-
-Replay keeps four policy versions × 25 paired worlds = **100 dream trajectories per completed cycle**, with objective:
-
-`best quality - 0.0025 * revealed nonroot nodes + 0.001 * distinct families`
-
-See [`rsi/README.md`](rsi/README.md) for the full scientific and recovery contract.
-
-## Fixed boundary
-
-Search may change only the LFM plugin architecture surface: hidden-state selection, representation mixing, adapters, multimodal fusion/conditioning, new LFM-side modules, and explicit LFM-side trainability.
-
-The harness rejects changes to LeRobot, preprocessing/normalization, data/split, scoring, Qwen, the VLA-JEPA action-head/world-model architecture or published initialization, inherited losses, and inherited prediction semantics.
-
-Qwen is never trained. Search loss is a discovery proxy, not a LIBERO success claim.
-
-## Setup / validation
+## Setup
 
 ```bash
 CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval
 PYTHONPATH=src uv run pytest
-PYTHONPATH=src uv run ruff check rsi tests
+PYTHONPATH=src uv run python scripts/smoke_plugin.py
 PYTHONPATH=src uv run python -m rsi dry-run
 ```
 
-## Start V4
+The active plugin is `vla_jepa_smolvlm`, using [SmolVLM2-500M-Video-Instruct](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct). The backbone swap requires fine-tuning; it is not a ready-trained robot policy. Quantization remains a separate comparison arm.
 
-Initialize from the sealed/exhausted V3 state:
+[Dream-RSI commands](rsi/README.md) operate one fresh, resumable SmolVLM study. New results belong in [studies/](studies/README.md).
 
-```bash
-PYTHONPATH=src:. uv run python -m rsi init --prior-study <v3-state>
-PYTHONPATH=src:. uv run python -m rsi status
-PYTHONPATH=src:. uv run python -m rsi run
-```
-
-After an interruption:
-
-```bash
-PYTHONPATH=src:. uv run python -m rsi run --resume
-```
-
-Inspect or stop cleanly:
-
-```bash
-PYTHONPATH=src:. uv run python -m rsi status
-PYTHONPATH=src:. uv run python -m rsi stop
-```
-
-Defaults: one RTX 3090 evaluator worker; B=4 logical proposals; 2 refinement + 2 novel slots; one matched 500-step root screen; 500 steps/candidate screen; up to six matched 1500-step promotions; 8 research probes per online tree; up to 3 online/dream cycles; hard cap 24 research probes; 32 total reservations; deterministic 10% held-out split; 64 held-out evaluation samples.
-
-## Experiment record
-
-A compact tracked ledger of every preserved V1-V4 candidate attempt lives in
-[rsi/studies/experiment_registry.jsonl](rsi/studies/experiment_registry.jsonl), with
-schema/provenance notes in
-[rsi/studies/experiment_registry.md](rsi/studies/experiment_registry.md).
-
-The registry keeps mechanism, lineage, measured screen score, matched promotion evidence,
-and failure classification while raw .rsi journals/logs/checkpoints remain ignored.
-
-## Confirmation
-
-After search, `python -m rsi confirm-plan` emits the matched confirmation plan. Final claims require fresh matched-budget training and closed-loop LIBERO evaluation.
-
-## Attribution
-
-Dream-RSI: Zheng et al. (2026), arXiv:2609.14858. VLA-JEPA: Sun et al. (2026). LeRobot is maintained by Hugging Face; LFM2.5-VL is by Liquid AI. No model weights or datasets are redistributed here.
+References: [VLA-JEPA](https://arxiv.org/abs/2602.10098), [V-JEPA 2](https://arxiv.org/abs/2506.09985), [SmolVLM](https://arxiv.org/abs/2504.05299), [Dream-RSI](https://arxiv.org/abs/2609.14858). Built on Hugging Face LeRobot; no weights or datasets are redistributed.

@@ -1,0 +1,794 @@
+{
+  "description": "Current GPU-processor study, overnight September 30\u2013October 1, 2026. Single seed; logged loss precision 4 decimals. Wall time includes setup, training and validation; not inference latency.",
+  "rows": [
+    {
+      "id": "baseline",
+      "protocol": "screen",
+      "loss": 0.4074,
+      "steps": 500,
+      "peak_gib": 7.490861892700195,
+      "wall_minutes": 7.830957865933336,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T03:29:16.292083+00:00",
+      "event_seq": 2,
+      "event_sha256": "3c5b7be55a9f1afb664d330ddb1ef8290b5fe46e8d267559b114575a3cd09463",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "5f84defd755497e781fb01a86be222dd445d7084927b42b496ef653a3f199368",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "22a4e472ec859b6864527dbdd2a6d9225be63bb6ceccf6a3dcb8e635f927b2c1",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0001",
+      "protocol": "screen",
+      "loss": 0.3148,
+      "steps": 500,
+      "peak_gib": 7.523685455322266,
+      "wall_minutes": 7.774209431866666,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0001",
+      "ended_at": "2026-10-01T03:41:38.622955+00:00",
+      "event_seq": 19,
+      "event_sha256": "de084e9aa4233e73814694f7067967bef4b5be513b78dc017e6da0ca3a42960f",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "42b417f399d0bab93c191e3df9194a27a0343d42cd4acca3d9767c4ea68fddb2",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "edefaae443acd42add06ebee4372a22917bb24e4370ff476f70b0804ac5c5df8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "1948de23ba4ddf0c4f54b968f8548a30fdb32053daf091564c3187498f1c0bcd",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "baseline",
+      "protocol": "promotion",
+      "loss": 0.3197,
+      "steps": 1500,
+      "peak_gib": 7.493414878845215,
+      "wall_minutes": 20.640927686583336,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T04:02:18.392830+00:00",
+      "event_seq": 21,
+      "event_sha256": "580c7cd64817c1a07c30f128548efa200db0061336bba0a851e679d4016f525c",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0001",
+      "protocol": "promotion",
+      "loss": 0.2857,
+      "steps": 1500,
+      "peak_gib": 7.523685455322266,
+      "wall_minutes": 21.057678398349996,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T04:23:23.162475+00:00",
+      "event_seq": 23,
+      "event_sha256": "dcc7a5d84fb43a62597cd0176440566ce8f79e25bd3a0847805aafa83d736469",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0005",
+      "protocol": "screen",
+      "loss": 0.3229,
+      "steps": 500,
+      "peak_gib": 7.5118842124938965,
+      "wall_minutes": 7.264283126283332,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0002",
+      "ended_at": "2026-10-01T04:41:39.019743+00:00",
+      "event_seq": 47,
+      "event_sha256": "d95db72d5c4a7c9abaeca297f5443d9762d34bb0ce211d948db6d9a76a7648e1",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "42b417f399d0bab93c191e3df9194a27a0343d42cd4acca3d9767c4ea68fddb2",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "edefaae443acd42add06ebee4372a22917bb24e4370ff476f70b0804ac5c5df8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "3edea1cda81a4de211689dfd637c81ade45cb92081ae2579e99c2f830549d1c0",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0005",
+      "protocol": "promotion",
+      "loss": 0.2848,
+      "steps": 1500,
+      "peak_gib": 7.5118842124938965,
+      "wall_minutes": 19.768169555699995,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T05:01:26.425138+00:00",
+      "event_seq": 49,
+      "event_sha256": "b6d00cd50021487c67ee722939445978865cbba2d6dab0b6df42ca4810fc43e5",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0006",
+      "protocol": "screen",
+      "loss": 0.4053,
+      "steps": 500,
+      "peak_gib": 7.503981590270996,
+      "wall_minutes": 7.277766427916656,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0002",
+      "ended_at": "2026-10-01T05:08:44.404134+00:00",
+      "event_seq": 50,
+      "event_sha256": "541fd019c1f05f5b5b278d660b9f7e2a30adc731a7dfe9abfa189c56915cb1ed",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "77bebe0e3bb2931196f55207e336a7b67310b5e7d79a942b49928c17fc640869",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "c0929845bd4998a7cdd94c1b951fe2f0d709d47d107cca2d0c31671f923a7d7e",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "d1e5f78c222108e3f0dd051407bd579ca48403e7f08f44b3d16471697fcd1e05",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0006",
+      "protocol": "promotion",
+      "loss": 0.2781,
+      "steps": 1500,
+      "peak_gib": 7.503981590270996,
+      "wall_minutes": 19.824941238933327,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T05:28:35.261006+00:00",
+      "event_seq": 52,
+      "event_sha256": "a9c1b3585aae10732b8c624408c647a7bf72d97d89538ab1df9c4e53231c054c",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0007",
+      "protocol": "screen",
+      "loss": 0.3346,
+      "steps": 500,
+      "peak_gib": 7.500605583190918,
+      "wall_minutes": 7.2874917080333335,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0002",
+      "ended_at": "2026-10-01T05:35:53.821204+00:00",
+      "event_seq": 53,
+      "event_sha256": "1f498fb9aef1c1d84dfa714b5e41d52bb6e5a387bf060ccb5f41c8699c5fbec7",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "0764316c178fe3355eeafb9b4eb2300cd033cb89de9ec49dce209d88891f18c3",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "1a7fd65bb865ded2860703756c3e07034a227031016bb345a99d99b016d9dfbc",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "f792ab3256169f3ae503d885109b011f01e148a6e6b8d70180a79c2dd6b66a10",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0007",
+      "protocol": "promotion",
+      "loss": 0.2862,
+      "steps": 1500,
+      "peak_gib": 7.498052597045898,
+      "wall_minutes": 19.748187366416673,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T05:55:40.027422+00:00",
+      "event_seq": 55,
+      "event_sha256": "68b5fac0a565d7b3b57c192273082c558e22b622b54dc127d4316cbb2a942f86",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0008",
+      "protocol": "screen",
+      "loss": 0.4052,
+      "steps": 500,
+      "peak_gib": 7.491037845611572,
+      "wall_minutes": 7.3344341030166715,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0002",
+      "ended_at": "2026-10-01T06:03:01.462404+00:00",
+      "event_seq": 56,
+      "event_sha256": "084d40880ba9d017f41e6e71f6c1cc5c0c1b6a069bb3ff34cd7c9dd391ce06a3",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "876887c836432f5d3dcc966557aa857671cfc2eeb8059283609c41a93652e0bb",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0008",
+      "protocol": "promotion",
+      "loss": 0.2762,
+      "steps": 1500,
+      "peak_gib": 7.491037845611572,
+      "wall_minutes": 19.96821986461667,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T06:23:00.959385+00:00",
+      "event_seq": 58,
+      "event_sha256": "1f7717030d968ac0f7e97e120bfed4c517839b91e8f1628a1314544dc8e7f625",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0010",
+      "protocol": "screen",
+      "loss": 0.3934,
+      "steps": 500,
+      "peak_gib": 7.5066328048706055,
+      "wall_minutes": 7.310898458233351,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0003",
+      "ended_at": "2026-10-01T06:56:09.584666+00:00",
+      "event_seq": 76,
+      "event_sha256": "e1b6fab7189b957578ca156ed0e7eabc2382160474dcb65f5bb78810596fea41",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "8a0e480e6bfe9999fc4425100a4e25974a432d30ee9851972b68155bc4e8b038",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "1a7fd65bb865ded2860703756c3e07034a227031016bb345a99d99b016d9dfbc",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "844b640daadd2b212b1d5196b08be903b50bd0e426366a2f7146ed55a4cc6f23",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0010",
+      "protocol": "promotion",
+      "loss": 0.2796,
+      "steps": 1500,
+      "peak_gib": 7.504079818725586,
+      "wall_minutes": 19.84155901329999,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": null,
+      "ended_at": "2026-10-01T07:16:01.427285+00:00",
+      "event_seq": 78,
+      "event_sha256": "c1f237b56c99c5bf4ebf42ca552dbeb9d3a424bac836725f7570bd3ea0377d1b",
+      "workspace_hash": null
+    },
+    {
+      "id": "n0011",
+      "protocol": "screen",
+      "loss": 0.3396,
+      "steps": 500,
+      "peak_gib": 7.49833345413208,
+      "wall_minutes": 7.290987193750031,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0003",
+      "ended_at": "2026-10-01T07:23:20.195663+00:00",
+      "event_seq": 79,
+      "event_sha256": "d514c19eb0384eff94ef911b953dd873a2fecf3adfefd2de31bf195f6f9b55d1",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "448770b9a73f9e7005542b9d673767eeec565a56ff3d617835a490acd8853c60",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "8e579a74232b094e3eabaceb9c5c12cd67ab635586a6f0ee11497e0027894b3b",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "99ae36e69f669d02c18737faf918fa8190eea9e37a2cd959a95444f45ccb036d",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0012",
+      "protocol": "screen",
+      "loss": 0.3307,
+      "steps": 500,
+      "peak_gib": 7.505997180938721,
+      "wall_minutes": 7.257527337916629,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0004",
+      "ended_at": "2026-10-01T07:53:31.629844+00:00",
+      "event_seq": 110,
+      "event_sha256": "88efed9eacd77bbd1cb412f4f7fba0cab0b183fae596a74b76ecd2bc3f4587ba",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "27c0cbb20060fea53c8a04e15e70d4602c03b195a3323f2bc7e830e73412c0f3",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "8e579a74232b094e3eabaceb9c5c12cd67ab635586a6f0ee11497e0027894b3b",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "6865d95783539e4f3d9a2dae5b8d7ad6fef860a9bd8190160d2ef2893c20b180",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0013",
+      "protocol": "screen",
+      "loss": 0.3318,
+      "steps": 500,
+      "peak_gib": 7.508962631225586,
+      "wall_minutes": 7.317858707349964,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0004",
+      "ended_at": "2026-10-01T08:00:52.043821+00:00",
+      "event_seq": 111,
+      "event_sha256": "9e5a0043531019b6c0d574c737ce50b6582a31f497811935f579a14e5d43a6ec",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "9309c5267d03ed3ef053f84b94f8d7a99da8a1447045b4c4b95e1179186b5318",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "1a7fd65bb865ded2860703756c3e07034a227031016bb345a99d99b016d9dfbc",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "effef5919ca6d445d139797af317678df954798dafe32bc5bcbe493d06388766",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0014",
+      "protocol": "screen",
+      "loss": 0.4017,
+      "steps": 500,
+      "peak_gib": 7.497946262359619,
+      "wall_minutes": 7.2710511750666535,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0004",
+      "ended_at": "2026-10-01T08:08:09.640426+00:00",
+      "event_seq": 112,
+      "event_sha256": "883d461fdd237d4d90ba79e53bbe8f188529737bbb582a1748f64e49eecce271",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "372597f2dc56974fea8dbbe01efdedda11344568232e3dae15515767976b9768",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "289b60b8a1cf5bc382ce4b1814d8ef21f61d9d2fdb549b61f5130f3cec31baca",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "f2731c1a6d14bd9432e155fa5f2133005c438711bf64dbf802cc3da4dd667404",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0015",
+      "protocol": "screen",
+      "loss": 0.3994,
+      "steps": 500,
+      "peak_gib": 7.4998555183410645,
+      "wall_minutes": 7.274491351100005,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0004",
+      "ended_at": "2026-10-01T08:15:27.463820+00:00",
+      "event_seq": 113,
+      "event_sha256": "d815b0d14ea3160f2aeadac7d912edd57a79aa7a4ade654803e0a8f437608101",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "8cb4b782a8de15cf1680c99bb2ca6d625de6ff3453d999f5fc4316d375c0164e",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "289b60b8a1cf5bc382ce4b1814d8ef21f61d9d2fdb549b61f5130f3cec31baca",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "77c3bc783b4e6d64c3756a7ae7f227253233321af26ef02d1aec96af1303b9fd",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0016",
+      "protocol": "screen",
+      "loss": 0.4011,
+      "steps": 500,
+      "peak_gib": 7.509622097015381,
+      "wall_minutes": 7.274509978433343,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0005",
+      "ended_at": "2026-10-01T08:40:21.976006+00:00",
+      "event_seq": 135,
+      "event_sha256": "af7450a305eda4250d18e61a0cfce847c9b6133c7d084aeeea17cfe29ae4fdbf",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "7e75293fc48c857011e5476c680bc377161d233d66dfdc389922b247c5f2d0a9",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "8e579a74232b094e3eabaceb9c5c12cd67ab635586a6f0ee11497e0027894b3b",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "feacb0f75d3092d51e4eab917d861ab16b80b4a50740e29a684bb7925e77a2d5",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0017",
+      "protocol": "screen",
+      "loss": 0.3626,
+      "steps": 500,
+      "peak_gib": 7.5163984298706055,
+      "wall_minutes": 7.331108216916679,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0005",
+      "ended_at": "2026-10-01T08:47:43.174426+00:00",
+      "event_seq": 136,
+      "event_sha256": "efac59654c7e560d6662e0c2325cb38f4aeaa45cf65c2c32b0aa950c8933ee20",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "009267c78056d9c182dca405f347fb863ed30290fa18c0691f2f9dede6a8b364",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "1a7fd65bb865ded2860703756c3e07034a227031016bb345a99d99b016d9dfbc",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "cdd58081235c4ce44580337a155fd7bf898bf6c99c5445f5075b3e343acee2da",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0018",
+      "protocol": "screen",
+      "loss": 0.4028,
+      "steps": 500,
+      "peak_gib": 7.496282577514648,
+      "wall_minutes": 7.324476417183299,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0005",
+      "ended_at": "2026-10-01T08:55:04.009090+00:00",
+      "event_seq": 137,
+      "event_sha256": "88815f3bbac4b803e8c7705221259c70a87c9c4d98f2296b5e459c2a514d2956",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "66d6c6d7394273247ada498f91e9c32ad54385af80b8d1d1a74a11b39eafa49d",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "289b60b8a1cf5bc382ce4b1814d8ef21f61d9d2fdb549b61f5130f3cec31baca",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "c0cf751474c5bfc3ab3ccc5298f5a3ef80a32ade53a5404d692512dd3f848c7b",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0019",
+      "protocol": "screen",
+      "loss": 0.4008,
+      "steps": 500,
+      "peak_gib": 7.493724346160889,
+      "wall_minutes": 7.317858747616628,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0005",
+      "ended_at": "2026-10-01T09:02:24.416698+00:00",
+      "event_seq": 138,
+      "event_sha256": "102abc251ae2523ec557522b7438b2782f241eec72b8d8f3ae5b0afa4fc41f63",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "58e03b2a43359f610bda304601f49e99c7dcdd6a8292fb5d2613ee23c406e578",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "f54062d9b2f8f85d2b9429c8a7e08eebc9074f9228751ad130e0d06e6b2150fc",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0020",
+      "protocol": "screen",
+      "loss": 0.401,
+      "steps": 500,
+      "peak_gib": 7.517943382263184,
+      "wall_minutes": 7.277773268733351,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0006",
+      "ended_at": "2026-10-01T09:37:43.631567+00:00",
+      "event_seq": 169,
+      "event_sha256": "c5ea5bdff761802e935949e2356f5451da57417e2a43fd75ba16ab70a69638f9",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "426d1990952072a830727c1a31dc8fe5d9601b06ce3dd85b835f382db29d59d4",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "1a7fd65bb865ded2860703756c3e07034a227031016bb345a99d99b016d9dfbc",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "c9677d0d241bda3acac95b4ab124a2b9cd1dcc9eb7741d81e40fc39f30306700",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0021",
+      "protocol": "screen",
+      "loss": 0.4118,
+      "steps": 500,
+      "peak_gib": 7.5004754066467285,
+      "wall_minutes": 7.287849775300007,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0006",
+      "ended_at": "2026-10-01T09:45:02.244364+00:00",
+      "event_seq": 170,
+      "event_sha256": "3204535de05db0c4e5bac146178d24b28f60401d5d19bac3b5764c74cf0d11c1",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "f9c1deac2585a2b7a46e0d553c65e513dc1615809724bb8904f45cc89e6ee8a3",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "289b60b8a1cf5bc382ce4b1814d8ef21f61d9d2fdb549b61f5130f3cec31baca",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "077e0f7bd9c871b4b992146dca6edeaa7cb19b22cef6933d8230f780028b8d31",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0022",
+      "protocol": "screen",
+      "loss": 0.4014,
+      "steps": 500,
+      "peak_gib": 11.920820713043213,
+      "wall_minutes": 9.109013863233304,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0006",
+      "ended_at": "2026-10-01T09:54:10.182325+00:00",
+      "event_seq": 171,
+      "event_sha256": "036e4bd45bbe77c3efa550afaa2c90a9e764fc7d902d79a41b083bb23eb3299b",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "e771c060ba70ccf8280ed3dc011dd21708718b6e70809674a558f0fe32ad7c87",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "329c9b2fb25daa21cf967acb829e64eacb5a75916a9d04f8087930860ae54558",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "4cf0e2dc274fa5d2a9f13118e40c03fa525649a443a3133e83acd7065ac7e98f",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0023",
+      "protocol": "screen",
+      "loss": 0.3784,
+      "steps": 500,
+      "peak_gib": 11.90842056274414,
+      "wall_minutes": 9.119117016849971,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0006",
+      "ended_at": "2026-10-01T10:03:18.691815+00:00",
+      "event_seq": 172,
+      "event_sha256": "621fadca59386202e433ea7ba90c806a240e8de5af0b29c1ac167f0d9cc9e391",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "684f7b2dc28569525fe31426d3276ff84294caef2ff07f9a63ec91daf8b4fcf4",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "cb3ea4ee659173fdd995d552503086e86f92bb49470257892ac21b2627eaa90c",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "8a1c2ceaeacc209c6fc0480828198d80ec9e8081e85767980a0e0762da41bbf5",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0024",
+      "protocol": "screen",
+      "loss": 0.319,
+      "steps": 500,
+      "peak_gib": 11.914454460144043,
+      "wall_minutes": 9.08227863664997,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0007",
+      "ended_at": "2026-10-01T10:34:35.149501+00:00",
+      "event_seq": 194,
+      "event_sha256": "93031fcb0bb77b1b9642bc775820dbf3c6fbc0fcc7db7b12c31036f81df2cc0a",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "1b4b88e9615780421b731b2d7c3ecd2f147bfd82b51f2a3942b2b289453b24cc",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "cb3ea4ee659173fdd995d552503086e86f92bb49470257892ac21b2627eaa90c",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "4dc0493025d205f8a4ac3ae2fd7303673ca475505817d0d3b48ad10377dee125",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0025",
+      "protocol": "screen",
+      "loss": 0.4044,
+      "steps": 500,
+      "peak_gib": 7.501859664916992,
+      "wall_minutes": 7.29796977716663,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0007",
+      "ended_at": "2026-10-01T10:41:54.386774+00:00",
+      "event_seq": 195,
+      "event_sha256": "07da4c1587ab50401a2aef0620ff7e94a648584978b06b2966cb93e24e862754",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "5f481071e2631223ce574d26a95aebaf8c627e9320a6e166812106bafefc2cd0",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "c80a770eff4cd67d20490e7955600adc546d0526608f7b0e7fabd78251ac43dd",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "6413b1aa6bd5bd6b39fd2ef30295f10701e09b85d84a9a89f280af0c4cb970cf",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0026",
+      "protocol": "screen",
+      "loss": 0.3431,
+      "steps": 500,
+      "peak_gib": 7.4882121086120605,
+      "wall_minutes": 7.3112141796167025,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0007",
+      "ended_at": "2026-10-01T10:49:14.412980+00:00",
+      "event_seq": 196,
+      "event_sha256": "d9086766b9e4e5dd33dd7150e3cdae493cb92282db65c803259bdcc2f4b38b7e",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "980c4583a55850a2b15d146483a3cc822f4f3cdc0669d4dea79b6e8e3438349f",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "289b60b8a1cf5bc382ce4b1814d8ef21f61d9d2fdb549b61f5130f3cec31baca",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "3d9477d7c9f52e2ed2123261df7da7e60a920991e13dba173b003112285813bf",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    },
+    {
+      "id": "n0027",
+      "protocol": "screen",
+      "loss": 0.3317,
+      "steps": 500,
+      "peak_gib": 7.496927738189697,
+      "wall_minutes": 7.271013506466625,
+      "eval_samples": {
+        "count": 60
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "batch": "b0007",
+      "ended_at": "2026-10-01T10:56:32.073675+00:00",
+      "event_seq": 197,
+      "event_sha256": "0a529b618b161f80f9c3fc2671f3c27a9591da3d1121f44b675a6e2c4338582c",
+      "workspace_hash": {
+        "proposal_schema.json": "76a4b98a93ed48fb63adb435e99ef1461cc64baedb6d7a4824ce12d09580c321",
+        "pyproject.toml": "c460af919c278ce4b49b2a6fcaa06312d747f3cdfc3d3979a7195b60cd710ddf",
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "4220f6ef93dc1bc828fdc3fc4ab5c07fff29f0b6f45f8601c7522a8d6d33433a",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "df2f33994a577a7e0b4ba5007ff45547929dcc12d9f0b43222997e59984c0621",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "f670baca3df83e9be647d2cc1821b74608772570e28b6e4231181594ad5f6c46",
+        "tests/test_contract.py": "04c42fb69e39997bd60a9fc08d4f8699b3256a4f932eed47feccb4c6b7ea25a5",
+        "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+      }
+    }
+  ],
+  "unmeasured_attempts": [
+    {
+      "id": "n0002",
+      "status": "runtime_failure",
+      "event_seq": 24
+    },
+    {
+      "id": "n0003",
+      "status": "interrupted",
+      "event_seq": 25
+    },
+    {
+      "id": "n0004",
+      "status": "interrupted",
+      "event_seq": 26
+    },
+    {
+      "id": "n0009",
+      "status": "implementation_failure",
+      "event_seq": 75
+    }
+  ]
+}

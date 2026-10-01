@@ -31,9 +31,9 @@ def codex_argv():
         "--sandbox",
         "workspace-write",
         "-m",
-        "gpt-6-astra",
+        "gpt-6.1-sol",
         "-c",
-        'model_reasoning_effort="low"',
+        'model_reasoning_effort="high"',
         "-c",
         'approval_policy="never"',
         "-c",
@@ -45,7 +45,7 @@ def codex_argv():
     ]
 
 
-def isolated(argv, repo, workspace, output=None, evaluator=False):
+def isolated(argv, repo, workspace, output=None, evaluator=False, evidence=None):
     """Hide the repository (including all state/git), expose only the selected copy.
 
     System/dependency files are read-only; /tmp is private. Bubblewrap is mandatory,
@@ -80,6 +80,8 @@ def isolated(argv, repo, workspace, output=None, evaluator=False):
         "PYTHONPATH",
         "/tmp/work/src",
     ]
+    if evidence:
+        command += ["--ro-bind", str(Path(evidence).resolve()), "/tmp/evidence"]
     if output:
         command += ["--bind", str(output), "/tmp/output"]
     if evaluator:
@@ -116,6 +118,11 @@ def isolated(argv, repo, workspace, output=None, evaluator=False):
             command += ["--ro-bind", str(venv), "/tmp/venv"]
             argv = ["/tmp/venv/bin/python", *argv[1:]]
     if not evaluator:
+        venv = repo / ".venv"
+        if venv.is_dir():
+            command += ["--ro-bind", str(venv.resolve()), "/tmp/venv",
+                        "--setenv", "PATH", "/tmp/venv/bin:" + os.environ.get("PATH", "/usr/bin:/bin"),
+                        "--setenv", "CUDA_VISIBLE_DEVICES", ""]
         executable = shutil.which(argv[0])
         if executable is None:
             raise RuntimeError("Codex CLI not installed")

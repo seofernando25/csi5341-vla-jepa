@@ -1,0 +1,74 @@
+{
+  "variant": "S500",
+  "phase": "development",
+  "training_step": 500,
+  "checkpoint_sha256": "1a415e02b7748bb66d8b974fd6ae5fe5c09cff64d242734f1c3053dc9f3b2e08",
+  "summary": {
+    "episodes": 100,
+    "successes": 0,
+    "rate": 0.0,
+    "ci95": [
+      0.0,
+      0.03699349820698568
+    ],
+    "interval_method": "Approximate Wilson interval for balanced independent trials on the fixed task suite",
+    "per_task": {
+      "0": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "1": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "2": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "3": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "4": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "5": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "6": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "7": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "8": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      },
+      "9": {
+        "successes": 0,
+        "episodes": 10,
+        "rate": 0.0
+      }
+    }
+  },
+  "evidence": {
+    "run": "studies/evaluation/runs/20260924T010845203495Z-S500-rollout",
+    "metadata_sha256": "7912fadea09d1c1e4aed398e8a98c1df28af0cb169af326f8c3826c71e8e28c1",
+    "measurements_sha256": "c0dbb3b455df5a4355c38051d7eced7908e8c732e60309440a66b7efa26bd037"
+  },
+  "interpretation": "500-step pilot checkpoint; not final selected S500 or reserved final evaluation."
+}

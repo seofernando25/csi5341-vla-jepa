@@ -34,3 +34,18 @@ experiments/**/videos/
 .rsi-v1*/
 .rsi-archive*/
 .rsi-retention/
+
+# Keep compact evaluation evidence despite the generic runtime-directory rule.
+!studies/evaluation/runs/
+!studies/evaluation/runs/*/
+!studies/evaluation/runs/*/run.json
+!studies/evaluation/runs/*/*.csv
+studies/evaluation/report/*.aux
+studies/evaluation/report/*.log
+studies/evaluation/report/*.out
+
+# Extracted cloud-transfer integrity manifest
+/cloud-transfer-manifest.json
+
+# Raw per-batch diagnostic streams stay local; compact summaries are published.
+studies/evaluation/training/*/metrics.jsonl

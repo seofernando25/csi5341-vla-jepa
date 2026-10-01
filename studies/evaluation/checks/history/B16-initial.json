@@ -1,0 +1,47 @@
+{
+  "kind": "GPU smoke test",
+  "environment": {
+    "recorded_at": "2026-09-23T23:08:48.369077+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "73149ca7df626d587bdb98c9e51ccb1cb143ce13",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/common.py": "5e83d35a8f8ec70994bb074c081b98ecf3eda190b3f54be8e52a91b5fdb7ba0e",
+      "evaluation/libero_setup.py": "237a12c9b576ba583ab01d5657a37d6c35979a12bf7d5ab404a664c67be40a71",
+      "evaluation/models.py": "a06745a1aa41182ac44396e155e9cf13da150bc23afc134105cab11ef4b661a9",
+      "evaluation/prepare.py": "e0d258d2bad6bc202b8793ff9711edc199c0adf8efe6727de15c2cf8745ad0f4",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/smoke.py": "968d61835c8dba9e239d056d62e8276897757aae2e481025c33f6092c7d4db23",
+      "evaluation/sources.json": "daa71013e60f27fc5ac7af248167515dcf97293b9f4529018a67a2df1be68a9a",
+      "pyproject.toml": "9f81ddfe973a79aea49fdd2a9ee69952bcf35d724e61209b4d254e750d415577",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "121b587ddc0eaa293d6da5c8d5abcdb90311a156f0df23802cc246eaa14a783a",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "c4ecaa55a35e78c6f2ed97d2bcd2087a16f0b4bb152a9d95050bbba3c14c403e",
+      "uv.lock": "5044a8952ea0502c058dd30db0e9ca76b49094f39c7de58e09005000bab6facc"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "cuda_compute_verified": true,
+    "driver": "580.178.04"
+  },
+  "input": "synthetic zeros; not an efficiency benchmark or robot evaluation",
+  "outcome": "failed",
+  "error_type": "IncompleteSnapshotError",
+  "error": "The cached snapshot for 'lerobot/VLA-JEPA-LIBERO' (revision '735d9f692981e286ade093b5046627eda876e5d0', commit 735d9f692981e286ade093b5046627eda876e5d0) is incomplete: 2 file(s) are missing (.gitattributes, README.md). Outgoing traffic is disabled ('local_files_only=True'). Re-run the download with network access to complete the snapshot."
+}

@@ -212,7 +212,7 @@ def check_novelty(proposal, delta, parent, references, config):
             architecture_similarity(delta, ref["architecture_delta"])
             > config["max_root_arch_similarity"]
         ):
-            # Do not expose reference features, labels, IDs or v1 results to workers.
+            # Do not expose reference features, labels, IDs or archived results to workers.
             raise ValueError("root AST architecture overlaps a previously accepted mechanism")
 
 

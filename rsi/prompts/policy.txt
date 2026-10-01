@@ -12,7 +12,7 @@ Never assume unavailable future outcomes. Improve from the supplied fixed histor
 and feedback for the current revision. Exactly 25 common history/seed worlds are
 used per version, 4 slots including incumbent, for 100 trajectories per cycle.
 
-V3 observation also includes stop_allowed, root_branches, distinct_families,
+The observation also includes stop_allowed, root_branches, distinct_families,
 root_open_target, and protocol_minima. Nodes contain compact mechanism metadata;
 family_id is inherited by refinements, so relabeling does not create a family.
 STOP is forbidden until at least 6 accepted nonroot nodes, 4 root branches and

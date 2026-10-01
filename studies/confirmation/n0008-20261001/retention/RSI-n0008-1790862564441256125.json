@@ -1,0 +1,19 @@
+{
+  "removed": [
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/000500",
+      "step": 500,
+      "weights_sha256": "d79ba83b9b70544291699f3bfa7265d88fce23bcf760ae881ba7d91e3cc7373a"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/001000",
+      "step": 1000,
+      "weights_sha256": "6415b6bb292076c0e13845b46deff4489986001395ca3edfd121d161f99ab80a"
+    }
+  ],
+  "keep_steps": [
+    1500,
+    5000,
+    10000
+  ]
+}

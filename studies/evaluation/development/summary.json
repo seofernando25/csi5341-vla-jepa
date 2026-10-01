@@ -1,0 +1,559 @@
+{
+  "results": {
+    "B16": {
+      "timing": {
+        "predictions_per_mode": 1500,
+        "repetitions": 3,
+        "policy": {
+          "median_ms": 76.28535050002938,
+          "p95_ms": 82.71717139963357,
+          "repetition_medians_ms": [
+            75.33803150010954,
+            76.64927300004365,
+            77.75678850020995
+          ]
+        },
+        "pipeline": {
+          "median_ms": 79.14080000000467,
+          "p95_ms": 84.25313264997385,
+          "repetition_medians_ms": [
+            80.34803899977305,
+            78.83422849999988,
+            78.15626699994027
+          ]
+        },
+        "peak_allocated_bytes": 5605132288,
+        "peak_reserved_bytes": 5641338880,
+        "serialized_weights_bytes": 5532491518,
+        "logical_parameters": 2766137991
+      },
+      "neural": {
+        "median_ms": 71.7227569998613,
+        "p95_ms": 75.56427140029882,
+        "predictions": 1500,
+        "equivalence": {
+          "observations": 100,
+          "maximum_absolute_error": 0.0,
+          "rtol": 1e-05,
+          "atol": 1e-05,
+          "identical_flow_noise_seeds": true
+        }
+      },
+      "success": {
+        "episodes": 100,
+        "successes": 82,
+        "rate": 0.82,
+        "ci95": [
+          0.7333264161369926,
+          0.8829977450105364
+        ],
+        "interval_method": "Approximate Wilson interval for balanced independent trials on the fixed task suite",
+        "per_task": {
+          "0": {
+            "successes": 4,
+            "episodes": 10,
+            "rate": 0.4
+          },
+          "1": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "2": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "3": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "4": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "5": {
+            "successes": 5,
+            "episodes": 10,
+            "rate": 0.5
+          },
+          "6": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "7": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "8": {
+            "successes": 3,
+            "episodes": 10,
+            "rate": 0.3
+          },
+          "9": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          }
+        },
+        "paired_baseline": {
+          "difference_pp": 0.0,
+          "ci95_pp": [
+            0.0,
+            0.0
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        }
+      },
+      "study_training": {
+        "optimizer_steps": 0,
+        "update_gpu_hours": 0.0
+      }
+    },
+    "Q8": {
+      "timing": {
+        "predictions_per_mode": 1500,
+        "repetitions": 3,
+        "policy": {
+          "median_ms": 156.46190749998823,
+          "p95_ms": 168.34860939991358,
+          "repetition_medians_ms": [
+            157.18642050001108,
+            156.355501500002,
+            156.2961044999156
+          ]
+        },
+        "pipeline": {
+          "median_ms": 157.4114224999903,
+          "p95_ms": 161.39642994980932,
+          "repetition_medians_ms": [
+            157.50106300015432,
+            156.66371850011274,
+            157.91308749976452
+          ]
+        },
+        "peak_allocated_bytes": 4299864576,
+        "peak_reserved_bytes": 4840226816,
+        "serialized_weights_bytes": 4125552810,
+        "logical_parameters": 2766137991
+      },
+      "neural": {
+        "median_ms": 152.04846400047245,
+        "p95_ms": 161.39432725017286,
+        "predictions": 1500,
+        "equivalence": {
+          "observations": 100,
+          "maximum_absolute_error": 0.0,
+          "rtol": 1e-05,
+          "atol": 1e-05,
+          "identical_flow_noise_seeds": true
+        }
+      },
+      "success": {
+        "episodes": 100,
+        "successes": 81,
+        "rate": 0.81,
+        "ci95": [
+          0.7222115462093562,
+          0.8748524849023126
+        ],
+        "interval_method": "Approximate Wilson interval for balanced independent trials on the fixed task suite",
+        "per_task": {
+          "0": {
+            "successes": 3,
+            "episodes": 10,
+            "rate": 0.3
+          },
+          "1": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "2": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "3": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "4": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "5": {
+            "successes": 4,
+            "episodes": 10,
+            "rate": 0.4
+          },
+          "6": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "7": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "8": {
+            "successes": 4,
+            "episodes": 10,
+            "rate": 0.4
+          },
+          "9": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          }
+        },
+        "paired_baseline": {
+          "difference_pp": -1.0,
+          "ci95_pp": [
+            -4.0,
+            2.0
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        }
+      },
+      "study_training": {
+        "optimizer_steps": 0,
+        "update_gpu_hours": 0.0
+      }
+    },
+    "Q4": {
+      "timing": {
+        "predictions_per_mode": 1500,
+        "repetitions": 3,
+        "policy": {
+          "median_ms": 92.18580750007277,
+          "p95_ms": 95.03248644966789,
+          "repetition_medians_ms": [
+            92.19482849994165,
+            92.22653400001946,
+            92.15567649994227
+          ]
+        },
+        "pipeline": {
+          "median_ms": 93.56036799999856,
+          "p95_ms": 97.90970649999053,
+          "repetition_medians_ms": [
+            93.531796499974,
+            93.88950950005892,
+            93.33752350016766
+          ]
+        },
+        "peak_allocated_bytes": 3537677312,
+        "peak_reserved_bytes": 3600809984,
+        "serialized_weights_bytes": 3441321227,
+        "logical_parameters": 2766137991
+      },
+      "neural": {
+        "median_ms": 85.89515799985747,
+        "p95_ms": 90.07936824950775,
+        "predictions": 1500,
+        "equivalence": {
+          "observations": 100,
+          "maximum_absolute_error": 0.0,
+          "rtol": 1e-05,
+          "atol": 1e-05,
+          "identical_flow_noise_seeds": true
+        }
+      },
+      "success": {
+        "episodes": 100,
+        "successes": 81,
+        "rate": 0.81,
+        "ci95": [
+          0.7222115462093562,
+          0.8748524849023126
+        ],
+        "interval_method": "Approximate Wilson interval for balanced independent trials on the fixed task suite",
+        "per_task": {
+          "0": {
+            "successes": 4,
+            "episodes": 10,
+            "rate": 0.4
+          },
+          "1": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "2": {
+            "successes": 8,
+            "episodes": 10,
+            "rate": 0.8
+          },
+          "3": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "4": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "5": {
+            "successes": 5,
+            "episodes": 10,
+            "rate": 0.5
+          },
+          "6": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "7": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          },
+          "8": {
+            "successes": 4,
+            "episodes": 10,
+            "rate": 0.4
+          },
+          "9": {
+            "successes": 10,
+            "episodes": 10,
+            "rate": 1.0
+          }
+        },
+        "paired_baseline": {
+          "difference_pp": -1.0,
+          "ci95_pp": [
+            -5.0,
+            3.0000000000000004
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        }
+      },
+      "study_training": {
+        "optimizer_steps": 0,
+        "update_gpu_hours": 0.0
+      }
+    }
+  },
+  "evidence": [
+    {
+      "run": "studies/evaluation/runs/20260923T233248451685Z-B16-benchmark",
+      "metadata_sha256": "ec8285c9f9327477e4ad436715cf46ba0d530871adcf1070ac04f9dbffba75f7",
+      "measurements_sha256": "cf03113becb0c90e0827e88c9c8e769d6076557367723cebbe18d1c9f7f646dd"
+    },
+    {
+      "run": "studies/evaluation/runs/20260923T233723137709Z-Q8-benchmark",
+      "metadata_sha256": "ec212365306def7176afaf38f11e334cc95d9c4a5606df03b6357d5d4bd37ee9",
+      "measurements_sha256": "94b5a0aab47ed12c09828ca81a33e89b037b9034f1c8defc89d50942f9c6c86e"
+    },
+    {
+      "run": "studies/evaluation/runs/20260923T234605996158Z-Q4-benchmark",
+      "metadata_sha256": "3b9ecdd864321ab40a13833fb73909c3f947f3fea95a883d0ee1722e4fdd1be9",
+      "measurements_sha256": "fa53258c1a768cb2e2854f965c4f065f1867de5a4c5785462f1d7f81f0e24042"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T002804676510Z-B16-core",
+      "metadata_sha256": "a455b68e0ec5b2f966e53548900d4b5df406883840d145ff819fe6f232e07576",
+      "measurements_sha256": "1920de2c76dc0e92157208b7d62d09bf8c67fc4a3ac05b1f82c1d0ab4995ee2a"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T003034043094Z-Q8-core",
+      "metadata_sha256": "8d79d279a57e2a7cda444bb0a98cd62a6bdededbfb1ae0b02abc50ae3c8a95e5",
+      "measurements_sha256": "e45f67d6cf4868ebc31bff2941bcf701206ea26b8fdf75e8ac4c6267750a48af"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T003532230428Z-Q4-core",
+      "metadata_sha256": "5e4623ed4d2932c586b6ae91b40f5137b590303c529847677c4b4c6d99804344",
+      "measurements_sha256": "cbb9a8cd1745775979b8f58884900afb51703de50791c38ce45f937e71ed37e4"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T003830154305Z-B16-rollout",
+      "metadata_sha256": "5158122b02e72b37954dbf438c5fd2b2dd8491d186167daeba3d2e2408784cc9",
+      "measurements_sha256": "4e938276fa003ff63026bd71158dbec72c6025a9975e6fbdd0a52a74a85ba291"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T004658422060Z-Q8-rollout",
+      "metadata_sha256": "e75be47ca91d1cd38db14eb3aea0f66717bdfaf8755123605bd9b1e56e871bdc",
+      "measurements_sha256": "470016d5faab864e545d80f36957602568d659c20187cb38d19046278913ae7d"
+    },
+    {
+      "run": "studies/evaluation/runs/20260924T005857279553Z-Q4-rollout",
+      "metadata_sha256": "a55ff2edd9132661fde7c915108d526c1315a1ab17a8ae2e4d31181e087d8260",
+      "measurements_sha256": "7c9c79d4a3e27f4288c301c326361ace2348556fb493756eb7382ad4441a4819"
+    }
+  ],
+  "controls": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "driver": "580.178.04",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "protocol": {
+      "campaign": "csi5341-smolvlm-efficiency",
+      "status": "pilot",
+      "suite": "libero_spatial",
+      "task_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "seed": 1000,
+      "final_initial_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "final_seed_offset": 10000,
+      "observation_height": 256,
+      "observation_width": 256,
+      "batch_size": 1,
+      "dtype": "bfloat16",
+      "world_model": "loaded identically; no future observations during inference",
+      "quantization_scope": "Qwen language decoder nn.Linear modules only; vision tower, embeddings, final norm, lm_head, action head and world model are not quantized",
+      "Q8": {
+        "method": "LLM.int8",
+        "threshold": 6.0,
+        "has_fp16_weights": false
+      },
+      "Q4": {
+        "method": "NF4",
+        "compute_dtype": "bfloat16",
+        "double_quantization": true
+      },
+      "timing": {
+        "warmup": 20,
+        "predictions": 500,
+        "repetitions": 3
+      },
+      "training": {
+        "pilot_steps": 500,
+        "checkpoints": [
+          1500,
+          5000,
+          10000
+        ],
+        "validation_fraction": 0.1,
+        "seed": 42
+      },
+      "target": {
+        "memory_reduction_fraction": 0.25,
+        "maximum_success_drop_pp": 5.0
+      },
+      "initial_states_manifest": "studies/evaluation/initial_states.json",
+      "development_states": "10 original non-pruned state vectors per task, disjoint from all official final states",
+      "final_states": "50 official pruned states per task"
+    },
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "initial_states": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+    "inference_source": {
+      "evaluation/common.py": "30450a5c55ccb557dfe535de7095ca965e0a9286519d6741f65681b26aea8c3b",
+      "evaluation/models.py": "4a0bdeb26445389b59022b378d7ff8596df9de99bb395c47245c57fae9260849",
+      "evaluation/run.py": "8ecf0f7ac9ab8ef578cb1afdb0dc778e18deae56154207ead4807379b4fd9e25",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "121b587ddc0eaa293d6da5c8d5abcdb90311a156f0df23802cc246eaa14a783a",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "93ac1877b1ca613d971cd8da2e03de53da6626867595bffdcc70543005edfe47"
+    }
+  },
+  "rollout_phase": "development",
+  "full_timing_protocol": true
+}

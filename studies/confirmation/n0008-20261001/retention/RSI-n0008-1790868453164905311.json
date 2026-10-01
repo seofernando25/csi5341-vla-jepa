@@ -1,0 +1,44 @@
+{
+  "removed": [
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/001500/training_state",
+      "step": 1500,
+      "weights_sha256": "c7109d515a018e7d6c116530159154027f23863e6770e23808c9557879c5c942"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/002000",
+      "step": 2000,
+      "weights_sha256": "3a33e24a00a474ed943571f0c42f3868bbfc6c795a22679d078030dbd5b37afd"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/002500",
+      "step": 2500,
+      "weights_sha256": "021a5d5a6a3fa9438dddb91e98a476aa5631caef86c34878cc70890ecc676d5a"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/003000",
+      "step": 3000,
+      "weights_sha256": "360b4ecdd5442b786e708193c219c0ba8b6f7bcbe4e1ec81199d33406818db72"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/003500",
+      "step": 3500,
+      "weights_sha256": "527fc36029ab3a532245f8a528b648654f657d70c62826d400f074e6271ab49e"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/004000",
+      "step": 4000,
+      "weights_sha256": "d3cc233a44612211f07606d82810271e9f7d4b6b18798eeb648a1d4bfe14fe64"
+    },
+    {
+      "path": "outputs/evaluation/training/20261001T132545701205Z-RSI-n0008-train/train/checkpoints/004500",
+      "step": 4500,
+      "weights_sha256": "d688835725dcb2896450434684aa90386124333f6cb279be24516a1663a69d1b"
+    }
+  ],
+  "keep_steps": [
+    1500,
+    5000,
+    10000
+  ]
+}

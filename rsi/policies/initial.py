@@ -1,4 +1,4 @@
-"""V4: exploit strong structural leaves while preserving mixed-batch diversity."""
+"""Exploit strong structural leaves while preserving mixed-batch diversity."""
 
 import random
 

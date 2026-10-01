@@ -13,12 +13,13 @@ def train_args(config, output="/tmp/output/train", steps=None, save_checkpoint=F
     steps = config["probe_steps"] if steps is None else steps
     seed = config["seed"] if seed is None else seed
     return [
-        "--policy.type=vla_jepa_lfm",
+        "--policy.type=vla_jepa_smolvlm",
         "--policy.init_from_vla_jepa=lerobot/VLA-JEPA-Pretrain",
         "--policy.push_to_hub=false",
         "--policy.device=cuda",
         "--policy.torch_dtype=bfloat16",
-        "--policy.lfm_model_name=LiquidAI/LFM2.5-VL-450M",
+        "--policy.vlm_model_name=HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "--policy.image_processor_backend=torchvision",
         "--policy.conditioning_dim=2048",
         "--policy.enable_world_model=true",
         "--policy.jepa_encoder_name=facebook/vjepa2-vitl-fpc64-256",
@@ -132,13 +133,16 @@ def runtime_guard():
     original = {
         (base, name): getattr(base, name) for base, names in protected.items() for name in names
     }
-    from lerobot_policy_vla_jepa_lfm.modeling_vla_jepa_lfm import (
-        VLAJEPALFMModel,
-        VLAJEPALFMPolicy,
+    from lerobot_policy_vla_jepa_smolvlm.modeling_vla_jepa_smolvlm import (
+        VLAJEPASmolVLMModel,
+        VLAJEPASmolVLMPolicy,
     )
 
     def check():
-        for base, cls in ((VLAJEPAModel, VLAJEPALFMModel), (VLAJEPAPolicy, VLAJEPALFMPolicy)):
+        for base, cls in (
+            (VLAJEPAModel, VLAJEPASmolVLMModel),
+            (VLAJEPAPolicy, VLAJEPASmolVLMPolicy),
+        ):
             for name in protected[base]:
                 if getattr(cls, name) is not original[base, name]:
                     raise ValueError(f"protected runtime override: {cls.__name__}.{name}")
@@ -172,8 +176,9 @@ def main():
     def make_policy(*args, **kwargs):
         cfg = args[0] if args else kwargs["cfg"]
         fixed = {
-            "type": "vla_jepa_lfm",
-            "lfm_model_name": "LiquidAI/LFM2.5-VL-450M",
+            "type": "vla_jepa_smolvlm",
+            "vlm_model_name": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+            "image_processor_backend": "torchvision",
             "conditioning_dim": 2048,
             "enable_world_model": True,
             "jepa_encoder_name": "facebook/vjepa2-vitl-fpc64-256",

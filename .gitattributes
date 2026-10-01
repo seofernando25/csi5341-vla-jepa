@@ -1,0 +1,2 @@
+# Python's CSV writer uses CRLF; preserve measured files byte-for-byte.
+*.csv whitespace=cr-at-eol

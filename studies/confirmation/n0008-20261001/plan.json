@@ -1,0 +1,65 @@
+{
+  "frozen_at": "2026-10-01T13:23:53.399547+00:00",
+  "candidate": "n0008",
+  "study_id": "c8307243391e8cf647533f21ed0815af3447eabf00dff1f2a3f0d7e136a8d950",
+  "arms": [
+    {
+      "label": "RSI-n0008",
+      "source": "outputs/confirmation/n0008-20261001/RSI-n0008/source",
+      "source_manifest": {
+        "lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "876887c836432f5d3dcc966557aa857671cfc2eeb8059283609c41a93652e0bb"
+      }
+    },
+    {
+      "label": "SmolVLM-GPU-base",
+      "source": "outputs/confirmation/n0008-20261001/SmolVLM-GPU-base/source",
+      "source_manifest": {
+        "lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "5f84defd755497e781fb01a86be222dd445d7084927b42b496ef653a3f199368",
+        "lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "22a4e472ec859b6864527dbdd2a6d9225be63bb6ceccf6a3dcb8e635f927b2c1"
+      }
+    }
+  ],
+  "optimizer_steps": 10000,
+  "checkpoints": [
+    1500,
+    5000,
+    10000
+  ],
+  "recipe": {
+    "seed": 42,
+    "batch_size": 2,
+    "num_workers": 2,
+    "validation_fraction": 0.1,
+    "validation_samples_per_task": 20,
+    "validation_seed": 73000,
+    "eval_steps": 500,
+    "save_freq": 500,
+    "learning_rate": 0.0001,
+    "warmup_steps": 100,
+    "decay_steps": 10000,
+    "decay_learning_rate": 2.5e-06,
+    "weight_decay": 1e-08,
+    "gradient_clip": 1.0,
+    "selection": "Lowest sample-weighted held-out total loss among steps 1500, 5000, 10000; ties choose fewer steps; simulator development scores are diagnostic only",
+    "normalization": "Published baseline processor statistics, held fixed across all variants",
+    "trainability": "FP32 optimizer parameters for adapter, action head and latent predictor; frozen BF16 SmolVLM and V-JEPA encoder; BF16 autocast"
+  },
+  "image_processor_backend": "torchvision",
+  "selection": "Lowest sample-weighted held-out loss on 200 fixed samples at 1500, 5000, 10000; ties choose fewer steps.",
+  "development_episodes": 100,
+  "final_episodes": 500,
+  "final_evaluation": "After development review; initial campaign does not claim final task performance.",
+  "benchmark": {
+    "predictions": 500,
+    "repetitions": 3
+  },
+  "limits": "Initial 10k budget; substantially less training exposure than the paper. Qwen reference is evaluation-only. Development success does not select checkpoints.",
+  "retention": "Retain milestone inference weights and latest optimizer state; export hashes before deleting other checkpoints."
+}

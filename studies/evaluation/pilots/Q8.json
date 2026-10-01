@@ -1,0 +1,81 @@
+{
+  "variant": "Q8",
+  "phase": "development",
+  "summary": {
+    "episodes": 100,
+    "successes": 81,
+    "rate": 0.81,
+    "ci95": [
+      0.7222115462093562,
+      0.8748524849023126
+    ],
+    "interval_method": "Approximate Wilson interval for balanced independent trials on the fixed task suite",
+    "per_task": {
+      "0": {
+        "successes": 3,
+        "episodes": 10,
+        "rate": 0.3
+      },
+      "1": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "2": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "3": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "4": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "5": {
+        "successes": 4,
+        "episodes": 10,
+        "rate": 0.4
+      },
+      "6": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "7": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      },
+      "8": {
+        "successes": 4,
+        "episodes": 10,
+        "rate": 0.4
+      },
+      "9": {
+        "successes": 10,
+        "episodes": 10,
+        "rate": 1.0
+      }
+    },
+    "paired_baseline": {
+      "difference_pp": -1.0,
+      "ci95_pp": [
+        -4.0,
+        2.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "evidence": {
+    "run": "studies/evaluation/runs/20260924T004658422060Z-Q8-rollout",
+    "metadata_sha256": "e75be47ca91d1cd38db14eb3aea0f66717bdfaf8755123605bd9b1e56e871bdc",
+    "measurements_sha256": "470016d5faab864e545d80f36957602568d659c20187cb38d19046278913ae7d"
+  },
+  "baseline_run": "studies/evaluation/runs/20260924T003830154305Z-B16-rollout",
+  "interpretation": "100-episode development diagnostic; not the reserved 500-episode final evaluation."
+}

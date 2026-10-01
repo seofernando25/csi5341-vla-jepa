@@ -10,12 +10,12 @@ import os
 import tempfile
 from pathlib import Path
 
-PLUGIN = Path("src/lerobot_policy_vla_jepa_lfm")
-FROZEN_PLUGIN_FILES = {str(PLUGIN / "__init__.py"), str(PLUGIN / "processor_vla_jepa_lfm.py")}
+PLUGIN = Path("src/lerobot_policy_vla_jepa_smolvlm")
+FROZEN_PLUGIN_FILES = {str(PLUGIN / "__init__.py"), str(PLUGIN / "processor_vla_jepa_smolvlm.py")}
 
 PROTECTED = {
-    "VLAJEPALFMModel": {"_action_loss", "_world_model_loss", "forward", "predict_action"},
-    "VLAJEPALFMPolicy": {"forward", "predict_action_chunk", "select_action"},
+    "VLAJEPASmolVLMModel": {"_action_loss", "_world_model_loss", "forward", "predict_action"},
+    "VLAJEPASmolVLMPolicy": {"forward", "predict_action_chunk", "select_action"},
 }
 
 
@@ -202,7 +202,7 @@ def validate_tree(nodes):
 
 
 def plan_batch_actions(select, frozen_observation, seed, batch_size, protocol):
-    """Plan against one immutable prefix with V4 mixed exploration when configured."""
+    """Plan against one immutable prefix with mixed exploration when configured."""
     actions, substitutions, modes = [], [], []
     refinement_slots = protocol.get("refinement_slots_per_batch")
     novel_slots = protocol.get("novel_slots_per_batch")

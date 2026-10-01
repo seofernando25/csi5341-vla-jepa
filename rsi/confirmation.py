@@ -15,7 +15,7 @@ def plan(runner):
         raise ValueError("confirmation requires measured real candidates")
     best = max(candidates, key=lambda e: e["node"]["score"])
     arms = {
-        "base_lfm": runner.state / "base",
+        "base_smolvlm": runner.state / "base",
         "best_rsi": runner.state / "attempts" / best["attempt"] / "workspace",
     }
     if manifest(arms["best_rsi"]) != best["workspace_hash"]:

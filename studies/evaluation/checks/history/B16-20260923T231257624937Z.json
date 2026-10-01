@@ -1,0 +1,106 @@
+{
+  "run_id": "B16-20260923T231257624937Z",
+  "variant": "B16",
+  "kind": "GPU smoke test",
+  "environment": {
+    "recorded_at": "2026-09-23T23:12:57.633435+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "73149ca7df626d587bdb98c9e51ccb1cb143ce13",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/common.py": "5e83d35a8f8ec70994bb074c081b98ecf3eda190b3f54be8e52a91b5fdb7ba0e",
+      "evaluation/figures.py": "d0a5bdbfb195270afeee191c6e1d99ba72e62c6ec7e0776130833e08c79a0939",
+      "evaluation/libero_setup.py": "237a12c9b576ba583ab01d5657a37d6c35979a12bf7d5ab404a664c67be40a71",
+      "evaluation/models.py": "29e42bed68029ace4f7772cff2bd5410664dcaa963c7aac4ee03e9fe795884e3",
+      "evaluation/prepare.py": "e0d258d2bad6bc202b8793ff9711edc199c0adf8efe6727de15c2cf8745ad0f4",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/report.py": "3db5ffe103dc74f8048c725a70a8a845c7595d1df4de3b4fc6604dbaa6acbba8",
+      "evaluation/smoke.py": "3e1d765297cea1febee60fd35f4fb2f4f5ed0eb647c7bf9996443e2a56c871f6",
+      "evaluation/sources.json": "daa71013e60f27fc5ac7af248167515dcf97293b9f4529018a67a2df1be68a9a",
+      "pyproject.toml": "9f81ddfe973a79aea49fdd2a9ee69952bcf35d724e61209b4d254e750d415577",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "121b587ddc0eaa293d6da5c8d5abcdb90311a156f0df23802cc246eaa14a783a",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "c4ecaa55a35e78c6f2ed97d2bcd2087a16f0b4bb152a9d95050bbba3c14c403e",
+      "uv.lock": "5044a8952ea0502c058dd30db0e9ca76b49094f39c7de58e09005000bab6facc"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "cuda_compute_verified": true,
+    "driver": "580.178.04"
+  },
+  "input": "synthetic zeros; not an efficiency benchmark or robot evaluation",
+  "status": "published_trained_policy",
+  "logical_parameters": 2766137991,
+  "quantized_modules": [],
+  "parameter_dtypes": {
+    "torch.bfloat16": 1612
+  },
+  "chunk_size": 7,
+  "n_action_steps": 7,
+  "num_inference_timesteps": 4,
+  "world_model_loaded": true,
+  "sources": {
+    "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+    "models": {
+      "baseline": {
+        "repo": "lerobot/VLA-JEPA-LIBERO",
+        "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+      },
+      "smolvlm": {
+        "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+        "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+      },
+      "qwen": {
+        "repo": "Qwen/Qwen3-VL-2B-Instruct",
+        "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+      },
+      "world_model": {
+        "repo": "facebook/vjepa2-vitl-fpc64-256",
+        "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+      },
+      "pretrain": {
+        "repo": "lerobot/VLA-JEPA-Pretrain",
+        "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+      }
+    }
+  },
+  "checkpoint_compatibility": {
+    "missing_keys": [],
+    "ignored_keys": [
+      "model.qwen.model.model.language_model.embed_tokens.weight",
+      "model.video_predictor.extrinsics_encoder.bias",
+      "model.video_predictor.extrinsics_encoder.weight",
+      "model.video_predictor.state_encoder.bias",
+      "model.video_predictor.state_encoder.weight"
+    ],
+    "tied_embedding_equality_verified": true,
+    "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+  },
+  "load_seconds": 8.24535693100006,
+  "outcome": "passed",
+  "action_shape": [
+    1,
+    7,
+    7
+  ],
+  "action_range": [
+    -0.4337728023529053,
+    0.9695048332214355
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "label": "local-rtx3090",
+  "captured_at": "2026-09-24T01:36:37.423869+00:00",
+  "capture_scope": "Inventory at capture time; not retrospective per-run power/thermal telemetry",
+  "os": "CachyOS",
+  "kernel": "7.2.6-1-cachyos",
+  "architecture": "x86_64",
+  "cpu": {
+    "model": "AMD Ryzen 7 5700X",
+    "cores": {
+      "physical": 8,
+      "logical": 16,
+      "online": 16
+    },
+    "allowed_logical_cpus": 16
+  },
+  "board": {
+    "vendor": "Gigabyte Technology Co., Ltd.",
+    "model": "B450 I AORUS PRO WIFI-CF"
+  },
+  "ram_os_visible_bytes": 67336445952,
+  "cgroup_limits": {
+    "cpu.max": null,
+    "memory.max": null
+  },
+  "shared_memory_capacity_bytes": 33668222976,
+  "gpus": [
+    {
+      "name": "NVIDIA GeForce RTX 3090",
+      "driver_version": "580.178.04",
+      "memory.total": "24576",
+      "compute_cap": "8.6",
+      "power.limit": "420.00",
+      "power.default_limit": "420.00",
+      "power.min_limit": "100.00",
+      "power.max_limit": "450.00",
+      "pcie.link.gen.current": "3",
+      "pcie.link.gen.max": "3",
+      "pcie.link.width.current": "16",
+      "pcie.link.width.max": "16",
+      "clocks.max.sm": "2130",
+      "clocks.max.memory": "9751"
+    }
+  ],
+  "gpu_units": {
+    "memory.total": "MiB",
+    "power.*": "W",
+    "clocks.*": "MHz"
+  },
+  "storage": [
+    {
+      "model": "WD Blue SA510 2.5 4TB",
+      "size": 4000787030016,
+      "rota": false,
+      "tran": "sata"
+    },
+    {
+      "model": "CT1000P1SSD8",
+      "size": 1000204886016,
+      "rota": false,
+      "tran": "nvme"
+    }
+  ],
+  "storage_size_unit": "bytes",
+  "python": "3.12.11",
+  "uv": "uv 0.12.0 (x86_64-unknown-linux-gnu)",
+  "fastfetch": "fastfetch 2.68.1 (x86_64)",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.5.4",
+    "lerobot": "0.6.2",
+    "hf-libero": "0.1.4",
+    "bitsandbytes": "0.50.2",
+    "mujoco": "3.8.1",
+    "robosuite": "1.4.0",
+    "numpy": "2.2.6"
+  },
+  "torch": {
+    "cuda_runtime": "12.8",
+    "cpu_threads": 8,
+    "compiled_architectures": [
+      "sm_75",
+      "sm_80",
+      "sm_86",
+      "sm_90",
+      "sm_100",
+      "sm_120"
+    ],
+    "bf16_hardware_supported": true,
+    "devices": [
+      {
+        "name": "NVIDIA GeForce RTX 3090",
+        "compute_capability": [
+          8,
+          6
+        ],
+        "multiprocessors": 82,
+        "usable_memory_bytes": 25288507392
+      }
+    ]
+  }
+}
