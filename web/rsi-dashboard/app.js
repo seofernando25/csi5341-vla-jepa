@@ -116,7 +116,7 @@ function currentRun() {
   $('current-title').textContent=p ? `${p.label} · ${p.phase} · ${p.completed?'completed':(state.confirmation?.status==='running'||state.service==='active')?'running':'last observed run'}` : 'Waiting for a training run';
   const last=points.at(-1);
   $('current-stats').textContent=p ? `${p.step??'—'} / ${p.total??'—'} steps${last ? ` · loss ${last.loss.toFixed(3)} at step ${last.step}` : ''}` : '';
-  $('current-note').textContent='Logged training loss · updates every 3s · held-out results appear after evaluation. '+(p ? `Log updated ${new Date(p.updated_at*1000).toLocaleTimeString()}` : '');
+  $('current-note').textContent=(p?.cloud ? 'Cloud logs sync every minute · held-out results appear after evaluation. ' : 'Logged training loss · updates every 3s · held-out results appear after evaluation. ')+(p ? `Log updated ${new Date(p.updated_at*1000).toLocaleTimeString()}` : '');
   if(!points.length){$('current-plot').innerHTML='<div class="empty">Waiting for the first logged training loss.</div>';return;}
   const keys=[['loss','Total','#1965d2'],['action_loss','Action','#ba6c27'],['wm_loss','World model','#357a57']];
   const values=points.flatMap(p=>keys.map(([k])=>p[k])).filter(finite);

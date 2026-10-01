@@ -138,11 +138,22 @@ def training_curve(path):
 
 def confirmation_live(root):
     path = root / 'outputs/confirmation/n0008-20261001/status.json'
-    if not path.is_file():
+    cloud_path = root / 'outputs/cloud/remote-job.json'
+    cloud = read_record(cloud_path) if cloud_path.is_file() else {}
+    if cloud.get('status') in {'timing', 'training', 'trained', 'evaluating', 'completed', 'failed'}:
+        path = cloud_path
+        status = {
+            'arm': 'RSI-n0008-5090-preflight' if cloud['status'] == 'timing' else 'RSI-n0008-5090',
+            'stage': 'RTX 5090 · ' + cloud['status'],
+            'status': cloud['status'] if cloud['status'] in {'completed', 'failed'} else 'running',
+            'cloud': True,
+        }
+    elif path.is_file():
+        status = read_record(path)
+    else:
         return None
-    status = read_record(path)
     label = status.get('arm')
-    if label not in {'RSI-n0008', 'SmolVLM-GPU-base'}:
+    if label not in {'RSI-n0008', 'SmolVLM-GPU-base', 'RSI-n0008-5090', 'RSI-n0008-5090-preflight'}:
         return status
     runs = []
     for record in sorted((root / 'studies/evaluation/training').glob('*/run.json')):
@@ -175,7 +186,8 @@ def confirmation_live(root):
     status['progress'] = {'label': label, 'phase': 'confirmation · '+status.get('stage',''),
                           'step': curve[-1]['step'] if curve else 0,
                           'total': latest.get('requested_steps'), 'curve': visible,
-                          'completed': status.get('status') != 'running', 'updated_at': updated}
+                          'completed': status.get('status') == 'completed', 'updated_at': updated,
+                          'cloud': bool(status.get('cloud'))}
     return status
 
 

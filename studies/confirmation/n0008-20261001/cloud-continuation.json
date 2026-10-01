@@ -1,0 +1,42 @@
+{
+  "scope": "Cloud continuation; separate from frozen RSI screening and later fixed-checkpoint hardware replication",
+  "candidate": "n0008",
+  "gpu": "RTX 5090",
+  "compute_capability": "sm_120",
+  "memory_gib": 32,
+  "resume_step": 5000,
+  "resume_checkpoint_sha256": "633ea291621cdc12bb9b80a0400991d00822df7214d943734be5c20a42e495a2",
+  "target_step": 10000,
+  "timing_segment": {
+    "steps": [
+      5001,
+      5100
+    ],
+    "warmup_updates_excluded": 20,
+    "metric": "Median synchronized optimizer update seconds; excludes data wait and validation"
+  },
+  "recipe": "evaluation/training_config.json",
+  "source_manifest": "plan.json, RSI-n0008 arm; payload hashes verified before launch",
+  "lockfile_sha256": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa",
+  "budget_usd": 14,
+  "hourly_compute_and_100gb_disk_usd": 0.4985185185185185,
+  "server_cleanup_hours_after_creation": [
+    6,
+    7
+  ],
+  "training_deadline_hours_after_creation": 3.5,
+  "export": "Download complete 10k native checkpoint and optimizer state; verify every file hash before deleting rental",
+  "post_training": {
+    "fixed_input_benchmark": {
+      "predictions": 500,
+      "repetitions": 3
+    },
+    "development_rollout": {
+      "episodes_per_task": 1,
+      "tasks": 10,
+      "selection_use": false,
+      "final_libero": false
+    }
+  },
+  "comparison_limits": "Cloud optimizer continuation changes hardware; numerical equivalence is not assumed. Timing and VRAM results cannot be pooled with RTX 3090 measurements. A matched base arm and full development/final evaluation remain pending."
+}

@@ -60,7 +60,14 @@ def environment():
             packages[name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
             packages[name] = None
-    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    try:
+        git = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+            capture_output=True, check=False,
+        )
+        revision = git.stdout.strip() if git.returncode == 0 else None
+    except FileNotFoundError:
+        revision = None
     result = {
         "recorded_at": datetime.now(UTC).isoformat(),
         "python": platform.python_version(),

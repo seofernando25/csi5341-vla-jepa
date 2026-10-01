@@ -127,3 +127,26 @@ def test_rollout_progress_ignores_partial_csv_rows(tmp_path):
     assert (p['completed'],p['total'],p['successes']) == (2,20,1)
     assert p['curve'][-1]['success_rate'] == 50
     assert p['last_task'] == 'first task'
+
+
+def test_cloud_training_overrides_stale_local_confirmation(tmp_path):
+    local = tmp_path/'outputs/confirmation/n0008-20261001/status.json'
+    local.parent.mkdir(parents=True)
+    local.write_text(json.dumps({'arm':'RSI-n0008','status':'running','stage':'training'}))
+    before = local.read_bytes()
+    cloud = tmp_path/'outputs/cloud/remote-job.json'
+    cloud.parent.mkdir(parents=True)
+    cloud.write_text(json.dumps({'status':'training'}))
+    run = tmp_path/'studies/evaluation/training/cloud'
+    run.mkdir(parents=True)
+    (run/'run.json').write_text(json.dumps({'variant':'RSI-n0008-5090','requested_steps':10000}))
+    (run/'metrics.jsonl').write_text(json.dumps({'phase':'training','step':5150,'loss':.3})+'\n')
+    result = dashboard.confirmation_live(tmp_path)
+    assert result['arm'] == 'RSI-n0008-5090'
+    assert result['progress']['step'] == 5150
+    assert result['progress']['total'] == 10000
+    assert result['progress']['cloud']
+    assert not result['progress']['completed']
+    cloud.write_text(json.dumps({'status':'failed'}))
+    assert dashboard.confirmation_live(tmp_path)['status'] == 'failed'
+    assert local.read_bytes() == before

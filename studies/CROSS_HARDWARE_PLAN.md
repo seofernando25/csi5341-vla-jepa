@@ -1,6 +1,6 @@
 # Later cross-architecture evaluation
 
-**Status:** preparation only; run after the local study. No Vast.ai instance has been searched for or rented. Select the offer and freeze the spending/runtime limits when access is provided. Dream-RSI remains deferred.
+**Status:** matched inference replication remains pending. On October 1, cloud training was authorized separately: n0008 resumes from 5k toward 10k on one RTX 5090, within a USD 14 ceiling. See the [cloud continuation record](confirmation/n0008-20261001/cloud-continuation.json). This training continuation does not complete the fixed-checkpoint comparison below.
 
 **Question:** Do the four fixed policies' memory, latency, and manipulation trade-offs persist on a different NVIDIA architecture?
 
