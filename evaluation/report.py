@@ -75,6 +75,46 @@ def render(output):
     adaptation_path = ROOT / "studies/evaluation/adaptation/summary.json"
     selection = read_json(selection_path) if selection_path.exists() else {}
     adaptation = read_json(adaptation_path) if adaptation_path.exists() else {}
+    cloud_path = ROOT / 'studies/confirmation/n0008-20261001/cloud-results/summary.json'
+    cloud = read_json(cloud_path) if cloud_path.exists() else {}
+    cloud_section = ''
+    if cloud:
+        measured = cloud['benchmark']
+        curve = cloud['validation']
+        figure = cloud_path.parent / 'figures/F6_cloud.pdf'
+        shutil.copyfile(figure, output / 'figures' / figure.name)
+        cloud_section = (
+            r'\FloatBarrier\section{Optional architecture confirmation}' + '\n'
+            r'The optional discovery study selected candidate n0008, which adds a trainable '
+            r'residual adapter near the end of the frozen SmolVLM decoder. A separate confirmation '
+            r'continued its native 5,000-step checkpoint to 10,000 steps on an RTX 5090, preserving '
+            r'the optimizer, seed, trajectory split, normalization and training objectives. '
+            r'The action head, latent predictor and conditioning adapters train; the SmolVLM '
+            r'and V-JEPA encoders remain frozen. This continuation is distinct from S500 in T1.' + '\n\n'
+            f"Held-out loss decreased from {curve[0]['loss']:.4f} at {curve[0]['step']:,} "
+            f"steps to {curve[-1]['loss']:.4f} at 10,000 steps (200 fixed samples). "
+            r'Closed-loop development evaluation completed ten valid trials, one per task, '
+            r'with zero successes. This small diagnostic does not establish a final success rate '
+            r'or performance retention; lower prediction loss did not yield successful manipulation.' + '\n\n'
+            f"Full-pipeline median/p95 latency was {measured['pipeline']['median_ms']:.1f}/"
+            f"{measured['pipeline']['p95_ms']:.1f} ms; policy-native latency was "
+            f"{measured['policy']['median_ms']:.1f}/{measured['policy']['p95_ms']:.1f} ms. "
+            f"Peak allocated inference memory was {max(p['allocated_bytes'] for p in measured['memory_peaks'])/2**30:.2f} GiB. "
+            r'Each mode used 500 predictions across three repetitions. Policy-native timing '
+            r'includes backbone preprocessing and is not neural-only timing. These RTX 5090 '
+            r'measurements cannot isolate a pipeline or architecture speedup against the earlier '
+            r'RTX 3090/PIL measurements.' + '\n\n'
+            r'The full resumable checkpoint was hash-verified before rental deletion. '
+            r'The matched SmolVLM baseline confirmation, full development/final trials, and '
+            r'fixed-checkpoint cross-hardware comparisons remain pending. Training exposure and '
+            r'backbone trainability differ substantially from the original paper; this experiment '
+            r'does not isolate undertraining, representation mismatch or a control-pipeline issue.' + '\n'
+            r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F6_cloud.pdf}'
+            r'\caption{Separate n0008 confirmation: held-out action/world prediction loss and '
+            r'measured inference latency distributions on the RTX 5090. Loss points use the same '
+            r'200 held-out samples; each latency curve contains 1,500 predictions. Closed-loop '
+            r'development success was 0/10 and is not inferred from prediction loss.}\end{figure}'
+        )
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")
@@ -319,6 +359,8 @@ TRAININGPROGRESS
 
 RESULTFIGURES
 
+CLOUDSECTION
+
 The companion repository provides checkpoint hashes, the delivery checklist, raw measurements, and reproduction commands. CUDA checks and finite training losses do not establish manipulation success; missing measurements are never imputed.
 
 \FloatBarrier
@@ -349,6 +391,7 @@ Camera observations and outer policy preprocessing are matched, but each backbon
         .replace("SPLITTEXT", split_text)
         .replace("FINDINGS", findings)
         .replace("RESULTFIGURES", "\n".join(figures))
+        .replace("CLOUDSECTION", cloud_section)
         .replace("TRAININGPROGRESS", training_progress)
         .replace("SUCCESSSCOPE", success_scope)
         .replace("CHECKPOINTSCOPE", checkpoint_scope)
@@ -371,6 +414,8 @@ Camera observations and outer policy preprocessing are matched, but each backbon
             .replace(pilot_progress, "")
             .replace("T1: current measured evidence.", "T1: final matched measurements.")
         )
+    if cloud:
+        source = source.replace('Dream-RSI is deferred.', 'The optional discovery confirmation is reported separately below.')
     (output / "report.tex").write_text(source)
     for _ in range(2):
         completed = subprocess.run(
@@ -386,7 +431,7 @@ Camera observations and outer policy preprocessing are matched, but each backbon
         json.dumps(
             {
                 "report": str((output / "report.pdf").relative_to(ROOT)),
-                "smoke_checks": {k: v["outcome"] for k, v in checks.items()},
+                "smoke_checks": {k: v.get("outcome", v.get("status")) for k, v in checks.items()},
                 "final_measurements_ready": final_paper,
             }
         )

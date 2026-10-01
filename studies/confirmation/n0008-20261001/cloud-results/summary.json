@@ -1,0 +1,305 @@
+{
+  "candidate": "n0008",
+  "label": "RSI-n0008-5090-r2-10k",
+  "scope": "Separate RTX5090 continuation; not final LIBERO or matched hardware replication",
+  "resume_step": 5000,
+  "final_step": 10000,
+  "source_manifest": {
+    "lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "876887c836432f5d3dcc966557aa857671cfc2eeb8059283609c41a93652e0bb"
+  },
+  "recipe": {
+    "seed": 42,
+    "batch_size": 2,
+    "num_workers": 2,
+    "validation_fraction": 0.1,
+    "validation_samples_per_task": 20,
+    "validation_seed": 73000,
+    "eval_steps": 500,
+    "save_freq": 500,
+    "learning_rate": 0.0001,
+    "warmup_steps": 100,
+    "decay_steps": 10000,
+    "decay_learning_rate": 2.5e-06,
+    "weight_decay": 1e-08,
+    "gradient_clip": 1.0,
+    "selection": "Lowest sample-weighted held-out total loss among steps 1500, 5000, 10000; ties choose fewer steps; simulator development scores are diagnostic only",
+    "normalization": "Published baseline processor statistics, held fixed across all variants",
+    "trainability": "FP32 optimizer parameters for adapter, action head and latent predictor; frozen BF16 SmolVLM and V-JEPA encoder; BF16 autocast"
+  },
+  "environment": {
+    "recorded_at": "2026-10-01T19:51:17.288795+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": null,
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/analysis.py": "01c31aa43fd10d94f5a2dc741dd1f6221606b20e152e5fe9d2ac0433e8527065",
+      "evaluation/common.py": "cda56f8ff6d04c79c007d1310208bf7e1db59eb2713dc7b7aeeb386e0bcc5374",
+      "evaluation/core_benchmark.py": "d5299f81f1dd89473951a0c398e37f49a368e4f893420361a90cd9e0f395e9b7",
+      "evaluation/figures.py": "6269e7c09f0c9af03eebe2d8225328e957d6322d20ce7c4d4ecfffd23b647baa",
+      "evaluation/hardware.py": "5af8ac76c4902fc74aae5836d90b1c321b165d487f42fa8210613d746ccb1370",
+      "evaluation/libero_setup.py": "f05f3a5afa4b9155e87191f914ccc066f9dc763ee9057014cdfaec347085882a",
+      "evaluation/models.py": "4a0bdeb26445389b59022b378d7ff8596df9de99bb395c47245c57fae9260849",
+      "evaluation/portability.py": "3d45b534598d3033a1d57e391ebce8a6f741917190a1ff59b2641f423f282080",
+      "evaluation/prepare.py": "a9df0c9a4046916d1e67a9a01f5f8c69804ba1f854517cffa1a7d3b661c84b07",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/report.py": "8bb1bbecc35907aac31248f0b56b4d5967da070fb85afd68a0f11535ecaf6ef9",
+      "evaluation/reproducibility.py": "4b8cce7f02e8cfa78aba56031ea30a2398759974b698e2c2cdc4cc10f6a226bb",
+      "evaluation/run.py": "cd188097447c715319175bb7596640f5796e1205196a6f48d16430b86ee6c537",
+      "evaluation/select_checkpoint.py": "5ad26dcf35daa48fd59da01ec5f5338ae298b0b4b63210d7b29d137899a424ff",
+      "evaluation/smoke.py": "49ffc5918e945f04babaf76adcf99270527f13a827aee8bf6c170adea400b91b",
+      "evaluation/sources.json": "9d8d2f948d374b616054cc4b5c0c4aadea2dfd5d1a850209f56a494e39a3b4fd",
+      "evaluation/train.py": "14663cce50dc4ea8681a5db51b1b48e78fb46f4aaae0617707dd8a530ea14ab6",
+      "evaluation/training_analysis.py": "ef7a878804002b4cc0525188c7153ac3258a13e1ed144c6143add862849358ca",
+      "evaluation/training_config.json": "7ebac50df79cb82f75bd68285095c387ad81bf5a4f24b029ab49f2e1faf0c6e5",
+      "pyproject.toml": "c4e38080d8aa6fc3e8fd875efb86dc0cb4fc3395c8d2917d024a1ce771c37738",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "87636b8e80a8e3f2109f2d61bf8712058df335579f776d51e2b867851a22394f",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "a18d8e6a9f833e348d401a9e0046c40d4bb1011162ce166d6434e0fc97558e78",
+      "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "gpu_total_bytes": 33668857856,
+    "cuda_compute_verified": true,
+    "driver": "580.126.09"
+  },
+  "checkpoint_sha256": "bc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8",
+  "validation": [
+    {
+      "step": 5500,
+      "samples": 200,
+      "loss": 0.30559440404176713,
+      "action_loss": 0.18393168687820435,
+      "wm_loss": 0.12166271612048149
+    },
+    {
+      "step": 6000,
+      "samples": 200,
+      "loss": 0.29482306957244875,
+      "action_loss": 0.17387247197329997,
+      "wm_loss": 0.12095059782266616
+    },
+    {
+      "step": 6500,
+      "samples": 200,
+      "loss": 0.2862123581767082,
+      "action_loss": 0.1658162323385477,
+      "wm_loss": 0.1203961256891489
+    },
+    {
+      "step": 7000,
+      "samples": 200,
+      "loss": 0.2849123549461365,
+      "action_loss": 0.16488068729639052,
+      "wm_loss": 0.1200316671282053
+    },
+    {
+      "step": 7500,
+      "samples": 200,
+      "loss": 0.29139654487371447,
+      "action_loss": 0.17181689992547036,
+      "wm_loss": 0.11957964338362218
+    },
+    {
+      "step": 8000,
+      "samples": 200,
+      "loss": 0.27451730117201806,
+      "action_loss": 0.1553137093782425,
+      "wm_loss": 0.11920359186828136
+    },
+    {
+      "step": 8500,
+      "samples": 200,
+      "loss": 0.273936727643013,
+      "action_loss": 0.15502455610781907,
+      "wm_loss": 0.11891217052936554
+    },
+    {
+      "step": 9000,
+      "samples": 200,
+      "loss": 0.27238579392433165,
+      "action_loss": 0.1536711672693491,
+      "wm_loss": 0.11871462665498257
+    },
+    {
+      "step": 9500,
+      "samples": 200,
+      "loss": 0.26706318572163584,
+      "action_loss": 0.14847790610045195,
+      "wm_loss": 0.11858527921140194
+    },
+    {
+      "step": 10000,
+      "samples": 200,
+      "loss": 0.2652826341986656,
+      "action_loss": 0.1467792859300971,
+      "wm_loss": 0.11850334778428077
+    }
+  ],
+  "benchmark": {
+    "observation_bank_sha256": "dec46270ea0a500b42003399aac2c2880523386d9e2d1a74a7f6b8fd8ab54104",
+    "predictions_per_repetition": 500,
+    "repetitions": 3,
+    "memory_peaks": [
+      {
+        "mode": "policy",
+        "repetition": 0,
+        "allocated_bytes": 3193272320,
+        "reserved_bytes": 4202692608
+      },
+      {
+        "mode": "policy",
+        "repetition": 1,
+        "allocated_bytes": 3193272320,
+        "reserved_bytes": 4303355904
+      },
+      {
+        "mode": "policy",
+        "repetition": 2,
+        "allocated_bytes": 3193272320,
+        "reserved_bytes": 4303355904
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 0,
+        "allocated_bytes": 3193278464,
+        "reserved_bytes": 4303355904
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 1,
+        "allocated_bytes": 3193278464,
+        "reserved_bytes": 4303355904
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 2,
+        "allocated_bytes": 3193278464,
+        "reserved_bytes": 4303355904
+      }
+    ],
+    "policy": {
+      "median_ms": 257.5733445046353,
+      "p95_ms": 311.0812357524992
+    },
+    "pipeline": {
+      "median_ms": 302.8046650069882,
+      "p95_ms": 407.6645875502436
+    },
+    "serialized_weights": {
+      "bytes": 2296912478,
+      "sha256": "5aa3a464430642e244fa058f0083c07326b506e89557750eff811701ba838afa",
+      "format": "safetensors state_dict; shared tensors deduplicated; packing metadata included",
+      "artifact": "outputs/evaluation/serialized/20261001T195117252974Z-RSI-n0008-5090-r2-10k-benchmark/model.safetensors"
+    }
+  },
+  "development": {
+    "episodes": 10,
+    "successes": 0,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "development",
+    "task_macro_success": 0.0
+  },
+  "continuation_optimizer_gpu_hours": 1.3226613579603266,
+  "peak_training_allocated_bytes": 8106090496,
+  "export": {
+    "verified_files": 12,
+    "rental_deleted": true,
+    "checkpoint_files": {
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/config.json": {
+        "bytes": 4016,
+        "sha256": "aa0c2dad6b4c4c95d0e8ad859a3903f08877d1dac23a02dc31b89d5f7145d366"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/model.safetensors": {
+        "bytes": 2926607316,
+        "sha256": "bc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/train_config.json": {
+        "bytes": 10539,
+        "sha256": "82f22eb3b9a9beb07508ce5530c063b9257ca323ba9eb7584e4f48a8ea6bcd7b"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+        "bytes": 1316,
+        "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/policy_preprocessor.json": {
+        "bytes": 1424,
+        "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+        "bytes": 1316,
+        "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/pretrained_model/policy_postprocessor.json": {
+        "bytes": 1500,
+        "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/training_state/training_step.json": {
+        "bytes": 225,
+        "sha256": "10fbf6c92e8c4fa986f0c62b3917ea7db25311e1bcbea583129b56db14162494"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/training_state/rng_state.safetensors": {
+        "bytes": 15708,
+        "sha256": "50095f7a3aeacd131928052b82f6d8729c9892c9a5a3b8d8104514e9439eaaa8"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/training_state/scheduler_state.json": {
+        "bytes": 241,
+        "sha256": "e6132eb1516dd3c68f2d2e9dabb1d34829d050c7483a0d3c590bb68e9925262a"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/training_state/optimizer_state.safetensors": {
+        "bytes": 2518888168,
+        "sha256": "1899bda279168b86dd5f19fa9d8420f61b2c13c20621d25881ccfba39c864aec"
+      },
+      "outputs/evaluation/training/cloud-n0008-5090-r2/train/checkpoints/010000/training_state/optimizer_param_groups.json": {
+        "bytes": 7175,
+        "sha256": "bfbe245c9d920d6b7d84a0eee01d021680456587aef8d09976d52d554863cf57"
+      }
+    }
+  },
+  "evidence": {
+    "studies/evaluation/training/20261001T175206264206Z-RSI-n0008-5090-r2-train/run.json": "490dd57d6986516e52c7bd427c3508d53cd48d159a90b36ed015388c014e6e53",
+    "studies/evaluation/training/20261001T175206264206Z-RSI-n0008-5090-r2-train/metrics.jsonl": "b5c037e2a381b54c21fbd5b97f1ca9bb9a650d72b0d9570daff2f743063226a9",
+    "studies/evaluation/runs/20261001T195117252974Z-RSI-n0008-5090-r2-10k-benchmark/run.json": "c91cba5d7d33c50856fc015725e77c8b00a0c01f6d9198c1ba49bea6d9efe43a",
+    "studies/evaluation/runs/20261001T195117252974Z-RSI-n0008-5090-r2-10k-benchmark/timings.csv": "94ebab0980dcdec40f8862f079f289c73c5261e14a8d5c7f94b9c3132c601872",
+    "studies/evaluation/runs/20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/run.json": "8c67cedb602a9d21bef4da8f0c94e73a28700a1860643ce3162d43c987acfb74",
+    "studies/evaluation/runs/20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/episodes.csv": "3debbc24fa17e56952ef0eb15fa52e3e6453a0dcd701a136935833175be972e2"
+  },
+  "interpretation": "Prediction loss decreased; 0/10 valid closed-loop development successes. Neither insufficient training nor frozen-backbone mismatch is isolated by this experiment. Matched base confirmation and full development/final evaluations remain pending.",
+  "operations": {
+    "total_cloud_spend_usd": 2.169,
+    "budget_usd": 14,
+    "rental_deleted_after_verified_export": true,
+    "initial_benchmark_status": "interrupted at 900-second operational timeout",
+    "retry_status": "completed benchmark and development rollout"
+  }
+}

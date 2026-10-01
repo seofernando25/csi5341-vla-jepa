@@ -82,3 +82,5 @@ Proposed engineering target: at least **25% lower peak inference memory** with a
 Only after core deliverables: quantize the trained S500 variant to test combined savings. Cross-hardware testing or unused-module removal can be separate, clearly labeled ablations. Dream-RSI is not part of this delivery plan.
 
 References: [VLA-JEPA checkpoint](https://huggingface.co/lerobot/VLA-JEPA-LIBERO), [SmolVLM checkpoint](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct), [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO), [quantization backend](https://huggingface.co/docs/transformers/quantization/bitsandbytes).
+
+Optional confirmation (2026-10-01): [n0008 cloud continuation](confirmation/n0008-20261001/cloud-results/summary.json) completed to 10k on RTX 5090. Validation loss 0.2653; ten development trials yielded zero successes. The [updated report](evaluation/report/report.pdf) includes separate loss/latency figures. Matched baseline confirmation and full n0008 development/final evaluation remain pending; this result does not complete those comparisons.

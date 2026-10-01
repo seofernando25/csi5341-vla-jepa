@@ -7,3 +7,5 @@ The runner resumes native optimizer checkpoints after interruption, then evaluat
 This confirmation uses the established longer adaptation recipe, not the short RSI screening schedule. Screening ranks are hypotheses; compare these two confirmation arms directly. The initial budget is much smaller than the paper's training exposure. No task-performance claim exists until rollouts complete.
 
 Runtime weights/logs live under ignored `outputs/`; compact selections and measurements remain here and in `studies/evaluation/`. Pruning preserves milestone inference weights and the latest optimizer state after exporting hashes.
+
+Cloud continuation completed on RTX 5090: 10k held-out loss 0.2653; development 0/10 successes; pipeline median/p95 302.8/407.7 ms; inference allocation 2.97 GiB. The full resumable checkpoint was verified locally before rental deletion (total spend about $2.17). These are separate diagnostics, not final LIBERO or a matched hardware/pipeline comparison. See [compact evidence and figure](cloud-results/summary.json).

@@ -10,7 +10,7 @@
 \setlength{\tabcolsep}{5pt}
 \title{\vspace{-15mm}\textbf{Efficient VLA-JEPA for Robotic Manipulation}\\[3pt]\large CSI 5341: efficiency evaluation}
 \author{Noah Sprenger \qquad Fernando Nogueira}
-\date{2026-09-25}
+\date{2026-10-01}
 \begin{document}
 \maketitle
 \vspace{-7mm}
@@ -19,7 +19,7 @@ We study whether reduced-precision inference and a smaller vision--language back
 \end{abstract}
 
 \section{Study design}
-The baseline is \texttt{lerobot/VLA-JEPA-LIBERO}~\cite{vla}. Q8 and Q4 quantize its trained Qwen language-decoder linear layers using LLM.int8~\cite{int8} (outlier threshold 6) and NF4 with double quantization~\cite{nf4}, respectively; the vision tower, embeddings, action head, and world model remain BF16. Quantization happens \emph{after} policy checkpoint restoration. S500 replaces the backbone with SmolVLM2-500M-Video-Instruct~\cite{smol} and projects its decoder representation into the existing conditioning interface. The adaptation recipe freezes SmolVLM and the V-JEPA~2 encoder~\cite{jepa}, training the adapter and compatible action/world predictors. Qwen is evaluation-only. Dream-RSI is deferred.
+The baseline is \texttt{lerobot/VLA-JEPA-LIBERO}~\cite{vla}. Q8 and Q4 quantize its trained Qwen language-decoder linear layers using LLM.int8~\cite{int8} (outlier threshold 6) and NF4 with double quantization~\cite{nf4}, respectively; the vision tower, embeddings, action head, and world model remain BF16. Quantization happens \emph{after} policy checkpoint restoration. S500 replaces the backbone with SmolVLM2-500M-Video-Instruct~\cite{smol} and projects its decoder representation into the existing conditioning interface. The adaptation recipe freezes SmolVLM and the V-JEPA~2 encoder~\cite{jepa}, training the adapter and compatible action/world predictors. Qwen is evaluation-only. The optional discovery confirmation is reported separately below.
 
 \begin{figure}[ht]
 \centering\includegraphics[width=\linewidth]{figures/architecture.pdf}
@@ -63,6 +63,16 @@ The frozen adaptation budget is complete. Held-out loss selected step 10,000 (lo
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F3_tradeoff.pdf}\caption{Measured success--latency trade-off. Marker area represents peak allocated GPU memory.}\end{figure}
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F4_tasks.pdf}\caption{Task-level manipulation success; task numbers follow the committed initial-state manifest.}\end{figure}
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F5_adaptation.pdf}\caption{Adaptation measurements from the continuing training run. Missing development rollouts are marked explicitly; prediction loss is not robot success.}\end{figure}
+
+\FloatBarrier\section{Optional architecture confirmation}
+The optional discovery study selected candidate n0008, which adds a trainable residual adapter near the end of the frozen SmolVLM decoder. A separate confirmation continued its native 5,000-step checkpoint to 10,000 steps on an RTX 5090, preserving the optimizer, seed, trajectory split, normalization and training objectives. The action head, latent predictor and conditioning adapters train; the SmolVLM and V-JEPA encoders remain frozen. This continuation is distinct from S500 in T1.
+
+Held-out loss decreased from 0.3056 at 5,500 steps to 0.2653 at 10,000 steps (200 fixed samples). Closed-loop development evaluation completed ten valid trials, one per task, with zero successes. This small diagnostic does not establish a final success rate or performance retention; lower prediction loss did not yield successful manipulation.
+
+Full-pipeline median/p95 latency was 302.8/407.7 ms; policy-native latency was 257.6/311.1 ms. Peak allocated inference memory was 2.97 GiB. Each mode used 500 predictions across three repetitions. Policy-native timing includes backbone preprocessing and is not neural-only timing. These RTX 5090 measurements cannot isolate a pipeline or architecture speedup against the earlier RTX 3090/PIL measurements.
+
+The full resumable checkpoint was hash-verified before rental deletion. The matched SmolVLM baseline confirmation, full development/final trials, and fixed-checkpoint cross-hardware comparisons remain pending. Training exposure and backbone trainability differ substantially from the original paper; this experiment does not isolate undertraining, representation mismatch or a control-pipeline issue.
+\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F6_cloud.pdf}\caption{Separate n0008 confirmation: held-out action/world prediction loss and measured inference latency distributions on the RTX 5090. Loss points use the same 200 held-out samples; each latency curve contains 1,500 predictions. Closed-loop development success was 0/10 and is not inferred from prediction loss.}\end{figure}
 
 The companion repository provides checkpoint hashes, the delivery checklist, raw measurements, and reproduction commands. CUDA checks and finite training losses do not establish manipulation success; missing measurements are never imputed.
 
