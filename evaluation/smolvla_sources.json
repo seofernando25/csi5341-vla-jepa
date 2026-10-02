@@ -1,0 +1,13 @@
+{
+  "policy": {
+    "repo": "HuggingFaceVLA/smolvla_libero",
+    "revision": "6721902bc4d61e50a3bfdb11dfb4cb626f05d102"
+  },
+  "backbone": {
+    "repo": "HuggingFaceTB/SmolVLM2-500M-Instruct",
+    "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+  },
+  "comparison": "Complete pretrained policy; not a VLA-JEPA backbone ablation",
+  "precision": "Native checkpoint parameter/buffer precision; published use_amp=false; no blanket BF16 cast or autocast",
+  "execution": "Native chunk_size=50, n_action_steps=1, num_steps=10; 20Hz relative LIBERO control"
+}

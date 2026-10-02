@@ -1,0 +1,190 @@
+{
+  "comparison": "Complete pretrained SmolVLA policy; quick diagnostic, not matched500 final or VLA-JEPA backbone ablation",
+  "status": "completed",
+  "quick": {
+    "episodes": 10,
+    "successes": 7,
+    "task_macro_success": 0.7,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "spatial_smoke",
+    "ci95_percent": [
+      39.677814746114535,
+      89.2208732593699
+    ],
+    "batch_wall_seconds": 138.66860538699257,
+    "peak_allocated_bytes": 1537777664
+  },
+  "per_task": [
+    {
+      "task_id": 0,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1000,
+      "initial_state_hash": "4e3eaf7a315bc3bafb6db4837c8eef0e5f8aea717782a2a3ea33139392d966ed"
+    },
+    {
+      "task_id": 1,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1001,
+      "initial_state_hash": "d116842e01703fbea595511db813a3816c8d9f2302b4e979ebec4f15b7a750a2"
+    },
+    {
+      "task_id": 2,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "success": 0,
+      "seed": 1002,
+      "initial_state_hash": "408c455fb617e5320060d643ef80ec2035d4e98600659cc3deb5a1e85482bf76"
+    },
+    {
+      "task_id": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "success": 0,
+      "seed": 1003,
+      "initial_state_hash": "36424fa758f0e72399a35cefa285d0658e4b5bd17bfb3e2127f85aa2e0944517"
+    },
+    {
+      "task_id": 4,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1004,
+      "initial_state_hash": "2e3f91b350eaef1b23c2d4ee14c513b2158a106bff7ed6c249b58e2cf89367f4"
+    },
+    {
+      "task_id": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1005,
+      "initial_state_hash": "63f019944e240d60a5770936f1eaa3853e38bbfeb1c26c987826fb004ed4346c"
+    },
+    {
+      "task_id": 6,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1006,
+      "initial_state_hash": "d81530779b15be6bdfe4935a7a802102e3e3883823b29fefd40a2131e50fd515"
+    },
+    {
+      "task_id": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "success": 0,
+      "seed": 1007,
+      "initial_state_hash": "501105aff4e1897d96cac0d0ee69fc702ad209e317511807e27df8b421ae1f2a"
+    },
+    {
+      "task_id": 8,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1008,
+      "initial_state_hash": "aef30979e2ee8c9893c9161c881264362f750a34df952f381e3969a567688451"
+    },
+    {
+      "task_id": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "success": 1,
+      "seed": 1009,
+      "initial_state_hash": "885cdd89e3d71824f79e4f0ae4711f9ca04367c0011147cb657ecc32be3f375b"
+    }
+  ],
+  "policy": {
+    "variant": "SmolVLA",
+    "status": "published_trained_policy",
+    "architecture": "smolvla",
+    "comparison": "Complete pretrained policy; not a VLA-JEPA backbone ablation",
+    "logical_parameters": 604934176,
+    "parameter_dtypes": {
+      "torch.bfloat16": 746,
+      "torch.float32": 42
+    },
+    "chunk_size": 50,
+    "n_action_steps": 1,
+    "num_inference_timesteps": 10,
+    "world_model_loaded": false,
+    "sources": {
+      "policy": {
+        "repo": "HuggingFaceVLA/smolvla_libero",
+        "revision": "6721902bc4d61e50a3bfdb11dfb4cb626f05d102"
+      },
+      "backbone": {
+        "repo": "HuggingFaceTB/SmolVLM2-500M-Instruct",
+        "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+      },
+      "comparison": "Complete pretrained policy; not a VLA-JEPA backbone ablation",
+      "precision": "Native checkpoint parameter/buffer precision; published use_amp=false; no blanket BF16 cast or autocast",
+      "execution": "Native chunk_size=50, n_action_steps=1, num_steps=10; 20Hz relative LIBERO control"
+    },
+    "checkpoint_files": {
+      "config.json": "e346a63094732ea28e05b08302a218306cf6541960b663a3cb4b6948e4efe6e0",
+      "model.safetensors": "71d9563c8295284acba8fc2d5c19de000d6fe9ba58a406832af7ef3d221ed52f",
+      "policy_postprocessor.json": "ad2d22405cb63be4932c4a4d9a69bc9953df02a01235c5f420b679dbe6bfe7c5",
+      "policy_postprocessor_step_1_unnormalizer_processor.safetensors": "7008ba73c73887e5a7e631d478de9563ec5a0c51b7f0327f2530d7326c4b039e",
+      "policy_preprocessor.json": "29267ff4423fcce93bbd76ad0f386905f9de5d267ca13379a5795a514a81b7a9",
+      "policy_preprocessor_step_5_normalizer_processor.safetensors": "7008ba73c73887e5a7e631d478de9563ec5a0c51b7f0327f2530d7326c4b039e"
+    },
+    "checkpoint_compatibility": {
+      "strict": true,
+      "missing_keys": [],
+      "unexpected_keys": []
+    },
+    "precision": "Native checkpoint parameter/buffer precision; published use_amp=false; no blanket BF16 cast or autocast",
+    "processor_overrides": {
+      "tokenizer_processor": {
+        "tokenizer_name": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        }
+      }
+    },
+    "control_frequency_hz": 20,
+    "control_mode": "relative"
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "driver": "580.178.04",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    }
+  },
+  "evidence": {
+    "studies/evaluation/runs/20261002T225820842709Z-SmolVLA-Spatial10-rollout/run.json": "1b3dee94ddf70b8f9278bf1cc928d631b39cf5184b3ec16cad08928e756179fa",
+    "studies/evaluation/runs/20261002T225820842709Z-SmolVLA-Spatial10-rollout/episodes.csv": "71284222b86cc1c383f12ae000e20c9727b1dc9f4167efe3ab8a7ffff1a050fd",
+    "studies/evaluation/runs/20261002T225820842709Z-SmolVLA-Spatial10-rollout/eval_info.json": "bb485f974ffdd2927a6bbdaae2c7b35d0a59995b3d2a06890ae480b62d9ded05"
+  },
+  "native_timing_pilot": {
+    "run": "studies/evaluation/runs/20261002T224348274957Z-SmolVLA-benchmark",
+    "predictions_per_mode": 10,
+    "warmup_per_mode": 20,
+    "pipeline": {
+      "median_ms": 304.4900909953867,
+      "p95_ms": 306.96675990111544
+    },
+    "peak_allocated_bytes": 1280765952,
+    "limitations": "Ten measured predictions per mode, one repetition; not the full500x3 timing protocol"
+  },
+  "limitations": [
+    "One starting state per task; wide uncertainty, no robust success-rate estimate",
+    "Batched flow RNG and episode seeds differ from earlier500-episode measurements",
+    "Noah command/states/seeds/raw eval_info not supplied; this is not an exact reproduction",
+    "Task0 ten-state pilot8/10 retained separately; stopped larger100 run at boundary",
+    "Initial AMP-enabled one-episode development pilot0/1 excluded from native quick check"
+  ]
+}

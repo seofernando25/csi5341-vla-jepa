@@ -27,7 +27,7 @@ function detail(row) {
   if(!$('detail').open)$('detail').showModal();
 }
 const time = x => x ? new Date(x).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-const colors = {B16:'#526172',Q8:'#ba6c27',Q4:'#1965d2',S500:'#9061bc'};
+const colors = {B16:'#526172',Q8:'#ba6c27',Q4:'#1965d2',S500:'#9061bc',SmolVLA:'#008e83'};
 function graphSetup() {
   const d = $('dataset').value;
   choices('metric', d === 'final' ? [['latency','Pipeline latency · ms'],['memory','Inference VRAM · GiB']] :
@@ -49,7 +49,7 @@ function plot() {
   const ykey = d === 'final' ? 'success' : d === 'benchmarks' ? 'latency' : 'loss';
   points = points.filter(p => finite(p[metric]) && finite(p[ykey]));
   const higher = d === 'final';
-  $('plot-note').textContent = d === 'final' ? '500 LIBERO episodes / model · higher success, lower cost · bars: 95% Wilson intervals' :
+  $('plot-note').textContent = d === 'final' ? '500 matched LIBERO episodes / policy · native execution and training histories differ · bars: 95% Wilson intervals' :
     d === 'benchmarks' ? 'All recorded inference benchmarks in the selected timing protocol · lower left is better' :
     d === 'learning' ? 'Earlier SmolVLM adaptation · 200 held-out samples / checkpoint · separate from Dream-RSI' :
     `${d === 'screen' ? state.config.screen_steps : state.config.promotion_steps}-step search protocol · lower left is better · loss ≠ LIBERO success`;

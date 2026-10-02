@@ -82,6 +82,9 @@ def seed_for(task_id, index, phase):
 
 
 def processors(policy, checkpoint=None):
+    if policy.config.type == "smolvla":
+        from evaluation.smolvla import processors as smolvla_processors
+        return smolvla_processors(policy)
     from lerobot.envs.configs import LiberoEnv
     from lerobot.policies import make_pre_post_processors
 
@@ -103,6 +106,11 @@ def prepare(raw, instruction, env_pre, pre):
     observation = preprocess_observation(raw)
     observation["task"] = [instruction]
     return pre(env_pre(observation))
+
+
+def inference_autocast(policy):
+    enabled = policy.config.use_amp if policy.config.type == "smolvla" else True
+    return torch.autocast("cuda", dtype=torch.bfloat16, enabled=enabled)
 
 
 def collect(args):
@@ -175,7 +183,7 @@ def rollout(args, policy, metadata, result_dir):
                     success = False
                     for step in range(env._max_episode_steps):
                         inputs = prepare(batch_raw(raw), task["instruction"], env_pre, pre)
-                        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+                        with torch.inference_mode(), inference_autocast(policy):
                             action = post(policy.select_action(inputs))
                         raw, _, terminated, truncated, info = env.step(
                             action[0].float().cpu().numpy()
@@ -261,7 +269,7 @@ def benchmark(args, policy, metadata, result_dir):
                         torch.cuda.reset_peak_memory_stats()
                     torch.cuda.synchronize()
                     started = time.perf_counter()
-                    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+                    with torch.inference_mode(), inference_autocast(policy):
                         if mode == "pipeline":
                             inputs = prepare(raw, sample["instruction"], env_pre, pre)
                         action = policy.predict_action_chunk(inputs)
@@ -299,6 +307,9 @@ def benchmark(args, policy, metadata, result_dir):
         "repetitions": args.repetitions,
         "memory_peaks": peaks,
     }
+    if metadata.get("architecture") == "smolvla":
+        summary["prediction_semantics"] = {"predicted_actions": policy.config.chunk_size,
+            "executed_before_replanning": policy.config.n_action_steps}
     for mode in ["policy", "pipeline"]:
         values = [r["latency_ms"] for r in records if r["mode"] == mode]
         summary[mode] = {
@@ -325,7 +336,7 @@ def benchmark(args, policy, metadata, result_dir):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["collect", "rollout", "benchmark"])
-    parser.add_argument("--variant", choices=["B16", "Q8", "Q4", "S500"], default="B16")
+    parser.add_argument("--variant", choices=["B16", "Q8", "Q4", "S500", "SmolVLA"], default="B16")
     parser.add_argument("--phase", choices=["development", "final"], default="development")
     parser.add_argument("--tasks", type=int, nargs="+", default=PROTOCOL["task_ids"])
     parser.add_argument("--episodes", type=int, default=10)
@@ -346,6 +357,8 @@ def main():
         parser.error("Tasks must be unique IDs from the frozen suite")
     if args.variant == "S500" and args.checkpoint is None:
         parser.error("S500 task/efficiency evaluation requires a trained checkpoint")
+    if args.variant == "SmolVLA" and args.checkpoint is not None:
+        parser.error("SmolVLA uses the separately pinned complete policy")
     if args.label:
         import re
         if args.variant != 'S500' or not re.fullmatch(r'[A-Za-z0-9_-]{1,40}', args.label):
@@ -381,7 +394,11 @@ def main():
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
         load_started = time.perf_counter()
-        policy, metadata = load_policy(loader_variant, args.checkpoint, buffer_precision=args.buffer_precision)
+        if loader_variant == "SmolVLA":
+            from evaluation.smolvla import load_policy as load_smolvla
+            policy, metadata = load_smolvla()
+        else:
+            policy, metadata = load_policy(loader_variant, args.checkpoint, buffer_precision=args.buffer_precision)
         metadata["loader_variant"] = loader_variant
         metadata["variant"] = args.variant
         torch.cuda.synchronize()
