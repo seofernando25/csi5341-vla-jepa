@@ -1,0 +1,170 @@
+{
+  "reason": "Successful engineering preflights are not deliverable policies. Exact native restoration/resume/validation recorded; retain compact provenance and hashes, remove diagnostic model/optimizer duplicates.",
+  "files_before_cleanup": {
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/recovery_checkpoints.json": {
+      "bytes": 472,
+      "sha256": "c60306944ecdf7fff7539e426e40d19ba6a37821fed1a4fb0e31b8ca58d944b1"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/recovery_registration.json": {
+      "bytes": 834,
+      "sha256": "32b0deea2a734ab967b35b4a3f30126b41613f86325673dc191922b6138fa944"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/train_config.json": {
+      "bytes": 10446,
+      "sha256": "96ecf67650995fd212f872e22c672ef0331344a885d6ef40655c8b5acccdf369"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/model.safetensors": {
+      "bytes": 3005267764,
+      "sha256": "3127eb1bd0cf813917eacd5e5e010cba2e26b07c963c511c51c86522e3e5e224"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/config.json": {
+      "bytes": 4014,
+      "sha256": "7e2ab235b406bf2276aa8f05103d59fb90d965ed24ab5c1c6fbdb3c8d3acf7a1"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/training_state/training_step.json": {
+      "bytes": 222,
+      "sha256": "82b791d8dbbb3b3d2dc615063acdce990e4307d42a7467e423c75af2538bc075"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/training_state/optimizer_param_groups.json": {
+      "bytes": 8319,
+      "sha256": "cb2c83eea179f749362800904697ef2ba9f85e1faebbbc6a3bbfc037f095fb39"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/training_state/scheduler_state.json": {
+      "bytes": 310,
+      "sha256": "d8a30681b31f9f039e9f338f9c78f5f7b62ec203e812243acb0ed58eff37578b"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "f6d930dc15d9570dab33fbfa7022ebbfc3ba2cf33e76c246d3d4e50cf50836d3"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000010/training_state/optimizer_state.safetensors": {
+      "bytes": 2833532304,
+      "sha256": "81ff5867f140dc6be2fe5a7af70deaf786fdd499996a5182f4e4e31f584a5061"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/recovery_registration.json": {
+      "bytes": 834,
+      "sha256": "32b0deea2a734ab967b35b4a3f30126b41613f86325673dc191922b6138fa944"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/train_config.json": {
+      "bytes": 10509,
+      "sha256": "1a1cc3ea957f27ad20da0bad220f0e71f9db40ed7f6f1cb56a2c386fba7a843a"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/model.safetensors": {
+      "bytes": 3005267764,
+      "sha256": "e6b835d5203be3c281a5624ad79e9b6ec594eb26730cd243e9b8bd6923b73ddb"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/config.json": {
+      "bytes": 3988,
+      "sha256": "ea4cba55abece4fc3de4fd665c6c74512206b0dbd11e6d61be5ae7568e8ed2e8"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/training_state/training_step.json": {
+      "bytes": 222,
+      "sha256": "7af982d95300c9a1ed31ddfeceafef3ef52cafb411f088654034bb6ffc4017f8"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/training_state/optimizer_param_groups.json": {
+      "bytes": 8319,
+      "sha256": "96bfaa058d121bac1fd3972311d98493c35fcf3b9bc4651cf253640f484bc36c"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/training_state/scheduler_state.json": {
+      "bytes": 310,
+      "sha256": "ff412fa9101f4911cabb7afc5607140f6f19c0abcca7557a3b1e897d35fe345b"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "be090d050b351ed5db8a516bd90a1b31b10aceb0c25ee4281c53bdf803b4d576"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000012/training_state/optimizer_state.safetensors": {
+      "bytes": 2833532304,
+      "sha256": "05d432bcc0c27294935d136f07e88441c2cd22021e7c3f6927cac6bb9a81fe8b"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/recovery_registration.json": {
+      "bytes": 834,
+      "sha256": "32b0deea2a734ab967b35b4a3f30126b41613f86325673dc191922b6138fa944"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/train_config.json": {
+      "bytes": 10508,
+      "sha256": "9505f7cec96f0836b3899d1ceabe69683ed3f7a90c898517596c37ed6584b394"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/model.safetensors": {
+      "bytes": 3005267764,
+      "sha256": "d7e00c3ea5c6b91bb81622f732c0468d6ff42f2aefc37ca72d3e0c553d7c4620"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/config.json": {
+      "bytes": 3988,
+      "sha256": "3319dbbcb020382a365f04141ec99cbc18d2fd774e143f89cccb511806dc3521"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/training_state/training_step.json": {
+      "bytes": 222,
+      "sha256": "e7ef7159d2773a7f8e3545b45a9a01299b80127652ef034bd89aef4467493115"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/training_state/optimizer_param_groups.json": {
+      "bytes": 8319,
+      "sha256": "c406e2b40a40f6a3630e92ca4a2fdf60decb2d12de39436bcf96d372848e2f86"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/training_state/scheduler_state.json": {
+      "bytes": 310,
+      "sha256": "19ec61cdb159560595e4efd64fa068287e691c9c0f23f807e97fc1310f372579"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "262160df675675cbd4e737d44366b44c8061a75c3e6436f2222d5f5f2ba4029e"
+    },
+    "outputs/recovery/training/20261002T003237495813Z-RGB-recovery-train/train/checkpoints/000014/training_state/optimizer_state.safetensors": {
+      "bytes": 2833532304,
+      "sha256": "e1a66cb9db36ea924952f666f1b98d2a624b2cbfb353e7cb1b4557a3a4672dfa"
+    }
+  },
+  "cleaned_runtime_run_ids": [
+    "20261002T003237495813Z-RGB-recovery-train",
+    "20261002T003406170559Z-RGB-recovery-train",
+    "20261002T003505317205Z-RGB-recovery-train"
+  ]
+}
