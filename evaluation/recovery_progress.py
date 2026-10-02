@@ -64,6 +64,13 @@ def main():
     job_path = ROOT / 'outputs/recovery/cloud/remote-job.json'
     job = read_json(job_path) if job_path.exists() else {}
     stages = job.get('stages', []) if job.get('recipe_sha256') == recipe_hash else []
+    completion_path = root / 'diagnostics/completed_r1.json'
+    if not stages and completion_path.exists():
+        completion = read_json(completion_path)
+        if completion.get('recipe_sha256') == recipe_hash:
+            stages = [{'completed_step': r['stage'], 'selected_step': r['selected_step'],
+                       'selected_checkpoint_sha256': r['checkpoint_sha256']}
+                      for r in completion['milestones']]
     for stage in stages:
         for path in sorted((ROOT / 'studies/evaluation/runs').glob('*/run.json')):
             run = read_json(path)

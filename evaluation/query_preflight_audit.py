@@ -97,10 +97,10 @@ def main():
                'recipe_sha256': recipe_hash, 'source_manifest': expected, 'audit_sha256': file_hash(__file__),
                'trainable_decoder_layers': recipe['unfreeze_last_n'],
                'gpu': record['environment']['gpu'], 'allocator_config': record['allocator_config'],
-               'runs': results, 'limitations': 'Four engineering updates on RTX3090, excluded from production '
+               'runs': results, 'limitations': 'Four engineering updates on the recorded GPU, excluded from production '
                'selection and curves. Exact inherited tensor restoration, optimizer counters/moments and scheduler '
                'resume verified. RNG is serialized and hash-verified; no uninterrupted-run equivalence claim. '
-               'The intended RTX5090 and final production initialization still require native preflight. No task-success claim.'})
+               'No longer-horizon, cross-hardware reproducibility or task-success claim.'})
     print('Native optimizer/save/resume gate passed; not a production control result.')
 
 
