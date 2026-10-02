@@ -144,8 +144,9 @@ class SmolVLMInterface(nn.Module):
             ] for sample in images],
             padding=True,
             return_tensors="pt",
-            do_rescale=False,
-            images_kwargs={"device": self.model.device},
+            # Structured image kwargs suppress flat image kwargs in Transformers.
+            # These tensors are already in [0, 1]; a second 1/255 destroys contrast.
+            images_kwargs={"device": self.model.device, "do_rescale": False},
         )
         return inputs.to(
             device=self.model.device, dtype=self._get_torch_dtype(self.config.torch_dtype)

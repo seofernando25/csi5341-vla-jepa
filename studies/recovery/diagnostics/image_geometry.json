@@ -1,0 +1,28 @@
+{
+  "native_tiles": {
+    "pixel_shape": [
+      1,
+      34,
+      3,
+      512,
+      512
+    ],
+    "input_tokens": 2266,
+    "pixel_values_bytes": 106954752
+  },
+  "single_global_tile": {
+    "pixel_shape": [
+      1,
+      2,
+      3,
+      512,
+      512
+    ],
+    "input_tokens": 146,
+    "pixel_values_bytes": 6291456
+  },
+  "processor_image_sequence_length": 64,
+  "default_longest_edge": 2048,
+  "max_image_longest_edge": 512,
+  "scope": "Input geometry diagnostic only; no latency, memory or task-success measurement. Disabling native tiling would require a separately registered preprocessing variant, not a frozen RSI candidate change."
+}

@@ -1,0 +1,34 @@
+{
+  "legacy": {
+    "range": [
+      -1.000479817390442,
+      -0.992258608341217
+    ],
+    "std": 0.0015265772817656398,
+    "dtype": "torch.float32",
+    "shape": [
+      1,
+      17,
+      3,
+      512,
+      512
+    ]
+  },
+  "corrected": {
+    "range": [
+      -1.1223535537719727,
+      0.9740564823150635
+    ],
+    "std": 0.3892771303653717,
+    "dtype": "torch.float32",
+    "shape": [
+      1,
+      17,
+      3,
+      512,
+      512
+    ]
+  },
+  "std_ratio": 254.99994989780907,
+  "source": "Same first training primary-camera frame, pinned actual Smol processor, CUDA torchvision; only kwarg placement differs."
+}

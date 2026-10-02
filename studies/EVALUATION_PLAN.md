@@ -84,3 +84,5 @@ Only after core deliverables: quantize the trained S500 variant to test combined
 References: [VLA-JEPA checkpoint](https://huggingface.co/lerobot/VLA-JEPA-LIBERO), [SmolVLM checkpoint](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct), [LIBERO](https://github.com/Lifelong-Robot-Learning/LIBERO), [quantization backend](https://huggingface.co/docs/transformers/quantization/bitsandbytes).
 
 Optional confirmation (2026-10-01): [n0008 cloud continuation](confirmation/n0008-20261001/cloud-results/summary.json) completed to 10k on RTX 5090. Validation loss 0.2653; ten development trials yielded zero successes. The [updated report](evaluation/report/report.pdf) includes separate loss/latency figures. Matched baseline confirmation and full n0008 development/final evaluation remain pending; this result does not complete those comparisons.
+
+Active follow-up (2026-10-01): [SmolVLM recovery](recovery/README.md) audits action accuracy, preprocessing and gradient connectivity before further training. Recovery interventions use separate provenance and preserve the frozen RSI study. The original performance/memory decision rule remains the acceptance target.

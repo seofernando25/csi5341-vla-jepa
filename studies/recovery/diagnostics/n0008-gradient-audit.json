@@ -1,0 +1,29 @@
+{
+  "checkpoint_sha256": "bc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8",
+  "protocol": "One native action-loss backward pass on training episode 0/frame 30; seed 92000; no optimizer",
+  "action_loss": 0.06145469471812248,
+  "groups": {
+    "hidden_adapter": {
+      "parameters_with_grad": 1,
+      "trainable_parameters": 1966080,
+      "all_finite": true,
+      "grad_l2": 0.22733382880687714
+    },
+    "decoder_adapter": {
+      "parameters_with_grad": 3,
+      "trainable_parameters": 246720,
+      "all_finite": true,
+      "grad_l2": 0.29694101214408875
+    },
+    "action_head": {
+      "parameters_with_grad": 248,
+      "trainable_parameters": 155182343,
+      "all_finite": true,
+      "grad_l2": 2.015148878097534
+    }
+  },
+  "passed": true,
+  "special_token_embeddings_trainable": false,
+  "peak_allocated_bytes": 3515980800,
+  "limitations": "Connectivity check on one batch; no proof of useful representations or training convergence."
+}

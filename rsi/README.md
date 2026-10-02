@@ -6,6 +6,8 @@ Architecture proposals and search-policy revisions use `gpt-6.1-sol` with `high`
 
 The active search uses on-device Torchvision image processing, preserving image size and tiling but using bicubic instead of PIL Lanczos. This pipeline was rebaselined after the September 30 CPU study; prior journals and compact results remain archived separately. Historical paper evaluations retain their original PIL protocol.
 
+October 1 diagnostic: the frozen GPU-study image call also rescales unit-range images twice. Its architecture results are therefore confounded. The [separate recovery study](../studies/recovery/README.md) corrects this; preserve the original journal/source and do not mix corrected-pipeline results with its screens.
+
 ```bash
 python -m rsi init
 python -m rsi run

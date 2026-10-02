@@ -145,7 +145,7 @@ def test_smolvlm_processor_receives_batched_images_without_rescaling():
     adapter.processor = Processor()
     images = [[torch.rand(3, 8, 8)], [torch.rand(3, 8, 8)]]
     inputs = adapter.build_inputs(images, ["pick", "place"], "<a>", "<e>")
-    assert calls[0]["do_rescale"] is False
+    assert calls[0]["images_kwargs"]["do_rescale"] is False
     assert len(calls[0]["images"]) == 2
     assert "pick" in calls[0]["text"][0] and "place" in calls[0]["text"][1]
     assert inputs["input_ids"].dtype == torch.long
@@ -177,3 +177,40 @@ def test_torchvision_input_path_never_copies_images_to_cpu(monkeypatch):
     assert calls[0]['images_kwargs']['device']==adapter.model.device
     assert calls[0]['images'][0][0].data_ptr()==image.data_ptr()
     assert out['input_ids'].dtype==torch.long
+
+
+def test_real_smol_processor_preserves_unit_range_image_contrast():
+    """The real kwargs merger must honor no-rescale, not just receive the flag."""
+    from types import SimpleNamespace
+    from tokenizers import Tokenizer, models
+    from transformers import (
+        PreTrainedTokenizerFast, SmolVLMImageProcessor, SmolVLMProcessor, SmolVLMVideoProcessor,
+    )
+    from lerobot_policy_vla_jepa_smolvlm import VLAJEPASmolVLMConfig
+    from lerobot_policy_vla_jepa_smolvlm.smolvlm_interface import SmolVLMInterface
+
+    vocab = {"<unk>": 0, "<pad>": 1, "<image>": 2,
+             "<fake_token_around_image>": 3, "<global-img>": 4}
+    tokenizer = PreTrainedTokenizerFast(
+        tokenizer_object=Tokenizer(models.WordLevel(vocab, unk_token="<unk>")),
+        unk_token="<unk>", pad_token="<pad>", additional_special_tokens=list(vocab)[2:])
+    processor = SmolVLMProcessor(
+        SmolVLMImageProcessor(size={"longest_edge": 8}, max_image_size={"longest_edge": 8},
+                             do_image_splitting=False),
+        tokenizer, SmolVLMVideoProcessor(), image_seq_len=1,
+        chat_template="{% for m in messages %}{% for c in m['content'] %}"
+                      "{% if c['type'] == 'image' %}<image>{% else %}{{c['text']}}{% endif %}"
+                      "{% endfor %}{% endfor %}")
+    adapter = SmolVLMInterface.__new__(SmolVLMInterface)
+    torch.nn.Module.__init__(adapter)
+    adapter.config = VLAJEPASmolVLMConfig(torch_dtype="float32")
+    adapter.model = SimpleNamespace(device=torch.device("cpu"))
+    adapter.processor = processor
+    image = torch.zeros(3, 8, 8)
+    image[:, :, 4:] = 1
+    pixels = adapter.build_inputs([[image]], ["pick"], "<a>", "<e>")["pixel_values"]
+    assert torch.equal(pixels[0, 0], 2 * image - 1)
+    # Demonstrate the previous call's failure using the actual dependency.
+    legacy = processor(text=["<image>"], images=[[image]], return_tensors="pt",
+                       do_rescale=False, images_kwargs={"device": "cpu"})["pixel_values"]
+    assert legacy.max() - legacy.min() < .01

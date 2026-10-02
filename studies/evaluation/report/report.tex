@@ -10,7 +10,7 @@
 \setlength{\tabcolsep}{5pt}
 \title{\vspace{-15mm}\textbf{Efficient VLA-JEPA for Robotic Manipulation}\\[3pt]\large CSI 5341: efficiency evaluation}
 \author{Noah Sprenger \qquad Fernando Nogueira}
-\date{2026-10-01}
+\date{2026-10-02}
 \begin{document}
 \maketitle
 \vspace{-7mm}
@@ -72,6 +72,7 @@ Held-out loss decreased from 0.3056 at 5,500 steps to 0.2653 at 10,000 steps (20
 Full-pipeline median/p95 latency was 302.8/407.7 ms; policy-native latency was 257.6/311.1 ms. Peak allocated inference memory was 2.97 GiB. Each mode used 500 predictions across three repetitions. Policy-native timing includes backbone preprocessing and is not neural-only timing. These RTX 5090 measurements cannot isolate a pipeline or architecture speedup against the earlier RTX 3090/PIL measurements.
 
 The full resumable checkpoint was hash-verified before rental deletion. The matched SmolVLM baseline confirmation, full development/final trials, and fixed-checkpoint cross-hardware comparisons remain pending. Training exposure and backbone trainability differ substantially from the original paper; this experiment does not isolate undertraining, representation mismatch or a control-pipeline issue.
+A subsequent processor audit identified a concrete input defect in this frozen GPU pipeline: structured image-device arguments suppressed the flat no-rescale argument. Unit-range images were scaled again, reducing pixel contrast by a factor of 255. The original results remain attributable to that pipeline; they cannot establish a limitation of SmolVLM capacity. The current plugin is corrected and a real-processor pixel-range regression passes. Corrected-input training and control evaluation are a separate recovery study; no successful recovered policy is claimed here.
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F6_cloud.pdf}\caption{Separate n0008 confirmation: held-out action/world prediction loss and measured inference latency distributions on the RTX 5090. Loss points use the same 200 held-out samples; each latency curve contains 1,500 predictions. Closed-loop development success was 0/10 and is not inferred from prediction loss.}\end{figure}
 
 The companion repository provides checkpoint hashes, the delivery checklist, raw measurements, and reproduction commands. CUDA checks and finite training losses do not establish manipulation success; missing measurements are never imputed.

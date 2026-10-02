@@ -12,3 +12,5 @@ python -m evaluation.report
 ```
 
 Lower prediction loss did not establish useful closed-loop control. Training exposure, frozen representations and pipeline correctness are not isolated here. A matched base confirmation and full development/final evaluation remain pending. RTX 5090 results are separate from the earlier RTX 3090/PIL campaign. The first benchmark hit its operational timeout; only the completed retry supplies reported timings.
+
+Follow-up: the [recovery audit](../../../recovery/README.md) verified double image rescaling in the frozen GPU pipeline. This is a major confound for interpreting these architecture results. The original measurements remain unchanged; corrected-pipeline training/evaluation require a separate study.
