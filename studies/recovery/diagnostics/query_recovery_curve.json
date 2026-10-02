@@ -42,8 +42,8 @@
     },
     {
       "run_id": "20261002T124515345333Z-Query-recovery-train",
-      "metrics_sha256": "01852cbca58b837a1a3bb3046090a726b8b97e927b9ff55ab073aa9ffb37edc1",
-      "metrics_snapshot_bytes": 1188652,
+      "metrics_sha256": "54ab8fdd52fe406c2b44537e465f78abfad31a0b6640a571b03083defc2fbe53",
+      "metrics_snapshot_bytes": 2039590,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -57,7 +57,7 @@
   "study": "n0008-query-decoder-recovery-r1",
   "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
   "registration_sha256": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
-  "latest_training_step": 7653,
+  "latest_training_step": 9541,
   "validation": [
     {
       "step": 500,
@@ -176,6 +176,38 @@
       "native_loss": 0.20840098977088928,
       "arm_rmse": 0.15447986385717644,
       "gripper_error_percent": 6.907137375287798,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 8000,
+      "native_loss": 0.20666319608688355,
+      "arm_rmse": 0.1546958832017127,
+      "gripper_error_percent": 5.295471987720645,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 8500,
+      "native_loss": 0.20524733126163483,
+      "arm_rmse": 0.1518903229470621,
+      "gripper_error_percent": 5.832693783576362,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 9000,
+      "native_loss": 0.2047528964281082,
+      "arm_rmse": 0.15144243667403715,
+      "gripper_error_percent": 5.755947812739831,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 9500,
+      "native_loss": 0.20281874477863313,
+      "arm_rmse": 0.14768600452497727,
+      "gripper_error_percent": 5.602455871066769,
       "frames": 200,
       "valid_actions": 1303
     }
