@@ -1,0 +1,331 @@
+{
+  "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+  "registration_sha256": "3b37edc9751714562f0e1dec280aee40b047640df21e12195acb32106475f203",
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "torch": null,
+    "cuda": null
+  },
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "evaluator_sha256": "cd188097447c715319175bb7596640f5796e1205196a6f48d16430b86ee6c537",
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "modes": {
+    "legacy": {
+      "run_id": "20261002T050520237557Z-RGB-n0008-5k-LegacyRoPE-rollout",
+      "episodes_csv_sha256": "3235b7eed015d32f8dee1c720704b91f14766d4e17db683f881164bdcc2916fd",
+      "summary": {
+        "episodes": 10,
+        "successes": 1,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.1
+      },
+      "episodes": [
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "0",
+          "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "5ef7b059328e4d2132e43689ee0d525bd6a4d613e8cf43fe5bffc4ce8e01b5ad",
+          "seed": "1000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.970372833995498",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "1",
+          "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+          "seed": "2000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.563729230998433",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "2",
+          "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "f89c0304c7f3c75b7af900bada13fc5eb20e2ebb6a81c94c5890b02ed7a6c0d0",
+          "seed": "3000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.42414764899877",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "3",
+          "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "69b70c3f670e48e4beaff84cdb75b182a35de1005e1d1f3646b7137264c0d9c1",
+          "seed": "4000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.962143635995744",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "4",
+          "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "cf4aba0fe4e16e9cfd810eac217c2915f99a1449019d0a0f79dbad6540475399",
+          "seed": "5000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "17.601534610999806",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "5",
+          "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "eefad8d4b401eb2b12b76732513f3696a373fd0be7293444271b2f4c66c9fa00",
+          "seed": "6000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.451891130993317",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "6",
+          "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "7ae45add8d5bbc65fabb8ad1be09719df36e2721e21637f3c544952a7eacc766",
+          "seed": "7000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.433974289000616",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "7",
+          "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "6b95ea5ff3d75baed82b1b5e7958e71aa24f3a2db8e5a0e206933a7e47994918",
+          "seed": "8000",
+          "success": "1",
+          "steps": "143",
+          "wall_seconds": "9.926579184997536",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "8",
+          "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "4772e860bacdc19931e696496bf4b61ca91d01026f37f17c648ce2d8d7ef8ed2",
+          "seed": "9000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.319689295996795",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-LegacyRoPE",
+          "phase": "development",
+          "task_id": "9",
+          "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "3e5c1fc85cd6623209f0262d1d3f5f02f2607b92ceabdc57b00c7afe4410cb01",
+          "seed": "10000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.958768094002153",
+          "status": "completed"
+        }
+      ]
+    },
+    "native_rope": {
+      "run_id": "20261002T050815948836Z-RGB-n0008-5k-NativeRoPE-rollout",
+      "episodes_csv_sha256": "e6559c4de58c73ba97485c552f4a184d8514bf88b7c0a6736ce2183a36f54690",
+      "summary": {
+        "episodes": 10,
+        "successes": 1,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.1
+      },
+      "episodes": [
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "0",
+          "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "5ef7b059328e4d2132e43689ee0d525bd6a4d613e8cf43fe5bffc4ce8e01b5ad",
+          "seed": "1000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "17.12180708899541",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "1",
+          "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+          "seed": "2000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.486222374005592",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "2",
+          "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "f89c0304c7f3c75b7af900bada13fc5eb20e2ebb6a81c94c5890b02ed7a6c0d0",
+          "seed": "3000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.428837309998926",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "3",
+          "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "69b70c3f670e48e4beaff84cdb75b182a35de1005e1d1f3646b7137264c0d9c1",
+          "seed": "4000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "17.227036194999528",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "4",
+          "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "cf4aba0fe4e16e9cfd810eac217c2915f99a1449019d0a0f79dbad6540475399",
+          "seed": "5000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "17.519006364993402",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "5",
+          "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "eefad8d4b401eb2b12b76732513f3696a373fd0be7293444271b2f4c66c9fa00",
+          "seed": "6000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "17.187553237003158",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "6",
+          "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "7ae45add8d5bbc65fabb8ad1be09719df36e2721e21637f3c544952a7eacc766",
+          "seed": "7000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.487191492997226",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "7",
+          "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "6b95ea5ff3d75baed82b1b5e7958e71aa24f3a2db8e5a0e206933a7e47994918",
+          "seed": "8000",
+          "success": "1",
+          "steps": "158",
+          "wall_seconds": "10.905687487997056",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "8",
+          "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "4772e860bacdc19931e696496bf4b61ca91d01026f37f17c648ce2d8d7ef8ed2",
+          "seed": "9000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.385511073996895",
+          "status": "completed"
+        },
+        {
+          "variant": "RGB-n0008-5k-NativeRoPE",
+          "phase": "development",
+          "task_id": "9",
+          "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+          "trial": "0",
+          "initial_state_hash": "3e5c1fc85cd6623209f0262d1d3f5f02f2607b92ceabdc57b00c7afe4410cb01",
+          "seed": "10000",
+          "success": "0",
+          "steps": "280",
+          "wall_seconds": "16.941901583995786",
+          "status": "completed"
+        }
+      ]
+    }
+  },
+  "paired_membership_verified": true,
+  "discordant_success_pairs": 0,
+  "limitations": "Ten first development states, one fixed 5k checkpoint, same local GPU. Native-buffer correction changes trajectories but yields no success-rate increase in this sample. Does not prove no benefit on other checkpoints or final trials. Cloud 5k development on RTX5090 previously gave0/10; hardware/numerical trajectory differences prevent pooling it with this paired local result."
+}

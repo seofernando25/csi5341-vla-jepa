@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import fcntl
+import hashlib
 import json
 import re
 import shlex
@@ -25,6 +26,23 @@ def checked_relative(name, parent):
     if path.is_absolute() or '..' in path.parts or not path.is_relative_to(parent):
         raise ValueError('Export path escapes the recovery study')
     return path
+
+
+def completion_window(now, minutes, identity, previous, spent, hourly, cleanup_epoch):
+    """A restart cannot extend a verified-run review past its first expiry."""
+    expiry = now + minutes * 60
+    if previous and previous.get('job_identity') == identity:
+        expiry = min(expiry, previous['until'])
+    if hourly <= 0 or spent >= 13.5 or minutes <= 0:
+        expiry = now
+    else:
+        expiry = min(expiry, cleanup_epoch - 60, now + (13.5 - spent) / hourly * 3600)
+    return {'job_identity': identity, 'until': expiry}
+
+
+def job_identity(job):
+    fields = [job.get(k) for k in ('study', 'recipe_sha256', 'started_at')]
+    return hashlib.sha256(json.dumps(fields, sort_keys=True).encode()).hexdigest()
 
 
 def transfer_with_updates(command, update=None, interval=60, timeout=7200):
@@ -65,7 +83,11 @@ def main():
     parser.add_argument('--rental', type=Path, required=True)
     parser.add_argument('--ssh-key', type=Path, required=True)
     parser.add_argument('--known-hosts', type=Path, required=True)
+    parser.add_argument('--completion-hold-minutes', type=int, default=0,
+                        help='Review a completed, fully exported run before cleanup (0–120 minutes)')
     args = parser.parse_args()
+    if not 0 <= args.completion_hold_minutes <= 120:
+        parser.error('Completion review must be between 0 and 120 minutes')
     folder = ROOT / 'outputs/recovery/cloud'
     folder.mkdir(parents=True, exist_ok=True)
     lock = (folder / 'export.lock').open('w')
@@ -185,7 +207,7 @@ def main():
             write_json(folder / 'remote-job.json', job)
             metadata(instance)
             status('monitoring', job_status=job['status'], target_step=job.get('target_step'), total_spent_usd=spent)
-            if job.get('backup_files'):
+            if job.get('backup_files') and job.get('status') not in {'completed', 'failed'}:
                 export(instance, job['backup_files'])
             if job.get('status') in {'completed', 'failed'}:
                 files = job.get('export_files', {})
@@ -200,6 +222,27 @@ def main():
                         if p.stat().st_size != expected['bytes'] or file_hash(p) != expected['sha256']:
                             raise RuntimeError('Final re-verification failed')
                 metadata(instance)
+                # A follow-up may have replaced the completed supervisor while
+                # a large export was in flight. Never tear down that new job.
+                fresh = subprocess.run(transport + [f'cat {shlex.quote(str(ROOT / "outputs/recovery/cloud/job.json"))}'],
+                                       capture_output=True, text=True, timeout=40, check=True)
+                current = json.loads(fresh.stdout)
+                if job_identity(current) != job_identity(job) or current.get('status') not in {'completed', 'failed'}:
+                    status('followup_detected', job_status=current.get('status'), total_spent_usd=spent)
+                    continue
+                if job['status'] == 'completed' and files and args.completion_hold_minutes:
+                    spent = rental['account_credit_at_project_start'] - float(api('GET', 'users/current/')['credit'])
+                    review_path = folder / 'completion-review.json'
+                    previous = read_json(review_path) if review_path.exists() else None
+                    review = completion_window(time.time(), args.completion_hold_minutes,
+                        job_identity(job), previous, spent, float(rental['offer'].get('dph_total', 0)),
+                        float(rental['planned_cleanup_epoch']))
+                    write_json(review_path, review)
+                    if review['until'] > time.time():
+                        status('verified_completion_review', verified_files=len(files),
+                               review_until=review['until'], job_status=job['status'], total_spent_usd=spent)
+                        time.sleep(60)
+                        continue
                 if files:
                     # Stage backups have served their purpose; the final native
                     # latest/best checkpoints and compact audit history remain.

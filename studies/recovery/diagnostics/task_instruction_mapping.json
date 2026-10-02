@@ -1,0 +1,59 @@
+{
+  "purpose": "Compare instruction identity independently of dataset and LIBERO task IDs",
+  "dataset_tasks_sha256": "f2796545e03ffd6a38f6422a6d95aaa5d599aa09e7772862a7abce8cf6a200b3",
+  "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "instruction_sets_exactly_equal": true,
+  "mapping": [
+    {
+      "instruction": "pick up the black bowl next to the cookie box and place it on the plate",
+      "dataset_task_id": 0,
+      "libero_task_id": 6
+    },
+    {
+      "instruction": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
+      "dataset_task_id": 1,
+      "libero_task_id": 4
+    },
+    {
+      "instruction": "pick up the black bowl on the ramekin and place it on the plate",
+      "dataset_task_id": 2,
+      "libero_task_id": 5
+    },
+    {
+      "instruction": "pick up the black bowl on the stove and place it on the plate",
+      "dataset_task_id": 3,
+      "libero_task_id": 7
+    },
+    {
+      "instruction": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "dataset_task_id": 4,
+      "libero_task_id": 0
+    },
+    {
+      "instruction": "pick up the black bowl on the cookie box and place it on the plate",
+      "dataset_task_id": 5,
+      "libero_task_id": 3
+    },
+    {
+      "instruction": "pick up the black bowl next to the plate and place it on the plate",
+      "dataset_task_id": 6,
+      "libero_task_id": 8
+    },
+    {
+      "instruction": "pick up the black bowl next to the ramekin and place it on the plate",
+      "dataset_task_id": 7,
+      "libero_task_id": 1
+    },
+    {
+      "instruction": "pick up the black bowl from table center and place it on the plate",
+      "dataset_task_id": 8,
+      "libero_task_id": 2
+    },
+    {
+      "instruction": "pick up the black bowl on the wooden cabinet and place it on the plate",
+      "dataset_task_id": 9,
+      "libero_task_id": 9
+    }
+  ],
+  "finding": "Dataset and simulator task IDs use different permutations, but all ten instruction strings match exactly. Training takes the dataset instruction and rollout takes the matching simulator instruction. Join task-level diagnostics by instruction, not numeric ID. No verified instruction mismatch."
+}

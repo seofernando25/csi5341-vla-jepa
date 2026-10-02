@@ -130,13 +130,19 @@ def render(output):
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
-            r'A separate registered study corrects RGB scaling and adapts the last four '
-            r'SmolVLM decoder layers. It starts from the verified legacy 10k weights with '
-            r'fresh AdamW, batch eight, decoder/other learning rates of '
-            r'$10^{-5}/10^{-4}$, and a fixed 20k-update cosine schedule. Native '
-            r'data membership, image tiling, action/world architecture and losses remain '
-            r'unchanged. Checkpoint selection uses physical arm-command error on 200 fixed '
-            r'held-out frames; final robot trials remain reserved.' + '\n\n'
+            r'Registered recovery corrects RGB scaling and adapts four final SmolVLM '
+            r'decoder layers from the legacy 10k weights: fresh AdamW, batch eight, '
+            r'decoder/other rates $10^{-5}/10^{-4}$, fixed 20k cosine schedule. Data, '
+            r'tiling, action/world architecture and losses remain unchanged. Physical '
+            r'arm error on 200 held-out frames selects checkpoints; final trials remain '
+            r'reserved.' + '\n\n'
+            r'The legacy inference loader also rounds nonpersistent rotary frequencies '
+            r'to BF16, unlike native FP32-buffer training. With identical weights and '
+            r'random draws, this raises one-frame action loss from 0.0460 to 0.0618; '
+            r'restoring the original buffers reverses it exactly. Historical inference '
+            r'diagnostics retain this confound. Paired local tests of the fixed 5k '
+            r'checkpoint yield 1/10 successes in each precision mode, on the same task; '
+            r'the defect has not rescued control in this sample.' + '\n\n'
             f"At {last['step']:,} additional updates, held-out arm RMSE was "
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
             f"{first['step']:,}; gripper error changed from "
@@ -412,9 +418,9 @@ The prespecified engineering target is at least 25\% lower peak inference memory
 
 The inherited world-model loss uses bidirectional video embeddings; it does not measure causal future prediction. Deployment receives current observations only. Validation trajectories are held out from this adaptation, not necessarily from published models' earlier training. Checkpoint loading audits all mismatches; documented unused tensors and verified tied aliases are excluded.
 
-Camera observations and outer policy preprocessing are matched, but each backbone retains its native image/token processor. A CPU probe confirms that SmolVLM expands a 224-pixel image into seventeen 512-pixel tiles. Thus the backbone comparison includes different visual token workloads; parameter count alone does not predict latency. Native pixel scaling was checked independently. Neural-only timing is separated from processor-inclusive timing.
+Backbones retain their native processors: SmolVLM expands each 224-pixel image into seventeen 512-pixel tiles. This workload differs from Qwen's; parameter count alone does not predict latency. Neural-only timing excludes preprocessing. Input scaling and inference-buffer precision require independent checks.
 
-\textbf{Summary.} This study measures decoder quantization within a fixed pretrained policy and backbone replacement under limited adaptation. Deployment savings and manipulation retention are separate outcomes; conclusions about successful robot deployment require both.
+\textbf{Summary.} Deployment savings and retained manipulation success must both be demonstrated.
 
 \begin{thebibliography}{6}\small
 \bibitem{vla} Sun et al. VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model. arXiv:2602.10098, 2026.

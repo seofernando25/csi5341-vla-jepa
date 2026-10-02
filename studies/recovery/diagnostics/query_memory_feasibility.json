@@ -1,0 +1,21 @@
+{
+  "purpose": "Memory feasibility of persistent input query residual with native nonreentrant checkpointing",
+  "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+  "initial_attempt": {
+    "batch_size": 8,
+    "reserved_adam_moments": true,
+    "allocator_config": "default",
+    "status": "CUDA out of memory",
+    "failure_scope": "Forward pass; no optimizer update",
+    "log_sha256": "3abc9b2c55db694563d0f2515ca7d3d4827a8485864a3268d2321613a2559395"
+  },
+  "retry": {
+    "batch_size": 8,
+    "reserved_adam_moments": true,
+    "allocator_config": "expandable_segments:True",
+    "status": "finite native forward/backward passed",
+    "evidence": "persistent_query_source_b8.json",
+    "log_sha256": "f6806adf62870aaf25387c027755f4eaf97c5161351093382c67f6ed861788d9"
+  },
+  "limitations": "One fixed consecutive eight-frame training batch on RTX3090; synthetic moments omit actual optimizer-step workspace. Allocator setting is operational, not a scientific recipe change. A complete native save/resume training preflight on the intended GPU is required before launching a new study."
+}

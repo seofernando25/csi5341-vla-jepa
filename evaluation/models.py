@@ -123,7 +123,30 @@ def restore_published_checkpoint(policy, path):
     }
 
 
-def load_policy(variant, checkpoint=None, device="cuda"):
+def cast_inference_policy(policy, device, buffer_precision="legacy"):
+    """Preserve native RoPE values before casting, never upcast rounded values."""
+    if buffer_precision not in {"legacy", "native_rope"}:
+        raise ValueError("Unknown inference buffer precision")
+    originals = {}
+    if buffer_precision == "native_rope":
+        for name, value in policy.named_buffers():
+            if name.endswith(("rotary_emb.inv_freq", "rotary_emb.original_inv_freq")):
+                if value.dtype != torch.float32:
+                    raise ValueError(f"Native rotary frequencies already rounded: {name}")
+                originals[name] = value.detach().clone()
+        if not originals:
+            raise ValueError("No native rotary frequencies found")
+    policy.to(device=device, dtype=torch.bfloat16)
+    for name, original in originals.items():
+        parent, _, leaf = name.rpartition(".")
+        module = policy.get_submodule(parent) if parent else policy
+        module._buffers[leaf] = original.to(device=device)
+    policy.eval().requires_grad_(False)
+    return {name: {"dtype": str(value.dtype), "shape": list(value.shape)}
+            for name, value in originals.items()}
+
+
+def load_policy(variant, checkpoint=None, device="cuda", buffer_precision="legacy"):
     from lerobot.configs import PreTrainedConfig
     from lerobot.policies.vla_jepa.modeling_vla_jepa import VLAJEPAPolicy
 
@@ -170,7 +193,7 @@ def load_policy(variant, checkpoint=None, device="cuda"):
             policy, artifact("baseline") / "model.safetensors"
         )
         status = "published_trained_policy"
-    policy.to(device=device, dtype=torch.bfloat16).eval().requires_grad_(False)
+    preserved_buffers = cast_inference_policy(policy, device, buffer_precision)
     logical_parameters = sum(p.numel() for p in policy.parameters())
     converted = []
     if variant in {"Q8", "Q4"}:
@@ -188,6 +211,8 @@ def load_policy(variant, checkpoint=None, device="cuda"):
         "world_model_loaded": policy.model.video_encoder is not None,
         "sources": SOURCES,
         "checkpoint_compatibility": compatibility,
+        "buffer_precision": buffer_precision,
+        "preserved_rotary_buffers": preserved_buffers,
         "Q8_internal_activation_cast": "float16" if variant == "Q8" else None,
     }
     return policy, metadata

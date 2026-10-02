@@ -84,6 +84,7 @@ def main():
     parser.add_argument('--task', type=int, choices=range(10), default=0)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--frame-interval', type=int, default=14)
+    parser.add_argument('--buffer-precision', choices=['legacy', 'native_rope'], default='legacy')
     args = parser.parse_args()
     if args.frame_interval < 7:
         parser.error('Keep sparse frame capture: interval must be at least seven')
@@ -113,6 +114,8 @@ def main():
               'variant': args.variant,
               'trace_implementation_sha256': file_hash(Path(__file__)),
               'checkpoint_sha256': file_hash(checkpoint / 'model.safetensors'),
+              'buffer_precision': args.buffer_precision,
+              'loader_implementation_sha256': file_hash(ROOT / 'evaluation/models.py'),
               'source_manifest': {str(p.relative_to(source)): file_hash(p)
                                   for p in sorted((source / 'src').rglob('*.py'))} if source else None,
               'initial_states_manifest_sha256': file_hash(ROOT / 'studies/evaluation/initial_states.json'),
@@ -129,7 +132,7 @@ def main():
     try:
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
-        policy, metadata = load_policy(args.variant, args.checkpoint)
+        policy, metadata = load_policy(args.variant, args.checkpoint, buffer_precision=args.buffer_precision)
         settings = SimpleNamespace(variant=args.variant + '-trace', checkpoint=checkpoint,
                                    tasks=[args.task], episodes=1, phase='development')
         summary = run.rollout(settings, policy, metadata, output)
