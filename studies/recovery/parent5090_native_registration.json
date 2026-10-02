@@ -1,0 +1,31 @@
+{
+  "study": "n0008-parent5090-native-development",
+  "registered_at": "2026-10-02T10:40:00.812086+00:00",
+  "status": "registered_before_parent5090_native_rollout",
+  "training_changed": false,
+  "variant_prefix": "RGB-n0008-parent5090",
+  "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "parent_recipe_sha256": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+  "selected_recovery_step": 20000,
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "protocol_sha256": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+  "initial_states_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "amendment": "Evaluate the heldout-selected originalr1 parent with native rotary precision on the same existingRTX5090 as query-recovery development. Keep all ten first development states/seeds, loader, solver, preprocessing, normalization and action semantics fixed. Original cloud6/10 legacy-precision result is historical context, not the matched parent measurement.",
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "buffer_precision": "native_rope",
+  "wrapper_sha256": "366c4410301f1af63e1ae30553458be71cb8d4cdb619933d27c118a3f0aede39",
+  "query_recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "query_selection": "Lowest fixed200-frame heldout physical arm MSE from completed registered production updates; ties choose fewer updates. Use the already recorded native-precision development rollout for that selected checkpoint. Never choose by robot outcomes.",
+  "execution_guard": "Only after registered query supervisor completes, final native export is verified and existing completion-review identity matches. Same GPU exclusive job lock, at most900seconds, at least1200seconds of completion-review/provider time remaining, fresh provider-credit check and total spend plus1200-second rental cost belowUSD13.25. No new training, rental or extension of cleanup window.",
+  "comparison": "Pair all ten development records by task, trial index, initial-state hash and seed. Report wins/losses/both successes/both failures, fixed-checkpoint success counts and episode steps. These ten repeated diagnostic states cannot establish final acceptance or isolate the coupled query/decoder/numerical interventions.",
+  "parent_checkpoint_relative": "outputs/recovery/initialization/r1-selected/pretrained_model",
+  "parent_source_relative": "outputs/recovery/n0008-corrected-source"
+}
