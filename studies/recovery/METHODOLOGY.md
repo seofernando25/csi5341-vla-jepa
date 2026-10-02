@@ -4,6 +4,8 @@ Active goal, requested 2026-10-01: diagnose failed control and develop an evalua
 
 **Acceptance:** retain the project's target of at least 25% lower peak inference memory with no more than a five-point success loss against B16, measured on matched hardware and final LIBERO trials. Lower training loss alone does not pass. B16's recorded final result is 95%; recovery targets at least 90%, with uncertainty reported.
 
+**Current status (October 2):** corrected-input r1 completed20k, selecting its endpoint by held-out arm MSE; it reached6/10 development successes on RTX5090. The separately registered [query/decoder recovery](query_recovery_registration.json) now runs from that exact parent, with all32 decoder layers and four trainable input-query residuals. Its intended-GPU native gate passed. Original r1 retained native state and milestone stop backups are verified locally; [completed cloud artifacts](diagnostics/cloud_completed_retention.json) were removed while preserving the active run and warm start. No recovery model has passed the final acceptance target.
+
 ## Evidence so far
 
 | Check | Finding |
@@ -41,7 +43,7 @@ The SmolVLM transplant initially inherits compatible action/world modules from t
 
 Two legacy-loader, zero-initialized, training-frame-only probes add 3,840 query-residual parameters at input or before decoder layer 28. Both exactly preserve that loader’s measured action/world losses and receive finite nonzero action gradients, with no optimizer update. Batch-one peak allocations are 6.93 GiB (input) and 5.17 GiB (late), versus 5.15 GiB without a probe. These are gradient diagnostics, not training-budget estimates or successful policies. Input adaptation requires backward through earlier frozen layers; a future memory-limited study must explicitly register accumulation and count actual optimizer updates, because native training steps count microbatches.
 
-If the registered recovery still fails, the next separate experiment should test query-token adaptation while holding data, preprocessing, objectives and action semantics fixed. A matched corrected-input root is required to assess n0008's architecture. Broader decoder adaptation and increased demonstration exposure are subsequent hypotheses. Native crop reduction is an efficiency experiment requiring its own processing registration and retraining; it must not be introduced into this running study.
+The registered follow-up tests input-query adaptation together with broader decoder adaptation, preserving data, preprocessing, objectives and action semantics. Their effects cannot be isolated in this coupled study. A matched corrected-input root remains required to assess n0008's architecture. Native crop reduction would require separate processing registration and retraining; it must not enter this running study.
 
 ## Gates and open questions
 
@@ -93,9 +95,9 @@ The amended recipe passes [native resume checks](diagnostics/query_isolated_rng_
 
 The [full-decoder feasibility check](diagnostics/query_full_decoder_b4.json) restores inherited values exactly and obtains finite query/decoder gradients with synthetic FP32 AdamW moments at batch four: **17.03GiB** peak allocation, 629.5M trainable parameters. It has no optimizer update or control evaluation. Batch-eight native optimizer/save/resume on RTX5090 remains a prerequisite. Broader decoder training and input-query training would be a coupled intervention, not an isolated query ablation.
 
-Before any subsequent cloud study, finish and verify r1 exports, test its held-out-selected endpoint under native rotary precision, register the next warm-start hash and schedule, preflight the intended GPU, and hand off only one job while preserving budget/deadline/export guards. No next production study is initialized yet.
+The cloud handoff required verified r1 exports, paired endpoint precision tests, registered warm-start hash and schedule, and intended-GPU native preflight. These gates passed before the single-job query handoff; budget/deadline/export guards remain active.
 
-The [completed-parent precision registration](completed_r1_native_rope_registration.json) fixes the20k checkpoint before local paired inference tests. The [follow-up registration](query_recovery_registration.json) couples input-query adaptation with all32 decoder layers, preserving processing, losses and action/world initialization lineage. It uses fresh AdamW, batch8, fixed10k schedule and held-out selection. Native RTX5090 optimizer/save/resume is required before production; engineering checkpoints are not warm starts. No final trials or next production updates have occurred.
+The [completed-parent precision registration](completed_r1_native_rope_registration.json) fixes the20k checkpoint before local paired inference tests. The [follow-up registration](query_recovery_registration.json) couples input-query adaptation with all32 decoder layers, preserving processing, losses and action/world initialization lineage. It uses fresh AdamW, batch8, a fixed10k schedule and held-out selection. Production began after the native RTX5090 gate, from the exact20k parent; engineering checkpoints are not warm starts. Final trials remain reserved.
 
 The [20k native-frequency noise audit](diagnostics/rgb_20k_native_stochasticity.json) uses the same40 demonstration frames and five draws as earlier probes: held-out single-draw arm MSE0.01830 consists of mean-prediction error0.01437 and within-draw variance0.00392. Most remaining error is systematic in this cohort. This combines later training with native frequency preservation; it does not isolate either effect or deploy an ensemble.
 

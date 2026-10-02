@@ -130,28 +130,27 @@ def render(output):
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
-            r'Registered recovery corrects RGB scaling and adapts four final SmolVLM '
-            r'decoder layers from the legacy 10k weights: fresh AdamW, batch eight, '
+            r'RGB recovery adapts four final SmolVLM decoder layers from legacy 10k '
+            r'weights: fresh AdamW, batch eight, '
             r'decoder/other rates $10^{-5}/10^{-4}$, fixed 20k cosine schedule. Data, '
             r'tiling, action/world architecture and losses remain unchanged. Physical '
-            r'arm error on 200 held-out frames selects checkpoints; final trials remain '
-            r'reserved.' + '\n\n'
+            r'arm error on 200 held-out frames selects checkpoints; final trials are reserved.' + '\n\n'
             r'Inference rounds nonpersistent rotary frequencies to BF16, unlike native '
             r'FP32-buffer training. Changing only these buffers raises one-frame action '
             r'loss 0.0460$\rightarrow$0.0618; restoring their original values reverses it '
-            r'exactly. Historical inference diagnostics retain this confound. Paired '
-            r'local 5k tests yield 1/10 successes in each mode, on the same task: no '
-            r'observed control improvement.' + '\n\n'
-            r'Four native input-query engineering updates (20.10\,GiB, RTX3090) pass '
-            r'optimizer/save/resume. Separate worker-RNG isolation and deterministic '
-            r'algorithms give identical uninterrupted/resumed state. These checks '
-            r'establish no control benefit and are excluded from production selection.' + '\n\n'
+            r'exactly. Sequential '
+            r'local 20k tests yield 4/10 in each mode, with one gain and one loss: no '
+            r'aggregate control improvement.' + '\n\n'
+            r'Registered full-decoder/input-query recovery passes native '
+            r'optimizer/save/resume on RTX5090 (23.74\,GiB). Earlier four-update '
+            r'RTX3090 checks with isolated worker RNG and deterministic algorithms '
+            r'give identical uninterrupted/resumed state. These engineering checks '
+            r'are excluded from production selection.' + '\n\n'
             f"At {last['step']:,} additional updates, held-out arm RMSE was "
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
             f"{first['step']:,}; gripper error changed from "
             f"{first['gripper_error_percent']:.1f}\\% to {last['gripper_error_percent']:.1f}\\%. "
-            r'These ongoing, single-seed measurements do not demonstrate successful '
-            r'control or isolate the effect of each recovery intervention.' + '\n'
+            r'These single-seed diagnostics do not isolate each intervention.' + '\n'
             r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
             r'\caption{Registered RGB-recovery validation. Physical command errors use '
             r'1,303 valid actions from the same 200 held-out frames, excluding padding. '
@@ -164,7 +163,8 @@ def render(output):
             development_text = (
                 '\n\n' + f"The {trial['selected_step']:,}-update checkpoint achieved "
                 f"{trial['successes']}/{trial['episodes']} development successes. "
-                r'This small diagnostic does not establish final performance retention.'
+                r'RTX5090 inference uses 2.98\,GiB and 108.3\,ms median pipeline latency '
+                r'(1,500 predictions). Matched final performance retention remains untested.'
                 + '\n\n'
             )
             recovery_float = r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
