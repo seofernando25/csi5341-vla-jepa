@@ -1,7 +1,7 @@
 VLA-JEPA · immersive browser presentation
 
 Serve this folder with a local static server; see README.md for repository commands.
-18 narrated chapters + 4 optional technical/pilot appendices. Main narration: about 8:46.
+18 narrated chapters + 4 optional technical/proposal appendices. Main narration: about 7:54.
 Noah covers 1–8; Fernando covers 9–18, approximately equal time.
 
 Arrow keys: chapters. Space: replay/pause local motion. Home: replay. End: final audit state.
@@ -24,7 +24,7 @@ Organization
   src/choreography.js    explicit visual beat lengths and transformation primitives
   src/recorded-control.js verified DROID pose commands
   assets/three/feature-reel.js original procedural 3D feature sculpture
-  src/scenes/reference.js opening, discussion, pilot and appendix SVG scenes
+  src/scenes/reference.js opening, discussion, proposal and appendix SVG scenes
   data.json        human-readable content mirror
   assets/          local footage, source frames, fonts, math and stock voice audio
 
@@ -50,7 +50,7 @@ https://huggingface.co/datasets/morpheushoc/something-something-v2
 https://droid-dataset.github.io/visualizer/
 
 Puck and Charon are synthetic stock voices generated via the authorized OpenRouter account.
-The original presenter pilot quantization and architectural results remain marked preliminary.
+The project section is proposal-only: planned quantization and smaller-backbone comparisons, with no announced project performance results.
 The original procedural Three.js feature sculpture is used on the bookends.
 It is an illustrative motif, not a measured embedding.
 Unused slide images and legacy Panda assets are archived outside this deliverable.

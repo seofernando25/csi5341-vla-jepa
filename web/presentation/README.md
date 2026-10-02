@@ -1,6 +1,6 @@
 # VLA-JEPA motion presentation
 
-Self-contained static browser presentation: 18 narrated chapters and four optional appendices. The main talk lasts about 8:46, split approximately equally between Noah and Fernando.
+Self-contained static browser presentation: 18 narrated chapters and four optional appendices. The main talk lasts about 7:54, split approximately equally between Noah and Fernando.
 
 ## Run
 
@@ -27,7 +27,7 @@ Text edits require matching narration updates. No credential files, voice genera
 
 ## Provenance
 
-See [detailed presentation notes](README.txt) for scientific distinctions and source links. The included clips are illustrative dataset examples, not VLA-JEPA rollouts or identified training samples. Human footage is SSV2 validation sample 174198; robot footage is the documented DROID example. Source capture frames are duplicated for the 60 fps timeline, without interpolation. Diagram ribbons and trajectories are schematic, not measured embeddings. Presenter pilot results retain their preliminary labels.
+See [detailed presentation notes](README.txt) for scientific distinctions and source links. The included clips are illustrative dataset examples, not VLA-JEPA rollouts or identified training samples. Human footage is SSV2 validation sample 174198; robot footage is the documented DROID example. Source capture frames are duplicated for the 60 fps timeline, without interpolation. Diagram ribbons and trajectories are schematic, not measured embeddings. The project section describes the proposal and work in progress; no project performance results are announced.
 
 The website source and narrowly scoped example clips are intentionally retained under the user's request, as an exception to the repository's usual exclusion of videos/dataset artifacts. Original research code, results and recovery work are unchanged.
 
