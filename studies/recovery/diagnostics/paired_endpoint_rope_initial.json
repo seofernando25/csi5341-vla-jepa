@@ -1,0 +1,216 @@
+{
+  "purpose": "initial_endpoint_precision_diagnostic",
+  "runs": [
+    {
+      "run_id": "20261002T073643396949Z-RGB-n0008-endpoint-LegacyRoPE-rollout",
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "registration_sha256": "ffece67f1431b1e1914d9441ed059600cfaf1589b2e932e45fa42afd4b413b62",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "precision": "legacy",
+      "summary": {
+        "episodes": 10,
+        "successes": 4,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.4
+      },
+      "episodes_csv_sha256": "38a2016b14b55a5485d2729f4780976f3b9c9731092c32faa8856b55d22d5406",
+      "episodes": [
+        {
+          "task_id": "0",
+          "initial_state_hash": "5ef7b059328e4d2132e43689ee0d525bd6a4d613e8cf43fe5bffc4ce8e01b5ad",
+          "seed": "1000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "1",
+          "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+          "seed": "2000",
+          "success": "1",
+          "steps": "125"
+        },
+        {
+          "task_id": "2",
+          "initial_state_hash": "f89c0304c7f3c75b7af900bada13fc5eb20e2ebb6a81c94c5890b02ed7a6c0d0",
+          "seed": "3000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "3",
+          "initial_state_hash": "69b70c3f670e48e4beaff84cdb75b182a35de1005e1d1f3646b7137264c0d9c1",
+          "seed": "4000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "4",
+          "initial_state_hash": "cf4aba0fe4e16e9cfd810eac217c2915f99a1449019d0a0f79dbad6540475399",
+          "seed": "5000",
+          "success": "1",
+          "steps": "129"
+        },
+        {
+          "task_id": "5",
+          "initial_state_hash": "eefad8d4b401eb2b12b76732513f3696a373fd0be7293444271b2f4c66c9fa00",
+          "seed": "6000",
+          "success": "1",
+          "steps": "95"
+        },
+        {
+          "task_id": "6",
+          "initial_state_hash": "7ae45add8d5bbc65fabb8ad1be09719df36e2721e21637f3c544952a7eacc766",
+          "seed": "7000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "7",
+          "initial_state_hash": "6b95ea5ff3d75baed82b1b5e7958e71aa24f3a2db8e5a0e206933a7e47994918",
+          "seed": "8000",
+          "success": "1",
+          "steps": "147"
+        },
+        {
+          "task_id": "8",
+          "initial_state_hash": "4772e860bacdc19931e696496bf4b61ca91d01026f37f17c648ce2d8d7ef8ed2",
+          "seed": "9000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "9",
+          "initial_state_hash": "3e5c1fc85cd6623209f0262d1d3f5f02f2607b92ceabdc57b00c7afe4410cb01",
+          "seed": "10000",
+          "success": "0",
+          "steps": "280"
+        }
+      ]
+    },
+    {
+      "run_id": "20261002T073905318185Z-RGB-n0008-endpoint-NativeRoPE-rollout",
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "registration_sha256": "ffece67f1431b1e1914d9441ed059600cfaf1589b2e932e45fa42afd4b413b62",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "precision": "native_rope",
+      "summary": {
+        "episodes": 10,
+        "successes": 4,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.4
+      },
+      "episodes_csv_sha256": "efdf691f2ad879839c8720fe68aebdae03e03ae902e1683feb6b424fe1710cd4",
+      "episodes": [
+        {
+          "task_id": "0",
+          "initial_state_hash": "5ef7b059328e4d2132e43689ee0d525bd6a4d613e8cf43fe5bffc4ce8e01b5ad",
+          "seed": "1000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "1",
+          "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+          "seed": "2000",
+          "success": "1",
+          "steps": "129"
+        },
+        {
+          "task_id": "2",
+          "initial_state_hash": "f89c0304c7f3c75b7af900bada13fc5eb20e2ebb6a81c94c5890b02ed7a6c0d0",
+          "seed": "3000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "3",
+          "initial_state_hash": "69b70c3f670e48e4beaff84cdb75b182a35de1005e1d1f3646b7137264c0d9c1",
+          "seed": "4000",
+          "success": "1",
+          "steps": "83"
+        },
+        {
+          "task_id": "4",
+          "initial_state_hash": "cf4aba0fe4e16e9cfd810eac217c2915f99a1449019d0a0f79dbad6540475399",
+          "seed": "5000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "5",
+          "initial_state_hash": "eefad8d4b401eb2b12b76732513f3696a373fd0be7293444271b2f4c66c9fa00",
+          "seed": "6000",
+          "success": "1",
+          "steps": "98"
+        },
+        {
+          "task_id": "6",
+          "initial_state_hash": "7ae45add8d5bbc65fabb8ad1be09719df36e2721e21637f3c544952a7eacc766",
+          "seed": "7000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "7",
+          "initial_state_hash": "6b95ea5ff3d75baed82b1b5e7958e71aa24f3a2db8e5a0e206933a7e47994918",
+          "seed": "8000",
+          "success": "1",
+          "steps": "147"
+        },
+        {
+          "task_id": "8",
+          "initial_state_hash": "4772e860bacdc19931e696496bf4b61ca91d01026f37f17c648ce2d8d7ef8ed2",
+          "seed": "9000",
+          "success": "0",
+          "steps": "280"
+        },
+        {
+          "task_id": "9",
+          "initial_state_hash": "3e5c1fc85cd6623209f0262d1d3f5f02f2607b92ceabdc57b00c7afe4410cb01",
+          "seed": "10000",
+          "success": "0",
+          "steps": "280"
+        }
+      ]
+    }
+  ],
+  "limitations": "Brief GPU resource overlap occurred; no rollout timing is interpreted. Both outcomes recorded without removal. Repeat the pair sequentially for the primary comparison. Native inference preservation alone has not improved this aggregate sample; no final success or hardware-transfer claim."
+}

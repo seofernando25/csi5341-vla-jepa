@@ -81,10 +81,10 @@ Inference rounds nonpersistent rotary frequencies to BF16, unlike native FP32-bu
 
 Four native input-query engineering updates (20.10\,GiB, RTX3090) pass optimizer/save/resume. Separate worker-RNG isolation and deterministic algorithms give identical uninterrupted/resumed state. These checks establish no control benefit and are excluded from production selection.
 
-At 18,000 additional updates, held-out arm RMSE was 0.155, compared with 0.283 at 500; gripper error changed from 13.6\% to 5.4\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
+At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 at 500; gripper error changed from 13.6\% to 4.8\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
 
 
-The 8,500-update checkpoint achieved 1/10 development successes. This small diagnostic does not establish final performance retention.
+The 20,000-update checkpoint achieved 6/10 development successes. This small diagnostic does not establish final performance retention.
 
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}\caption{Registered RGB-recovery validation. Physical command errors use 1,303 valid actions from the same 200 held-out frames, excluding padding. The gray curve is median training loss per 100 updates. Recovery steps are additional to the legacy 10k checkpoint. These are offline diagnostics, not LIBERO success measurements.}\end{figure}
 

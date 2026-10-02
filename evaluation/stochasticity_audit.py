@@ -26,9 +26,12 @@ def main():
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--cohort', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--buffer-precision', choices=['legacy', 'native_rope'], default='legacy')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier measurements')
+    if args.variant != 'S500' and args.buffer_precision != 'legacy':
+        parser.error('Qwen retains the pinned baseline inference protocol')
     if args.variant == 'S500':
         if not args.architecture_source or not args.checkpoint:
             parser.error('S500 requires checkpoint and source snapshot')
@@ -45,7 +48,7 @@ def main():
     from lerobot.scripts.lerobot_train import _preprocess_dataset_batch
 
     checkpoint = args.checkpoint or artifact('baseline')
-    policy, _ = load_policy(args.variant, args.checkpoint)
+    policy, _ = load_policy(args.variant, args.checkpoint, buffer_precision=args.buffer_precision)
     pre, post = make_pre_post_processors(policy_cfg=policy.config, pretrained_path=checkpoint,
         preprocessor_overrides={'device_processor': {'device': 'cuda'},
                                 'rename_observations_processor': {'rename_map': {}}})
@@ -102,6 +105,7 @@ def main():
         summary[split]['frames'] = len(rows)
     write_json(args.output, {'variant': args.variant, 'checkpoint_sha256': file_hash(checkpoint / 'model.safetensors'),
         'cohort_sha256': file_hash(args.cohort), 'diagnostic_source_sha256': file_hash(__file__),
+        'buffer_precision': args.buffer_precision, 'loader_sha256': file_hash(ROOT / 'evaluation/models.py'),
         'source_manifest': {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))}
         if args.variant == 'S500' else None,
         'native_inference_timesteps': policy.config.num_inference_timesteps,

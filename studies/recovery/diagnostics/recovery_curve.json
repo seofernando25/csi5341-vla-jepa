@@ -36,7 +36,7 @@
     },
     {
       "run_id": "20261002T040912438503Z-RGB-recovery-train",
-      "metrics_sha256": "52b4e186204c61c0313d12c8604e2addf65893674025244adad5fe86d795e942",
+      "metrics_sha256": "ad9c087e9886b4c5b0ef25b8007038b62d43cfa707295f690fc68a39a17db4d9",
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
@@ -46,7 +46,7 @@
       }
     }
   ],
-  "latest_training_step": 18323,
+  "latest_training_step": 20000,
   "validation": [
     {
       "step": 500,
@@ -335,6 +335,38 @@
       "gripper_error_percent": 5.372217958557176,
       "frames": 200,
       "valid_actions": 1303
+    },
+    {
+      "step": 18500,
+      "native_loss": 0.20806290507316588,
+      "arm_rmse": 0.15723566976087155,
+      "gripper_error_percent": 5.755947812739831,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 19000,
+      "native_loss": 0.2056199485063553,
+      "arm_rmse": 0.15340454896004718,
+      "gripper_error_percent": 5.448963929393707,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 19500,
+      "native_loss": 0.20561784029006958,
+      "arm_rmse": 0.15488921744619066,
+      "gripper_error_percent": 5.295471987720645,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 20000,
+      "native_loss": 0.20422618865966796,
+      "arm_rmse": 0.15276284813103183,
+      "gripper_error_percent": 4.758250191864927,
+      "frames": 200,
+      "valid_actions": 1303
     }
   ],
   "development": [
@@ -363,6 +395,15 @@
       "run_id": "20261002T040718683778Z-RGB-n0008-10000-rollout",
       "episodes_csv_sha256": "8421e6d114567f031952056a57f68329ac56ece9c6e4cb52998bf5b1db4dc38d",
       "successes": 1,
+      "episodes": 10
+    },
+    {
+      "stage": 20000,
+      "selected_step": 20000,
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "run_id": "20261002T071230008922Z-RGB-n0008-20000-rollout",
+      "episodes_csv_sha256": "e9e8996f30f2c46a0e1c4e05b96438bce01a81ba8efa472fe2d777f37610f955",
+      "successes": 6,
       "episodes": 10
     }
   ],

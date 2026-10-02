@@ -1,0 +1,291 @@
+{
+  "study": "n0008-rgb-recovery-r1",
+  "status": "completed_native_export_verified",
+  "recipe_sha256": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "selected_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "selected_step": 20000,
+  "selection": "Fixed200-frame physical arm MSE, ties earliest; never development success.",
+  "milestones": [
+    {
+      "stage": 2000,
+      "selected_step": 2000,
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "run_id": "20261002T013631571548Z-RGB-n0008-2000-rollout",
+      "episodes_csv_sha256": "e58ec9f6b84d6799370f92bc1c9948314f3e1a207fcee6857beeb0e527cc2b43",
+      "summary": {
+        "episodes": 10,
+        "successes": 1,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.1
+      },
+      "gpu": "NVIDIA GeForce RTX 5090"
+    },
+    {
+      "stage": 5000,
+      "selected_step": 5000,
+      "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+      "run_id": "20261002T023337492371Z-RGB-n0008-5000-rollout",
+      "episodes_csv_sha256": "46faf593f07bb3bbdc4f0b841739a018af17d56a6bb49b22da4f4d4e017e63e7",
+      "summary": {
+        "episodes": 10,
+        "successes": 0,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.0
+      },
+      "gpu": "NVIDIA GeForce RTX 5090"
+    },
+    {
+      "stage": 10000,
+      "selected_step": 8500,
+      "checkpoint_sha256": "e0b5ecb4f45fe686e1b1e74622974b2c1728beadc6cba4b3e636a6d0b9123630",
+      "run_id": "20261002T040718683778Z-RGB-n0008-10000-rollout",
+      "episodes_csv_sha256": "8421e6d114567f031952056a57f68329ac56ece9c6e4cb52998bf5b1db4dc38d",
+      "summary": {
+        "episodes": 10,
+        "successes": 1,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.1
+      },
+      "gpu": "NVIDIA GeForce RTX 5090"
+    },
+    {
+      "stage": 20000,
+      "selected_step": 20000,
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "run_id": "20261002T071230008922Z-RGB-n0008-20000-rollout",
+      "episodes_csv_sha256": "e9e8996f30f2c46a0e1c4e05b96438bce01a81ba8efa472fe2d777f37610f955",
+      "summary": {
+        "episodes": 10,
+        "successes": 6,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.6
+      },
+      "gpu": "NVIDIA GeForce RTX 5090"
+    }
+  ],
+  "benchmark": {
+    "run_id": "20261002T071356214983Z-RGB-n0008-selected-benchmark",
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "summary": {
+      "observation_bank_sha256": "dec46270ea0a500b42003399aac2c2880523386d9e2d1a74a7f6b8fd8ab54104",
+      "predictions_per_repetition": 500,
+      "repetitions": 3,
+      "memory_peaks": [
+        {
+          "mode": "policy",
+          "repetition": 0,
+          "allocated_bytes": 3195765248,
+          "reserved_bytes": 4286578688
+        },
+        {
+          "mode": "policy",
+          "repetition": 1,
+          "allocated_bytes": 3195765248,
+          "reserved_bytes": 4387241984
+        },
+        {
+          "mode": "policy",
+          "repetition": 2,
+          "allocated_bytes": 3195765248,
+          "reserved_bytes": 4387241984
+        },
+        {
+          "mode": "pipeline",
+          "repetition": 0,
+          "allocated_bytes": 3195771392,
+          "reserved_bytes": 4387241984
+        },
+        {
+          "mode": "pipeline",
+          "repetition": 1,
+          "allocated_bytes": 3195771392,
+          "reserved_bytes": 4387241984
+        },
+        {
+          "mode": "pipeline",
+          "repetition": 2,
+          "allocated_bytes": 3195771392,
+          "reserved_bytes": 4387241984
+        }
+      ],
+      "policy": {
+        "median_ms": 107.30677749961615,
+        "p95_ms": 108.28916397877038
+      },
+      "pipeline": {
+        "median_ms": 108.32748468965292,
+        "p95_ms": 110.09657345712185
+      },
+      "serialized_weights": {
+        "bytes": 2296912478,
+        "sha256": "d419037610afdd9c78f5ba24543c2986c7534249d8c7b18782c25e39afd85a90",
+        "format": "safetensors state_dict; shared tensors deduplicated; packing metadata included",
+        "artifact": "outputs/evaluation/serialized/20261002T071356214983Z-RGB-n0008-selected-benchmark/model.safetensors"
+      }
+    },
+    "run_json_sha256": "83e0133e442cd7c081fac63415a361124aac147cb0218f514fdf6ff27db093e3"
+  },
+  "export_manifest": {
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/config.json": {
+      "bytes": 4026,
+      "sha256": "dd48717a03e3169ff0896c2ca1c17fdcb3df2d8bbdebf7ea11a65714831532d0"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/model.safetensors": {
+      "bytes": 3005267764,
+      "sha256": "4b9038d713bd62298b3a1922aea21c4fb8de129d10043aa8440b3a5c937fcbb9"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/train_config.json": {
+      "bytes": 10596,
+      "sha256": "c6ae248033da30066e3b4914083aa5487d80735d3592decfc807f918c65e32f7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/pretrained_model/recovery_registration.json": {
+      "bytes": 834,
+      "sha256": "f59a65ec2c827a25bb8c6b1274c866b4626a80ff38dea7e945a1a6ddea2bc756"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/training_state/training_step.json": {
+      "bytes": 225,
+      "sha256": "92048922692c5e805e5824681c1b3bb1f5642c9b3951e1946deab685964219ea"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "adcb1fad85792ca31773c9810cd8e20d0756d709e5b41a2885e1a1318c871ae1"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/training_state/scheduler_state.json": {
+      "bytes": 317,
+      "sha256": "725b4770bd57b6b8ebcf9f8ed4ebf132e4caeef423b0bee69abe9555bb8d64ac"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/training_state/optimizer_state.safetensors": {
+      "bytes": 2833532304,
+      "sha256": "d3f6ec334ba0f1b38acf3c99671f2d2466f6a9a7354b5e1011d5b1c032245a86"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/019500/training_state/optimizer_param_groups.json": {
+      "bytes": 8320,
+      "sha256": "71ecaf24d1d15629d2120d5c9c3ea4aba9b8849dd0ab1c6d7df43c2ed33e2d67"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/config.json": {
+      "bytes": 4026,
+      "sha256": "dd48717a03e3169ff0896c2ca1c17fdcb3df2d8bbdebf7ea11a65714831532d0"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/model.safetensors": {
+      "bytes": 3005267764,
+      "sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/train_config.json": {
+      "bytes": 10596,
+      "sha256": "c6ae248033da30066e3b4914083aa5487d80735d3592decfc807f918c65e32f7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/pretrained_model/recovery_registration.json": {
+      "bytes": 834,
+      "sha256": "f59a65ec2c827a25bb8c6b1274c866b4626a80ff38dea7e945a1a6ddea2bc756"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/training_state/training_step.json": {
+      "bytes": 225,
+      "sha256": "6822421a59e2b0e907ffb81b67eb8f83590b797ece8ecaabfc30735139d2a8ce"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "d988b1fb384e3ca3234a95f98f88d46d383d82c78657a70bb22b421ed926d0e1"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/training_state/scheduler_state.json": {
+      "bytes": 300,
+      "sha256": "3575e0c2d68b266e7e249c32009e29fea431508e797ad91b620a156b4bd60593"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/training_state/optimizer_state.safetensors": {
+      "bytes": 2833532304,
+      "sha256": "ff9f6eac66b66b0e2bb18880a6158f7f25111a7a79f5563d0c25220e722b0c9e"
+    },
+    "outputs/recovery/training/20261002T005935534170Z-RGB-recovery-train/train/checkpoints/020000/training_state/optimizer_param_groups.json": {
+      "bytes": 8303,
+      "sha256": "4cb834751f0ea58950c4aa5e79c6e643b90bfed4a36e4100de5da1ab2be180e8"
+    }
+  },
+  "export_verified_files": 26,
+  "limitations": "One seed, joint input correction and four-layer decoder adaptation, ten development states per milestone. Legacy BF16 rotary-buffer inference, RTX5090. No final LIBERO estimate, matched corrected root ablation, or cross-GPU speed comparison."
+}
