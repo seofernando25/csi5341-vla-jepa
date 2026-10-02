@@ -1,0 +1,1154 @@
+{
+  "episodes_per_model": 100,
+  "baseline_successes": 82,
+  "parent_successes": 31,
+  "paired_transitions": {
+    "both_success": 31,
+    "parent_only_success": 0,
+    "baseline_only_success": 51,
+    "both_failure": 18
+  },
+  "per_task": [
+    {
+      "task_id": 0,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 4,
+      "parent_successes": 0
+    },
+    {
+      "task_id": 1,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 5
+    },
+    {
+      "task_id": 2,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 3
+    },
+    {
+      "task_id": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 4
+    },
+    {
+      "task_id": 4,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 4
+    },
+    {
+      "task_id": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 5,
+      "parent_successes": 2
+    },
+    {
+      "task_id": 6,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 3
+    },
+    {
+      "task_id": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 8
+    },
+    {
+      "task_id": 8,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 3,
+      "parent_successes": 1
+    },
+    {
+      "task_id": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "episodes": 10,
+      "baseline_successes": 10,
+      "parent_successes": 1
+    }
+  ],
+  "episodes": [
+    {
+      "task_id": 0,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "5ef7b059328e4d2132e43689ee0d525bd6a4d613e8cf43fe5bffc4ce8e01b5ad",
+      "seed": 1000,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 0,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "6aa1ca6ace361c7d09d6961a3cca3139bc4605a850bab9112da2b9052247a370",
+      "seed": 1001,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 0,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "84ce1d4b241e90b0940316b8439159051520bf64f4f3b8deffb72aa96062d3d9",
+      "seed": 1002,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 0,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "d0e903d610016eb03233c5eeb3cf6f1e44de67b027ff1e75f3c2a8ee8a8393c3",
+      "seed": 1003,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 0,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "c51ad13d19d11a9cd39021b9066ef9fe26418f1e571bacec95311ecff15b466d",
+      "seed": 1004,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 0,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "40e13cff481936c7d9008f2d35f6a0edfa54a7d133dea3c091c6dd00a087b2ee",
+      "seed": 1005,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 0,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "7f37be38b8e06957197755d68a26268804d19f474183065ff43b99e5ad30dc69",
+      "seed": 1006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 0,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "5d90708bcc48f979325fa1113dcada7ca4b0e87beb43caa277d542e9ac5f6805",
+      "seed": 1007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 0,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "9294a4f2fb34a153e8acf2c408c938915fc952ae9e60017c0e98061c0de037af",
+      "seed": 1008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 0,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_between_the_plate_and_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "569135a6bb27da77b4082b0b1348474c6f7780d01329d3cfc5be5386a3fff3b0",
+      "seed": 1009,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 1,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+      "seed": 2000,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "69b46ffc5453c5ce88cf4784999a8b956b9ded313733a375a279869f35fd522f",
+      "seed": 2001,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "b18c7240640f9a92cd511984b83e397506857c7fa740b843296dac2c4c5d4c62",
+      "seed": 2002,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "1890877f8090513a315c453e8c180207e4ff8969d487130fcdb088cb2c028a01",
+      "seed": 2003,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "e4f9f84d12d26463d5146bca5e8f115ab41deb7fd9c35c9964572e2c9df0f605",
+      "seed": 2004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "6f14c58d77e4efb4efab4ab2a3727e679432abeab35411265ceb9994759222ae",
+      "seed": 2005,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "dfb3f91a45c14928efd261aac50bf2212def6a25e89d4c8b96feb29f9828c5ac",
+      "seed": 2006,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "47d040e0799d730e0232e213fd3536dc3780b57066f88f0504052e8d89f5e4f8",
+      "seed": 2007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "2a2a83f34abd9b5319a5d4b6b63adc7f05c9a9c914b7778267bc1129202f4e1b",
+      "seed": 2008,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 1,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_next_to_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "3f53165fd822126fb63c0b5be97f9d5b416e0776017a4d8e4774ed4109119cf1",
+      "seed": 2009,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "f89c0304c7f3c75b7af900bada13fc5eb20e2ebb6a81c94c5890b02ed7a6c0d0",
+      "seed": 3000,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "11d62522252dc9d0838a41bac848241147a9617c76d6da30ddce31e5f67d83b1",
+      "seed": 3001,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "abc89c75a964de5f8b145dca4891c92dd2ca1eba4169a9bd8b293cb12e946019",
+      "seed": 3002,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "c244a3a4a227c5a6400e7668d73e8a73d31a70f98c3c788573793b1267db24f5",
+      "seed": 3003,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "db7ed55124bc4245478122dc9c91891d31491134a39bbd22687066de57f5c695",
+      "seed": 3004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "f70dec0d9fcd7d3dbdf65cb128d179fd38b3c0b7393d73a512d28cff9bb6136f",
+      "seed": 3005,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "431a7b4c5e661fa5ef7158a3bcf327f55986fc632c828fce8c79bb8d7ba5c1d9",
+      "seed": 3006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "7aa94165c7f866dafbd83087ab39c0040d9d840b826fc95c02677a07cc40835c",
+      "seed": 3007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "e8d13f995a7fbd7bfd577cc17744263f8fb007068c78dc1eb67ec521510f8077",
+      "seed": 3008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 2,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_from_table_center_and_place_it_on_the_plate",
+      "initial_state_hash": "a597e32a5e4b60098ec7ced64662d86bb156caba8eca4abc418669ae5762e2e5",
+      "seed": 3009,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "69b70c3f670e48e4beaff84cdb75b182a35de1005e1d1f3646b7137264c0d9c1",
+      "seed": 4000,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "dabce0ad223a671aba26bdb0d5f3dd4fda6b12f57158d2d43070e4695d411599",
+      "seed": 4001,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "05e6155ba77b19cb3cfce2b7a33e0f6918ea1135c9e9561ea61392e9fe331a3c",
+      "seed": 4002,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "e8834dd02375cbb0aa9879cc2625403df8c8f9451fae98eca0dcbfa782d172f0",
+      "seed": 4003,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "ec48c0a1a0b28887ebf7305743fe52a85bf55f6fffb8b2147ec3b35427a28961",
+      "seed": 4004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "76efd9d5b7e1aebc7631d44727c5b2ae8e41ea430481156aba5386055153ffda",
+      "seed": 4005,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "a3afb7648efe5a32e933d541704e088e75902172f487fd5469fd47e4563c7d50",
+      "seed": 4006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "a6aa969b286f94d7528fea845fcc73fed2d80a7a780b1a94ed785303bba93a90",
+      "seed": 4007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "fcd9dfce999da67501687fa77b26f4d51ca3ea1533ffacc2c6fdd0c86f2c8292",
+      "seed": 4008,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 3,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "9c997b41c79a482fd881914a0653eea75e0f4941db4ed41e6986c04237dc470b",
+      "seed": 4009,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "cf4aba0fe4e16e9cfd810eac217c2915f99a1449019d0a0f79dbad6540475399",
+      "seed": 5000,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "9890b1ff48738f01b433ad5a0acad80b997cc89e7d18c9556f7ac36903ea19a1",
+      "seed": 5001,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "664bdbee2b44dd581d3317a8d4ae5245b70e3eb6f775e95f561739ef7d523b75",
+      "seed": 5002,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "4459ed4af76b8e8efe5dc02ae6a7393246fed3ac7b2938098f1623de766c2fd5",
+      "seed": 5003,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "0cfafeaa02a77c3f39f9a079906c33100f7901aa43bd8e733ea12f757db46efa",
+      "seed": 5004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "74646d4de830d378d5fa920e61489b062107266b720393da27f9f55190f193b8",
+      "seed": 5005,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "7e39fc293d85a36acf792548984f6e96df39ad876f6a72c47bf0b96a296bb58c",
+      "seed": 5006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "884872dfd6d43ea7bd211eb904b73dcc53a35da6f8bff762db834d548ef06975",
+      "seed": 5007,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "32b311fa3366eda4b3a9eb2e6b7d70f8f22b8f3522b54dd632664bd41faeb1ea",
+      "seed": 5008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 4,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_in_the_top_drawer_of_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "6a72ef5f628f285dbe2679deeef056584cf1f76e403241ed79908334da958656",
+      "seed": 5009,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 5,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "eefad8d4b401eb2b12b76732513f3696a373fd0be7293444271b2f4c66c9fa00",
+      "seed": 6000,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 5,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "4fb5e06ca8123c43753461a90c7fb4e7c4bd77551ca1fa2ed55e197819d4f440",
+      "seed": 6001,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 5,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "898fb349d8e6f62f1572ea10f0a3859f65e56c370072c6b6f03ec41d644ffb29",
+      "seed": 6002,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 5,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "1b79b720aeb9ca2b50a33a419fe608f9f94e15edff5b48a01f092d1bb517507d",
+      "seed": 6003,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 5,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "bd055fdaea1bf6f4ad513b34c0411310779f6f49bac81c7bd41d4c579c17713a",
+      "seed": 6004,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 5,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "1c61f7514b7a72f855346ee7b83c1015e4caf870bfdd23f52d8460c851a15adf",
+      "seed": 6005,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 5,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "98c7c961bad15217227bb31fbde75f4254c2329990b1540919ed15a7f59549f4",
+      "seed": 6006,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 5,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "179f3432b77a643101a079f3709ebfe361ed42ec546999e0bab4ede377f71820",
+      "seed": 6007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 5,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "2d24386f6b687b0412cf43ab7348325f829e817c191413db5804eaba68f7cd9d",
+      "seed": 6008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 5,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_ramekin_and_place_it_on_the_plate",
+      "initial_state_hash": "1dff56715e29fbc964d3730699f841c9228a275f9a2e4dd536cb3150e6fb3c75",
+      "seed": 6009,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "7ae45add8d5bbc65fabb8ad1be09719df36e2721e21637f3c544952a7eacc766",
+      "seed": 7000,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "24859ff264a092de009c7c7f851b03d77ae68cf95ae710604a8c1c90d9bfca47",
+      "seed": 7001,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "e568c1c4b05bcdcf2707d1d6e7c64095aa1add6f16565d1785e0c77dd66b43ae",
+      "seed": 7002,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "eb8330929e5522b3ad80485856c2ba63cd00c3817094bcc193093d2855f6f1a1",
+      "seed": 7003,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "ba27e1b9643104db9dba9751c49a029891f0c9a2450b225490c81e096b9e374e",
+      "seed": 7004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "d1da8d2e2f5f2cf58407c97c86dd483bd85871baa8970b8485fcad1ad4cc3dad",
+      "seed": 7005,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "b2cb5f590ecb37b3f32e4f16579e96e62222abdc5692e92bca29e34874dbe31a",
+      "seed": 7006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "917369f13fa9e0098b77a03e5f488d19c23dc54a324ef04deebb580d2f47940d",
+      "seed": 7007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "edbc69116ead2188b6a3d6a50dab968571f5285733177cbff9cbc8f7b40a48fe",
+      "seed": 7008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 6,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_next_to_the_cookie_box_and_place_it_on_the_plate",
+      "initial_state_hash": "c4aaedab2e7b1a93cb97a84a933f35ccad0bf4c53f5622d2c8512ab111e70422",
+      "seed": 7009,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "6b95ea5ff3d75baed82b1b5e7958e71aa24f3a2db8e5a0e206933a7e47994918",
+      "seed": 8000,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "5a8f1d8083a435c7b587f903d07aeeeba45621989d467cb244b0d68bb8487230",
+      "seed": 8001,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "15015185d6465f35b7d2a96ff93b07d79ce2f2bb3deadae7564ad53986ea5979",
+      "seed": 8002,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "9dc0b57cbc38e5d26d6dba7b02d2c5c2dfb6c3c923d9a1a9460f0f14ba551faa",
+      "seed": 8003,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "cc5751c45e1face2a8d0be8ed7ced1bd8cc8eac78a6b6e528737decfdb26f108",
+      "seed": 8004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "26b3139579b033d2b4372b6f596e0a4a071cbede4e4ba584d980e40b198c76cb",
+      "seed": 8005,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "733b3ccc0aae8644ed9388064128cd6df31aadc2dcd4f31beaa5a0d17902978d",
+      "seed": 8006,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "8120197e42cb7c4d50fd13ce3d6b726aba99e1db8b152cf2e6e3dabce6e4eec4",
+      "seed": 8007,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "3c85586c0faf105e1dabc885f596bfcae6cf79acd9ab38322dd84a9418a4aebc",
+      "seed": 8008,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 7,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_stove_and_place_it_on_the_plate",
+      "initial_state_hash": "9ed50b15fa2268905af403409bbb5ae36bf3b94dc25416286dbb1c5009c3a1d6",
+      "seed": 8009,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 8,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "4772e860bacdc19931e696496bf4b61ca91d01026f37f17c648ce2d8d7ef8ed2",
+      "seed": 9000,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "6cc91395ef83b3f094b24217bc9e7a2252c2769a877670f86369b6b49d518425",
+      "seed": 9001,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "e96714669e488418a7d4001f29e2f4e7351fc91f0e4b00f4da726c2583fde427",
+      "seed": 9002,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "cca73071211f705d1b88fe4587f5fe6a7fddb6266fafe54bdec01c41f0ff5732",
+      "seed": 9003,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "0c2b688ad605f3f4a4d56c1cd7061bd2ec210703e135aff6056da5d848b70715",
+      "seed": 9004,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "f2e3068bf5023edca2fc987f340bf671afe3723fd5c22e7e71e6c98c93f393ba",
+      "seed": 9005,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "4330be05f4caa568de1f14c643c662b14918ab01952a3b6e77df1be797c865b7",
+      "seed": 9006,
+      "baseline_success": 0,
+      "parent_success": 0,
+      "transition": "both_failure"
+    },
+    {
+      "task_id": 8,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "f693be4fa56e726f6f945407d5d6e4967e0595c5233bc3e42766a6caa088287f",
+      "seed": 9007,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 8,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "e7f1f76d5175d8887b200a4eaace77c208ad2c3a19661467529b8f53794821f1",
+      "seed": 9008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 8,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_next_to_the_plate_and_place_it_on_the_plate",
+      "initial_state_hash": "8c320fa520cbd290a62e4738f79f349d0e2aead6ae925552e834785b101b4531",
+      "seed": 9009,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 0,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "3e5c1fc85cd6623209f0262d1d3f5f02f2607b92ceabdc57b00c7afe4410cb01",
+      "seed": 10000,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 1,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "6ec2f40ce9bc0da67f459e2b2fe9da62e738b6a5648645a867d07bc78f3f5b87",
+      "seed": 10001,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 2,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "8ea9b51c800be3f9c9c678c07c36e3aa10304d04a94906b50613fb0a13b7e7a5",
+      "seed": 10002,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 3,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "fcb7af01191ba69ca30a676589e39101415ce21259de14403a7d318ffcf442b8",
+      "seed": 10003,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 4,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "0618932216ea9046a770c9d878353a6b302d1544259f6fbab5fcd305db180d76",
+      "seed": 10004,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 5,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "13ab2bbb808903283548498b5a825ba4f51a8bb406280f35caa959f0765864ed",
+      "seed": 10005,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 6,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "baf1e444c9d0e375b3850adf4a5dc4e365c44a52283376fde129378694cdaa3a",
+      "seed": 10006,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 7,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "75031901e01e3246b25c532b8166c8024a552b546f53640a87cc715a5172f7f6",
+      "seed": 10007,
+      "baseline_success": 1,
+      "parent_success": 1,
+      "transition": "both_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 8,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "b991fb317b0e2bd74df5cf90a728b99fe5176dab09aa4a7869595183e029216b",
+      "seed": 10008,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    },
+    {
+      "task_id": 9,
+      "trial": 9,
+      "task_name": "pick_up_the_black_bowl_on_the_wooden_cabinet_and_place_it_on_the_plate",
+      "initial_state_hash": "496227e200f8a8eff41ce310906b898cda4af53c3f91778b25f4988c4854a843",
+      "seed": 10009,
+      "baseline_success": 1,
+      "parent_success": 0,
+      "transition": "baseline_only_success"
+    }
+  ],
+  "purpose": "expanded_fixed_parent_baseline_development_comparison",
+  "registration_sha256": "95bb5b0ebcb30ee938c315bfd6b7f7e39e152c229642780f6e546054e99d2d70",
+  "analysis_sha256": "a983e6b40f7adb3a72235d02efc403c4e352a883ed014a68c7a92d283f94d787",
+  "input_records": [
+    {
+      "run_id": "20261002T123054380175Z-B16-dev100-rollout",
+      "variant": "B16-dev100",
+      "status": "completed",
+      "phase": "development",
+      "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+      "source_manifest": null,
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "wrapper_sha256": "95176072b4331a57101acef9c2b9209839c0ef3f27a55d39af73df1ca3430446",
+      "numerical_flags": {
+        "deterministic_algorithms": false,
+        "matmul_allow_tf32": false,
+        "cudnn_allow_tf32": true,
+        "cudnn_benchmark": false,
+        "cudnn_deterministic": false
+      },
+      "run_record_sha256": "01ab3449dc8f0be7decda8a519c1ce3a1ddbf912a1ae367c84673f956fbfa520",
+      "episodes_csv_sha256": "c458b69fd0dd1cfc699ee8248f5345bcc3901a881a77abfe8261e1a9eed2c4b0"
+    },
+    {
+      "run_id": "20261002T120707482768Z-RGB-parent20k-dev100-rollout",
+      "variant": "RGB-parent20k-dev100",
+      "status": "completed",
+      "phase": "development",
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "wrapper_sha256": "95176072b4331a57101acef9c2b9209839c0ef3f27a55d39af73df1ca3430446",
+      "numerical_flags": {
+        "deterministic_algorithms": false,
+        "matmul_allow_tf32": false,
+        "cudnn_allow_tf32": true,
+        "cudnn_benchmark": false,
+        "cudnn_deterministic": false
+      },
+      "run_record_sha256": "b22128691f60da020b66fed43e93feb09679aeb9a145cd954f5d3d8393b558a2",
+      "episodes_csv_sha256": "d813d3871d373a08938e3a277ab0296b02c1d4e7fd8c12cd9d2b1c711fdfcb59"
+    }
+  ],
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "torch_cuda": "12.8",
+    "driver": "580.178.04"
+  },
+  "limitations": "One sequential local evaluator at a time; no Vast spending or cloud interruption. Failures are recorded, never silently retried as new evidence. Partial outcomes cannot stand in for100 completed episodes. Expanded development findings do not establish final acceptance. All ten original development states per task, identical task/state/seed membership across models on local3090. Existing model-specific deployment loaders, action horizon7/solver4 and preprocessing preserved. Source manifest for Smol is observed at runtime. No inference speed comparison from rollout wall time. No architecture-only causal claim because training histories and numerical loaders differ. This100-state cohort includes the previously inspected first state/task; do not pool it with those ten trials. Wilson intervals describe trial counts, not uncertainty across new tasks or evidence of final acceptance."
+}

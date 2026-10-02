@@ -193,6 +193,32 @@ def render(output):
             )
             recovery_float = r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
             cloud_section = cloud_section.replace(recovery_float, development_text + recovery_float)
+    expanded_path = ROOT / 'studies/recovery/diagnostics/expanded_development_pair.json'
+    expanded_figure = ROOT / 'studies/recovery/figures/F16_expanded_development.pdf'
+    if expanded_path.exists() and expanded_figure.exists():
+        expanded = read_json(expanded_path)
+        transitions = expanded['paired_transitions']
+        shutil.copyfile(expanded_figure, output / 'figures' / expanded_figure.name)
+        cloud_section += (
+            '\n' + r'\FloatBarrier\subsection{Expanded development comparison}' + '\n'
+            f"Fixed parent20k and B16 checkpoints complete {expanded['episodes_per_model']} "
+            r'paired original development states on RTX3090, with identical task/state/seed '
+            r'membership and unchanged solver, horizon and preprocessing. '
+            f"B16 succeeds in {expanded['baseline_successes']}/100 trials and SmolVLM in "
+            f"{expanded['parent_successes']}/100. "
+            f"Both succeed in {transitions['both_success']} states; "
+            f"B16 alone succeeds in {transitions['baseline_only_success']}, "
+            f"SmolVLM alone in {transitions['parent_only_success']}, "
+            f"and both fail in {transitions['both_failure']}. "
+            r'These development trials include earlier diagnostic states and are not pooled '
+            r'with them. Different training histories and model-specific numerical loaders '
+            r'prevent architecture-only causal attribution. Final acceptance remains untested.'
+            '\n\n'
+            r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F16_expanded_development.pdf}'
+            r'\caption{Registered expanded development comparison. Left: trial-count Wilson '
+            r'95\% intervals; right: ten paired states per task. Development findings do not '
+            r'establish performance on the reserved official final cohort.}\end{figure}'
+        )
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")

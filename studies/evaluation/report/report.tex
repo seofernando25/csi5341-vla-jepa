@@ -87,6 +87,10 @@ At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 a
 The 20,000-update checkpoint achieved 6/10 development successes. RTX5090 inference uses 2.98\,GiB and 108.3\,ms median pipeline latency (1,500 predictions). Matched final performance retention remains untested.
 
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}\caption{Registered RGB-recovery validation. Physical command errors use 1,303 valid actions from the same 200 held-out frames, excluding padding. The gray curve is median training loss per 100 updates. Recovery steps are additional to the legacy 10k checkpoint. These are offline diagnostics, not LIBERO success measurements.}\end{figure}
+\FloatBarrier\subsection{Expanded development comparison}
+Fixed parent20k and B16 checkpoints complete 100 paired original development states on RTX3090, with identical task/state/seed membership and unchanged solver, horizon and preprocessing. B16 succeeds in 82/100 trials and SmolVLM in 31/100. Both succeed in 31 states; B16 alone succeeds in 51, SmolVLM alone in 0, and both fail in 18. These development trials include earlier diagnostic states and are not pooled with them. Different training histories and model-specific numerical loaders prevent architecture-only causal attribution. Final acceptance remains untested.
+
+\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F16_expanded_development.pdf}\caption{Registered expanded development comparison. Left: trial-count Wilson 95\% intervals; right: ten paired states per task. Development findings do not establish performance on the reserved official final cohort.}\end{figure}
 
 \FloatBarrier
 \section{Decision rule and limitations}
