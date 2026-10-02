@@ -40,7 +40,13 @@ def main():
         parser.error('Engineering validation preflight is bounded to 20 updates')
     if recipe.get('engineering_only') and not args.preflight:
         parser.error('Engineering recipes cannot launch production training')
-    if recipe['batch_size'] != 8 or recipe['validation_samples_per_task'] != 20:
+    accumulation_steps = recipe.get('gradient_accumulation_steps', 1)
+    validation_batch_size = recipe.get('validation_batch_size', recipe['batch_size'])
+    engineering_accumulation = (args.preflight and recipe.get('engineering_only')
+                               and recipe['batch_size'] == 4 and accumulation_steps == 2)
+    if (validation_batch_size != 8 or recipe['validation_samples_per_task'] != 20
+            or (not engineering_accumulation and (recipe['batch_size'] != 8 or accumulation_steps != 1))
+            or args.steps % accumulation_steps):
         parser.error('Registered physical-action evaluation requires 25 batches of eight')
     if recipe.get('required_gpu') and torch.cuda.get_device_name() != recipe['required_gpu']:
         raise ValueError('This engineering gate must run on the registered intended GPU')
@@ -67,7 +73,7 @@ def main():
     if not Path(plugin.__file__).resolve().is_relative_to(source / 'src'):
         raise ValueError('Selected recovery source was not imported')
     from lerobot.configs import PreTrainedConfig
-    from lerobot.configs.accelerator import AcceleratorConfig
+    from lerobot.configs.accelerator import AcceleratorConfig, GradientAccumulationConfig
     from lerobot.configs.default import DatasetConfig
     from lerobot.configs.train import TrainPipelineConfig
     from lerobot.scripts import lerobot_train as native
@@ -89,6 +95,8 @@ def main():
               'allocator_config': os.environ.get('PYTORCH_ALLOC_CONF', os.environ.get('PYTORCH_CUDA_ALLOC_CONF')),
               'deterministic_algorithms': torch.are_deterministic_algorithms_enabled(),
               'isolated_worker_rng': recipe.get('isolate_data_loader_rng', False),
+              'native_step_unit': 'microbatch', 'gradient_accumulation_steps': accumulation_steps,
+              'effective_batch_size': recipe['batch_size'] * accumulation_steps,
               'limitations': 'Recovery updates are additional to the legacy 10k. Offline accuracy is not task success.'}
     write_json(evidence / 'run.json', record)
     policy_cfg = PreTrainedConfig.from_pretrained(args.checkpoint)
@@ -115,7 +123,8 @@ def main():
         seed=recipe['seed'], batch_size=recipe['batch_size'], num_workers=recipe['num_workers'],
         steps=args.steps, eval_steps=recipe['eval_steps'], env_eval_freq=0, log_freq=10,
         save_checkpoint=True, save_freq=recipe['save_freq'], cudnn_deterministic=True,
-        accelerator=AcceleratorConfig(mixed_precision='bf16'),
+        accelerator=AcceleratorConfig(mixed_precision='bf16',
+            gradient_accumulation=GradientAccumulationConfig(steps=accumulation_steps)),
         rename_map={'observation.images.wrist_image': 'observation.images.image2'})
     state = {'step': 0, 'validation_batch': 0, 'action_rows': [], 'best_step': None,
              'best_mse': math.inf, 'checkpoints': {}}
@@ -136,6 +145,8 @@ def main():
             raise ValueError('Resume evaluation interval differs from registration')
         if config.batch_size != recipe['batch_size'] or config.seed != recipe['seed']:
             raise ValueError('Resume batch or seed differs from registration')
+        if config.accelerator.gradient_accumulation.steps != accumulation_steps:
+            raise ValueError('Resume accumulation differs from registration')
         if Path(config.dataset.root).resolve() != args.dataset_root.resolve():
             raise ValueError('Resume dataset differs')
         if config.policy.unfreeze_last_n != recipe['unfreeze_last_n']:
@@ -189,7 +200,7 @@ def main():
         if selection != read_json(ROOT / 'studies/evaluation/validation_samples.json'):
             raise ValueError('Held-out sample membership changed')
         validation = torch.utils.data.DataLoader(torch.utils.data.Subset(heldout, indices),
-                        batch_size=config.batch_size, shuffle=False, num_workers=config.num_workers,
+                        batch_size=validation_batch_size, shuffle=False, num_workers=config.num_workers,
                         collate_fn=validation.collate_fn,
                         generator=(torch.Generator().manual_seed(recipe['validation_seed'])
                                    if recipe.get('isolate_data_loader_rng') else None),
