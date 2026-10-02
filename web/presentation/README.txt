@@ -1,7 +1,7 @@
 VLA-JEPA · immersive browser presentation
 
 Serve this folder with a local static server; see README.md for repository commands.
-18 narrated chapters + 4 optional technical/proposal appendices. Main narration: about 9:40.
+18 narrated chapters. Main narration: about 9:40.
 Noah covers 1–8; Fernando covers 9–18, approximately equal time.
 
 Arrow keys: chapters. Space: replay/pause local motion. Home: replay. End: final audit state.
@@ -16,6 +16,7 @@ Organization
   src/player.js    chapter selection and keyboard controls
   src/timeline.js  global chapter navigation and narration sequence
   src/drawing.js   canvas primitives, verified media and the human/robot scene
+  src/motion-type.js  reel-card, typewriter and squash/settle text effects
   src/renderer.js  one retained canvas, display-refresh rendering
   src/scenes/method.js  shared semantic objects and interpolated chapter poses
   src/scenes/flow.js    shared training/inference action-space visual

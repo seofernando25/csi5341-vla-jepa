@@ -1,6 +1,7 @@
 {
   "mainChapters": 18,
-  "optionalBackups": 4,
+  "optionalBackups": 0,
+  "locallyArchivedBackups": 4,
   "durationSeconds": 580.0166666666668,
   "underTenMinutes": true,
   "video": {
@@ -188,7 +189,7 @@
   "checked": [
     "JavaScript syntax and content mirror",
     "Fresh final and intermediate scene exports",
-    "Companion PDFs rendered and inspected",
+    "Static companion PDFs retain the unchanged final content",
     "Constant 60 fps movie frame timestamps",
     "Narration silence and peak-level checks"
   ],
@@ -198,7 +199,9 @@
     "Paper benchmarks explicitly attributed to Sun et al.",
     "Five teaching scripts revised and regenerated; other speech repaced from existing Gemini raw audio",
     "Robot control conventions and target-specific post-training clarified",
-    "Single-path arrows with tangent-aligned tips; 0.38-second masked text changes"
+    "Established heading transitions preserved; selective typewriter, reel-card and squash-settle effects added in a shared module",
+    "Sub-second transition states checked for word spacing and clipping",
+    "Browser reduced-motion preference respected"
   ],
   "limits": [
     "Synthetic pacing checks do not establish audience comprehension or replace human rehearsal",

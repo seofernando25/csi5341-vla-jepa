@@ -1,6 +1,6 @@
 # VLA-JEPA motion presentation
 
-Self-contained static browser presentation: 18 narrated chapters and four optional appendices. The main talk lasts about 9:40, split approximately equally between Noah and Fernando.
+Self-contained static browser presentation: 18 narrated chapters. The main talk lasts about 9:40, split approximately equally between Noah and Fernando.
 
 ## Run
 
@@ -34,3 +34,5 @@ The website source and narrowly scoped example clips are intentionally retained 
 Three.js is MIT licensed (license included), p5.js is LGPL-2.1 licensed (license included), and the font license is included. External dataset examples retain their source rights; see the linked source terms before redistribution. Puck and Charon are synthetic stock voices generated through the authorized OpenRouter account.
 
 The related-work sequence introduces the cost of control labels before contrasting pixel, feature and future-state supervision. The flow-matching sequence uses complete move/rotate/grip control chunks; its command-time axis is separate from generation time. Robot examples illustrate multiple embodiments, with compatible control conventions and target-specific post-training explained explicitly. Shared connector primitives keep one tangent-aligned tip per path; masked text changes take about 0.38 seconds.
+
+Motion typography lives in `src/motion-type.js`: masked reel-card changes retain a shared word prefix, selected terms squash and settle, and short instructions type in. Existing heading transitions are preserved. Effects stop at their settled state and the browser respects reduced-motion preferences. Authoring exports use the same deterministic beat times.

@@ -17,8 +17,11 @@ Assembly requires an available ffmpeg installation. No credentials are included.
 The ordinary viewer and portable HTML do not display authoring controls.
 
 Stable asset slots preserve the earlier audio filenames; slot 2 is reserved and hidden.
-Visible chapter numbers are in the content records. Four B entries are optional appendices.
+Visible chapter numbers are in the content records. The public presentation contains only the 18 main chapters.
 Final PDFs and the rehearsal guide shipped alongside the source are the audited deliverables.
 
 For a focused render, add &chapters=4,5,6 to the authoring URL.
 Only those visible main chapters are exported; the full viewer is unchanged.
+
+Append &typeaudit=1 to export only final/intermediate stills plus sub-second
+typography samples. It does not encode chapter videos.

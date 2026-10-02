@@ -3,7 +3,7 @@ const DATA=[
     "n": 1,
     "speaker": "Noah",
     "budget": 18.933333333333334,
-    "section": "CSI 5341 \u00b7 Paper presentation",
+    "section": "CSI 5341 · Paper presentation",
     "title": "VLA-JEPA",
     "purpose": "Introduce the central research question and the speakers.",
     "chunks": [
@@ -89,7 +89,7 @@ const DATA=[
         "voice": "Warm conversational explanation; brief natural breaths."
       }
     ],
-    "source": "LAPA (2024), \u00a73; UniVLA (RSS 2025), \u00a7III; VLA-JEPA (2026), \u00a73. Different targets and pipelines; feature prediction is not unique to VLA-JEPA.",
+    "source": "LAPA (2024), §3; UniVLA (RSS 2025), §III; VLA-JEPA (2026), §3. Different targets and pipelines; feature prediction is not unique to VLA-JEPA.",
     "wordCount": 190,
     "pauseSeconds": 0.45,
     "start": 51.46666666666667,
@@ -114,7 +114,7 @@ const DATA=[
     "n": 4,
     "speaker": "Noah",
     "budget": 46.9,
-    "section": "Method 1 of 5 \u00b7 Human video supervision",
+    "section": "Method 1 of 5 · Human video supervision",
     "title": "Predict a future state in feature space",
     "purpose": "Explain the JEPA target/predictor distinction using the original paper figure.",
     "chunks": [
@@ -125,7 +125,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "VLA-JEPA, \u00a73.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
     "wordCount": 106,
     "pauseSeconds": 0.45,
     "start": 127.63333333333334,
@@ -150,7 +150,7 @@ const DATA=[
     "n": 5,
     "speaker": "Noah",
     "budget": 22.666666666666668,
-    "section": "Method 2 of 5 \u00b7 Architecture",
+    "section": "Method 2 of 5 · Architecture",
     "title": "First, encode the observation and instruction",
     "purpose": "Introduce the first architecture path before revealing the predictor.",
     "chunks": [
@@ -161,7 +161,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "VLA-JEPA, \u00a73.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
     "wordCount": 51,
     "pauseSeconds": 0.45,
     "start": 174.53333333333333,
@@ -186,8 +186,8 @@ const DATA=[
     "n": 6,
     "speaker": "Noah",
     "budget": 23.416666666666668,
-    "section": "Method 2 of 5 \u00b7 Architecture",
-    "title": "Predict the next state\u2019s embedding",
+    "section": "Method 2 of 5 · Architecture",
+    "title": "Predict the next state’s embedding",
     "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
     "chunks": [
       {
@@ -197,7 +197,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "VLA-JEPA, \u00a73.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
     "wordCount": 54,
     "pauseSeconds": 0.45,
     "start": 197.2,
@@ -222,7 +222,7 @@ const DATA=[
     "n": 7,
     "speaker": "Noah",
     "budget": 24.416666666666668,
-    "section": "Method 2 of 5 \u00b7 Architecture",
+    "section": "Method 2 of 5 · Architecture",
     "title": "Compare the prediction with the observed future",
     "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
     "chunks": [
@@ -233,7 +233,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "VLA-JEPA, \u00a73.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
     "wordCount": 56,
     "pauseSeconds": 0.45,
     "start": 220.61666666666665,
@@ -258,7 +258,7 @@ const DATA=[
     "n": 8,
     "speaker": "Noah",
     "budget": 44.96666666666667,
-    "section": "Method 3 of 5 \u00b7 Information flow",
+    "section": "Method 3 of 5 · Information flow",
     "title": "The predictor sees history, while future states are targets",
     "purpose": "Resolve the subtle difference between target supervision and teacher-forced world-model history.",
     "chunks": [
@@ -269,7 +269,7 @@ const DATA=[
         "voice": "Warm conversational explanation; brief natural breaths."
       }
     ],
-    "source": "VLA-JEPA, \u00a73.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
     "wordCount": 117,
     "pauseSeconds": 0.45,
     "start": 245.0333333333333,
@@ -294,7 +294,7 @@ const DATA=[
     "n": 9,
     "speaker": "Fernando",
     "budget": 60.15,
-    "section": "Method 4 of 5 \u00b7 Action generation",
+    "section": "Method 4 of 5 · Action generation",
     "title": "Learn to update a whole sequence of robot controls",
     "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
     "chunks": [
@@ -305,7 +305,7 @@ const DATA=[
         "voice": "Warm conversational explanation; brief natural breaths."
       }
     ],
-    "source": "Paper \u00a73.3, Eqs. 7\u20138. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
+    "source": "Paper §3.3, Eqs. 7–8. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
     "wordCount": 179,
     "pauseSeconds": 0.45,
     "start": 290.0,
@@ -330,7 +330,7 @@ const DATA=[
     "n": 10,
     "speaker": "Fernando",
     "budget": 42.583333333333336,
-    "section": "Method 4 of 5 \u00b7 Action generation",
+    "section": "Method 4 of 5 · Action generation",
     "title": "Generate a control sequence with repeated learned updates",
     "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
     "chunks": [
@@ -341,7 +341,7 @@ const DATA=[
         "voice": "Warm conversational explanation; brief natural breaths."
       }
     ],
-    "source": "Paper \u00a73.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
+    "source": "Paper §3.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
     "wordCount": 119,
     "pauseSeconds": 0.45,
     "start": 350.15,
@@ -366,7 +366,7 @@ const DATA=[
     "n": 11,
     "speaker": "Fernando",
     "budget": 47.28333333333333,
-    "section": "Method 5 of 5 \u00b7 Joint optimization",
+    "section": "Method 5 of 5 · Joint optimization",
     "title": "Visual supervision transfers; robot controls need an interface",
     "purpose": "Explain which loss applies to each data source and what remains frozen.",
     "chunks": [
@@ -377,7 +377,7 @@ const DATA=[
         "voice": "Warm conversational explanation; brief natural breaths."
       }
     ],
-    "source": "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper \u00a7\u00a74.1\u20134.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
+    "source": "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper §§4.1–4.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
     "wordCount": 139,
     "pauseSeconds": 0.45,
     "start": 392.7333333333333,
@@ -402,7 +402,7 @@ const DATA=[
     "n": 12,
     "speaker": "Fernando",
     "budget": 13.5,
-    "section": "Paper results \u00b7 Sun et al.",
+    "section": "Paper results · Sun et al.",
     "title": "Standard LIBERO: a near tie",
     "purpose": "Compare matched benchmark numbers with correct units and a near-tie caveat.",
     "chunks": [
@@ -413,7 +413,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Paper, Tables 1 and 3. Differences: 97.2\u221297.1=0.1 percentage points, 79.5\u221269.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
+    "source": "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
     "wordCount": 38,
     "pauseSeconds": 0.45,
     "start": 440.01666666666665,
@@ -438,7 +438,7 @@ const DATA=[
     "n": 13,
     "speaker": "Fernando",
     "budget": 21.45,
-    "section": "Paper results \u00b7 Sun et al.",
+    "section": "Paper results · Sun et al.",
     "title": "LIBERO-Plus: a larger gain under perturbations",
     "purpose": "Compare matched benchmark numbers with correct units and a near-tie caveat.",
     "chunks": [
@@ -449,7 +449,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Paper, Tables 1 and 3. Differences: 97.2\u221297.1=0.1 percentage points, 79.5\u221269.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
+    "source": "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
     "wordCount": 59,
     "pauseSeconds": 0.45,
     "start": 453.51666666666665,
@@ -474,7 +474,7 @@ const DATA=[
     "n": 14,
     "speaker": "Fernando",
     "budget": 18.75,
-    "section": "Paper results \u00b7 Sun et al.",
+    "section": "Paper results · Sun et al.",
     "title": "Human video improves LIBERO-Plus robustness",
     "purpose": "Use controlled within-method ablation and a counterexample to temper the main claim.",
     "chunks": [
@@ -485,7 +485,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Paper, Tables 1\u20133 and sections 4.4\u20134.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google \u221213.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
+    "source": "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
     "wordCount": 51,
     "pauseSeconds": 0.45,
     "start": 474.96666666666664,
@@ -510,7 +510,7 @@ const DATA=[
     "n": 15,
     "speaker": "Fernando",
     "budget": 17.983333333333334,
-    "section": "Paper results \u00b7 Sun et al.",
+    "section": "Paper results · Sun et al.",
     "title": "Human video does not improve every benchmark",
     "purpose": "Use controlled within-method ablation and a counterexample to temper the main claim.",
     "chunks": [
@@ -521,7 +521,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Paper, Tables 1\u20133 and sections 4.4\u20134.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google \u221213.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
+    "source": "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
     "wordCount": 44,
     "pauseSeconds": 0.45,
     "start": 493.71666666666664,
@@ -545,7 +545,7 @@ const DATA=[
   {
     "speaker": "Fernando",
     "budget": 27.25,
-    "section": "Our project \u00b7 Proposal and work so far",
+    "section": "Our project · Proposal and work so far",
     "title": "Our proposal: evaluate efficiency without assuming success",
     "purpose": "Explain the planned comparison and current preparation without announcing results.",
     "chunks": [
@@ -556,7 +556,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Presenters\u2019 project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
+    "source": "Presenters’ project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
     "n": 16,
     "start": 511.7,
     "end": 538.95,
@@ -593,7 +593,7 @@ const DATA=[
         "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
       }
     ],
-    "source": "Sun et al., Table 3, \u00a74.1, \u00a74.4 and Appendix B. Ten trials per task describes the authors\u2019 real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
+    "source": "Sun et al., Table 3, §4.1, §4.4 and Appendix B. Ten trials per task describes the authors’ real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
     "wordCount": 59,
     "pauseSeconds": 0.45,
     "start": 538.95,
@@ -649,122 +649,6 @@ const DATA=[
     "backup": false,
     "id": "chapter-18",
     "audioAsset": "narration-19.mp3"
-  },
-  {
-    "n": "B1",
-    "speaker": "Noah",
-    "budget": 35,
-    "section": "Backup \u00b7 Proposed smaller backbone",
-    "title": "SmolVLM: a backbone direction to evaluate",
-    "purpose": "Describe the proposed lightweight architecture direction outside the ten-minute presentation.",
-    "chunks": [
-      {
-        "text": "One direction we're exploring is a smaller vision language backbone. The proposal is to replace Qwen with SmolVLM, retaining the frozen video encoder, world predictor, and flow matching action head. The integration needs careful checks of inputs, conditioning, and trainability. A smaller backbone doesn't automatically mean equivalent control, or lower total memory. We would evaluate those questions with a matched baseline before drawing a conclusion.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
-    ],
-    "source": "Presenters\u2019 project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
-    "wordCount": 65,
-    "pauseSeconds": 0.45,
-    "measuredSyntheticWithPauses": 32.643,
-    "notes": "One direction we're exploring is a smaller vision language backbone. The proposal is to replace Qwen with SmolVLM, retaining the frozen video encoder, world predictor, and flow matching action head. The integration needs careful checks of inputs, conditioning, and trainability. A smaller backbone doesn't automatically mean equivalent control, or lower total memory. We would evaluate those questions with a matched baseline before drawing a conclusion.",
-    "deliveryCues": [
-      {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
-      },
-      {
-        "time": 16.8,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
-    ],
-    "backup": true,
-    "id": "chapter-b1",
-    "audioAsset": null
-  },
-  {
-    "n": "B2",
-    "speaker": "Fernando",
-    "budget": 35,
-    "section": "Backup \u00b7 Exploratory extension",
-    "title": "Optional architecture search",
-    "purpose": "Retain the exploratory search result and identify the selection criterion.",
-    "chunks": [
-      {
-        "text": "An optional extension is an architecture search inspired by Dream R S I. The idea is to explore conditioning choices within a fixed evaluation protocol, then compare resource use and robot task performance. Any candidate would need confirmation against the same baseline. This is an exploratory direction, not a promised improvement, and it stays secondary to getting the main efficiency comparison right.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
-    ],
-    "source": "Presenters\u2019 project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
-    "wordCount": 62,
-    "pauseSeconds": 0.45,
-    "measuredSyntheticWithPauses": 31.386,
-    "notes": "An optional extension is an architecture search inspired by Dream R S I. The idea is to explore conditioning choices within a fixed evaluation protocol, then compare resource use and robot task performance. Any candidate would need confirmation against the same baseline. This is an exploratory direction, not a promised improvement, and it stays secondary to getting the main efficiency comparison right.",
-    "deliveryCues": [
-      {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
-      },
-      {
-        "time": 16.8,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
-    ],
-    "backup": true,
-    "id": "chapter-b2",
-    "audioAsset": null
-  },
-  {
-    "n": "B3",
-    "speaker": "Noah",
-    "budget": 40,
-    "section": "Method 2 of 5 \u00b7 Architecture",
-    "title": "Architecture overview",
-    "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
-    "chunks": [
-      {
-        "text": "This is our redraw of the architecture for technical discussion. The frozen encoder represents observed states and supplies future targets. The vision-language model produces latent action tokens. Those tokens condition both the world-model predictor and the action head. Human video supervises future-state prediction; robot demonstrations also supply action labels.",
-        "pause": 2,
-        "focus": "Original Figure 1",
-        "voice": "Trace encoder, latent action, predictor and target in that order.",
-        "measuredSyntheticSpeechSeconds": 27.036
-      }
-    ],
-    "source": "Own redraw of the paper architecture after the component explanation; paper Figure 1 remains the authoritative reference.",
-    "wordCount": 62,
-    "pauseSeconds": 4,
-    "start": 170,
-    "end": 240,
-    "measuredSyntheticWithPauses": 31.036,
-    "notes": "This is our redraw of the architecture for technical discussion. The frozen encoder represents observed states and supplies future targets. The vision-language model produces latent action tokens. Those tokens condition both the world-model predictor and the action head. Human video supervises future-state prediction; robot demonstrations also supply action labels.",
-    "deliveryCues": [
-      {
-        "time": 0,
-        "instruction": "Optional reference outside the narrated main talk."
-      }
-    ],
-    "backup": true,
-    "id": "chapter-b3",
-    "audioAsset": null
-  },
-  {
-    "n": "B4",
-    "speaker": "Fernando",
-    "title": "Flow-matching equations",
-    "source": "Sun et al. (2026), equations 7\u20138. Mixing time is not physical robot time.",
-    "chunks": [
-      {
-        "text": "For reference, training interpolates between sampled Gaussian noise and a demonstrated action chunk. The learned velocity is regressed onto the difference between the demonstration and that noise sample."
-      }
-    ],
-    "notes": "For reference, training interpolates between sampled Gaussian noise and a demonstrated action chunk. The learned velocity is regressed onto the difference between the demonstration and that noise sample.",
-    "backup": true,
-    "id": "chapter-b4",
-    "audioAsset": null
   }
 ];const stage=document.getElementById('stage'),audio=document.getElementById('audio');let index=0,p=0,playing=false,animation=false,last=0,auto=false;
 const ink='#142033',blue='#0284c7',gray='#94a3b8',muted='#64748b',orange='#bf531c',light='#e8f5fb';const clamp=x=>Math.max(0,Math.min(1,x));const ease=x=>{x=clamp(x);return x*x*(3-2*x)};const phase=(a,b)=>ease((p-a)/(b-a));
