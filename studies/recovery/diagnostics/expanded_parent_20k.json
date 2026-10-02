@@ -1,0 +1,115 @@
+{
+  "purpose": "completed_fixed_parent_expanded_development",
+  "run_id": "20261002T120707482768Z-RGB-parent20k-dev100-rollout",
+  "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "registration_sha256": "95bb5b0ebcb30ee938c315bfd6b7f7e39e152c229642780f6e546054e99d2d70",
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+  "wrapper_sha256": "95176072b4331a57101acef9c2b9209839c0ef3f27a55d39af73df1ca3430446",
+  "buffer_precision": "native_rope",
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "torch_cuda": "12.8",
+    "driver": "580.178.04"
+  },
+  "numerical_flags": {
+    "deterministic_algorithms": false,
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": true,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": false
+  },
+  "summary": {
+    "episodes": 100,
+    "successes": 31,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "development",
+    "task_macro_success": 0.31000000000000005
+  },
+  "per_task": [
+    {
+      "task_id": 0,
+      "episodes": 10,
+      "successes": 0
+    },
+    {
+      "task_id": 1,
+      "episodes": 10,
+      "successes": 5
+    },
+    {
+      "task_id": 2,
+      "episodes": 10,
+      "successes": 3
+    },
+    {
+      "task_id": 3,
+      "episodes": 10,
+      "successes": 4
+    },
+    {
+      "task_id": 4,
+      "episodes": 10,
+      "successes": 4
+    },
+    {
+      "task_id": 5,
+      "episodes": 10,
+      "successes": 2
+    },
+    {
+      "task_id": 6,
+      "episodes": 10,
+      "successes": 3
+    },
+    {
+      "task_id": 7,
+      "episodes": 10,
+      "successes": 8
+    },
+    {
+      "task_id": 8,
+      "episodes": 10,
+      "successes": 1
+    },
+    {
+      "task_id": 9,
+      "episodes": 10,
+      "successes": 1
+    }
+  ],
+  "episodes_csv_sha256": "d813d3871d373a08938e3a277ab0296b02c1d4e7fd8c12cd9d2b1c711fdfcb59",
+  "run_record_sha256": "b22128691f60da020b66fed43e93feb09679aeb9a145cd954f5d3d8393b558a2",
+  "limitations": "Completed100-development-state fixed parent result, not final acceptance. Matched B16 cohort is still running. This includes previously inspected first state/task; do not pool with prior ten-state counts. Different hardware from cloud6/10; no causal architecture comparison.",
+  "canonical_episode_membership_verified": true
+}
