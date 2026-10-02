@@ -127,6 +127,13 @@ def render(output):
     if recovery_path.exists() and recovery_figure.exists():
         recovery = read_json(recovery_path)
         first, last = recovery['validation'][0], recovery['validation'][-1]
+        task_path = ROOT / 'studies/recovery/diagnostics/endpoint_task_errors.json'
+        task_text = ''
+        if task_path.exists():
+            task_summary = read_json(task_path)['summary']
+            low, high = task_summary['mean_error_ratio_range']
+            task_text = (f'On two held-out frames per task, finite-draw mean arm error '
+                         f'remains {low:.1f}--{high:.1f}$\\times$ B16 across all ten tasks. ')
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
@@ -150,7 +157,7 @@ def render(output):
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
             f"{first['step']:,}; gripper error changed from "
             f"{first['gripper_error_percent']:.1f}\\% to {last['gripper_error_percent']:.1f}\\%. "
-            r'These single-seed diagnostics do not isolate each intervention.' + '\n'
+            + task_text.rstrip() + '\n'
             r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
             r'\caption{Registered RGB-recovery validation. Physical command errors use '
             r'1,303 valid actions from the same 200 held-out frames, excluding padding. '

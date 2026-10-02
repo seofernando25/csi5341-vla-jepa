@@ -1,0 +1,569 @@
+{
+  "purpose": "saved_matched_endpoint_task_error_analysis",
+  "input_sha256": {
+    "b16_stochasticity.json": "a5f96b0d791e8df9fc5f46304f6b8808b9611a141ec4671475995f409bce6fb9",
+    "rgb_20k_native_stochasticity.json": "3b46aae1bad18114ee8c2ecbe3934f25ec76ca43116e5b0d5592e1e3e987de1b",
+    "task_instruction_mapping.json": "2da5e389151b14889a522d405e62c4617f816ec8b25a0236b31db792ca246c75"
+  },
+  "analysis_sha256": "bdfca5bff01b75f1b497617f594e34d0ca0199da7e68bf0d9ca695cb964c8cab",
+  "baseline_checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "endpoint_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "endpoint_buffer_precision": "native_rope",
+  "cohort_sha256": "7a5c3955cb7c7bf0743672b7d4ac034dc11b4846b65f64622df3b44218a8a058",
+  "draws_per_frame": 5,
+  "tasks": [
+    {
+      "instruction": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "dataset_task_id": 4,
+      "libero_task_id": 0,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.00027294115716358647,
+        "mean_prediction_arm_mse": 0.0002654601485119201,
+        "within_draw_arm_variance": 7.481116426788503e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.027409264709406644,
+        "frame_single_draw_mse": [
+          0.00037207716377452016,
+          0.00017380515055265278
+        ],
+        "frames": [
+          {
+            "episode": 399,
+            "frame": 6,
+            "valid_actions": 7
+          },
+          {
+            "episode": 408,
+            "frame": 58,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.020567203871905804,
+        "mean_prediction_arm_mse": 0.015354483854025602,
+        "within_draw_arm_variance": 0.005212721764110029,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.25344824685821554,
+        "frame_single_draw_mse": [
+          0.00819835253059864,
+          0.03293605521321297
+        ],
+        "frames": [
+          {
+            "episode": 399,
+            "frame": 6,
+            "valid_actions": 7
+          },
+          {
+            "episode": 408,
+            "frame": 58,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 57.841012822819735
+    },
+    {
+      "instruction": "pick up the black bowl next to the ramekin and place it on the plate",
+      "dataset_task_id": 7,
+      "libero_task_id": 1,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.00037891941974521615,
+        "mean_prediction_arm_mse": 0.0003638826783571858,
+        "within_draw_arm_variance": 1.5036529703138513e-05,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.03968265789398974,
+        "frame_single_draw_mse": [
+          8.639135194243863e-05,
+          0.0006714474875479937
+        ],
+        "frames": [
+          {
+            "episode": 403,
+            "frame": 14,
+            "valid_actions": 7
+          },
+          {
+            "episode": 415,
+            "frame": 78,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.0182352801784873,
+        "mean_prediction_arm_mse": 0.016049144556745887,
+        "within_draw_arm_variance": 0.0021861314307898283,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.11988471849030717,
+        "frame_single_draw_mse": [
+          0.004135696217417717,
+          0.032334864139556885
+        ],
+        "frames": [
+          {
+            "episode": 403,
+            "frame": 14,
+            "valid_actions": 7
+          },
+          {
+            "episode": 415,
+            "frame": 78,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 44.10527214211639
+    },
+    {
+      "instruction": "pick up the black bowl from table center and place it on the plate",
+      "dataset_task_id": 8,
+      "libero_task_id": 2,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.0005009456217521802,
+        "mean_prediction_arm_mse": 0.0004913731900160201,
+        "within_draw_arm_variance": 9.572404678692692e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.019108670208975696,
+        "frame_single_draw_mse": [
+          0.00019894764409400523,
+          0.0008029435994103551
+        ],
+        "frames": [
+          {
+            "episode": 396,
+            "frame": 114,
+            "valid_actions": 7
+          },
+          {
+            "episode": 407,
+            "frame": 43,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.020947782788425684,
+        "mean_prediction_arm_mse": 0.014461207902058959,
+        "within_draw_arm_variance": 0.0064865758176893,
+        "gripper_error_mean": 0.21428571428571427,
+        "gripper_any_disagreement_fraction": 0.5,
+        "variance_fraction": 0.3096545292265174,
+        "frame_single_draw_mse": [
+          0.03197144716978073,
+          0.009924118407070637
+        ],
+        "frames": [
+          {
+            "episode": 396,
+            "frame": 114,
+            "valid_actions": 7
+          },
+          {
+            "episode": 407,
+            "frame": 43,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 29.430193172703387
+    },
+    {
+      "instruction": "pick up the black bowl on the cookie box and place it on the plate",
+      "dataset_task_id": 5,
+      "libero_task_id": 3,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.0006985803338466212,
+        "mean_prediction_arm_mse": 0.0006861942820250988,
+        "within_draw_arm_variance": 1.2386171874823049e-05,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.017730490359813837,
+        "frame_single_draw_mse": [
+          0.0003996751911472529,
+          0.0009974854765459895
+        ],
+        "frames": [
+          {
+            "episode": 389,
+            "frame": 103,
+            "valid_actions": 7
+          },
+          {
+            "episode": 398,
+            "frame": 28,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.01407015835866332,
+        "mean_prediction_arm_mse": 0.009713056031614542,
+        "within_draw_arm_variance": 0.0043571024434641,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.30966975156902427,
+        "frame_single_draw_mse": [
+          0.017077991738915443,
+          0.011062324978411198
+        ],
+        "frames": [
+          {
+            "episode": 389,
+            "frame": 103,
+            "valid_actions": 7
+          },
+          {
+            "episode": 398,
+            "frame": 28,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 14.15496498010642
+    },
+    {
+      "instruction": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
+      "dataset_task_id": 1,
+      "libero_task_id": 4,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.0012191631249152124,
+        "mean_prediction_arm_mse": 0.0012133081909269094,
+        "within_draw_arm_variance": 5.8546859236230375e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.004802217032302552,
+        "frame_single_draw_mse": [
+          0.001080985413864255,
+          0.0013573408359661698
+        ],
+        "frames": [
+          {
+            "episode": 379,
+            "frame": 155,
+            "valid_actions": 7
+          },
+          {
+            "episode": 402,
+            "frame": 34,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.015958786476403475,
+        "mean_prediction_arm_mse": 0.011983330827206373,
+        "within_draw_arm_variance": 0.00397545425221324,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.2491075532648621,
+        "frame_single_draw_mse": [
+          0.018786665052175522,
+          0.013130907900631428
+        ],
+        "frames": [
+          {
+            "episode": 379,
+            "frame": 155,
+            "valid_actions": 7
+          },
+          {
+            "episode": 402,
+            "frame": 34,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 9.876576220961372
+    },
+    {
+      "instruction": "pick up the black bowl on the ramekin and place it on the plate",
+      "dataset_task_id": 2,
+      "libero_task_id": 5,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.0009071989043150097,
+        "mean_prediction_arm_mse": 0.0008203882607631385,
+        "within_draw_arm_variance": 8.681062536197715e-05,
+        "gripper_error_mean": 0.014285714285714285,
+        "gripper_any_disagreement_fraction": 0.07142857142857142,
+        "variance_fraction": 0.095690840177463,
+        "frame_single_draw_mse": [
+          0.0009376731468364596,
+          0.0008767246617935598
+        ],
+        "frames": [
+          {
+            "episode": 423,
+            "frame": 90,
+            "valid_actions": 7
+          },
+          {
+            "episode": 424,
+            "frame": 123,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.03955233562737703,
+        "mean_prediction_arm_mse": 0.03276392165571451,
+        "within_draw_arm_variance": 0.006788414902985096,
+        "gripper_error_mean": 0.19999999999999998,
+        "gripper_any_disagreement_fraction": 0.21428571428571427,
+        "variance_fraction": 0.17163120193302422,
+        "frame_single_draw_mse": [
+          0.050910983234643936,
+          0.02819368802011013
+        ],
+        "frames": [
+          {
+            "episode": 423,
+            "frame": 90,
+            "valid_actions": 7
+          },
+          {
+            "episode": 424,
+            "frame": 123,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 39.93709225585088
+    },
+    {
+      "instruction": "pick up the black bowl next to the cookie box and place it on the plate",
+      "dataset_task_id": 0,
+      "libero_task_id": 6,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.0002895794896176085,
+        "mean_prediction_arm_mse": 0.00028173882310511544,
+        "within_draw_arm_variance": 7.840586590646126e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.027075766315493095,
+        "frame_single_draw_mse": [
+          0.00033394573256373405,
+          0.0002452132466714829
+        ],
+        "frames": [
+          {
+            "episode": 384,
+            "frame": 21,
+            "valid_actions": 7
+          },
+          {
+            "episode": 394,
+            "frame": 60,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.005222515435889363,
+        "mean_prediction_arm_mse": 0.0031523501966148615,
+        "within_draw_arm_variance": 0.002070165704935789,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.3963924530906154,
+        "frame_single_draw_mse": [
+          0.0035961042158305645,
+          0.006848926655948162
+        ],
+        "frames": [
+          {
+            "episode": 384,
+            "frame": 21,
+            "valid_actions": 7
+          },
+          {
+            "episode": 394,
+            "frame": 60,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 11.188909508004633
+    },
+    {
+      "instruction": "pick up the black bowl on the stove and place it on the plate",
+      "dataset_task_id": 3,
+      "libero_task_id": 7,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.00021944288891972974,
+        "mean_prediction_arm_mse": 0.00021458267292473465,
+        "within_draw_arm_variance": 4.8602453261992196e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.022148110381362388,
+        "frame_single_draw_mse": [
+          9.494640107732266e-05,
+          0.0003439393767621368
+        ],
+        "frames": [
+          {
+            "episode": 406,
+            "frame": 107,
+            "valid_actions": 7
+          },
+          {
+            "episode": 414,
+            "frame": 7,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.01646227017045021,
+        "mean_prediction_arm_mse": 0.01442020502872765,
+        "within_draw_arm_variance": 0.0020420632790774107,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.12404505927395822,
+        "frame_single_draw_mse": [
+          0.007851658388972282,
+          0.02507288195192814
+        ],
+        "frames": [
+          {
+            "episode": 406,
+            "frame": 107,
+            "valid_actions": 7
+          },
+          {
+            "episode": 414,
+            "frame": 7,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 67.20116229415024
+    },
+    {
+      "instruction": "pick up the black bowl next to the plate and place it on the plate",
+      "dataset_task_id": 6,
+      "libero_task_id": 8,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.00032466147968079895,
+        "mean_prediction_arm_mse": 0.00031875968124950305,
+        "within_draw_arm_variance": 5.901817303310963e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.018178372466957027,
+        "frame_single_draw_mse": [
+          0.0004557865031529218,
+          0.0001935364562086761
+        ],
+        "frames": [
+          {
+            "episode": 378,
+            "frame": 15,
+            "valid_actions": 7
+          },
+          {
+            "episode": 387,
+            "frame": 70,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.012244584504514933,
+        "mean_prediction_arm_mse": 0.010469080414623022,
+        "within_draw_arm_variance": 0.001775503857061267,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.14500319356745728,
+        "frame_single_draw_mse": [
+          0.0064537180587649345,
+          0.01803545095026493
+        ],
+        "frames": [
+          {
+            "episode": 378,
+            "frame": 15,
+            "valid_actions": 7
+          },
+          {
+            "episode": 387,
+            "frame": 70,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 32.84317631886622
+    },
+    {
+      "instruction": "pick up the black bowl on the wooden cabinet and place it on the plate",
+      "dataset_task_id": 9,
+      "libero_task_id": 9,
+      "baseline": {
+        "single_draw_arm_mse_mean": 0.000580162275582552,
+        "mean_prediction_arm_mse": 0.0005729091062676162,
+        "within_draw_arm_variance": 7.253087005665293e-06,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.012501824594476314,
+        "frame_single_draw_mse": [
+          0.0005484864232130349,
+          0.000611838127952069
+        ],
+        "frames": [
+          {
+            "episode": 383,
+            "frame": 130,
+            "valid_actions": 6
+          },
+          {
+            "episode": 413,
+            "frame": 49,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "endpoint": {
+        "single_draw_arm_mse_mean": 0.019725709222257137,
+        "mean_prediction_arm_mse": 0.015369866043329239,
+        "within_draw_arm_variance": 0.004355841432698071,
+        "gripper_error_mean": 0.0,
+        "gripper_any_disagreement_fraction": 0.0,
+        "variance_fraction": 0.2208205232886247,
+        "frame_single_draw_mse": [
+          0.021755147725343704,
+          0.01769627071917057
+        ],
+        "frames": [
+          {
+            "episode": 383,
+            "frame": 130,
+            "valid_actions": 6
+          },
+          {
+            "episode": 413,
+            "frame": 49,
+            "valid_actions": 7
+          }
+        ]
+      },
+      "mean_error_ratio_to_b16": 26.827756576362916
+    }
+  ],
+  "summary": {
+    "tasks_with_larger_endpoint_mean_error": 10,
+    "mean_error_ratio_range": [
+      9.876576220961372,
+      67.20116229415024
+    ],
+    "endpoint_variance_fraction_range": [
+      0.11988471849030717,
+      0.3963924530906154
+    ],
+    "tasks_with_endpoint_gripper_errors": 2
+  },
+  "limitations": "Two demonstration frames per task and five seeded draws per frame; descriptive equal-frame averages, no confidence intervals or representative task estimates. Finite-draw mean prediction error is not statistical bias. Qwen training membership is unknown. Differing training histories and buffer protocols prevent isolated backbone-size inference. No deployed ensemble, paired final benchmark, closed-loop causal conclusion or new model evaluation."
+}

@@ -81,7 +81,7 @@ Inference rounds nonpersistent rotary frequencies to BF16, unlike native FP32-bu
 
 Registered full-decoder/input-query recovery passes native optimizer/save/resume on RTX5090 (23.74\,GiB). Earlier four-update RTX3090 checks with isolated worker RNG and deterministic algorithms give identical uninterrupted/resumed state. These engineering checks are excluded from production selection.
 
-At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 at 500; gripper error changed from 13.6\% to 4.8\%. These single-seed diagnostics do not isolate each intervention.
+At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 at 500; gripper error changed from 13.6\% to 4.8\%. On two held-out frames per task, finite-draw mean arm error remains 9.9--67.2$\times$ B16 across all ten tasks.
 
 
 The 20,000-update checkpoint achieved 6/10 development successes. RTX5090 inference uses 2.98\,GiB and 108.3\,ms median pipeline latency (1,500 predictions). Matched final performance retention remains untested.
