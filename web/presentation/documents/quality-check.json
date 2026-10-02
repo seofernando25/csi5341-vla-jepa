@@ -1,7 +1,7 @@
 {
   "mainChapters": 18,
   "optionalBackups": 4,
-  "durationSeconds": 473.74999999999994,
+  "durationSeconds": 580.0166666666668,
   "underTenMinutes": true,
   "video": {
     "codec_name": "h264",
@@ -9,17 +9,17 @@
     "height": 1080,
     "r_frame_rate": "60/1",
     "avg_frame_rate": "60/1",
-    "duration": "473.750000",
-    "nb_frames": "28425"
+    "duration": "580.016667",
+    "nb_frames": "34801"
   },
   "constantFrameIntervals": {
-    "checkedFrames": 28425,
+    "checkedFrames": 34801,
     "minimumSeconds": 0.016665999999986525,
-    "maximumSeconds": 0.016667000000040844
+    "maximumSeconds": 0.016667000000097687
   },
   "speakers": {
-    "Noah": 236.86666666666667,
-    "Fernando": 236.88333333333333,
+    "Noah": 290.0,
+    "Fernando": 290.01666666666665,
     "sections": "Noah 1\u20138, Fernando 9\u201318"
   },
   "narrationModel": "google/gemini-3.8-flash-tts",
@@ -28,148 +28,154 @@
     {
       "asset": "narration-01.mp3",
       "silencesOver700ms": [
-        0.931625
+        0.95425
       ],
       "maxVolumeDB": -2.7
     },
     {
       "asset": "narration-03.mp3",
       "silencesOver700ms": [
-        0.722458,
-        0.765458,
-        0.802333
+        0.737875,
+        0.771917,
+        0.805125,
+        0.817792
       ],
-      "maxVolumeDB": -2.0
+      "maxVolumeDB": -2.1
     },
     {
       "asset": "narration-04.mp3",
       "silencesOver700ms": [
-        0.78325,
-        0.79875,
-        0.824417
+        0.736,
+        0.803958,
+        0.741875,
+        0.913292,
+        0.883833
       ],
-      "maxVolumeDB": -2.2
+      "maxVolumeDB": -1.9
     },
     {
       "asset": "narration-05.mp3",
       "silencesOver700ms": [
-        0.777292,
-        0.829,
-        0.705333,
-        0.791125
+        0.826417,
+        0.878417,
+        0.708292,
+        0.742333,
+        0.807625
       ],
       "maxVolumeDB": -2.0
     },
     {
       "asset": "narration-06.mp3",
       "silencesOver700ms": [
-        0.753792
+        0.70875,
+        0.778417
       ],
       "maxVolumeDB": -2.1
     },
     {
       "asset": "narration-07.mp3",
       "silencesOver700ms": [
-        0.796542,
-        0.715458,
-        0.832125,
-        0.840917
+        0.848708,
+        0.752958,
+        0.886,
+        0.864708
       ],
       "maxVolumeDB": -2.1
     },
     {
       "asset": "narration-08.mp3",
       "silencesOver700ms": [
-        0.716208
+        0.73325
       ],
       "maxVolumeDB": -2.7
     },
     {
       "asset": "narration-09.mp3",
       "silencesOver700ms": [
-        0.715042,
-        0.90325,
-        0.781
+        0.754583
       ],
       "maxVolumeDB": -1.7
     },
     {
       "asset": "narration-10.mp3",
       "silencesOver700ms": [
-        0.836875
+        0.838208,
+        1.033667,
+        0.804375,
+        0.7605,
+        0.744333,
+        0.929583,
+        0.770458,
+        0.790833
       ],
-      "maxVolumeDB": -1.8
+      "maxVolumeDB": -1.7
     },
     {
       "asset": "narration-11.mp3",
       "silencesOver700ms": [
-        0.895792,
-        0.748042,
-        0.746917,
-        0.814583
+        0.797833,
+        0.892958,
+        0.948542,
+        0.771917,
+        0.918167
       ],
-      "maxVolumeDB": -1.8
+      "maxVolumeDB": -1.7
     },
     {
       "asset": "narration-12.mp3",
-      "silencesOver700ms": [
-        0.967833,
-        0.747792,
-        0.788292
-      ],
+      "silencesOver700ms": [],
       "maxVolumeDB": -1.7
     },
     {
       "asset": "narration-13.mp3",
       "silencesOver700ms": [
-        0.9235
+        0.905458
       ],
       "maxVolumeDB": -2.3
     },
     {
       "asset": "narration-14.mp3",
       "silencesOver700ms": [
-        0.72525
+        0.7055
       ],
       "maxVolumeDB": -1.9
     },
     {
       "asset": "narration-15.mp3",
       "silencesOver700ms": [
-        0.917333
+        0.879167
       ],
-      "maxVolumeDB": -2.0
+      "maxVolumeDB": -1.9
     },
     {
       "asset": "narration-16.mp3",
       "silencesOver700ms": [
-        0.858083,
-        0.849833
+        0.827125,
+        0.820875
       ],
       "maxVolumeDB": -1.8
     },
     {
       "asset": "narration-17.mp3",
       "silencesOver700ms": [
-        0.737042,
-        0.850333
+        0.711542,
+        0.829042
       ],
       "maxVolumeDB": -1.8
     },
     {
       "asset": "narration-18.mp3",
       "silencesOver700ms": [
-        0.726,
-        0.750083,
-        0.9045,
-        0.931333
+        0.719042,
+        0.883083,
+        0.901042
       ],
       "maxVolumeDB": -1.9
     },
     {
       "asset": "narration-19.mp3",
       "silencesOver700ms": [
-        0.797292
+        0.782375
       ],
       "maxVolumeDB": -1.7
     }
@@ -190,11 +196,13 @@
     "Project section and optional extensions describe proposal/work so far only",
     "Project memory, success retention and speedup claims removed",
     "Paper benchmarks explicitly attributed to Sun et al.",
-    "All eighteen main scripts and two synthetic voices regenerated"
+    "Five teaching scripts revised and regenerated; other speech repaced from existing Gemini raw audio",
+    "Robot control conventions and target-specific post-training clarified",
+    "Single-path arrows with tangent-aligned tips; 0.38-second masked text changes"
   ],
   "limits": [
     "Synthetic pacing checks do not establish audience comprehension or replace human rehearsal",
-    "Feature ribbons and flow paths are schematic",
+    "Feature ribbons and control sequences are schematic",
     "Dataset clips retain native captured frames"
   ]
 }

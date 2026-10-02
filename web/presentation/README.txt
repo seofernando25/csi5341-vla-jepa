@@ -1,7 +1,7 @@
 VLA-JEPA · immersive browser presentation
 
 Serve this folder with a local static server; see README.md for repository commands.
-18 narrated chapters + 4 optional technical/proposal appendices. Main narration: about 7:54.
+18 narrated chapters + 4 optional technical/proposal appendices. Main narration: about 9:40.
 Noah covers 1–8; Fernando covers 9–18, approximately equal time.
 
 Arrow keys: chapters. Space: replay/pause local motion. Home: replay. End: final audit state.

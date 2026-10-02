@@ -19,3 +19,6 @@ The ordinary viewer and portable HTML do not display authoring controls.
 Stable asset slots preserve the earlier audio filenames; slot 2 is reserved and hidden.
 Visible chapter numbers are in the content records. Four B entries are optional appendices.
 Final PDFs and the rehearsal guide shipped alongside the source are the audited deliverables.
+
+For a focused render, add &chapters=4,5,6 to the authoring URL.
+Only those visible main chapters are exported; the full viewer is unchanged.

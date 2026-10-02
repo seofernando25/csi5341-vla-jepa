@@ -1,6 +1,6 @@
 # VLA-JEPA motion presentation
 
-Self-contained static browser presentation: 18 narrated chapters and four optional appendices. The main talk lasts about 7:54, split approximately equally between Noah and Fernando.
+Self-contained static browser presentation: 18 narrated chapters and four optional appendices. The main talk lasts about 9:40, split approximately equally between Noah and Fernando.
 
 ## Run
 
@@ -27,8 +27,10 @@ Text edits require matching narration updates. No credential files, voice genera
 
 ## Provenance
 
-See [detailed presentation notes](README.txt) for scientific distinctions and source links. The included clips are illustrative dataset examples, not VLA-JEPA rollouts or identified training samples. Human footage is SSV2 validation sample 174198; robot footage is the documented DROID example. Source capture frames are duplicated for the 60 fps timeline, without interpolation. Diagram ribbons and trajectories are schematic, not measured embeddings. The project section describes the proposal and work in progress; no project performance results are announced.
+See [detailed presentation notes](README.txt) for scientific distinctions and source links. The included clips are illustrative dataset examples, not VLA-JEPA rollouts or identified training samples. Human footage is SSV2 validation sample 174198; robot footage is the documented DROID example. Source capture frames are duplicated for the 60 fps timeline, without interpolation. Feature ribbons and control sequences are schematic, not measured embeddings or policy outputs. The project section describes the proposal and work in progress; no project performance results are announced.
 
 The website source and narrowly scoped example clips are intentionally retained under the user's request, as an exception to the repository's usual exclusion of videos/dataset artifacts. Original research code, results and recovery work are unchanged.
 
 Three.js is MIT licensed (license included), p5.js is LGPL-2.1 licensed (license included), and the font license is included. External dataset examples retain their source rights; see the linked source terms before redistribution. Puck and Charon are synthetic stock voices generated through the authorized OpenRouter account.
+
+The related-work sequence introduces the cost of control labels before contrasting pixel, feature and future-state supervision. The flow-matching sequence uses complete move/rotate/grip control chunks; its command-time axis is separate from generation time. Robot examples illustrate multiple embodiments, with compatible control conventions and target-specific post-training explained explicitly. Shared connector primitives keep one tangent-aligned tip per path; masked text changes take about 0.38 seconds.

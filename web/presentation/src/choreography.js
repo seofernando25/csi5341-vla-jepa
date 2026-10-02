@@ -1,6 +1,6 @@
 /* Authored visual beats. Independent of audio callbacks; identical for browser and export. */
 const CHOREOGRAPHY={
-0:{length:18,act:'WATCH → ACT'},2:{length:10,act:'THE DATA GAP'},3:{length:16,act:'THE TRAINING PATH'},4:{length:40,act:'PREDICT THE OUTCOME'},5:{length:19,act:'REPRESENT THE TRANSITION'},6:{length:19,act:'PREDICT THE STATE'},7:{length:21,act:'LEARN FROM THE ERROR'},8:{length:33,act:'PROTECT THE BOUNDARY'},9:{length:28,act:'LEARN A FIELD'},10:{length:24,act:'FOLLOW THE FIELD'},11:{length:28,act:'TWO SOURCES, ONE POLICY'},12:{length:10,act:'A NEAR TIE'},13:{length:17,act:'ROBUSTNESS'},14:{length:16,act:'THE ABLATION'},15:{length:14,act:'THE COUNTEREXAMPLE'},16:{length:24,act:'OUR PROPOSAL'},17:{length:23,act:'THE LIMITS'},18:{length:15,act:'THE TAKEAWAY'}
+0:{length:18,act:'WATCH → ACT'},2:{length:10,act:'THE DATA GAP'},3:{length:62,act:'THE TRAINING PATH'},4:{length:40,act:'PREDICT THE OUTCOME'},5:{length:19,act:'REPRESENT THE TRANSITION'},6:{length:19,act:'PREDICT THE STATE'},7:{length:21,act:'LEARN FROM THE ERROR'},8:{length:33,act:'PROTECT THE BOUNDARY'},9:{length:55,act:'LEARN A FIELD'},10:{length:34,act:'FOLLOW THE FIELD'},11:{length:43,act:'TWO SOURCES, ONE POLICY'},12:{length:10,act:'A NEAR TIE'},13:{length:17,act:'ROBUSTNESS'},14:{length:16,act:'THE ABLATION'},15:{length:14,act:'THE COUNTEREXAMPLE'},16:{length:24,act:'OUR PROPOSAL'},17:{length:23,act:'THE LIMITS'},18:{length:15,act:'THE TAKEAWAY'}
 };
 function motionLength(i=index){return CHOREOGRAPHY[i]?.length||8;}
 function sceneSeconds(){return p*motionLength();}
