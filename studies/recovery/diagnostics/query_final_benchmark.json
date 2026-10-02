@@ -1,0 +1,96 @@
+{
+  "purpose": "verified_selected_query_benchmark",
+  "study": "n0008-query-decoder-recovery-r1",
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "native_step": 10000,
+  "selected_step": 9500,
+  "checkpoint_sha256": "2810d6a566fb4b78cb7d8ec9bd21e2c73f1db3a1eae6a3507a5cf469a14f974c",
+  "run_id": "20261002T170436080917Z-Query-n0008-selected-benchmark",
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "buffer_precision": "native_rope",
+  "timing_rows": 3000,
+  "predictions_per_mode": 1500,
+  "summary": {
+    "observation_bank_sha256": "dec46270ea0a500b42003399aac2c2880523386d9e2d1a74a7f6b8fd8ab54104",
+    "predictions_per_repetition": 500,
+    "repetitions": 3,
+    "memory_peaks": [
+      {
+        "mode": "policy",
+        "repetition": 0,
+        "allocated_bytes": 3152729600,
+        "reserved_bytes": 3485466624
+      },
+      {
+        "mode": "policy",
+        "repetition": 1,
+        "allocated_bytes": 3152729600,
+        "reserved_bytes": 3527409664
+      },
+      {
+        "mode": "policy",
+        "repetition": 2,
+        "allocated_bytes": 3152729600,
+        "reserved_bytes": 3527409664
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 0,
+        "allocated_bytes": 3152735744,
+        "reserved_bytes": 3527409664
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 1,
+        "allocated_bytes": 3152735744,
+        "reserved_bytes": 3527409664
+      },
+      {
+        "mode": "pipeline",
+        "repetition": 2,
+        "allocated_bytes": 3152735744,
+        "reserved_bytes": 3527409664
+      }
+    ],
+    "policy": {
+      "median_ms": 107.72749502211809,
+      "p95_ms": 109.31380549445748
+    },
+    "pipeline": {
+      "median_ms": 108.5979281924665,
+      "p95_ms": 110.48890850506723
+    },
+    "serialized_weights": {
+      "bytes": 2296920262,
+      "sha256": "db526763568fc8b584a5cd199aad4571c9c697e8de24c3204f69e1361068fbfb",
+      "format": "safetensors state_dict; shared tensors deduplicated; packing metadata included",
+      "artifact": "outputs/evaluation/serialized/20261002T170436080917Z-Query-n0008-selected-benchmark/model.safetensors"
+    }
+  },
+  "peak_allocated_bytes": 3152735744,
+  "peak_allocated_gib": 2.936213970184326,
+  "record_sha256": "5778ac19b6f990a975fe9112e119d7899cf15903725b403042598710eef102a2",
+  "timings_csv_sha256": "00e70bd1035ca8755495438f1130a36dc4138986239f454c3ef3b10e907eb028",
+  "implementation_manifest": {
+    "evaluation/run.py": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+    "evaluation/models.py": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+    "evaluation/common.py": "cda56f8ff6d04c79c007d1310208bf7e1db59eb2713dc7b7aeeb386e0bcc5374"
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 5090",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "torch_cuda": "12.8",
+    "driver": "575.57.08"
+  },
+  "limitations": "Measured inference cost for the held-out-selected policy on RTX5090, not training memory or final LIBERO success. Native FP32 policy bytes are locally verified through the milestone; serialized BF16 weight-size/hash is the recorded remote measurement, not an independently downloaded serialized artifact. No cross-GPU Pareto or causal architecture claim."
+}

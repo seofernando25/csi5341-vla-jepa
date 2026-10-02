@@ -1,0 +1,326 @@
+{
+  "audit": {
+    "reviewer": "Independent forensic auditor C: operations, cost, preservation",
+    "date": "2026-10-02",
+    "scope": "Oct1 paid confirmation through Oct2 closeout",
+    "reference_commit": "797f7a5",
+    "coordination_commit": "0bcdf36",
+    "method": "Independent local read-only review; no consultation with other auditors before verdict."
+  },
+  "executive_summary": {
+    "verdict": "Real work and intact final checkpoints, but no B16-comparable SmolVLM model and no completed matched candidate/base confirmation. Operational mistakes consumed time and lost early progress. The closeout numbers reproduce; they should not be confused with scientific acceptance.",
+    "gained": [
+      "A documented image-rescaling defect and a separately measured rotary-buffer precision mismatch.",
+      "20k corrected-input parent and 10k query/full-decoder follow-up with attributable raw metrics and preserved native state.",
+      "A useful negative development comparison: parent31/100 versus B1682/100; a smaller final query/parent check5/10 versus4/10."
+    ],
+    "not_gained": [
+      "Final matched success/memory acceptance, reliable query improvement, architecture-only causality, or the registered matched SmolVLM base confirmation."
+    ],
+    "cost": "USD11.267208 total project account-credit difference; approximately USD2.169003 before recovery and USD9.098205 during recovery. Below USD14; no final invoice or per-rental fee reconciliation was retained in inspected evidence.",
+    "duration": "Approximately18h49 goal/agent wall time from23:04Oct1 to17:53Oct2. The final recovery rental lasted16h56m; these are different clocks.",
+    "integrity": "All26 final query checkpoint files independently SHA256-verified, including both models and optimizer states. Counters, scheduler and tensor headers agree. This proves byte preservation, not a successful long production-resume reproduction."
+  },
+  "timeline": [
+    {
+      "utc": "2026-10-01T13:23:53Z",
+      "event": "Two-arm10k candidate/base confirmation frozen;100 development episodes per arm planned.",
+      "evidence": "studies/confirmation/n0008-20261001/plan.json /arms,/development_episodes; AGENT_BOARD.jsonl records78–79"
+    },
+    {
+      "utc": "2026-10-01T16:02:51Z",
+      "event": "Rental53720884 created; recorded stalled and destroyed16:12:12. No useful training evidence inspected.",
+      "evidence": "outputs/cloud/rental-stalled.json /created_at,/destroyed_at"
+    },
+    {
+      "utc": "2026-10-01T16:12:13Z",
+      "event": "Rental53721983 created. Early preflights failed for missing Git provenance and incomplete offline baseline cache; later100-update preflight passed.",
+      "evidence": "outputs/cloud/rental-ended-53721983.json; remote-logs/preflight-attempt1.log:1–18; preflight-attempt2.log:9–21; board90"
+    },
+    {
+      "utc": "2026-10-01T17:07:39Z",
+      "event": "Rental53721983 observed missing while5800+ training progress had been logged. New cloud weights were not exported; local5k remained intact. Recorded explanation is incorrectly configured HOURLY cleanup running17UTC despite requested later start; exact provider semantics/timezone cause not independently provable.",
+      "evidence": "cloud-continuation.json /operational_history/0,/server_cleanup; rental-ended-53721983.json /end_reason; board91 CORR"
+    },
+    {
+      "utc": "2026-10-01T17:08:42Z",
+      "event": "Replacement53728507 created, restarted from local5k. Prior combined recorded spend~USD0.488.",
+      "evidence": "outputs/cloud/rental.json /spent_before_retry_usd"
+    },
+    {
+      "utc": "2026-10-01T19:32:53Z",
+      "event": "Replacement10k training ended. Benchmark then hit900s operational timeout after2404/3000 rows; full benchmark and ten-episode rollout repeated.",
+      "evidence": "outputs/cloud/remote-logs/training.log final INFO; remote-job.json /diagnostics_retry; board95–96"
+    },
+    {
+      "utc": "2026-10-01T20:24:48Z",
+      "event": "12-file native export recorded verified and rental deleted; final diagnostic0/10. Total credit-delta spend~USD2.169.",
+      "evidence": "outputs/cloud/export-status.json; closure.json; rollout20261001T201014942717Z"
+    },
+    {
+      "utc": "2026-10-01T23:04:27Z",
+      "event": "Recovery goal opened. By23:34 image double-rescaling defect recorded; corrected16-frame overfit gate completed before new paid production.",
+      "evidence": "board99–102; studies/recovery/METHODOLOGY.md:24,32–33"
+    },
+    {
+      "utc": "2026-10-02T00:47:43Z",
+      "event": "Temporary rentals53779222 and53779381 had rejected schedule attempts; board says immediately deleted without training. Separate deletion replies absent from retained files.",
+      "evidence": "outputs/recovery/cloud/rental-first-schedule-rejected.json; rental-second-schedule-rejected.json; board106"
+    },
+    {
+      "utc": "2026-10-02T00:50:29Z",
+      "event": "Rental53779517 created atUSD0.526296/hour including listed disk. Training deadline18UTC; cleanup20UTC. Corrected20k production starts00:59:24.",
+      "evidence": "outputs/recovery/cloud/rental.json; history/n0008-rgb-recovery-r1/remote-job.json"
+    },
+    {
+      "utc": "2026-10-02T07:19:53Z",
+      "event": "RGB supervisor completed20k. Raw40 validations select20k armMSE0.02333649; cloud legacy-precision diagnostic6/10. Both retained native checkpoints recorded locally verified07:32.",
+      "evidence": "archived remote-job /wall_seconds,/stages; checkpoint-backups.jsonl records5–6"
+    },
+    {
+      "utc": "2026-10-02T08:21:21Z",
+      "event": "Separate registered10k full32-decoder/query job begins after export and intended5090 save/resume preflight; same rental, fresh optimizer, selected20k warm start.",
+      "evidence": "query_recovery_registration.json; query_production_handoff.json; outputs/recovery/cloud/query_handoff.py:5–69"
+    },
+    {
+      "utc": "2026-10-02T12:30:54Z",
+      "event": "Expanded local development compares parent31/100 with B1682/100. Local learning-rate branches later finish without beating the native parent; not additional paid training.",
+      "evidence": "rollouts20261002T120707482768Z,20261002T123054380175Z; local_lr_pair_comparison.json"
+    },
+    {
+      "utc": "2026-10-02T15:47:10Z",
+      "event": "USD14 explicitly restated as ceiling; finish existing query and short registered parent control, release promptly.17UTC requested closeout recorded16:59.",
+      "evidence": "board177,190"
+    },
+    {
+      "utc": "2026-10-02T17:02:59Z",
+      "event": "Query training ends exactly10k; held-out selection retains9500. Final development5/10 and benchmark complete; supervisor ends17:10:36.",
+      "evidence": "remote-logs/train-10000.log final INFO; remote-job /wall_seconds; query_10000_milestone.json"
+    },
+    {
+      "utc": "2026-10-02T17:24:41Z",
+      "event": "Both final13-file native checkpoints journaled locally verified. Registered parent control17:37:15–17:38:50 completes4/10 and its two result files match recorded hashes.",
+      "evidence": "checkpoint-backups.jsonl records11–12; parent-native-receipt.json; parent-local-verification.json"
+    },
+    {
+      "utc": "2026-10-02T17:46:45Z",
+      "event": "Exporter records provider-confirmed deletion.17:47:41 receipt records fresh provider absence andUSD11.267208 total credit difference.17:53 board marks research/monitor paused and acceptance unmet.",
+      "evidence": "export-status.json; studies/recovery/diagnostics/cloud_closeout.json; board192–193"
+    }
+  ],
+  "findings": [
+    {
+      "id": "OP1",
+      "severity": "high",
+      "finding": "Paid work preceded a semantic image-input check; compatibility/finite-loss checks did not catch severely rescaled images.",
+      "evidence": [
+        "studies/evaluation/report/report.tex:75",
+        "AGENT_BOARD.jsonl records90,100",
+        "outputs/cloud/remote-logs/benchmark.log:2541–2556 repeatedly warn about processor kwargs"
+      ],
+      "confidence": "high for missed defect; medium for how much spending a better gate would have avoided",
+      "implication": "Original loss/control evidence belongs to the broken pipeline. USD2.17 bought a real continuation and operational evidence, but cannot establish correctly processed SmolVLM capacity.",
+      "minimal_correction": "Before any future paid run, verify actual tensor ranges and an input-dependent fixed-frame check against the real processor."
+    },
+    {
+      "id": "OP2",
+      "severity": "high",
+      "finding": "The originally registered matched candidate/base confirmation was never completed; recovery changed multiple factors and also failed useful-model acceptance.",
+      "evidence": [
+        "confirmation/plan.json /arms",
+        "confirmation/README.md:3–7",
+        "evaluation/report/report.tex:74,95,99,103",
+        "recovery/README.md:3–15"
+      ],
+      "confidence": "high",
+      "implication": "No n0008 superiority claim or isolated backbone-capacity verdict is supported. The final report largely acknowledges this, but the overall goal remains unmet.",
+      "minimal_correction": "Close the campaign as partial/negative evidence; do not fund the unchanged recipe or describe it as successful architecture confirmation."
+    },
+    {
+      "id": "OP3",
+      "severity": "medium",
+      "finding": "Early cleanup configuration deleted active work before any new checkpoint export, forcing repetition from5k.",
+      "evidence": [
+        "cloud-continuation.json /operational_history/0",
+        "outputs/cloud/rental-ended-53721983.json",
+        "board91"
+      ],
+      "confidence": "high for recorded loss/restart; medium for exact provider schedule mechanism",
+      "implication": "800+ post5k progress was lost/repeated. The~USD0.488 pre-retry credit difference includes other setup/stalled-host costs and is not an invoice for the lost updates.",
+      "minimal_correction": "Use explicit verified UTC deletion time plus immutable early-stage exports. Preserve a sanitized provider schedule response rather than inferring timezone behavior."
+    },
+    {
+      "id": "OP4",
+      "severity": "medium",
+      "finding": "An undersized benchmark timeout caused duplicate inference work, and several export/service failures required repair.",
+      "evidence": [
+        "remote-job.json /diagnostics_retry",
+        "board95–96",
+        "outputs/cloud/monitor.log:112–124",
+        "outputs/recovery/cloud/export.log:2075–2384,5241–5344"
+      ],
+      "confidence": "high",
+      "implication": "The first benchmark’s900seconds did not produce a complete comparison. Export retries are operational failures, not architecture evidence. No final query-state loss was found.",
+      "minimal_correction": "Size timeouts from observed latency plus all timing modes; emit timestamped failure/transfer events with stage identities."
+    },
+    {
+      "id": "OP5",
+      "severity": "low",
+      "finding": "Requested17UTC wrap-up overran; final native export/control/release occupied another~47minutes.",
+      "evidence": [
+        "board190",
+        "train-10000.log final INFO17:02:59",
+        "checkpoint-backups.jsonl records11–12",
+        "parent-native-receipt.json",
+        "export-status.json"
+      ],
+      "confidence": "high for timing; low for exact avoidable portion",
+      "implication": "Supervisor-to-release36.14minutes corresponds to~USD0.317 at the listed hourly rate, not an exact fee or proof of idle GPU. Final verification-to-parent-start12.56minutes and parent-end-to-delete7.92minutes merit review. The original18/20UTC guards remained satisfied.",
+      "minimal_correction": "Reserve transfer/control time in the user-facing completion estimate and automate terminal parent control plus zero-hold cleanup after verification."
+    },
+    {
+      "id": "OP6",
+      "severity": "medium",
+      "finding": "Billing and cleanup receipts are locally generated summaries, not retained raw provider invoices or complete all-rental deletion evidence.",
+      "evidence": [
+        "cloud_closeout.json:4–9",
+        "recovery_export.py:259–265 requires a positive deletion response",
+        "rental-first-schedule-rejected.json",
+        "rental-second-schedule-rejected.json"
+      ],
+      "confidence": "high for proof limitation; no evidence of ongoing billing or hidden rental",
+      "implication": "USD11.27 is well-supported as the recorded account-credit delta and is plausible against rental duration/rate. Independent provider-level confirmation of every temporary rental and itemized charges remains unavailable.",
+      "minimal_correction": "Retain sanitized timestamped credit snapshots, deletion replies and final instance listing; reconcile later against an invoice."
+    },
+    {
+      "id": "OP7",
+      "severity": "low",
+      "finding": "Native-byte preservation and short save/resume tests must not be inflated into production reproducibility.",
+      "evidence": [
+        "query_legacy_rng_resume_comparison.json /state_comparison shows differences",
+        "query_isolated_rng_resume_comparison.json exact4-update equality",
+        "query_full_decoder_native_preflight.json",
+        "independent26-file checks in verification"
+      ],
+      "confidence": "high",
+      "implication": "Original loader reconstruction consumed shared CPU RNG; later isolated-worker engineering check passed on one3090. Final preserved state is internally consistent, but no full longer5090 uninterrupted-versus-resumed comparison was performed.",
+      "minimal_correction": "Keep “resumable state preserved” separate from “continued training reproduced.”"
+    },
+    {
+      "id": "OP8",
+      "severity": "low",
+      "finding": "The methodology retains stale live/pending prose beneath an accurate stopped closeout.",
+      "evidence": [
+        "recovery/METHODOLOGY.md:72 says training is running",
+        "recovery/METHODOLOGY.md:136–142 retain pending branch descriptions;144 reports completion",
+        "recovery/README.md:3 gives current stopped status"
+      ],
+      "confidence": "high",
+      "implication": "A reader extracting individual paragraphs can misread historical status. This is documentation ambiguity, not fabricated measurements.",
+      "minimal_correction": "Label dated historical observations and remove present-tense live claims from the current summary."
+    }
+  ],
+  "cost_and_time": {
+    "basis": "Recorded provider account-credit differences; not invoices or exact per-job fees",
+    "total_project_usd": 11.2672083524,
+    "before_recovery_usd": 2.1690031594,
+    "recovery_usd": 9.098205193,
+    "authorized_ceiling_usd": 14,
+    "ceiling_remaining_usd": 2.7327916476,
+    "recovery_rental_hours": 16.9378263711,
+    "listed_rate_usd_per_hour": 0.5262962963,
+    "duration_times_listed_rate_usd": 8.9143152864,
+    "unallocated_difference_usd": 0.1838899066,
+    "unallocated_difference_note": "Could include temporary rentals, traffic, billing timing; not independently itemized.",
+    "goal_wall_hours": 18.8177777778,
+    "post_query_supervisor_rental_minutes": 36.1443875035,
+    "telemetry": {
+      "rgb_samples": 2283,
+      "rgb_window_hours": 6.3396658333,
+      "rgb_mean_utilization_percent": 92.8370565046,
+      "query_samples": 3175,
+      "query_window_hours": 8.8178105556,
+      "query_mean_utilization_percent": 95.7845669291,
+      "limit": "10-second samples during job windows; setup/export/preflight gaps are not fully monitored. High activity does not establish scientific value."
+    }
+  },
+  "verification": {
+    "final_query_native": {
+      "proof": "Independent full SHA256 of every26 file,17,184,030,705bytes; all match remote export manifest.",
+      "selected_model_sha256": "2810d6a566fb4b78cb7d8ec9bd21e2c73f1db3a1eae6a3507a5cf469a14f974c",
+      "selected_optimizer_sha256": "fded1da3797d07ba8dcd9a671e3d7e9d87c2205b642dd2ebc21890f0c9f39e00",
+      "latest_model_sha256": "376619a14cad6ffedde4fb438058b709d72b2b454bdfee4fd8abb574a9da9444",
+      "latest_optimizer_sha256": "7bceeac5a16de8223f108e3e72b0b04fbd78b50e0875b6cf1ca2efe6de2933d0",
+      "metadata": "Both models1481tensors:694FP32/787BF16. Both optimizer files2079FP32tensors;693 populated counters exactly9500/10000. Scheduler last_epoch and native step9500/10000; batch8/accumulation1. Headers cover actual file lengths; RNG8tensors."
+    },
+    "earlier_preservation": "Original confirmation12 files and parent26 files: every size and all small-file hashes independently pass. Their large hashes remain original exporter declarations; not independently rehashed in this audit.",
+    "raw_metrics": "Four query streams have exactly10000 unique finite training steps1–10000;20 full25-batch/200-frame/1303-action validations. Selected9500 armMSE0.02181115593255; latest10000=0.02215221782693. FourRGB streams have exactly20000 unique finite steps and40 full validations, minimum20000=0.02333648776910. No duplicate or missing training steps.",
+    "source_and_recipe": "Current isolated RGB/query source files match registered manifests; recipes match0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074 and f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610.",
+    "results": "Actual episode CSVs independently give original0/10, parent6/10legacy, parent31/100 andB1682/100, finalquery5/10 and matchednativeparent4/10. Parent metadata receipt’s two files match. All3000 final timing rows reproduce1500/mode, pipeline median108.597928ms/p95110.488909ms."
+  },
+  "claim_checks": [
+    {
+      "claim": "~USD11.27 spent",
+      "status": "supported_as_recorded_total_account_delta_not_invoice"
+    },
+    {
+      "claim": "~19hours cloud investigation",
+      "status": "supported_for_goal_wall_time; finalrental16h56"
+    },
+    {
+      "claim": "26 finalnativefiles preserved",
+      "status": "independently_confirmed_all_full_hashes"
+    },
+    {
+      "claim": "All rentals released",
+      "status": "main_rental_deletion_guard_and_local_receipts_support; temporaryrental_rawproof_missing"
+    },
+    {
+      "claim": "Useful B16-comparable policy delivered",
+      "status": "not_supported; currentdocs_admit_unmet"
+    },
+    {
+      "claim": "Query improved robot control reliably",
+      "status": "not_established_by5/10_vs4/10_repeatedstates"
+    },
+    {
+      "claim": "Training duplicated on finalrecoveryrental",
+      "status": "no_evidence; two_sequential_registered_jobs_and_complete_unique_stepstreams"
+    },
+    {
+      "claim": "19hours mostly idleGPU",
+      "status": "contradicted_by_high_utilization_in_recorded_jobwindows; gaps_unmeasured"
+    }
+  ],
+  "unresolved_questions": [
+    "Exact invoice/traffic/per-rental breakdown and whether other account transactions affected credit differences.",
+    "Raw provider schedule command/semantics behind first early deletion; no timezone-cause conclusion.",
+    "Sanitized all-instance absence/deletion proof for the stalled and two rejected-schedule rentals.",
+    "Exact avoidable fraction of final export/review/control delay; logs lack complete timestamped exporter event history.",
+    "Long production-resume equivalence and final matched performance remain untested."
+  ],
+  "recommendations": [
+    "Keep research/monitor paused; do not spend more on the unchanged recipe merely because credit remains.",
+    "Report partial recovery and negative development comparison as the campaign outcome.",
+    "Before any separately justified campaign, require semantic input checks, a concrete matched control, explicit stopping/decision rules and export-aware deadline.",
+    "Retain sanitized billing/deletion evidence and timestamped immutable job/transfer receipts.",
+    "Preserve the verified selected/latest checkpoints and source/metric provenance."
+  ],
+  "sources": [
+    "AGENT_BOARD.jsonl records78–106,119–130,177,190–194; latest remote board fetched read-only.",
+    "studies/confirmation/n0008-20261001/plan.json,cloud-continuation.json,README.md",
+    "outputs/cloud/rental*.json,remote-job.json,export-status.json,closure.json,checkpoint-backups.jsonl and cited remote logs",
+    "outputs/recovery/cloud/rental*.json,remote-job.json,export-status.json,checkpoint-backups.jsonl,parent-native-receipt.json,parent-local-verification.json,history/n0008-rgb-recovery-r1",
+    "scripts/recovery_export.py:150–271; recovery_cloud_job.py:58–190; recovery_parent_native.py:20–121",
+    "studies/recovery/training/ productionrun metrics.jsonl andrun.json; final checkpoint directories009500/010000",
+    "studies/recovery/diagnostics/cloud_closeout.json,completed_r1.json,query_10000_milestone.json,query_production_handoff.json,query_*resume_comparison.json",
+    "studies/evaluation/runs/ citedactual episode/timing CSVs; studies/evaluation/report/report.tex:67–113; studies/recovery/README.md,METHODOLOGY.md"
+  ],
+  "limitations": [
+    "No provider API, credentials, training, prediction, rollout or benchmark actions performed.",
+    "Local receipts and logs can support reconstruction but are not external independently authenticated invoices.",
+    "Audit checked final query bytes fully; older large files sampled through headers/sizes/declarations only.",
+    "No original-paper causal attribution attempted; independent science reviewer owns that scope.",
+    "No other auditor report or root synthesis read before this verdict."
+  ]
+}

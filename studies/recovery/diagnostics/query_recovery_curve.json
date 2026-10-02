@@ -42,8 +42,8 @@
     },
     {
       "run_id": "20261002T124515345333Z-Query-recovery-train",
-      "metrics_sha256": "54ab8fdd52fe406c2b44537e465f78abfad31a0b6640a571b03083defc2fbe53",
-      "metrics_snapshot_bytes": 2039590,
+      "metrics_sha256": "0363916cf393905daa2d6de312bef1750b19c5307d09777db3106abef3a70450",
+      "metrics_snapshot_bytes": 2246734,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -57,7 +57,7 @@
   "study": "n0008-query-decoder-recovery-r1",
   "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
   "registration_sha256": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
-  "latest_training_step": 9541,
+  "latest_training_step": 10000,
   "validation": [
     {
       "step": 500,
@@ -210,6 +210,14 @@
       "gripper_error_percent": 5.602455871066769,
       "frames": 200,
       "valid_actions": 1303
+    },
+    {
+      "step": 10000,
+      "native_loss": 0.20452775716781615,
+      "arm_rmse": 0.1488362114101642,
+      "gripper_error_percent": 5.295471987720645,
+      "frames": 200,
+      "valid_actions": 1303
     }
   ],
   "development": [
@@ -253,6 +261,20 @@
       "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
       "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
       "successes": 2,
+      "episodes": 10
+    },
+    {
+      "stage": 10000,
+      "selected_step": 9500,
+      "checkpoint_sha256": "2810d6a566fb4b78cb7d8ec9bd21e2c73f1db3a1eae6a3507a5cf469a14f974c",
+      "run_id": "20261002T170305465719Z-Query-n0008-10000-rollout",
+      "episodes_csv_sha256": "4d76f5508f0d2a6aedadb3b6a4a893340e38bad8bf7514e189685becd2e204b7",
+      "buffer_precision": "native_rope",
+      "run_record_sha256": "4e4c71c2e816b3a951119e1fa213a3356af45abc72757c00e92bff848e610b3b",
+      "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "successes": 5,
       "episodes": 10
     }
   ],

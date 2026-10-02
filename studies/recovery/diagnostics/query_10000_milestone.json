@@ -1,0 +1,112 @@
+{
+  "purpose": "registered_query_verified_milestone",
+  "study": "n0008-query-decoder-recovery-r1",
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "training_run_id": "20261002T124515345333Z-Query-recovery-train",
+  "training_source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "checkpoint_sha256": "2810d6a566fb4b78cb7d8ec9bd21e2c73f1db3a1eae6a3507a5cf469a14f974c",
+  "selected_step": 9500,
+  "heldout_arm_mse": 0.021811155932551608,
+  "heldout_gripper_error": 0.056024558710667687,
+  "selected_validation_run_id": "20261002T124515345333Z-Query-recovery-train",
+  "selected_local_weights_verified": true,
+  "development_run_id": "20261002T170305465719Z-Query-n0008-10000-rollout",
+  "development_summary": {
+    "episodes": 10,
+    "successes": 5,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "development",
+    "task_macro_success": 0.5
+  },
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "buffer_precision": "native_rope",
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+  "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "episodes_csv_sha256": "4d76f5508f0d2a6aedadb3b6a4a893340e38bad8bf7514e189685becd2e204b7",
+  "native_step": 10000,
+  "native_resume_checkpoint_sha256": "376619a14cad6ffedde4fb438058b709d72b2b454bdfee4fd8abb574a9da9444",
+  "selected_is_latest_native": false,
+  "native_export_files": {
+    "pretrained_model/config.json": {
+      "bytes": 4118,
+      "sha256": "2556caa398d3bd4e066e092c6a30497deeb6335c75f3c0c46abc84ce60ee10f4"
+    },
+    "pretrained_model/model.safetensors": {
+      "bytes": 3555892908,
+      "sha256": "376619a14cad6ffedde4fb438058b709d72b2b454bdfee4fd8abb574a9da9444"
+    },
+    "pretrained_model/train_config.json": {
+      "bytes": 10710,
+      "sha256": "787c0fca4fa371af89e4adfcba82a77cf20dfc6fa7bb2ccfda300b746b1d9cc7"
+    },
+    "pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "pretrained_model/recovery_registration.json": {
+      "bytes": 972,
+      "sha256": "75928be383ddd36158c51e04161c6fd5e366fd1b9c4f68ed62312526624a3d0d"
+    },
+    "training_state/training_step.json": {
+      "bytes": 225,
+      "sha256": "a899f2a617c9f7a0de7454e4165b8e456ff86d444a4e5f485429892f4e313b2c"
+    },
+    "training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "cdde349c238e9e4e073eb8047fcf8ffd927d4c4f1fa57432d87ec4afbd001c2d"
+    },
+    "training_state/scheduler_state.json": {
+      "bytes": 300,
+      "sha256": "cf4c0aeffa051ba6c72162df35e731fa5bd16f8e1f5b6d9aabd48094322a01d5"
+    },
+    "training_state/optimizer_state.safetensors": {
+      "bytes": 5036072236,
+      "sha256": "7bceeac5a16de8223f108e3e72b0b04fbd78b50e0875b6cf1ca2efe6de2933d0"
+    },
+    "training_state/optimizer_param_groups.json": {
+      "bytes": 12604,
+      "sha256": "685f204557bcc8b3ba8e72bad8fa12221abd1730369ded6bafff8806a5b835a7"
+    }
+  },
+  "native_export_verified_files": 13,
+  "native_optimizer_parameter_states": 693,
+  "native_optimizer_registered_parameters": 694,
+  "native_unpopulated_parameter_names": [
+    "model.qwen.model.model.text_model.norm.weight"
+  ],
+  "scheduler_last_epoch": 10000,
+  "exporter_sha256": "b2739036e7e38170d8a7d1837412765cce01f192d2e3024aa419f57ffed4331d",
+  "limitations": "Ten development states are diagnostic, not final acceptance. Selected policy and latest native resume state are independently identified; repeated selected weights are not new training outcomes. Training source is declared through registered checkpoint lineage; rollout plugin source is not independently logged. Coupled amendments do not isolate architecture or numerical causes."
+}

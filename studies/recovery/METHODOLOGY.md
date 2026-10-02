@@ -1,12 +1,14 @@
 # Recovery methodology and evidence
 
-Active goal, requested 2026-10-01: diagnose failed control and develop an evaluated SmolVLM policy. The original RSI journal, candidates, checkpoints and results remain intact. New interventions are separate recovery experiments.
+Goal requested 2026-10-01: diagnose failed control and develop an evaluated SmolVLM policy. Research stopped for the user's October 2 closeout; acceptance remains unmet. The original RSI journal, candidates, checkpoints and results remain intact. New interventions are separate recovery experiments.
 
 **Acceptance:** retain the project's target of at least 25% lower peak inference memory with no more than a five-point success loss against B16, measured on matched hardware and final LIBERO trials. Lower training loss alone does not pass. B16's recorded final result is 95%; recovery targets at least 90%, with uncertainty reported.
 
-**Current status (October 2):** corrected-input r1 completed20k, selecting its endpoint by held-out arm MSE; it reached6/10 development successes on RTX5090. The separately registered [query/decoder recovery](query_recovery_registration.json) now runs from that exact parent, with all32 decoder layers and four trainable input-query residuals. Its intended-GPU native gate passed. Original r1 retained native state and milestone stop backups are verified locally; [completed cloud artifacts](diagnostics/cloud_completed_retention.json) were removed while preserving the active run and warm start. No recovery model has passed the final acceptance target.
+**Closeout (October 2):** corrected-input r1 completed 20k, selecting its endpoint by held-out arm MSE. It achieved [31/100 development successes versus B16's 82/100](diagnostics/expanded_development_pair.json) on RTX3090. Its earlier 6/10 RTX5090 result used legacy rotary precision and is not pooled with later native-buffer checks. The separately registered [query/decoder recovery](query_recovery_registration.json) completed 10k with all 32 decoder layers and four input-query residuals. Held-out error selected update 9.5k. On [ten matched native-precision RTX5090 states](diagnostics/query_parent5090_development_pair.json), query and parent achieved 5/10 and 4/10: one gain, no losses. This small diagnostic does not establish reliable improvement or final acceptance.
 
-The query milestones give2/10 development successes at500 updates,4/10 at2,000 and [2/10 at5,000](diagnostics/query_5000_milestone.json). At5k, held-out arm MSE is0.028453 and gripper errors5.68%; improving offline errors have not produced consistent closed-loop improvement. All three13-file native backups are independently hash-verified locally;693 populated optimizer counters and scheduler state match their completed steps. The fixed study continues toward10k. Coupled training/numerical changes prevent isolated causal attribution against the original endpoint; final acceptance remains untested. [Separate query curves](figures/F13_query_recovery_progress.pdf) exclude engineering and incomplete validations. Rebuild with `python -m evaluation.recovery_progress --study query`.
+The query milestones gave 2/10, 4/10 and 2/10 at 500, 2k and 5k updates. The final selected arm MSE is 0.021811; gripper error is 5.60%. [Query curves](figures/F13_query_recovery_progress.pdf) include all twenty full validations. [Final inference](diagnostics/query_final_benchmark.json) measures 108.6 ms median pipeline latency and 2.94 GiB peak allocation on RTX5090. A [local paired precision audit](diagnostics/query_deployment_precision.json) found only 0.43% higher arm MSE from BF16 parameter casting with native rotary buffers, below the registered follow-up threshold; no closed-loop equivalence is claimed. Coupled changes prevent architecture-only causal attribution.
+
+Both final 13-file native checkpoints (9.5k selected and 10k resume) were locally hash-verified, including 693 populated optimizer counters and matching scheduler state. Temporary cloud backups were pruned after retaining the durable originals. The [closeout receipt](diagnostics/cloud_closeout.json) confirms rental deletion and USD11.27 total account credit difference, below USD14. No further training or rental is planned. Final acceptance remains untested.
 
 The [paired development outcomes](diagnostics/query_500_2000_development_pair.json) retain successes on tasks5/7 and gain tasks1/3 at2k; no paired state regresses, while six still fail. [F14](figures/F14_query_development.pdf) shows the same ten starting states/seeds on native-precisionRTX5090. The analyzer verifies recorded environment, loader/evaluator, solver/horizon and episode identity; nine evidence guards pass. These repeated diagnostic states do not establish representative task rates, statistical significance or final acceptance.
 
@@ -51,7 +53,7 @@ The registered follow-up tests input-query adaptation together with broader deco
 
 ## Gates and open questions
 
-The corrected sixteen-frame overfit gate passed, and the separate native recovery recipe is registered and running. Neither establishes a useful policy.
+The corrected sixteen-frame overfit gate passed, and the separate native recovery recipe completed. Neither establishes a useful policy at the registered acceptance target.
 
 | Question | Evidence needed |
 | --- | --- |

@@ -1,0 +1,20 @@
+{
+  "purpose": "requested_recovery_closeout",
+  "status": "completed",
+  "observed_at": "2026-10-02T17:47:41.746923+00:00",
+  "provider_rental_absent": true,
+  "provider_confirmed_deletion": true,
+  "budget_ceiling_usd": 14,
+  "total_project_account_credit_delta_usd": 11.267208352399996,
+  "cost_basis": "Provider account credit difference from recorded project start; not a final invoice.",
+  "final_native_files_verified": 26,
+  "retained_native_steps": [
+    9500,
+    10000
+  ],
+  "heldout_selected_step": 9500,
+  "milestone_sha256": "6969d276589dccc032c5648a598d4f25e83b6189bc4d9a649e0323acddde5e26",
+  "parent_control_metadata_locally_verified": true,
+  "scientific_acceptance_met": false,
+  "new_training_authorized": false
+}
