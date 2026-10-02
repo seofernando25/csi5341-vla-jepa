@@ -152,12 +152,14 @@ def render(output):
         )
         if recovery.get('development'):
             trial = recovery['development'][-1]
-            cloud_section += (
-                '\n' + r'\begin{samepage}' + f"The {trial['selected_step']:,}-update checkpoint achieved "
+            development_text = (
+                '\n\n' + f"The {trial['selected_step']:,}-update checkpoint achieved "
                 f"{trial['successes']}/{trial['episodes']} development successes. "
                 r'This small diagnostic does not establish final performance retention.'
-                + r'\end{samepage}' + '\n'
+                + '\n\n'
             )
+            recovery_float = r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
+            cloud_section = cloud_section.replace(recovery_float, development_text + recovery_float)
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")
