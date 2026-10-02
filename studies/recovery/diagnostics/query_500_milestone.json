@@ -1,0 +1,103 @@
+{
+  "purpose": "registered_query_first_milestone",
+  "study": "n0008-query-decoder-recovery-r1",
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "training_run_id": "20261002T082128082928Z-Query-recovery-train",
+  "training_source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "checkpoint_sha256": "b5e00f997bcc3cb54f66028252b8cb4008a7d0662d8b46f473dc073c17a3fb2b",
+  "selected_step": 500,
+  "heldout_arm_mse": 0.039980929902399494,
+  "heldout_gripper_error": 0.06983883346124328,
+  "development_run_id": "20261002T084731750653Z-Query-n0008-500-rollout",
+  "development_summary": {
+    "episodes": 10,
+    "successes": 2,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "development",
+    "task_macro_success": 0.2
+  },
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "buffer_precision": "native_rope",
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+  "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "episodes_csv_sha256": "c140cb6a5801b3a355edda885b8e88f3be73eeaaf690c70045c6673b9f0c3a25",
+  "native_export_files": {
+    "pretrained_model/config.json": {
+      "bytes": 4067,
+      "sha256": "74cc393faef8c9892a49a04bd9cbcd024476166a2833c979ad142f054c63361d"
+    },
+    "pretrained_model/model.safetensors": {
+      "bytes": 3555892908,
+      "sha256": "b5e00f997bcc3cb54f66028252b8cb4008a7d0662d8b46f473dc073c17a3fb2b"
+    },
+    "pretrained_model/train_config.json": {
+      "bytes": 10520,
+      "sha256": "43fb348c3c4b69c5acd67b4bdd40607cd4d1e1dcc00a97bfe2733ba1da79a9b7"
+    },
+    "pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "pretrained_model/recovery_registration.json": {
+      "bytes": 972,
+      "sha256": "75928be383ddd36158c51e04161c6fd5e366fd1b9c4f68ed62312526624a3d0d"
+    },
+    "training_state/training_step.json": {
+      "bytes": 223,
+      "sha256": "e01083a75624b1e3fd3001e448ea16f37a14fc7b5921fbd2044d5438149fe51a"
+    },
+    "training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "6d65620c657c89628fc84e84a203d3d96a1d5023d2bba04fedc7f50a81605870"
+    },
+    "training_state/scheduler_state.json": {
+      "bytes": 309,
+      "sha256": "b2f2e5d03b814c0f6587531e36921e569ef8ee35957b335bd3f35d1ea9b30252"
+    },
+    "training_state/optimizer_state.safetensors": {
+      "bytes": 5036072236,
+      "sha256": "f4dd5392f8e4a9f0f5d6fc2b9be76acfc7c3a963411b87c67a28a3a34df4fce0"
+    },
+    "training_state/optimizer_param_groups.json": {
+      "bytes": 12617,
+      "sha256": "a8419b2cf6c2253617108b200e9cee2343a8274071111390c63500ac725af497"
+    }
+  },
+  "native_export_verified_files": 13,
+  "native_optimizer_parameter_states": 693,
+  "native_step": 500,
+  "scheduler_last_epoch": 500,
+  "limitations": "Early milestone,2/10 development successes; not final acceptance or an improvement claim. Broader decoder/query adaptation, training RNG and inference-buffer amendments are coupled. Rollout records do not independently log the plugin source manifest; declared training source is tied through the checkpoint and fixed supervisor invocation. No architecture-only or precision-only causal inference."
+}

@@ -134,6 +134,14 @@ def render(output):
             low, high = task_summary['mean_error_ratio_range']
             task_text = (f'On two held-out frames per task, finite-draw mean arm error '
                          f'remains {low:.1f}--{high:.1f}$\\times$ B16 across all ten tasks. ')
+        query_path = ROOT / 'studies/recovery/diagnostics/query_500_milestone.json'
+        query_text = ''
+        if query_path.exists():
+            query = read_json(query_path)
+            qdev = query['development_summary']
+            query_text = (f" At {query['selected_step']:,} query updates, held-out arm MSE is "
+                          f"{query['heldout_arm_mse']:.4f}; development yields "
+                          f"{qdev['successes']}/{qdev['episodes']}. This early checkpoint is not an improvement.")
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
@@ -149,10 +157,10 @@ def render(output):
             r'local 20k tests yield 4/10 in each mode, with one gain and one loss: no '
             r'aggregate control improvement.' + '\n\n'
             r'Registered full-decoder/input-query recovery passes native '
-            r'optimizer/save/resume on RTX5090 (23.74\,GiB). Earlier four-update '
-            r'RTX3090 checks with isolated worker RNG and deterministic algorithms '
-            r'give identical uninterrupted/resumed state. These engineering checks '
-            r'are excluded from production selection.' + '\n\n'
+            r'optimizer/save/resume on RTX5090 (23.74\,GiB). An earlier four-update '
+            r'RTX3090 check passes uninterrupted/resume equality with isolated worker '
+            r'RNG and deterministic algorithms. Engineering is excluded from selection.'
+            + query_text + '\n\n'
             f"At {last['step']:,} additional updates, held-out arm RMSE was "
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
             f"{first['step']:,}; gripper error changed from "

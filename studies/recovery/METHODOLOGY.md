@@ -6,6 +6,8 @@ Active goal, requested 2026-10-01: diagnose failed control and develop an evalua
 
 **Current status (October 2):** corrected-input r1 completed20k, selecting its endpoint by held-out arm MSE; it reached6/10 development successes on RTX5090. The separately registered [query/decoder recovery](query_recovery_registration.json) now runs from that exact parent, with all32 decoder layers and four trainable input-query residuals. Its intended-GPU native gate passed. Original r1 retained native state and milestone stop backups are verified locally; [completed cloud artifacts](diagnostics/cloud_completed_retention.json) were removed while preserving the active run and warm start. No recovery model has passed the final acceptance target.
 
+The [first query milestone](diagnostics/query_500_milestone.json), at500 updates, gives held-out arm MSE0.03998,6.98% gripper errors and2/10 development successes. All13 native files are hash-verified locally;693 optimizer states and scheduler counters equal500. It is an early regression in offline error, not a control improvement. The fixed study continues toward2k; coupled training/numerical changes and differing inference precision prevent isolated causal attribution against the original endpoint.
+
 ## Evidence so far
 
 | Check | Finding |
