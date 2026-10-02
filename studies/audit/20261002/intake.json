@@ -1,0 +1,37 @@
+{
+  "purpose": "user_requested_independent_forensic_audit",
+  "started_at": "2026-10-02T18:07:52.291075+00:00",
+  "scientific_closeout_commit": "797f7a55632d7a259bdf498f670dd7d20cb37ad4",
+  "coordination_commit": "0bcdf36d478e0dbeaf3ae4be832e746daa52a28f",
+  "auditors": [
+    {
+      "task": "audit_science",
+      "report": "science.json",
+      "focus": "paper comparison, scientific design, causal claims and conclusions"
+    },
+    {
+      "task": "audit_protocol",
+      "report": "protocol.json",
+      "focus": "RSI scoring/selection, model and evaluation pipeline, source and metric attribution"
+    },
+    {
+      "task": "audit_operations",
+      "report": "operations.json",
+      "focus": "timeline, paid resources, failures/restarts, exports and provenance"
+    }
+  ],
+  "independence": "Separate AI reviewer instances started without inherited conversation history. Each receives the user audit request and direct scope/authorization quotations. They share underlying project evidence and are not external human auditors. The original implementation agent coordinates and will label its synthesis separately.",
+  "scope": "Read all project files, original papers and author code, Git/board history, ignored current and archived runtime evidence and checkpoint metadata as needed. Exclude credential contents and unrelated personal files.",
+  "constraints": [
+    "No new training, rollouts, benchmarks, rentals or GPU forward jobs",
+    "No scientific configuration or runtime-state changes",
+    "Research goal and monitoring remain paused",
+    "Auditor reports have separate file ownership; existing evidence/reports remain unchanged during review"
+  ],
+  "limitations": [
+    "Retained evidence is incomplete where prior artifacts were deleted; absence must be reported",
+    "Each finding must distinguish primary raw evidence from agent declarations",
+    "Cost is account-credit delta, not provider invoice",
+    "Checkpoint full-content hashes must be marked verified, sampled or declared as actually checked"
+  ]
+}

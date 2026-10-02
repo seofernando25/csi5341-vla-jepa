@@ -1,0 +1,1192 @@
+{
+  "auditor": "B/protocol",
+  "created_at": "2026-10-02T18:16:12.933092+00:00",
+  "scope": "IndependentDream-RSIprotocol,lineage,proxy/realcontrolaudit",
+  "read_snapshot": {
+    "scientific_closeout_commit": "797f7a5",
+    "board_commit": "0bcdf36"
+  },
+  "executive_summary": {
+    "verdict": "Measurements are real and accurately transcribed in the inspected records. Dream-RSI optimized a restricted loss on a defective visual pipeline, and its selected architecture never received completed matched control confirmation. Authorized recovery fixed concrete defects and achieved partial control, but no SmolVLM comparable to B16 was delivered and the remaining failure mechanism is unresolved.",
+    "successful_deliverables": [
+      "Matched original four-arm final deployment measurements",
+      "Preserved append-only search history and source lineage",
+      "Verified image-scaling and rotary-buffer defects",
+      "Bounded save/resume, initialization and checkpoint-gradient diagnostics",
+      "Partial corrected parent control and distinct final query/native checkpoint retention"
+    ],
+    "unfulfilled_objectives": [
+      "Matched clean-root/n000810k architecture confirmation",
+      "SmolVLM success within5 percentage points of B16 with25% lower peak inference memory on matched final trials",
+      "Causal explanation of the remaining control gap",
+      "Evidence that more training alone, query adaptation alone, or backbone capacity explains the result"
+    ],
+    "causal_chain": "Original PIL S500 failed→GPU processor optimization silently corrupted images→RSI selected narrow proxy/promoted subset→n0008 longer confirmation still0/10→image diagnosis plus broader four-layer training and increased exposure yielded partial recovery→numerical/query/full-decoder investigation resolved several bounded engineering questions but remained well below reference control.",
+    "numerical_integrity": "204 sequential SHA256 journal events verified;31/31 measured loss entries match raw final logs; all10 selected rollout cohorts recount exactly;1500-row policy and pipeline benchmark medians reproduce.",
+    "primary_scope": "CSI5341 pretrained/quantized/smaller-backbone deployment comparison. Optional RSI and later recovery were authorized extensions but consumed extensive effort without satisfying their control goal."
+  },
+  "timeline": [
+    {
+      "time": "2026-09-23/24",
+      "event": "Original PIL-based S500 pilot and10k adaptation; four final cohorts completed",
+      "evidence": "studies/evaluation/runs/20260924T*-rollout/episodes.csv",
+      "result": "475/500 B16,474/500 Q8,479/500 Q4,11/500 S500"
+    },
+    {
+      "time": "2026-10-01T02:44:25Z to03:17:20Z",
+      "event": "Fresh PIL RSI study archived after500-step baseline and interrupted proposals",
+      "evidence": ".rsi-archive-pil-20261001T031720Z/events/00000000.json through00000025.json",
+      "result": "PIL root loss0.3245; no completed candidate screens"
+    },
+    {
+      "time": "2026-10-01T03:21:24Z",
+      "event": "Fresh GPU study initialized with Torchvision source; scientific code/config/base frozen",
+      "evidence": ".rsi/events/00000000.json",
+      "result": "New study hashc8307243391e8cf647533f21ed0815af3447eabf00dff1f2a3f0d7e136a8d950"
+    },
+    {
+      "time": "2026-10-01T04:23:40Z",
+      "event": "One recorded user-authorized discovery-context amendment",
+      "evidence": ".rsi/events/00000028.json",
+      "result": "Read-only current-study CPU logs/metrics exposed; evaluator/config/core/base remained unchanged"
+    },
+    {
+      "time": "2026-10-01T06:03:01Z/06:23:00Z",
+      "event": "n0008 screen and separate fresh promotion completed",
+      "evidence": ".rsi/events/00000056.json and00000058.json",
+      "result": "0.4052 at500;0.2762 at1500 versus matched baseline0.3197"
+    },
+    {
+      "time": "2026-10-01T10:56:32Z",
+      "event": "GPU screen sequence completed23 successful screens and six promotions",
+      "evidence": ".rsi/events/00000197.json",
+      "result": "27 candidate reservations, four unsuccessful,24 measured nodes including root"
+    },
+    {
+      "time": "2026-10-01T13:23:53Z",
+      "event": "Two-arm10k confirmation plan frozen",
+      "evidence": "studies/confirmation/n0008-20261001/plan.json",
+      "result": "Only candidate arm later completed; matched base remains pending"
+    },
+    {
+      "time": "2026-10-01T19:51Z to20:10Z",
+      "event": "n0008 cloud10k continuation and development evaluation",
+      "evidence": "studies/confirmation/n0008-20261001/cloud-results/summary.json;20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout",
+      "result": "Loss0.2653;0/10; weightsbc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8"
+    },
+    {
+      "time": "2026-10-01T23:31:45Z",
+      "event": "Corrected-image source copied as separate recovery study",
+      "evidence": "studies/recovery/diagnostics/image_pipeline_amendment.json",
+      "result": "Processor contrast defect fixed without altering original journal/source"
+    },
+    {
+      "time": "2026-10-02T00:35Z to07:12Z",
+      "event": "Corrected-input last4-decoder recovery trained20k additional updates",
+      "evidence": "studies/recovery/training;studies/recovery/diagnostics/recovery_curve.csv",
+      "result": "Selected20k weights40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d;cloud legacy6/10"
+    },
+    {
+      "time": "2026-10-02T07:35:52Z",
+      "event": "Query plus full32-decoder follow-up registered after bounded engineering gates",
+      "evidence": "studies/recovery/query_recovery_registration.json",
+      "result": "Fresh10k schedule from exact20k parent; changes coupled"
+    },
+    {
+      "time": "2026-10-02T12:07Z/12:30Z",
+      "event": "Expanded same-RTX3090 development comparison",
+      "evidence": "studies/evaluation/runs/20261002T120707482768Z-RGB-parent20k-dev100-rollout;20261002T123054380175Z-B16-dev100-rollout",
+      "result": "31/100 versus82/100"
+    },
+    {
+      "time": "2026-10-02T17:03Z to17:37Z",
+      "event": "Final query selection, timing and matched native-parent diagnostic",
+      "evidence": "studies/recovery/diagnostics/query_recovery_curve.csv;query_final_benchmark.json;query_parent5090_development_pair.json",
+      "result": "9.5k selected armMSE0.0218112;query5/10 versusparent4/10;108.598ms pipeline2.936GiB"
+    },
+    {
+      "time": "2026-10-02 closeout commit797f7a5",
+      "event": "Research stopped,26 native checkpoint files verified locally, rental deleted",
+      "evidence": "studies/recovery/diagnostics/cloud_closeout.json;studies/evaluation/report/report.tex:103",
+      "result": "Project spendingUSD11.27 recorded from account-credit differences;acceptance unmet"
+    }
+  ],
+  "findings": [
+    {
+      "id": "P01",
+      "severity": "critical",
+      "kind": "confirmed_bug",
+      "title": "GPU image processing silently scaled unit-range pixels a second time",
+      "confidence": "high",
+      "implication": "The entire GPU Dream-RSI screen/promotion study and legacy n0008 confirmation measured a corrupted visual-conditioning pipeline. Those ranks cannot establish architecture quality with correctly processed images, or a SmolVLM capacity limitation.",
+      "minimal_correction": "Keep the original journal; label its pipeline explicitly as defective and quarantine its architecture claims. The separate corrected source already places do_rescale inside images_kwargs; verify actual processor ranges before any future authorized study.",
+      "evidence": [
+        {
+          "path": "studies/dream-rsi/sources/n0008/src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py",
+          "locator": "lines177-190",
+          "detail": "Flat do_rescale=False is mixed with structured images_kwargs containing device."
+        },
+        {
+          "path": ".venv/lib/python3.12/site-packages/transformers/processing_utils.py",
+          "locator": "lines1321-1355",
+          "detail": "Structured modality kwargs shadow the flat value when that modality dict is present."
+        },
+        {
+          "path": "studies/recovery/diagnostics/image_range_cuda.json",
+          "locator": "/legacy,/corrected,/std_ratio",
+          "detail": "Same actual frame and processor, only kwarg placement changed: std0.00152658 versus0.38927713; ratio254.9999499."
+        },
+        {
+          "path": "evaluation/recovery_source.py",
+          "locator": "lines12-18,29-46",
+          "detail": "Attributable one-file source amendment records before/after hashes, preserving original RSI source."
+        }
+      ],
+      "causal_limit": "Image corruption is proven; its share of the overall task failure is not. No corrected-input clean-root versus n0008 matched study was completed."
+    },
+    {
+      "id": "P02",
+      "severity": "high",
+      "kind": "methodological_mismatch",
+      "title": "Search objective is a narrow stochastic proxy, not closed-loop control",
+      "confidence": "high",
+      "implication": "A lower score can reflect better flow-velocity regression on a tiny correlated sample, without better integrated actions or successful manipulation. Architecture comparisons have no training-seed uncertainty and reuse the selection observations adaptively.",
+      "minimal_correction": "Describe scores as one-seed 60-frame selection-proxy results; preserve component losses and use a separate confirmation cohort if future work is authorized.",
+      "evidence": [
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines54-75,112-121,266-285",
+          "detail": "500-step screens, score=-eval_loss, fixed seed42, cap64, no simulator evaluation."
+        },
+        {
+          "path": ".venv/lib/python3.12/site-packages/lerobot/scripts/lerobot_train.py",
+          "locator": "lines358-365,794-806",
+          "detail": "Upstream chooses first6 held-out frames/task (60 overall); final loss draws ambient training RNG and averages30 batches."
+        },
+        {
+          "path": ".venv/lib/python3.12/site-packages/lerobot/policies/vla_jepa/action_head.py",
+          "locator": "lines299-320",
+          "detail": "Flow loss samples noise/time and learns velocity; this is distinct from a rollout success metric."
+        },
+        {
+          "path": ".rsi/events/00000056.json",
+          "locator": "/node/metrics",
+          "detail": "n0008 screen0.4052 on60 samples. Raw log verified."
+        }
+      ],
+      "causal_limit": "Shared trajectories/splits are not a demonstrated train/test leak here; correlated frames, adaptive reuse and unmatched stochastic evaluation draws weaken generalization and fine ranking."
+    },
+    {
+      "id": "P03",
+      "severity": "high",
+      "kind": "methodological_mismatch",
+      "title": "Inherited world-model loss is not leakage-free causal future prediction",
+      "confidence": "high",
+      "implication": "The world predictor sees embeddings produced by a bidirectional encoder over the whole clip. Reduced world loss can exploit future information in context features; it is not evidence of learned deployable causal dynamics. Deployment itself receives current observations only.",
+      "minimal_correction": "Retain inherited loss to preserve this study, but name it accurately. A causal-context change belongs in a separately registered experiment, not a retrospective edit.",
+      "evidence": [
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines40-43,199-202",
+          "detail": "causal_world_model_context=false is an explicitly frozen control."
+        },
+        {
+          "path": ".venv/lib/python3.12/site-packages/lerobot/policies/vla_jepa/modeling_vla_jepa.py",
+          "locator": "lines196-202,249-271",
+          "detail": "Full bidirectional video encoding supplies predictor input states unless causal flag is true."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "line111",
+          "detail": "Closeout report correctly discloses inherited bidirectional world embeddings."
+        }
+      ],
+      "causal_limit": "This is inherited protocol mismatch with the paper mechanism, not proof that it caused SmolVLM failure. Local gradient diagnostic shows weighted world gradients are small on the sampled conditioning parameters."
+    },
+    {
+      "id": "P04",
+      "severity": "medium",
+      "kind": "selection_limitation",
+      "title": "n0008 won six early promotions; the automatic confirmation command selects a different candidate",
+      "confidence": "high",
+      "implication": "n0008 is the lowest-loss promoted candidate, not the best 500-step screen and not a globally confirmed architecture. Promotion allocation is arrival-order dependent and exhausted before later strong screens. The documented confirm-plan command does not reproduce the actual selection.",
+      "minimal_correction": "Record selection explicitly as best among six completed 1500-step promotions; make the plan command use the registered selection rule or state its500-step rule plainly.",
+      "evidence": [
+        {
+          "path": "rsi/runner.py",
+          "locator": "lines836-843,910-947",
+          "detail": "Any screen within0.005 worse than root qualifies until max_promotions6; separate fresh1500-step evaluation."
+        },
+        {
+          "path": ".rsi/events/00000056.json",
+          "locator": "/node/metrics/eval_loss",
+          "detail": "n0008 screen0.4052 versus root0.4074, a0.0022 difference."
+        },
+        {
+          "path": ".rsi/events/00000058.json",
+          "locator": "/metrics/eval_loss,/delta_vs_baseline",
+          "detail": "Promotion0.2762 versus matched baseline0.3197, difference0.0435 (13.6% relative lower)."
+        },
+        {
+          "path": ".rsi/events/00000078.json",
+          "locator": "/attempt",
+          "detail": "Sixth and final promotion n0010; later candidates received only screens."
+        },
+        {
+          "path": "rsi/confirmation.py",
+          "locator": "lines13-20",
+          "detail": "max500-step outcome score selects n0001(0.3148), whereas actual plan chooses n0008."
+        },
+        {
+          "path": "studies/confirmation/n0008-20261001/plan.json",
+          "locator": "/candidate",
+          "detail": "Actual manually frozen plan selects n0008."
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "severity": "high",
+      "kind": "uncompleted_causal_test",
+      "title": "The promised matched n0008 confirmation was never completed",
+      "confidence": "high",
+      "implication": "There is no10k clean-root versus n0008 result demonstrating that the discovered adapter improved real control. Only n0008 received the cloud continuation, then recovery. A successful matched loss promotion is insufficient to validate the architecture.",
+      "minimal_correction": "Mark confirmation as incomplete and keep legacy0/10 diagnostic separate from S500 final2.2%. Do not claim discovery success or architecture benefit.",
+      "evidence": [
+        {
+          "path": "studies/confirmation/n0008-20261001/plan.json",
+          "locator": "/arms,/development_episodes,/final_episodes",
+          "detail": "Two arms,100 development and500 final episodes were planned."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "lines68-75",
+          "detail": "Actual n0008 continuation ends0/10; report says matched baseline and complete cohorts pending."
+        },
+        {
+          "path": "studies/evaluation/runs/20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/episodes.csv",
+          "locator": "all10 rows",
+          "detail": "Recount0 successes, valid completed rows, modelbc6109ff..."
+        }
+      ]
+    },
+    {
+      "id": "P06",
+      "severity": "high",
+      "kind": "methodological_mismatch",
+      "title": "Confirmation changed important controls relative to RSI screening",
+      "confidence": "high",
+      "implication": "The longer confirmation is a different adaptation protocol. Rank transfer is a hypothesis, even without the image defect. It cannot be read as a direct continuation of screened weights or their loss curve.",
+      "minimal_correction": "Maintain a protocol table for screen, promotion, original S500, legacy n0008 confirmation, RGB recovery and query recovery.",
+      "evidence": [
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines51,65-76",
+          "detail": "RSI uses dataset stats, grad_clip10, BF16 candidate adapter parameters, declared1000/30000 scheduler."
+        },
+        {
+          "path": ".rsi/baseline/reservation-1/probe/stderr.log",
+          "locator": "Auto-scaling LR scheduler line",
+          "detail": "Pinned scheduler actually compresses warmup1000→16 and decay30000→500; promotion warmup50/decay1500."
+        },
+        {
+          "path": "evaluation/train.py",
+          "locator": "lines106-113,245-261,286-303,327-339",
+          "detail": "Confirmation uses20 evenly spaced frames/task, fixed per-batch validation noise seeds, FP32 optimizer masters, published normalization and fixed10k horizon."
+        },
+        {
+          "path": "evaluation/training_config.json",
+          "locator": "/warmup_steps,/gradient_clip,/validation_samples_per_task",
+          "detail": "warmup100,clip1,200 validation frames."
+        }
+      ],
+      "causal_limit": "Matched root/candidate RSI comparisons do share their respective schedule. This is a protocol boundary, not evidence of covert scientific configuration mutation."
+    },
+    {
+      "id": "P07",
+      "severity": "high",
+      "kind": "causal_gap",
+      "title": "Recovery improved a coupled system; it did not isolate a backbone or adapter cause",
+      "confidence": "high",
+      "implication": "RGB recovery jointly changed image processing, four decoder layers, optimizer restart, batch2→8 and schedule/exposure. Query recovery further changed input queries, all 32 layers and numerical/RNG settings. Improvements cannot be assigned to image correction, trainability, extra steps, or n0008 individually.",
+      "minimal_correction": "Report interventions together with their exact parent hashes; attribute results to the full recipe and state that cause of the remaining control gap is unresolved.",
+      "evidence": [
+        {
+          "path": "evaluation/recovery_config.json",
+          "locator": "/scope,/initial_checkpoint_sha256,/batch_size,/unfreeze_last_n",
+          "detail": "Starts from legacy n0008bc6109ff...; corrected source, fresh optimizer,batch8,last4,20k additional steps."
+        },
+        {
+          "path": "evaluation/query_recovery_config.json",
+          "locator": "/scope,/initial_checkpoint_sha256",
+          "detail": "Starts from corrected parent40d935e4...; query residuals,last32, fresh10k recipe."
+        },
+        {
+          "path": "studies/recovery/diagnostics/expanded_development_pair.json",
+          "locator": "/baseline_successes,/parent_successes,/paired_transitions",
+          "detail": "Parent31/100 versus B1682/100;51 baseline-only successes,0 parent-only."
+        },
+        {
+          "path": "studies/recovery/diagnostics/query_parent5090_development_pair.json",
+          "locator": "/left_successes,/right_successes,/transitions",
+          "detail": "Matched native parent4/10,query5/10;one gain,no losses."
+        }
+      ],
+      "causal_limit": "Follow-up work was user-authorized; criticism is causal evidence and stopping focus, not an assertion of unsolicited spending."
+    },
+    {
+      "id": "P08",
+      "severity": "high",
+      "kind": "selection_uncertainty",
+      "title": "Repeated diagnostic robot states do not constitute independent improving trials",
+      "confidence": "high",
+      "implication": "Recovery milestones repeatedly reuse the same first development state per task. The100-state parent cohort includes those10. One additional final query success is inadequate evidence of reliable improvement; pooling repeated cohorts would overstate trial count.",
+      "minimal_correction": "Show paired outcomes and exact membership, keep cohorts separate, and retain final acceptance as unmet. No additional evaluation is authorized by this audit.",
+      "evidence": [
+        {
+          "path": "studies/evaluation/runs/20261002T013631571548Z-RGB-n0008-2000-rollout/episodes.csv",
+          "locator": "task0/trial0 and task-state-seed keys",
+          "detail": "First ten states recur at milestones."
+        },
+        {
+          "path": "studies/recovery/diagnostics/expanded_development_pair.json",
+          "locator": "/episodes",
+          "detail": "100 trials include the first ten earlier diagnostic states."
+        },
+        {
+          "path": "studies/recovery/diagnostics/query_parent5090_development_pair.json",
+          "locator": "/episodes,/limitations",
+          "detail": "Exactly same task-state-seed pairs,4/10→5/10."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "lines95,99",
+          "detail": "Closeout correctly warns about repeated diagnostic states."
+        }
+      ],
+      "causal_limit": "No evidence found that official final trials selected recovery weights. They were kept reserved for new recovery variants; trajectory validation still participated in adaptive research selection."
+    },
+    {
+      "id": "P09",
+      "severity": "medium",
+      "kind": "confirmed_bug_with_bounded_effect",
+      "title": "Legacy inference cast rounded native FP32 rotary frequencies",
+      "confidence": "high",
+      "implication": "Training/inference numerical equivalence was broken. A one-frame reversible loss perturbation proves a concrete numerical defect but paired small-cohort robot tests show no aggregate success gain, so this does not explain the overall failure.",
+      "minimal_correction": "Preserve original rotary buffers before BF16 policy casting and label numerical loader per run; retain legacy results as measured.",
+      "evidence": [
+        {
+          "path": "evaluation/models.py",
+          "locator": "lines126-145",
+          "detail": "Whole-policy BF16 cast rounds floating buffers; native_rope mode snapshots and restores FP32 frequency values."
+        },
+        {
+          "path": "studies/recovery/diagnostics/rotary_buffer_precision.json",
+          "locator": "/buffers,/native_losses",
+          "detail": "Frequency rounding max0.00138819; action loss0.0460053→0.0617958→0.0460053 after restoration."
+        },
+        {
+          "path": "studies/recovery/diagnostics/paired_rope_development.json",
+          "locator": "paired5k results",
+          "detail": "Same RTX3090 weights:1/10 in each mode."
+        },
+        {
+          "path": "studies/recovery/diagnostics/paired_endpoint_rope_sequential.json",
+          "locator": "/runs",
+          "detail": "Parent20k sequential modes:4/10 each, discordant task outcomes."
+        }
+      ]
+    },
+    {
+      "id": "P10",
+      "severity": "medium",
+      "kind": "unresolved_hypothesis",
+      "title": "SmolVLM action-query rows stayed newly initialized and frozen",
+      "confidence": "high_for_implementation_medium_for_cause",
+      "implication": "Replacing a task-trained Qwen conditioning interface with nearly identical newly initialized frozen query embeddings is a major transfer difference. It may constrain useful representation learning, but positional/decoder computation can distinguish tokens and no isolated query benefit was demonstrated.",
+      "minimal_correction": "Explain this difference from trained Qwen, avoid calling frozen rows learned action tokens, and retain the query-plus-full-decoder follow-up as a coupled result.",
+      "evidence": [
+        {
+          "path": "studies/dream-rsi/sources/n0008/src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py",
+          "locator": "lines113-128,133-153",
+          "detail": "Backbone and embeddings are frozen, tokenizer is expanded afterward; only adapter/residual train in n0008."
+        },
+        {
+          "path": "studies/recovery/diagnostics/n0008-gradient-audit.json",
+          "locator": "/special_token_embeddings_trainable,/groups",
+          "detail": "False for embeddings, finite adapter/action gradients on one batch."
+        },
+        {
+          "path": "studies/recovery/diagnostics/query_token_rows.json",
+          "locator": "/query_row_bytes_sha256,/rms_deviation_from_row_mean",
+          "detail": "Identical query-row hashes at2k/5k, near-identical rows; positional encoding caveat recorded."
+        }
+      ]
+    },
+    {
+      "id": "P11",
+      "severity": "high",
+      "kind": "comparison_boundary",
+      "title": "Main S500 and later recovery results are different models and protocols",
+      "confidence": "high",
+      "implication": "Historical S5002.2% final success uses the PIL pipeline and frozen backbone; it is not n0008 or corrected-query performance. Published B16 has a different pretraining/fine-tuning history. Both practical deployment comparisons and later recovery diagnostics are useful, but cannot isolate parameter count or intrinsic SmolVLM quality.",
+      "minimal_correction": "Preserve B16/Q8/Q4/S500 final table, add explicit source/weights/training/processor columns, and give recovery its own diagnostic table.",
+      "evidence": [
+        {
+          "path": "studies/evaluation/runs/20260924T190648949526Z-S500-rollout/run.json",
+          "locator": "/checkpoint_sha256,/phase,/summary",
+          "detail": "Historical S500 weights139cd59bedced3...,11/500 final successes."
+        },
+        {
+          "path": "studies/evaluation/checks/processor_probe.json",
+          "locator": "/outcome,/input,/output_shape",
+          "detail": "PIL processor correctly honors no-rescale;17 native512px tiles per224px camera image."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "lines22,36,75,113",
+          "detail": "Current report correctly labels different training histories and native processing differences."
+        },
+        {
+          "path": "evaluation/sources.json",
+          "locator": "/models/baseline,/models/pretrain",
+          "detail": "B16 starts from published LIBERO policy, Smol compatible action/world initialization from separate pretrain checkpoint."
+        }
+      ]
+    },
+    {
+      "id": "P12",
+      "severity": "medium",
+      "kind": "misleading_display_boundary",
+      "title": "Dashboard timing filters identify sample count as protocol, omitting processing and loader controls",
+      "confidence": "high",
+      "implication": "Within one GPU and500×3 filter, benchmarks can still mix PIL/GPU preprocessing, corrected/legacy inputs and native/legacy numerical loaders. A Pareto frontier across such points is descriptive across deployments, not a matched architecture speedup. The study selector also labels a stopped defective study Active search.",
+      "minimal_correction": "Label processing and numerical mode on points or require an explicit comparable-protocol group; replace Active search with stopped/quarantined when appropriate.",
+      "evidence": [
+        {
+          "path": "web/rsi-dashboard/app.js",
+          "locator": "lines37-55,61-62",
+          "detail": "Timing protocol filter is only predictions×repetitions; frontier compares filtered points."
+        },
+        {
+          "path": "scripts/rsi_dashboard.py",
+          "locator": "lines66-72,453",
+          "detail": "Benchmark point fields omit processor and buffer protocol; study name hardcoded Active search·GPU processor."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "line72",
+          "detail": "Report correctly says5090 versus3090/PIL cannot isolate architecture or processing speedup."
+        }
+      ]
+    },
+    {
+      "id": "P13",
+      "severity": "medium",
+      "kind": "documentation_contradiction",
+      "title": "Evaluation README still says final work is outstanding and RSI deferred",
+      "confidence": "high",
+      "implication": "A reader cannot determine project status consistently. Final B16/Q8/Q4/S500 results exist and are accurately reported elsewhere; README remains a stale progress snapshot. Optional confirmation README also describes100 episodes whereas actual cloud diagnostic has10.",
+      "minimal_correction": "Update concise status text from verified campaign records, and distinguish planned from completed confirmation arms/cohorts.",
+      "evidence": [
+        {
+          "path": "studies/evaluation/README.md",
+          "locator": "lines5,49",
+          "detail": "Dream-RSI deferred; final success and completeT1 said outstanding."
+        },
+        {
+          "path": "studies/evaluation/report/report.tex",
+          "locator": "lines18,46-49,103",
+          "detail": "Final four-arm table completed; recovery closed without acceptance."
+        },
+        {
+          "path": "studies/confirmation/n0008-20261001/README.md",
+          "locator": "lines3-5,11",
+          "detail": "Plans two arms/100 development episodes but completed observation is one arm/10."
+        }
+      ]
+    },
+    {
+      "id": "P14",
+      "severity": "medium",
+      "kind": "confirmed_telemetry_bug",
+      "title": "Structured RSI training telemetry truncates after450 steps",
+      "confidence": "high",
+      "implication": "Numeric-only log regex stops matching when LeRobot abbreviates samples as1K and steps as1K. Saved structured promotion curves contain9 rows ending450 rather than30 through1500. This can mislead convergence/resource analysis, although final loss scoring is correct and amended discovery exporter recovers full curves.",
+      "minimal_correction": "Repair the parser or parse machine-readable counters/progress; regenerate compact telemetry from preserved raw logs without altering historical scores.",
+      "evidence": [
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines85-92,97-109",
+          "detail": "Regex requires all integer count fields to contain only digits."
+        },
+        {
+          "path": ".rsi/attempts/n0008/promotion/telemetry.json",
+          "locator": "/training_curve",
+          "detail": "9 entries,last step450."
+        },
+        {
+          "path": ".rsi/attempts/n0008/promotion/probe/stderr.log",
+          "locator": "sample500/1000 training lines",
+          "detail": "step500 has smpl:1K; later steps displayed step:1K."
+        },
+        {
+          "path": "rsi/discovery_diagnostics.py",
+          "locator": "lines11-20",
+          "detail": "Alternative parser recovers30 logged points ending1500, independently checked."
+        }
+      ]
+    },
+    {
+      "id": "P15",
+      "severity": "low",
+      "kind": "provenance_gap",
+      "title": "Frozen RSI configuration does not pin model/dataset artifact revisions",
+      "confidence": "high",
+      "implication": "Scientific code/config/base hashes are frozen, but repo-name downloads and dataset version label are not equivalent to immutable external artifact bytes. No evidence was found that model bytes actually changed during this study.",
+      "minimal_correction": "For any future authorized study freeze actual model revisions/checkpoint hashes and dataset hashes, and record actual conversion version. Preserve this limitation for historical search.",
+      "evidence": [
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines17,21,25,48-53,234-236",
+          "detail": "HF repos used without revision; dataset.version config field is not passed as a revision argument."
+        },
+        {
+          "path": "rsi/config.json",
+          "locator": "/dataset/version",
+          "detail": "Metadata saysv4.0."
+        },
+        {
+          "path": ".rsi/baseline/reservation-1/probe/stderr.log",
+          "locator": "dataset config revision line",
+          "detail": "Actual revision=None."
+        },
+        {
+          "path": "evaluation/sources.json",
+          "locator": "/models",
+          "detail": "Main campaign has explicit immutable model revisions."
+        }
+      ]
+    },
+    {
+      "id": "P16",
+      "severity": "low",
+      "kind": "misleading_telemetry",
+      "title": "RSI requires-grad trainable counts include frozen-in-effect video encoder",
+      "confidence": "high",
+      "implication": "RSI n0008 reports640.8M trainable parameters because325.97M encoder/predictor parameters have requires_grad=True despite world encoder evaluation under no_grad. This overstates parameters receiving updates and makes resource/model comparisons confusing.",
+      "minimal_correction": "Report optimizer parameters separately from nonzero-gradient/update parameters, or explicitly disable gradients for the inherited target encoder in a separately frozen implementation.",
+      "evidence": [
+        {
+          "path": ".rsi/attempts/n0008/evaluation/trainability.json",
+          "locator": "names model.video_encoder.*",
+          "detail": "325,971,328 video encoder parameters counted."
+        },
+        {
+          "path": ".venv/lib/python3.12/site-packages/lerobot/policies/vla_jepa/modeling_vla_jepa.py",
+          "locator": "lines249-251",
+          "detail": "Target encoding occurs inside torch.no_grad."
+        },
+        {
+          "path": "rsi/evaluator.py",
+          "locator": "lines256-261",
+          "detail": "Telemetry uses requires_grad as the entire criterion."
+        }
+      ]
+    }
+  ],
+  "claim_checks": [
+    {
+      "claim": "RSI loss improved.",
+      "assessment": "supported_with_protocol_limit",
+      "evidence": ".rsi events 21 and 58; raw logs",
+      "detail": "n0008 promoted loss was 0.2762 versus root 0.3197, on corrupted inputs and 60 correlated observations. This is not LIBERO success."
+    },
+    {
+      "claim": "n0008 is a proven better architecture.",
+      "assessment": "unsupported",
+      "evidence": "P04/P05",
+      "detail": "It won six early promotions. Matching 10k baseline and corrected-input architecture confirmation are absent."
+    },
+    {
+      "claim": "Double image rescaling was found and corrected.",
+      "assessment": "supported",
+      "evidence": "P01",
+      "detail": "Actual processor contrast ratio is 255 on CUDA. Original PIL source correctly scales unit-range images."
+    },
+    {
+      "claim": "Rotary precision explains control failure.",
+      "assessment": "unsupported_causal_extension",
+      "evidence": "P09",
+      "detail": "The defect causes a reversible loss change, but paired small robot cohorts have equal aggregate success."
+    },
+    {
+      "claim": "Recovery achieved performance comparable to the paper or B16.",
+      "assessment": "contradicted",
+      "evidence": "31/100 versus 82/100; query 5/10 versus parent 4/10",
+      "detail": "No matched final acceptance result exists. A small repeated query cohort cannot substitute."
+    },
+    {
+      "claim": "More steps alone solve the problem.",
+      "assessment": "unproven",
+      "evidence": "P07; local_lr_pair_comparison.json",
+      "detail": "Four-layer recovery improves offline error; broader adaptation initially regresses. Higher-rate arm MSE worsens from 0.039993 to 0.044763 while total loss improves from 0.24809 to 0.24360."
+    },
+    {
+      "claim": "Query adaptation itself causes improvement.",
+      "assessment": "unproven",
+      "evidence": "query_recovery_registration.json; query_initial_validation_comparison.json",
+      "detail": "Query, decoder and schedule changes are coupled. Initial batch scores match, 500-update arm error is 1.689 times parent, and the later 9.5k checkpoint is selected."
+    },
+    {
+      "claim": "S500 2.2% demonstrates intrinsic SmolVLM deficiency.",
+      "assessment": "unsupported",
+      "evidence": "P11",
+      "detail": "Task training history, frozen backbone, new queries and processing differ. Later GPU results additionally contain the image defect."
+    },
+    {
+      "claim": "Quantization preserved measured final success with memory savings.",
+      "assessment": "supported_for_recorded_deployment",
+      "evidence": "Original final CSVs and report lines 46-59",
+      "detail": "Q8 and Q4 use the same restored trained baseline. Paired uncertainty does not establish general improvement beyond this cohort."
+    },
+    {
+      "claim": "All final project deliverables remain outstanding.",
+      "assessment": "stale_for_main_four_arms",
+      "evidence": "Evaluation README line 49 versus report T1",
+      "detail": "Four 500-trial campaigns are complete. Recovery acceptance and matched RSI confirmation are incomplete."
+    },
+    {
+      "claim": "All research questions are solved.",
+      "assessment": "false",
+      "evidence": "unresolved_questions",
+      "detail": "Several engineering questions were answered within bounded checks; control cause and comparable SmolVLM performance remain unresolved."
+    }
+  ],
+  "unresolved_questions": [
+    "How much of legacy0/10 is due to image corruption versus conditioning transfer/trainability/optimizer history? No isolated corrected-input, frozen, held-out control comparison answers this.",
+    "Does n0008 outperform a clean Smol baseline under the same corrected processing, training exposure, initialization and numerical loader?",
+    "What causes most remaining systematic action error: visual/instruction/state representation, learned query interface, action-head adaptation or other transfer differences?",
+    "Would a different training recipe or adequate pretraining improve control? Sample-count disparities establish different exposure, not that more steps is sufficient.",
+    "Does held-out physical arm MSE reliably predict task success across candidate families or precision modes? No calibration across independent candidates/seeds exists.",
+    "How representative are the first6 validation frames/task and repeated first development initial states of full task trajectories and independent success?",
+    "How much closed-loop difference comes from hardware/numerical variation? Same-checkpoint3090/5090 outcomes differ; cross-hardware causal attribution requires matching protocol.",
+    "Are future architecture improvements reliable on the reserved500-state cohort? Recovery has no final result.",
+    "What exact upstream training membership/corpus produced baseline LIBERO weights, and did it include local held-out demonstrations? Existing data does not establish novel generalization.",
+    "Historical RSI external model and dataset artifact immutability is not fully recorded; cached artifact identity was not independently reconstructed in this bounded audit."
+  ],
+  "recommendations": [
+    {
+      "priority": 1,
+      "action": "Keep paid research and search paused. State clearly that SmolVLM acceptance was missed.",
+      "reason": "A comparable policy was not delivered; more generic training is not justified by these results."
+    },
+    {
+      "priority": 2,
+      "action": "Use the original four-arm deployment comparison for the class project, including the measured Q4 trade-off.",
+      "reason": "This is the completed matched success and memory evidence; recovery remains diagnostic."
+    },
+    {
+      "priority": 3,
+      "action": "Quarantine GPU RSI and legacy confirmation as defective-pipeline architecture evidence; preserve actual measurements and provenance.",
+      "reason": "Accurate numbers from a defective pipeline do not establish architecture quality."
+    },
+    {
+      "priority": 4,
+      "action": "Reconcile README, report and dashboard with a concise protocol and status matrix.",
+      "reason": "Record model identity, initial checkpoint, trainability, processing, numerical mode, hardware, selection metric, cohort and planned versus completed work."
+    },
+    {
+      "priority": 5,
+      "action": "Retain bounded engineering findings while keeping the remaining control cause unresolved.",
+      "reason": "Contrast and rotary defects are proven; precision, checkpoint and rate checks do not identify the complete failure mechanism."
+    },
+    {
+      "priority": 6,
+      "action": "Only if the user later authorizes further work, preregister one discriminating matched comparison and independent confirmation.",
+      "reason": "This audit does not authorize or launch new work. Coupled changes cannot answer which intervention mattered."
+    },
+    {
+      "priority": 7,
+      "action": "Repair log abbreviation parsing and confirmation selection policy as separate CPU maintenance.",
+      "reason": "These reproducibility defects require no training; preserve frozen historical measurements."
+    }
+  ],
+  "sources": [
+    {
+      "id": "paper",
+      "url": "https://arxiv.org/abs/2602.10098v2",
+      "fulltext": "https://arxiv.org/html/2602.10098v2",
+      "version": "v2, 14 February 2026",
+      "sections": [
+        "3.1-3.3",
+        "4.1",
+        "Table1",
+        "AppendixA.1/A.2"
+      ],
+      "facts": "Qwen3-VL-2B uses learned latent/action tokens, current observations, frozen world-state targets and joint flow/world losses. LIBERO-Spatial success is 96.2% over 50 episodes per task. Fine-tuning uses 30k updates at global batch 256 after 50k pretraining; VLM/predictor and action-head rates are 1e-5 and 1e-4. The project differs in exposure, corpus, trainability and numerical protocol. Its local B16 result is 95.0%; a 48-fold presentation-count ratio is not a per-task compute ratio."
+    },
+    {
+      "id": "pinned-upstream",
+      "url": "https://github.com/huggingface/lerobot/blob/30074f7f1358b3c015ae1750017200e86e9c4eb6/src/lerobot/policies/vla_jepa/modeling_vla_jepa.py",
+      "local_path": ".venv/lib/python3.12/site-packages/lerobot/policies/vla_jepa/modeling_vla_jepa.py",
+      "sha256": "7b852884b408a7f3019fb8be0d0cff066f8affc27322bd2c8de65162d9bb89cd",
+      "sections": "196-285,287-346,402-511"
+    },
+    {
+      "id": "original-authors-code",
+      "url": "https://github.com/ginwind/VLA-JEPA/",
+      "note": "Official repository linked by the paper; project runs use the pinned LeRobot port, whose semantics must be examined separately."
+    },
+    {
+      "id": "journal",
+      "path": ".rsi/events",
+      "events": 204,
+      "study_id": "c8307243391e8cf647533f21ed0815af3447eabf00dff1f2a3f0d7e136a8d950",
+      "note": "Contiguous event numbering and the previous-event SHA256 chain were verified."
+    },
+    {
+      "id": "frozen-sources",
+      "paths": [
+        "studies/dream-rsi/sources/base",
+        "studies/dream-rsi/sources/n0008"
+      ],
+      "note": "n0008 derives from root. Five module hashes appear in the manifest and confirmation plan; frozen base bytes remain unchanged."
+    },
+    {
+      "id": "raw-loss-verification",
+      "measurements": [
+        {
+          "event_seq": 2,
+          "attempt": "baseline",
+          "phase": "baseline",
+          "loss": 0.4074,
+          "raw_log": ".rsi/baseline/reservation-1/probe/stderr.log",
+          "raw_log_sha256": "c997778cbc759099b87cdf5c00064fc1ab1bbab6a539c66c4d92e70d568b7efd",
+          "matches": true
+        },
+        {
+          "event_seq": 19,
+          "attempt": "n0001",
+          "phase": "outcome",
+          "loss": 0.3148,
+          "raw_log": ".rsi/attempts/n0001/probe/stderr.log",
+          "raw_log_sha256": "0e3cd7acaac11fcf823b3a1daa1d80b9dbb6c7da17f19ef1db7fe5ce751459fd",
+          "matches": true
+        },
+        {
+          "event_seq": 21,
+          "attempt": "baseline",
+          "phase": "promotion_baseline",
+          "loss": 0.3197,
+          "raw_log": ".rsi/promotion/baseline/r0001/probe/stderr.log",
+          "raw_log_sha256": "c4059c987c052dc60e72e87c6748a400462922620364870ddbd2c093bb6abf89",
+          "matches": true
+        },
+        {
+          "event_seq": 23,
+          "attempt": "n0001",
+          "phase": "promotion",
+          "loss": 0.2857,
+          "raw_log": ".rsi/attempts/n0001/promotion/probe/stderr.log",
+          "raw_log_sha256": "ed9cb85d8d19274bc474172913c15025ba627ec1150668f64d7b799a07aa9b6f",
+          "matches": true
+        },
+        {
+          "event_seq": 47,
+          "attempt": "n0005",
+          "phase": "outcome",
+          "loss": 0.3229,
+          "raw_log": ".rsi/attempts/n0005/probe/stderr.log",
+          "raw_log_sha256": "bd2d788b64ae8dcae19e60bf2511cfb6e24c5a91b72b028001e3c437f216a9f8",
+          "matches": true
+        },
+        {
+          "event_seq": 49,
+          "attempt": "n0005",
+          "phase": "promotion",
+          "loss": 0.2848,
+          "raw_log": ".rsi/attempts/n0005/promotion/probe/stderr.log",
+          "raw_log_sha256": "74681b265cf35c444b6af72e66c802107a39bf0aa8f4f9fa464cba93bccedd89",
+          "matches": true
+        },
+        {
+          "event_seq": 50,
+          "attempt": "n0006",
+          "phase": "outcome",
+          "loss": 0.4053,
+          "raw_log": ".rsi/attempts/n0006/probe/stderr.log",
+          "raw_log_sha256": "9ad4e0a1dd01e90cf232cd8c5831440faf9e9c42e0a3378800f2ee036fbc3a76",
+          "matches": true
+        },
+        {
+          "event_seq": 52,
+          "attempt": "n0006",
+          "phase": "promotion",
+          "loss": 0.2781,
+          "raw_log": ".rsi/attempts/n0006/promotion/probe/stderr.log",
+          "raw_log_sha256": "6ca0eeb22a30d65ea66cbb03f7d0cbbdad769d75802cbbc0d1f37efbec56b633",
+          "matches": true
+        },
+        {
+          "event_seq": 53,
+          "attempt": "n0007",
+          "phase": "outcome",
+          "loss": 0.3346,
+          "raw_log": ".rsi/attempts/n0007/probe/stderr.log",
+          "raw_log_sha256": "cb31ead681eb1da4b26c8bf0b835fd0ece012eac6861ece6b8e00d3529ced757",
+          "matches": true
+        },
+        {
+          "event_seq": 55,
+          "attempt": "n0007",
+          "phase": "promotion",
+          "loss": 0.2862,
+          "raw_log": ".rsi/attempts/n0007/promotion/probe/stderr.log",
+          "raw_log_sha256": "69c13a60250689235630164acaa0eb3708755504279031992b102e9992af7ae8",
+          "matches": true
+        },
+        {
+          "event_seq": 56,
+          "attempt": "n0008",
+          "phase": "outcome",
+          "loss": 0.4052,
+          "raw_log": ".rsi/attempts/n0008/probe/stderr.log",
+          "raw_log_sha256": "5a1a552776993919d200a81907756b92bd0796152113372ee0bf00dfd82e0099",
+          "matches": true
+        },
+        {
+          "event_seq": 58,
+          "attempt": "n0008",
+          "phase": "promotion",
+          "loss": 0.2762,
+          "raw_log": ".rsi/attempts/n0008/promotion/probe/stderr.log",
+          "raw_log_sha256": "0f6aa70a16947e5bfc7ccab696e0720acf61c7f2d12b2f39543425d9ddace077",
+          "matches": true
+        },
+        {
+          "event_seq": 76,
+          "attempt": "n0010",
+          "phase": "outcome",
+          "loss": 0.3934,
+          "raw_log": ".rsi/attempts/n0010/probe/stderr.log",
+          "raw_log_sha256": "bcffbb570e548509d81330dab314cc0e737de8fdc10d4ec34f550f658be3fe61",
+          "matches": true
+        },
+        {
+          "event_seq": 78,
+          "attempt": "n0010",
+          "phase": "promotion",
+          "loss": 0.2796,
+          "raw_log": ".rsi/attempts/n0010/promotion/probe/stderr.log",
+          "raw_log_sha256": "cdd9dffc75541878e3a0d9018c15b1767f900c2841c6ac8024c6403cba856206",
+          "matches": true
+        },
+        {
+          "event_seq": 79,
+          "attempt": "n0011",
+          "phase": "outcome",
+          "loss": 0.3396,
+          "raw_log": ".rsi/attempts/n0011/probe/stderr.log",
+          "raw_log_sha256": "002f661af8ebc6f62abb21e61c6fca8c842249e70a6c517cd88a71bfc08dbae1",
+          "matches": true
+        },
+        {
+          "event_seq": 110,
+          "attempt": "n0012",
+          "phase": "outcome",
+          "loss": 0.3307,
+          "raw_log": ".rsi/attempts/n0012/probe/stderr.log",
+          "raw_log_sha256": "de40511d895bfcac202a28d39e9cb103066dca73d0cad3a82f0923ce7ed09ce0",
+          "matches": true
+        },
+        {
+          "event_seq": 111,
+          "attempt": "n0013",
+          "phase": "outcome",
+          "loss": 0.3318,
+          "raw_log": ".rsi/attempts/n0013/probe/stderr.log",
+          "raw_log_sha256": "ae6fe1a7335eeb3e0ba55b74321b76a8f38bdbc1d5bd71d0cadff57deec54d01",
+          "matches": true
+        },
+        {
+          "event_seq": 112,
+          "attempt": "n0014",
+          "phase": "outcome",
+          "loss": 0.4017,
+          "raw_log": ".rsi/attempts/n0014/probe/stderr.log",
+          "raw_log_sha256": "4b213b72ddb159438fa360a2f31511891084e46e7ce5819476720d3a7feb1b81",
+          "matches": true
+        },
+        {
+          "event_seq": 113,
+          "attempt": "n0015",
+          "phase": "outcome",
+          "loss": 0.3994,
+          "raw_log": ".rsi/attempts/n0015/probe/stderr.log",
+          "raw_log_sha256": "e37536316cfe115ec1d25430f4e8a4d37423b8437fdfc2ad22e90135832ae0f7",
+          "matches": true
+        },
+        {
+          "event_seq": 135,
+          "attempt": "n0016",
+          "phase": "outcome",
+          "loss": 0.4011,
+          "raw_log": ".rsi/attempts/n0016/probe/stderr.log",
+          "raw_log_sha256": "fc8c1edf651993787c2693882b00515ecc562cbc8d5a998f331d642adda831f9",
+          "matches": true
+        },
+        {
+          "event_seq": 136,
+          "attempt": "n0017",
+          "phase": "outcome",
+          "loss": 0.3626,
+          "raw_log": ".rsi/attempts/n0017/probe/stderr.log",
+          "raw_log_sha256": "af5eeb1a9ccddb805c58ee34c8cb0161de66867b0654507d367436d52359b68f",
+          "matches": true
+        },
+        {
+          "event_seq": 137,
+          "attempt": "n0018",
+          "phase": "outcome",
+          "loss": 0.4028,
+          "raw_log": ".rsi/attempts/n0018/probe/stderr.log",
+          "raw_log_sha256": "55f08955da2588e5a320648531e3f88785859b78a0231ea9249bd0b72554a82e",
+          "matches": true
+        },
+        {
+          "event_seq": 138,
+          "attempt": "n0019",
+          "phase": "outcome",
+          "loss": 0.4008,
+          "raw_log": ".rsi/attempts/n0019/probe/stderr.log",
+          "raw_log_sha256": "050bcdebdd2d7e06861db4d4c72dfcd521c4c4ed187a3c8d242f21f36feae9f6",
+          "matches": true
+        },
+        {
+          "event_seq": 169,
+          "attempt": "n0020",
+          "phase": "outcome",
+          "loss": 0.401,
+          "raw_log": ".rsi/attempts/n0020/probe/stderr.log",
+          "raw_log_sha256": "f379e7c6e3a50d74e928c61668aabb10401d396db5f99c15430136bff634a266",
+          "matches": true
+        },
+        {
+          "event_seq": 170,
+          "attempt": "n0021",
+          "phase": "outcome",
+          "loss": 0.4118,
+          "raw_log": ".rsi/attempts/n0021/probe/stderr.log",
+          "raw_log_sha256": "2388dd2d7853fd556a6b4209e80db0b2b9a344d52cc7367aea8dbb2a95e4e83e",
+          "matches": true
+        },
+        {
+          "event_seq": 171,
+          "attempt": "n0022",
+          "phase": "outcome",
+          "loss": 0.4014,
+          "raw_log": ".rsi/attempts/n0022/probe/stderr.log",
+          "raw_log_sha256": "f5dabed3b47e521665702b12b15a1642b4b5ef9539d890148adebf55c164908c",
+          "matches": true
+        },
+        {
+          "event_seq": 172,
+          "attempt": "n0023",
+          "phase": "outcome",
+          "loss": 0.3784,
+          "raw_log": ".rsi/attempts/n0023/probe/stderr.log",
+          "raw_log_sha256": "cf549dd81e1685b7ce11f1c643c6a69e2ce66ecd7d051dac972e10168cd33319",
+          "matches": true
+        },
+        {
+          "event_seq": 194,
+          "attempt": "n0024",
+          "phase": "outcome",
+          "loss": 0.319,
+          "raw_log": ".rsi/attempts/n0024/probe/stderr.log",
+          "raw_log_sha256": "6150c4a04bb45c0bf7b20897aea056a327fd72e4d22128df33a34f8a82eac47e",
+          "matches": true
+        },
+        {
+          "event_seq": 195,
+          "attempt": "n0025",
+          "phase": "outcome",
+          "loss": 0.4044,
+          "raw_log": ".rsi/attempts/n0025/probe/stderr.log",
+          "raw_log_sha256": "1df5277815ce83f7fd704f98a64575338cbd90e377daa68f5a2f636acd998ca0",
+          "matches": true
+        },
+        {
+          "event_seq": 196,
+          "attempt": "n0026",
+          "phase": "outcome",
+          "loss": 0.3431,
+          "raw_log": ".rsi/attempts/n0026/probe/stderr.log",
+          "raw_log_sha256": "5b1f619952942ac07c043a499c10a72810fc5f9e671b0d98010bb44d467b78ec",
+          "matches": true
+        },
+        {
+          "event_seq": 197,
+          "attempt": "n0027",
+          "phase": "outcome",
+          "loss": 0.3317,
+          "raw_log": ".rsi/attempts/n0027/probe/stderr.log",
+          "raw_log_sha256": "cb9e81a257c818a07336fe9420a31cff94473b3b53dd04b46f8ac9b07651b8ae",
+          "matches": true
+        }
+      ]
+    },
+    {
+      "id": "raw-rollout-verification",
+      "measurements": [
+        {
+          "run_id": "20260924T171416675676Z-B16-rollout",
+          "variant": "B16",
+          "phase": "final",
+          "episodes": 500,
+          "successes": 475,
+          "checkpoint_sha256": null,
+          "episodes_csv_sha256": "51df15a613383fe537f2916cd50ae4da8ceccdf6f4ea01d7b1ee0ca74ff524c0",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20260924T174749793177Z-Q8-rollout",
+          "variant": "Q8",
+          "phase": "final",
+          "episodes": 500,
+          "successes": 474,
+          "checkpoint_sha256": null,
+          "episodes_csv_sha256": "b59781440723dcf883339dc6708a995e8e1400f2186de20d5c172584be952452",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20260924T183120067911Z-Q4-rollout",
+          "variant": "Q4",
+          "phase": "final",
+          "episodes": 500,
+          "successes": 479,
+          "checkpoint_sha256": null,
+          "episodes_csv_sha256": "19a81e6cec21ac49fe20f63da1b254e29411c01799a2c1832004cf3317ead324",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20260924T190648949526Z-S500-rollout",
+          "variant": "S500",
+          "phase": "final",
+          "episodes": 500,
+          "successes": 11,
+          "checkpoint_sha256": "139cd59bedced3e73562573ac232ddf1c7420e2e8ea89c09ecd768c7ee93e853",
+          "episodes_csv_sha256": "7a55d88e886cf53586597dbf99351f6e695d91b858e7fd5b4741d8d510056040",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout",
+          "variant": "RSI-n0008-5090-r2-10k",
+          "phase": "development",
+          "episodes": 10,
+          "successes": 0,
+          "checkpoint_sha256": "bc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8",
+          "episodes_csv_sha256": "3debbc24fa17e56952ef0eb15fa52e3e6453a0dcd701a136935833175be972e2",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261002T071230008922Z-RGB-n0008-20000-rollout",
+          "variant": "RGB-n0008-20000",
+          "phase": "development",
+          "episodes": 10,
+          "successes": 6,
+          "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+          "episodes_csv_sha256": "e9e8996f30f2c46a0e1c4e05b96438bce01a81ba8efa472fe2d777f37610f955",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261002T120707482768Z-RGB-parent20k-dev100-rollout",
+          "variant": "RGB-parent20k-dev100",
+          "phase": "development",
+          "episodes": 100,
+          "successes": 31,
+          "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+          "episodes_csv_sha256": "d813d3871d373a08938e3a277ab0296b02c1d4e7fd8c12cd9d2b1c711fdfcb59",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261002T123054380175Z-B16-dev100-rollout",
+          "variant": "B16-dev100",
+          "phase": "development",
+          "episodes": 100,
+          "successes": 82,
+          "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+          "episodes_csv_sha256": "c458b69fd0dd1cfc699ee8248f5345bcc3901a881a77abfe8261e1a9eed2c4b0",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261002T170305465719Z-Query-n0008-10000-rollout",
+          "variant": "Query-n0008-10000",
+          "phase": "development",
+          "episodes": 10,
+          "successes": 5,
+          "checkpoint_sha256": "2810d6a566fb4b78cb7d8ec9bd21e2c73f1db3a1eae6a3507a5cf469a14f974c",
+          "episodes_csv_sha256": "4d76f5508f0d2a6aedadb3b6a4a893340e38bad8bf7514e189685becd2e204b7",
+          "all_rows_completed": true,
+          "matches_summary": true
+        },
+        {
+          "run_id": "20261002T173721161313Z-RGB-n0008-parent5090-NativeRoPE-rollout",
+          "variant": "RGB-n0008-parent5090-NativeRoPE",
+          "phase": "development",
+          "episodes": 10,
+          "successes": 4,
+          "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+          "episodes_csv_sha256": "8ae81de31503b2e5bc56f683fc59557a77075b53571a3bc2cfa80bc656455912",
+          "all_rows_completed": true,
+          "matches_summary": true
+        }
+      ]
+    },
+    {
+      "id": "raw-final-query-timing",
+      "run_id": "20261002T170436080917Z-Query-n0008-selected-benchmark",
+      "timings_csv_sha256": "00e70bd1035ca8755495438f1130a36dc4138986239f454c3ef3b10e907eb028",
+      "rows_per_mode": 1500,
+      "recomputed_policy_median_ms": 107.72749502211809,
+      "recomputed_pipeline_median_ms": 108.5979281924665
+    },
+    {
+      "id": "closeout-document",
+      "path": "studies/evaluation/report/report.tex",
+      "lines": "18,46-59,67-113",
+      "commit": "797f7a5"
+    },
+    {
+      "id": "primary-protocol",
+      "paths": [
+        "studies/README.md",
+        "evaluation/protocol.json",
+        "evaluation/training_config.json",
+        "evaluation/sources.json",
+        "studies/evaluation/training_split.json",
+        "studies/evaluation/initial_states.json"
+      ]
+    }
+  ],
+  "limitations": [
+    "Independent forensic source, raw log/CSV and checkpoint metadata audit. No GPU forward, training, rollout, benchmark, rental or protocol change occurred.",
+    "Existing processor, precision and connectivity measurements were examined against source and their compact records, not re-executed.",
+    "Hash chains and log agreement establish internal consistency and traceability, not an absolute proof against fabrication or malice.",
+    "The focused lineage was the GPU study, PIL restart, main campaign and later recovery. Every candidate proposal and all older archived studies were not exhaustively reviewed.",
+    "No credentials, key contents, environment secrets or unrelated personal files were accessed.",
+    "Runtime retention and billing were reviewed only through compact receipts; operational and spending reconstruction belongs to another independent auditor.",
+    "Report source claims were reviewed directly. Full render and presentation review belongs to other auditors.",
+    "Original S500 failure and small recovery cohorts do not establish intrinsic SmolVLM capacity limits.",
+    "Research is stopped and acceptance remains unmet. This audit does not resume investigation."
+  ]
+}

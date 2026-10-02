@@ -1,0 +1,622 @@
+{
+  "audit_date": "2026-10-02",
+  "auditor": "Independent scientific auditor A",
+  "scope": "Read-only forensic paper, recipe, representation/objective, scientific claims and raw outcome audit. Only this file written.",
+  "repo_snapshot": {
+    "scientific_closeout_commit": "797f7a5",
+    "board_commit": "0bcdf36",
+    "report_pdf_sha256": "512b9d2fe2520d3d243cc59f8d65c017cce08033b4207c236555995518a11a96",
+    "report_pdf_pages": 9
+  },
+  "executive_summary": {
+    "verdict": "Useful debugging and a documented negative/partial recovery result; no good SmolVLM policy, no demonstrated n0008 architectural benefit, and no paper-comparable retained-success result.",
+    "confirmed": [
+      "Main final experiment: B16 475/500,Q8 474/500,Q4 479/500,S500 11/500, independently recounted.",
+      "Late GPU pipeline double-rescales images; corrected input plus broader adaptation yields partial LIBERO functionality.",
+      "Expanded development: corrected parent31/100 versusB16 82/100, with0 Smol-only successes.",
+      "Final all-decoder/query follow-up: selected9.5k;5/10 versus matched parent4/10 on repeatedly inspected states.",
+      "Latest closeout generally reports these limits accurately; no fabricated material counts found."
+    ],
+    "plausible_explanations": [
+      "Severe corrupted-image training inGPU search/confirmation.",
+      "Generic frozen SmolVLM and nonspecialized query rows feeding heads pretrained with Qwen representations.",
+      "Much lower adaptation exposure and optimization differences than the paper.",
+      "Tiling/prompt workload, systematic action error and stochastic gripper outputs can impair efficiency or feedback control."
+    ],
+    "unknowns": [
+      "Whether a correctly processed root with the same training recipe would equal or beatn0008.",
+      "Which coupled intervention produced partial recovery.",
+      "Whether a properly trained SmolVLM transplant can meet90% final success; these runs cannot answer capacity.",
+      "Whether final query gain generalizes beyond the ten reused diagnostic states."
+    ],
+    "value_assessment": "The money bought real defects, retained artifacts, and stronger negative evidence. It did not buy the requested competitive policy. Core quantization evidence is the clearest class-project deliverable; lengthy optional recovery should be a bounded appendix, with no additional spending inferred from this audit."
+  },
+  "timeline": [
+    {
+      "period": "2026-09-23 to09-24",
+      "event": "Original restricted frozen-backbone adaptation and500-state final comparison completed; S50011/500, quantized trained baseline variants retained success.",
+      "evidence": "studies/evaluation/runs/*20260924*-rollout/episodes.csv; report.tex:18-59"
+    },
+    {
+      "period": "2026-09-30 to10-01 earlyUTC",
+      "event": "Dream-RSI screened architectures on held-out joint loss; n0008 promotion0.2762 versusroot0.3197 at 1,500 updates.",
+      "evidence": ".rsi/attempts/n0008/promotion/probe/stderr.log:3433; baseline counterpart:3432"
+    },
+    {
+      "period": "2026-10-01 afternoon/eveningUTC",
+      "event": "n0008 longer confirmation/RTX5090 continuation lowered loss0.305594→0.265283, yet0/10 development successes. Matched root confirmation not completed.",
+      "evidence": "20261001T175206264206Z-RSI-n0008-5090-r2-train/metrics.jsonl;20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/episodes.csv"
+    },
+    {
+      "period": "2026-10-01 eveningToronto",
+      "event": "Direct image audit discovered255x extra contrast reduction inGPU path; correction committed31a32b1.",
+      "evidence": "image_range_cuda.json; git commit31a32b1"
+    },
+    {
+      "period": "2026-10-02 00:59–07:12UTC",
+      "event": "Joint corrected-input/four-decoder-layer recovery completed20k additional updates;40full validations select20k. Earlier legacy RoPE cloud diagnostic6/10.",
+      "evidence": "studies/recovery/training/20261002T005935534170Z-RGB-recovery-train through20261002T040912438503Z-RGB-recovery-train; completed_r1.json"
+    },
+    {
+      "period": "2026-10-02 morningUTC",
+      "event": "Native RoPE checks altered predictions but paired10-state endpoint success stayed4/10 in both modes; query/full-decoder preflights and bounded reproducibility checks followed.",
+      "evidence": "paired_endpoint_rope_sequential.json; query_full_decoder_native_preflight.json"
+    },
+    {
+      "period": "2026-10-02 08:21–17:37UTC",
+      "event": "All32decoder/query10kstudy selected9.5k by held-out arm error;5/10 versusparent4/10. Expandedlocalparent31/100 versusB16 82/100. LocalLRrestart branches did not beatparent.",
+      "evidence": "query_10000_milestone.json; expanded_development_pair.json; local_lr_pair_comparison.json"
+    },
+    {
+      "period": "2026-10-02 closeout",
+      "event": "Research stopped, artifacts/export verification and rental deletion recorded; acceptance remains unmet.",
+      "evidence": "studies/recovery/README.md:3-15; cloud_closeout.json"
+    }
+  ],
+  "findings": [
+    {
+      "id": "SCI-01",
+      "severity": "high",
+      "title": "The smaller-backbone result tests a transplant and restricted adaptation budget, not the causal effect of backbone size",
+      "status": "confirmed limitation; current report mostly states it",
+      "confidence": "high",
+      "evidence": [
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py:23-30: default frozen SmolVLM, pretrained action/predictor prefixes only.",
+        "evaluation/train.py:36-56: published baseline configuration copied, action/world weights initialized from pinned pretrain artifact; Qwen backbone weights not transferred.",
+        "evaluation/training_config.json:/batch_size=2, /decay_steps=10000, /trainability: frozen SmolVLM; evaluation/sources.json:/models/baseline and /models/pretrain identify different artifacts.",
+        "studies/recovery/METHODOLOGY.md:42-48; studies/evaluation/report/report.tex:22,36,74 already distinguish histories.",
+        "VLA-JEPA arXiv:2602.10098v2 §4.1 and Appendix A.2 report trainable VLM, joint human/robot pretraining and much larger simulation exposure; current author code YAML is a different recipe (see sources)."
+      ],
+      "implication": "A 2.2% original S500 policy is a real negative practical result, but cannot show that SmolVLM lacks capacity. Representation transfer, frozen queries, exposure, preprocessing and optimization remain confounded. Simply copying architecture-compatible heads is not equivalent to copying a pretrained robotic policy.",
+      "smallest_corrective_action": "Keep the main conclusion restricted to this particular transplant and budget. Include a compact lineage/trainability/exposure table in any presentation; do not claim a controlled capacity ablation."
+    },
+    {
+      "id": "SCI-02",
+      "severity": "high",
+      "title": "The GPU image defect invalidates strong architecture interpretations of the RSI ranking",
+      "status": "confirmed input defect; causal architecture benefit unknown",
+      "confidence": "high",
+      "evidence": [
+        "studies/dream-rsi/sources/base/src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py:138-150 and sources/n0008 counterpart:177-189 combine flat do_rescale=False with images_kwargs.device.",
+        ".venv/lib/python3.12/site-packages/transformers/processing_utils.py:1321-1338: structured modality dictionary prevents reading its omitted flat keys (inspected Transformers 5.5.4).",
+        "studies/recovery/diagnostics/image_range_cuda.json:/legacy,/corrected,/std_ratio records the same actual frame with contrast standard-deviation ratio 254.99994989780907.",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py:139-150 moves do_rescale=False into images_kwargs.",
+        "studies/confirmation/n0008-20261001/plan.json:5-27 registers a root comparison; report.tex:74 and METHODOLOGY.md:52,63 say the corrected root confirmation remains missing."
+      ],
+      "implication": "The frozen GPU search optimized a degraded-image pipeline. Its ranking can still describe that pipeline, but cannot establish architecture novelty or benefits with correct images. This GPU-specific defect must not automatically be used to explain the older PIL S500 result.",
+      "smallest_corrective_action": "Retain original rankings as exploratory, explicitly name their corrupted input pipeline, and mark n0008 architecture benefit unconfirmed. Any future causal claim needs a corrected root comparison under the same recipe; no new paid work is required for the closeout."
+    },
+    {
+      "id": "SCI-03",
+      "severity": "high",
+      "title": "Improved screening and confirmation loss did not establish improved control",
+      "status": "confirmed failure of the surrogate as a task-performance claim",
+      "confidence": "high",
+      "evidence": [
+        ".rsi/promotion/baseline/r0001/probe/stderr.log:3432: 1500-step eval_loss=0.3197; .rsi/attempts/n0008/promotion/probe/stderr.log:3433: eval_loss=0.2762. Sixty evaluation examples are declared in studies/dream-rsi/provenance.json:/promotion_baseline/0/eval_samples/count.",
+        "studies/evaluation/training/20261001T175206264206Z-RSI-n0008-5090-r2-train/metrics.jsonl: recomputed sample-weighted 200-frame losses 0.30559440404176713 at 5,500 and0.2652826341986656 at 10,000.",
+        "studies/evaluation/runs/20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/episodes.csv: independently counted0/10.",
+        "studies/evaluation/runs/20261001T154054647001Z-RSI-n0008-5k-rollout/episodes.csv: saved partial cohort has57 rows,0 successes, and is not a completed100-trial comparison.",
+        "studies/README.md:11 requires matched training and closed-loop confirmation before claiming task/efficiency improvements."
+      ],
+      "implication": "n0008 was a legitimate loss-screening hypothesis, selected from multiple candidates, not a demonstrated robotic improvement. A single seed and small fixed validation sample also leave winner-selection and stochasticity uncertainty.",
+      "smallest_corrective_action": "Do not label the search a successful control improvement. Keep actual lower losses and failed rollouts side by side; state the matched root confirmation was not completed."
+    },
+    {
+      "id": "SCI-04",
+      "severity": "high",
+      "title": "Recovery establishes a useful partial policy, but cannot assign its gains to image correction",
+      "status": "confirmed coupled experiment; isolated cause unresolved",
+      "confidence": "high",
+      "evidence": [
+        "evaluation/recovery_config.json:/scope,/batch_size,/unfreeze_last_n: image correction plus four trainable decoder layers, fresh optimizer, batch8 and a new20k schedule.",
+        "studies/recovery/training/20261002T040912438503Z-RGB-recovery-train/metrics.jsonl: raw 40-validation study selects20000 by armMSE0.023336487769104693; first500 armMSE0.08036019961283195.",
+        "outputs/recovery/n0008-corrected-frozen-overfit/run.json:/after:250 updates armMSE0.0232473, gripper7.14%, gate false. Corrected partial4 extended run passes only at 1,250 updates; legacy comparison stops250.",
+        "The two corrected partial4 probes differ at 250 despite the same declared seed (0.01321255 in the500-step probe;0.03416742 in the extended probe); METHODOLOGY.md:40 appropriately notes non-bitwise-deterministic CUDA training.",
+        "studies/recovery/METHODOLOGY.md:60,68 and report.tex:78 preserve the coupled-intervention caveat."
+      ],
+      "implication": "Correcting rescaling is justified by direct processor evidence. The increase from failed legacy control to some recovered successes is plausible recovery, but no matched equal-exposure intervention isolates correction, trainability, optimizer restart or additional data presentations. Overfit capability is not held-out robot success.",
+      "smallest_corrective_action": "Use the phrase joint corrected-input recovery. Do not say the image fix alone rescued LIBERO or proved the root cause. Retain the overfit probe as an engineering gate with its differing exposure and stochasticity."
+    },
+    {
+      "id": "SCI-05",
+      "severity": "moderate",
+      "title": "The rotary-buffer mismatch is real but has not explained aggregate control failure",
+      "status": "confirmed prediction-level intervention; no observed aggregate rescue",
+      "confidence": "high",
+      "evidence": [
+        "evaluation/models.py:126-144 casts the complete policy toBF16 in legacy mode; native_rope preserves FP32 frequencies before the cast.",
+        "evaluation/buffer_precision_audit.py:78-96 fixes weights/frame/seed and restores changed buffers; studies/recovery/diagnostics/rotary_buffer_precision.json:/native_losses gives0.0460053384→0.0617958084→0.0460053384 action loss.",
+        "studies/evaluation/runs/20261002T074625449788Z-RGB-n0008-endpoint-LegacyRoPE-rollout/episodes.csv and 20261002T075249938560Z-RGB-n0008-endpoint-NativeRoPE-rollout/episodes.csv:4/10 each, one gained and one lost success.",
+        "studies/recovery/diagnostics/paired_rope_development.json records the5k pair as1/10 in each mode.",
+        "report.tex:80 and METHODOLOGY.md:88,124 state no aggregate control improvement."
+      ],
+      "implication": "Weight hashes alone do not guarantee the reconstructed computation because these buffers are nonpersistent. The reversible loss effect supports numerical sensitivity, not a theory that RoPE rounding caused the whole LIBERO gap.",
+      "smallest_corrective_action": "Continue to label loader precision on each result. Preserve native buffer reconstruction for future deployments; do not describe this as a successful control fix or precision equivalence test."
+    },
+    {
+      "id": "SCI-06",
+      "severity": "high",
+      "title": "No recovered model has met the retained-success target",
+      "status": "confirmed; strongest closed-loop result is substantially below baseline",
+      "confidence": "high",
+      "evidence": [
+        "Raw100-state CSV recount:20261002T120707482768Z-RGB-parent20k-dev100-rollout gives31/100;20261002T123054380175Z-B16-dev100-rollout gives82/100.",
+        "Joining by task_id,initial_state_hash,seed gives31 shared successes,51 baseline-only,0 parent-only,18 shared failures. B16 has more successes on every one of ten tasks.",
+        "Raw selected-query pair:20261002T170305465719Z-Query-n0008-10000-rollout gives5/10;20261002T173721161313Z-RGB-n0008-parent5090-NativeRoPE-rollout gives4/10, one gain and no losses.",
+        "studies/recovery/README.md:3-9 and report.tex:95-103 explicitly acknowledge unmet final acceptance.",
+        "Only original B16/Q8/Q4/S500 have500 reserved final trials; recovered policies have development results only."
+      ],
+      "implication": "31% on expanded development and5/10 on repeatedly inspected diagnostic states are partial functionality, far from evidence of paper-comparable90%+ retained success. The larger development result is more informative than the earlier cloud6/10. The query pair is too small to establish a reliable10-point gain.",
+      "smallest_corrective_action": "Lead the closeout with31/100 versus82/100 and query5/10 versus4/10, named as separate cohorts. Keep recovered final acceptance untested and unmet; do not pool counts or compare recovery development percentages directly with the original95% final result."
+    },
+    {
+      "id": "SCI-07",
+      "severity": "moderate",
+      "title": "Inherited world loss measures full-context embedding reconstruction rather than causal future prediction",
+      "status": "confirmed static protocol limitation; disclosed in report",
+      "confidence": "high",
+      "evidence": [
+        "Actual retained recovery checkpoint config.json:/causal_world_model_context=false,/num_video_frames=8 (inspected20k and query/local native configurations).",
+        ".venv/lib/python3.12/site-packages/lerobot/policies/vla_jepa/modeling_vla_jepa.py:196-202 and249-270 explicitly document the future-context issue and use one full-clip encoding before slicing early inputs when this flag isfalse.",
+        "The Smol plugin inherits _world_model_loss without override; modeling_vla_jepa_smolvlm.py:22-23.",
+        "studies/evaluation/report/report.tex:111 already says bidirectional video embeddings do not measure causal future prediction; deployment receives current observations only."
+      ],
+      "implication": "A lower world loss can exploit temporal information supplied by the teacher-forced embedding context. It does not demonstrate that the current-image latent representation learned the paper's leakage-free dynamics. This does not imply future observations enter the deployed action policy, and has not been proved to cause its control gap.",
+      "smallest_corrective_action": "Keep the existing explicit limitation and use reconstruction wording for this loss. Preserve frozen objectives in this closed study; a future causal-objective study would require its own registration."
+    },
+    {
+      "id": "SCI-08",
+      "severity": "moderate",
+      "title": "Frozen newly added query embeddings are a concrete recipe mismatch, not a demonstrated collapse mechanism",
+      "status": "confirmed configuration difference; causal contribution unknown",
+      "confidence": "high",
+      "evidence": [
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py:77-90 freezes model, then95-115 expands vocabulary; trainability records and token audit show embedding rows remain frozen.",
+        "studies/recovery/diagnostics/query_token_rows.json:/query_rows_equal=true,/rms_deviation_from_row_mean=2.2864294805913232e-05,/prompt_query_repetitions=[8,8,8,32].",
+        "studies/recovery/diagnostics/qwen_query_reference.json:/transitions shows nonzero changes in all four used Qwen query rows across pretraining andLIBERO stages.",
+        "evaluation/query_recovery_config.json couples four input residuals with32 trainable layers, a fresh optimizer, gradient checkpointing and RNG/numerical amendments.",
+        "report.tex:99 and METHODOLOGY.md:48-52 state query and decoder effects cannot be isolated."
+      ],
+      "implication": "The transplanted policy freezes near-mean generic vocabulary rows where the reference policy specializes its queries. Positional encoding and the decoder can still distinguish positions, so similarity is not proof of collapse. The later coupled query study does not answer whether unfreezing queries alone would help.",
+      "smallest_corrective_action": "Describe the rows as a trainability difference and retain the unknown causal contribution. Do not present the all-decoder/query follow-up as a clean query-token ablation."
+    },
+    {
+      "id": "SCI-09",
+      "severity": "moderate",
+      "title": "Lower losses and smaller parameter counts were poor decision surrogates for this deployment goal",
+      "status": "confirmed negative evidence plus plausible mechanism",
+      "confidence": "high",
+      "evidence": [
+        "report.tex:59: original S500 neural median234.5ms and full pipeline1269.7ms onRTX3090; main quantized variants have matched hardware/protocol.",
+        "studies/recovery/diagnostics/image_geometry.json and report.tex:113: two224-pixel images expand to34 native512-pixel crops and2266 geometry-probe tokens.",
+        "studies/recovery/training/20261002T132343524766Z-Query-recovery-train and20261002T144006742768Z-Query-recovery-train/metrics.jsonl: local high/low-rate500-update endpoint armMSE0.0447626/0.0241953; parent anchor0.0236632 remains selected.",
+        "High-rate validation total loss decreases0.2480908→0.2435996 while armMSE worsens0.0399929→0.0447626; report.tex:91 and METHODOLOGY.md:138,144 preserve this distinction.",
+        "Final query108.6ms/2.94GiB is onRTX5090 and cannot establish a matched speedup over the originalRTX3090/PIL study."
+      ],
+      "implication": "Image tiling and preprocessing can outweigh a smaller decoder's parameter savings; world/flow training loss does not directly rank physical commands or feedback control. The later pipeline measurements are useful configuration-specific observations, not architecture speedups.",
+      "smallest_corrective_action": "Prioritize success and actual pipeline measurements in the class conclusion. Keep processor workload, hardware, loader and checkpoint labels alongside every timing; avoid using parameter count or joint loss as deployment acceptance."
+    },
+    {
+      "id": "SCI-10",
+      "severity": "moderate",
+      "title": "The paid investigation added diagnostics and negative evidence, but did not complete its causal comparison",
+      "status": "independent value judgment supported by experiment structure",
+      "confidence": "high",
+      "evidence": [
+        "studies/confirmation/n0008-20261001/plan.json:/arms,/development_episodes=100: planned n0008 versus GPU root; closeout report.tex:74 still has matched root pending.",
+        "Completed recovery produced40 RGB and20 query fixed-set validations, a100-state baseline comparison, precision diagnostics, native save/resume tests and retained checkpoints.",
+        "studies/recovery/diagnostics/cloud_closeout.json:/total_project_account_credit_delta_usd=11.27 is the recorded cost basis, not independently verified provider billing in this science audit.",
+        "Latest README/report explicitly stop research and record unmet acceptance; user-authorized goal and spending context supplied by parent permit research beyond initially optionalRSI."
+      ],
+      "implication": "The expenditure was not scientifically empty: it found a severe input defect, proved partial policy functionality and excluded several simple numerical explanations. It did not buy a competitive model or an isolated architecture result. The long decoder/query and reproducibility path added engineering detail with only a one-state control gain; a working root comparison would have provided more direct class-project information. This prioritization is an inference, not a counterfactual cost estimate.",
+      "smallest_corrective_action": "Close with the existing bounded evidence and no further spending. Present quantization as the completed primary result, SmolVLM as a failed transplant with partial recovery, and RSI as exploratory. Put lengthy engineering history in an appendix rather than treating every diagnostic as a scientific discovery."
+    },
+    {
+      "id": "SCI-11",
+      "severity": "low",
+      "title": "Latest scientific reporting is largely honest and numerically consistent; final query source attestation remains incomplete",
+      "status": "confirmed reporting strengths and a bounded provenance gap",
+      "confidence": "high",
+      "evidence": [
+        "report.tex:36,70,74-75,80,95,99-103,111-113 repeatedly distinguish loss/control, final/development, coupled interventions and hardware.",
+        "Independent raw recount and per-batch loss aggregation agree with the material completed result numbers (see raw_checks).",
+        "studies/evaluation/runs/20261002T170305465719Z-Query-n0008-10000-rollout/run.json lacks independently observed plugin source manifest; query_parent5090_development_pair.json:/input_records/1/source_manifest=null.",
+        "query_10000_milestone.json:/limitations explicitly distinguishes declared training lineage from unlogged rollout plugin source."
+      ],
+      "implication": "There is no evidence here that the latest closeout invents the key success counts or pretends acceptance passed. The final query results are attributable to a checkpoint and recorded loader/evaluator, but full imported-plugin identity is not independently attested by that rollout record.",
+      "smallest_corrective_action": "Keep the provenance caveat. For future jobs, record the imported plugin module path/hash manifest at run time; do not regenerate a historical manifest and call it an observation."
+    }
+  ],
+  "claim_checks": [
+    {
+      "claim": "Original final success rates: 95.0%, 94.8%, 95.8%, 2.2%.",
+      "verdict": "Confirmed from 500 raw rows per arm.",
+      "evidence": "raw_checks.rollouts"
+    },
+    {
+      "claim": "n0008 improved the architecture.",
+      "verdict": "Lower recorded loss is confirmed; architectural and control benefit with correct inputs is unconfirmed.",
+      "evidence": "SCI-02, SCI-03"
+    },
+    {
+      "claim": "Corrected recovery achieved 31/100 versus B16 82/100.",
+      "verdict": "Confirmed raw counts and paired membership; development only.",
+      "evidence": "SCI-06 and raw_checks"
+    },
+    {
+      "claim": "The image bug reduced contrast by 255 times.",
+      "verdict": "Confirmed code path and real-frame processor diagnostic; not an isolated closed-loop causal test.",
+      "evidence": "SCI-02, SCI-04"
+    },
+    {
+      "claim": "The RoPE precision fix rescued control.",
+      "verdict": "Not supported; recorded paired aggregate success was unchanged.",
+      "evidence": "SCI-05"
+    },
+    {
+      "claim": "Query 9.5k held-out arm MSE was 0.021811 and gripper error 5.60%.",
+      "verdict": "Confirmed by 25 raw batch rows and 1,303 valid actions; checkpoint selection does not use robot outcomes.",
+      "evidence": "raw_checks.validation"
+    },
+    {
+      "claim": "Final query gave 5/10 versus parent 4/10.",
+      "verdict": "Confirmed: one gain, no losses; insufficient evidence for reliable improvement.",
+      "evidence": "SCI-06"
+    },
+    {
+      "claim": "Small SmolVLM capacity caused failure.",
+      "verdict": "Not established. SmolVLA shows that compact frozen SmolVLM control can work with different features, expert, training and feedback.",
+      "evidence": "SCI-01 and SmolVLA primary source"
+    },
+    {
+      "claim": "Initial and RGB recovery used 384 and 48 times fewer sample presentations than the VLA-JEPA appendix.",
+      "verdict": "Arithmetic confirmed: 20,000 versus 7,680,000; 160,000 versus 7,680,000. These are total anchor-frame presentation counts, not unique coverage, per-task exposure or compute ratios.",
+      "evidence": "evaluation/training_config.json; evaluation/recovery_config.json; METHODOLOGY.md:140; VLA-JEPA Appendix A.2"
+    },
+    {
+      "claim": "USD11.27 was spent and the rental deleted.",
+      "verdict": "Recorded closeout assertion. Provider billing and rental verification left to the operations audit.",
+      "evidence": "cloud_closeout.json; this auditor did not query the provider"
+    }
+  ],
+  "unresolved_questions": [
+    "No corrected-input equal-budget root/n0008 comparison establishes a causal benefit of the selected residual adapter.",
+    "No replicated seeds or equal-exposure input-only intervention separates processing, trainability, fresh optimizer/schedule and data presentations.",
+    "Recovery final 500-trial acceptance and matched hardware inference resources remain unevaluated.",
+    "The initial paper/model-card training lineage cannot be inferred solely from artifact names; authors’ current YAML differs from appendix, and published B16 training membership isunknown.",
+    "No decisive grounding diagnostic establishes useful vision/language dependence rather than state/task correlations; black/zero-input probes are out of distribution.",
+    "Single-frame gradient/precision/checkpoint tests exclude only those bounded examples; they do not settle long-run optimization or closed-loop failures.",
+    "Querydeployment plugin source was declared through lineage rather than independently hashed by the finalcloud rollout record."
+  ],
+  "recommendations": [
+    {
+      "priority": 1,
+      "action": "No further paid work. Deliver a short closeout: core quantization result, original failed transplant, joint partial recovery 31/100 versus 82/100, query 5/10 versus 4/10, and target unmet."
+    },
+    {
+      "priority": 2,
+      "action": "Keep success cohorts, checkpoint steps, hardware, processors and loader precision explicit. Avoid pooled development/final counts or speedup claims across hardware."
+    },
+    {
+      "priority": 3,
+      "action": "State the scientific limits plainly: capacity, architectural benefit, isolated fix causality and convergence remain unknown, even where engineering defects are confirmed."
+    },
+    {
+      "priority": 4,
+      "action": "For any later expressly authorized study, validate input ranges, known-label round trips, query trainability, same-frame overfit and native/inference reconstruction before a long search. Prioritize one meaningful matched root comparison."
+    },
+    {
+      "priority": 5,
+      "action": "Preserve compact raw records and source/checkpoint identities. Log the imported plugin manifest in future jobs. Put the long diagnostic narrative in an appendix."
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://arxiv.org/abs/2602.10098v2",
+      "version": "v2,submitted2026-02-14",
+      "sections": [
+        "3.1-3.3",
+        "4.1",
+        "AppendixA.1-A.2"
+      ],
+      "verified_facts": "Qwen3-VL 2B, frozen V-JEPA2 target, learned latent/action queries, and joint flow/world objectives. Non-target parameters train during pretraining. SSv2/DROID pretraining is 50k updates; simulation adaptation is 30k at global batch 256. Two input views, 224-pixel VLM images, 256-pixel world images, action horizon seven and four denoising steps. Paper Spatial result is 96.2%; the project 95% is its own protocol result."
+    },
+    {
+      "url": "https://arxiv.org/html/2602.10098v1#A2",
+      "version": "v1,submitted2026-02-10",
+      "purpose": "Checked citedappendixversion: same50k/30k/global batch 256 exposure numbers; no materialtrainingnumberdifference found in inspectedv2appendix."
+    },
+    {
+      "url": "https://github.com/ginwind/VLA-JEPA",
+      "observed": "2026-10-02",
+      "purpose": "Primaryauthorcode; independently checkedpublictraining/evaluation setup. Currentbranchis mutable andnotassumed identicalto papertraining."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/ginwind/VLA-JEPA/main/scripts/configs/vlajepa_libero_ft.yaml",
+      "observed": "2026-10-02",
+      "verified_facts": "Current LIBERO configuration: per-device batch eight, maximum 120k steps, 20k warmup, no frozen modules; Qwen learning rate 1e-5, action 1e-4, predictor 5e-4; pretrained-stage initialization. Action horizon seven, four inference steps, three latent token types repeated eight times and 32 embodied tokens. This differs from the appendix; the recipes must not be combined."
+    },
+    {
+      "url": "https://arxiv.org/html/2506.01844v1",
+      "version": "v1",
+      "sections": [
+        "3.1",
+        "4.3",
+        "4.5",
+        "4.7"
+      ],
+      "verified_facts": "SmolVLA 450M achieves 90% LIBERO-Spatial without robotics pretraining in its simulation table. The simulation recipe freezes the VLM and trains 100k updates at batch 64. It uses earlier features, global images without tiling, a different action expert and feedback after each action. This shows compact frozen SmolVLM control can work, not that this transplant should equal it."
+    },
+    {
+      "path": "studies/evaluation/report/report.tex",
+      "lines": [
+        18,
+        22,
+        36,
+        68,
+        75,
+        78,
+        80,
+        95,
+        99,
+        101,
+        103,
+        111,
+        113
+      ],
+      "purpose": "Scientific closeout claims inspected alongside9-pagePDFtext; not acceptedasraw measurement."
+    },
+    {
+      "path": "studies/recovery/METHODOLOGY.md",
+      "lines": [
+        7,
+        30,
+        40,
+        42,
+        44,
+        48,
+        52,
+        68,
+        80,
+        88,
+        120,
+        124,
+        130,
+        140,
+        144
+      ],
+      "purpose": "Historicalclaim/protocoldisclosure checkedagainst code andrawrecords."
+    },
+    {
+      "path": ".rsi/attempts/n0008/promotion/probe/stderr.log",
+      "line": 3433,
+      "sha256": "0f6aa70a16947e5bfc7ccab696e0720acf61c7f2d12b2f39543425d9ddace077"
+    },
+    {
+      "path": ".rsi/promotion/baseline/r0001/probe/stderr.log",
+      "line": 3432,
+      "sha256": "c4059c987c052dc60e72e87c6748a400462922620364870ddbd2c093bb6abf89"
+    }
+  ],
+  "raw_checks": {
+    "rollouts": [
+      {
+        "path": "studies/evaluation/runs/20260924T171416675676Z-B16-rollout/episodes.csv",
+        "sha256": "51df15a613383fe537f2916cd50ae4da8ceccdf6f4ea01d7b1ee0ca74ff524c0",
+        "rows": 500,
+        "successes": 475,
+        "phase": "final",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20260924T174749793177Z-Q8-rollout/episodes.csv",
+        "sha256": "b59781440723dcf883339dc6708a995e8e1400f2186de20d5c172584be952452",
+        "rows": 500,
+        "successes": 474,
+        "phase": "final",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20260924T183120067911Z-Q4-rollout/episodes.csv",
+        "sha256": "19a81e6cec21ac49fe20f63da1b254e29411c01799a2c1832004cf3317ead324",
+        "rows": 500,
+        "successes": 479,
+        "phase": "final",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20260924T190648949526Z-S500-rollout/episodes.csv",
+        "sha256": "7a55d88e886cf53586597dbf99351f6e695d91b858e7fd5b4741d8d510056040",
+        "rows": 500,
+        "successes": 11,
+        "phase": "final",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261001T201014942717Z-RSI-n0008-5090-r2-10k-rollout/episodes.csv",
+        "sha256": "3debbc24fa17e56952ef0eb15fa52e3e6453a0dcd701a136935833175be972e2",
+        "rows": 10,
+        "successes": 0,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T071230008922Z-RGB-n0008-20000-rollout/episodes.csv",
+        "sha256": "e9e8996f30f2c46a0e1c4e05b96438bce01a81ba8efa472fe2d777f37610f955",
+        "rows": 10,
+        "successes": 6,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T120707482768Z-RGB-parent20k-dev100-rollout/episodes.csv",
+        "sha256": "d813d3871d373a08938e3a277ab0296b02c1d4e7fd8c12cd9d2b1c711fdfcb59",
+        "rows": 100,
+        "successes": 31,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T123054380175Z-B16-dev100-rollout/episodes.csv",
+        "sha256": "c458b69fd0dd1cfc699ee8248f5345bcc3901a881a77abfe8261e1a9eed2c4b0",
+        "rows": 100,
+        "successes": 82,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T170305465719Z-Query-n0008-10000-rollout/episodes.csv",
+        "sha256": "4d76f5508f0d2a6aedadb3b6a4a893340e38bad8bf7514e189685becd2e204b7",
+        "rows": 10,
+        "successes": 5,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T173721161313Z-RGB-n0008-parent5090-NativeRoPE-rollout/episodes.csv",
+        "sha256": "8ae81de31503b2e5bc56f683fc59557a77075b53571a3bc2cfa80bc656455912",
+        "rows": 10,
+        "successes": 4,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T074625449788Z-RGB-n0008-endpoint-LegacyRoPE-rollout/episodes.csv",
+        "sha256": "d316161d2398cfc0df6ee1ec13ef52442b714efee314fce5bb1a10ef667a5fbd",
+        "rows": 10,
+        "successes": 4,
+        "phase": "development",
+        "all_rows_completed": true
+      },
+      {
+        "path": "studies/evaluation/runs/20261002T075249938560Z-RGB-n0008-endpoint-NativeRoPE-rollout/episodes.csv",
+        "sha256": "1aa13b15194c36a423f6847421de3b303bb5414456812b3a8e3b21eed5117010",
+        "rows": 10,
+        "successes": 4,
+        "phase": "development",
+        "all_rows_completed": true
+      }
+    ],
+    "validation": [
+      {
+        "study": "n0008-rgb-recovery-r1",
+        "formula": "sum arm_squared_error_sum / (6 * sum valid_actions); gripper_errors / valid_actions",
+        "full_validation_count": 40,
+        "selected_step": 20000,
+        "selected_metrics": {
+          "arm_mse": 0.023336487769104693,
+          "gripper_error": 0.047582501918649274,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "first_metrics": {
+          "arm_mse": 0.08036019961283195,
+          "gripper_error": 0.13584036838066002,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "last_metrics": {
+          "arm_mse": 0.023336487769104693,
+          "gripper_error": 0.047582501918649274,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "source_files": [
+          {
+            "path": "studies/recovery/training/20261002T005935534170Z-RGB-recovery-train/metrics.jsonl",
+            "sha256": "a0078ac4fce5d1719e03fbf5db0bb338328b496dcae7fd97c748c16f609e73ea"
+          },
+          {
+            "path": "studies/recovery/training/20261002T013825115833Z-RGB-recovery-train/metrics.jsonl",
+            "sha256": "e258f53d53a297d5c1e8323f229e50071969807fd7259935cb57f75b64b705fc"
+          },
+          {
+            "path": "studies/recovery/training/20261002T023535929972Z-RGB-recovery-train/metrics.jsonl",
+            "sha256": "39016406fd3de309ce26644cd45d6046ce04549b7d8fb66a9cd6678a917f29f2"
+          },
+          {
+            "path": "studies/recovery/training/20261002T040912438503Z-RGB-recovery-train/metrics.jsonl",
+            "sha256": "ad9c087e9886b4c5b0ef25b8007038b62d43cfa707295f690fc68a39a17db4d9"
+          }
+        ]
+      },
+      {
+        "study": "n0008-query-decoder-recovery-r1",
+        "formula": "sum arm_squared_error_sum / (6 * sum valid_actions); gripper_errors / valid_actions",
+        "full_validation_count": 20,
+        "selected_step": 9500,
+        "selected_metrics": {
+          "arm_mse": 0.021811155932551608,
+          "gripper_error": 0.056024558710667687,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "first_metrics": {
+          "arm_mse": 0.039980929902399494,
+          "gripper_error": 0.06983883346124328,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "last_metrics": {
+          "arm_mse": 0.02215221782693109,
+          "gripper_error": 0.052954719877206444,
+          "batches": 25,
+          "valid_actions": 1303
+        },
+        "source_files": [
+          {
+            "path": "studies/recovery/training/20261002T082128082928Z-Query-recovery-train/metrics.jsonl",
+            "sha256": "d4c3aaaf22d541a0e2b14ef69f7b97f668b742705784b7432defd3b135ae6fa2"
+          },
+          {
+            "path": "studies/recovery/training/20261002T084920932999Z-Query-recovery-train/metrics.jsonl",
+            "sha256": "58d3d233cbc35cbd86fd6b180cfc9c05fa22c7e315e5b26118b92c218c2621a0"
+          },
+          {
+            "path": "studies/recovery/training/20261002T100838646425Z-Query-recovery-train/metrics.jsonl",
+            "sha256": "e5aa0156d15b2dd675a729d25a412592f58c953a0dda16e806a2707f75c34916"
+          },
+          {
+            "path": "studies/recovery/training/20261002T124515345333Z-Query-recovery-train/metrics.jsonl",
+            "sha256": "0363916cf393905daa2d6de312bef1750b19c5307d09777db3106abef3a70450"
+          }
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "No training, rollouts, benchmarks, GPU forwards, rentals, protocol amendments or runtime edits were performed. CPU text/JSON/CSV parsing and code inspection only.",
+    "Did not hash large weights or independently replay processor/modeloutputs; published compact diagnostics were assessed against executable code andtheir recorded cohorts. Direct raw episodecounts and validation aggregations were recomputed.",
+    "PDF content and metadata were inspected read-only; visual typesetting was not rendered because  auditor write ownership is restricted to this JSON. No layout fidelity claim.",
+    "This is an independent  scientific audit,not an independent providerbilling verification or exhaustive harness/security review.",
+    "Confidence distinguishes verified code/record facts from hypothesized causes. Absence of matched ablations preventsunique root cause identification. Latest closeout caveats must not be misrepresented as hidden misconduct."
+  ],
+  "paper_comparability": {
+    "direct_verdict": "This is a defensible comparison of practical deployment configurations under a restricted adaptation budget. It is not a fair controlled substitution for estimating the effect of backbone capacity, and it is not a reproduction of the original paper training experiment.",
+    "project_recipe": "B16 restores the complete published LIBERO policy. S500 starts from generic SmolVLM2 plus compatible action/world weights from the pretraining artifact, freezes SmolVLM and newly added query rows, and adapts the interface and heads for 10k updates at batch two. Recovery subsequently changes processing, decoder trainability, optimizer, schedule and exposure.",
+    "paper_recipe": "The cited appendix reports 50k joint pretraining updates and 30k simulation updates at global batch 256, with VLM adaptation and learned query tokens. The inspected author LIBERO YAML instead specifies a 120k maximum, batch eight per device and different warmup and predictor learning rate. The actual exact recipe behind the converted published checkpoint is not independently established here.",
+    "interpretation": "The exposure ratios are arithmetic descriptions of total anchor-frame presentations. They cannot prove undertraining, or serve as compute, unique-example or per-task exposure ratios, because corpus and sampling differ. The project tests LIBERO-Spatial only; paper-wide claims across four suites and other simulators are not reproduced.",
+    "defect_causality": "The processor argument repair restores contrast and the native-buffer loader repairs a numerical reconstruction mismatch. Neither repair has an isolated matched closed-loop experiment proving it explains the large control gap. The RoPE pair explicitly showed no aggregate improvement; the successful RGB recovery couples multiple changes."
+  }
+}
