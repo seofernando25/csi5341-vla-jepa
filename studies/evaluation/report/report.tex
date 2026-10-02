@@ -77,9 +77,11 @@ A subsequent processor audit identified a concrete input defect in this frozen G
 \FloatBarrier\section{Corrected-input recovery}
 Registered recovery corrects RGB scaling and adapts four final SmolVLM decoder layers from the legacy 10k weights: fresh AdamW, batch eight, decoder/other rates $10^{-5}/10^{-4}$, fixed 20k cosine schedule. Data, tiling, action/world architecture and losses remain unchanged. Physical arm error on 200 held-out frames selects checkpoints; final trials remain reserved.
 
-The legacy inference loader also rounds nonpersistent rotary frequencies to BF16, unlike native FP32-buffer training. With identical weights and random draws, this raises one-frame action loss from 0.0460 to 0.0618; restoring the original buffers reverses it exactly. Historical inference diagnostics retain this confound. Paired local tests of the fixed 5k checkpoint yield 1/10 successes in each precision mode, on the same task; the defect has not rescued control in this sample.
+Inference rounds nonpersistent rotary frequencies to BF16, unlike native FP32-buffer training. Changing only these buffers raises one-frame action loss 0.0460$\rightarrow$0.0618; restoring their original values reverses it exactly. Historical inference diagnostics retain this confound. Paired local 5k tests yield 1/10 successes in each mode, on the same task: no observed control improvement.
 
-At 13,000 additional updates, held-out arm RMSE was 0.166, compared with 0.283 at 500; gripper error changed from 13.6\% to 5.8\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
+Four native input-query engineering updates (20.10\,GiB, RTX3090) pass optimizer/save/resume. Separate worker-RNG isolation and deterministic algorithms give identical uninterrupted/resumed state. These checks establish no control benefit and are excluded from production selection.
+
+At 18,000 additional updates, held-out arm RMSE was 0.155, compared with 0.283 at 500; gripper error changed from 13.6\% to 5.4\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
 
 
 The 8,500-update checkpoint achieved 1/10 development successes. This small diagnostic does not establish final performance retention.

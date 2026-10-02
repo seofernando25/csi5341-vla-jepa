@@ -1,0 +1,102 @@
+{
+  "purpose": "native_query_resume_equivalence_engineering",
+  "recipe_sha256": "c625c3fc4e7ecf28a8e171bfef460b2a251d6f97ec551d3394b678880b7e9db2",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "audit_sha256": "952075b37412fc89e9be45a0983fc41e92c6b406d2e70d922545ef20199cd10e",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "resumed_run": "20261002T063542407637Z-Query-recovery-train",
+  "uninterrupted_run": "20261002T063853858455Z-Query-recovery-train",
+  "deterministic_algorithms": true,
+  "isolated_worker_rng": true,
+  "state_comparison": {
+    "pretrained_model/model.safetensors": {
+      "tensor_count": 1481,
+      "exact_values": true,
+      "different_tensors": 0,
+      "max_abs_difference": 0,
+      "largest_differences": [],
+      "resumed_sha256": "e2759126f98d70e0680b53e9d9230533141e7a14ca23471b05e808f71517403a",
+      "uninterrupted_sha256": "e2759126f98d70e0680b53e9d9230533141e7a14ca23471b05e808f71517403a"
+    },
+    "training_state/optimizer_state.safetensors": {
+      "tensor_count": 1323,
+      "exact_values": true,
+      "different_tensors": 0,
+      "max_abs_difference": 0,
+      "largest_differences": [],
+      "resumed_sha256": "5faa3abcc1c48ba4b065d1310ead90fa93be13ffa86984d93515054615ea57fc",
+      "uninterrupted_sha256": "5faa3abcc1c48ba4b065d1310ead90fa93be13ffa86984d93515054615ea57fc"
+    },
+    "training_state/rng_state.safetensors": {
+      "tensor_count": 8,
+      "exact_values": true,
+      "different_tensors": 0,
+      "max_abs_difference": 0,
+      "largest_differences": [],
+      "resumed_sha256": "a366f591b49853db08f484e3f7a15a808573ddff0da7aef5d953e6ac70ff36d3",
+      "uninterrupted_sha256": "a366f591b49853db08f484e3f7a15a808573ddff0da7aef5d953e6ac70ff36d3"
+    },
+    "training_state/scheduler_state.json": {
+      "equal_json": true
+    },
+    "training_state/training_step.json": {
+      "equal_json": true
+    }
+  },
+  "training_metrics": [
+    [
+      {
+        "step": 3,
+        "loss": 0.26808854937553406,
+        "grad_norm": 3.1065480709075928,
+        "action_loss": 0.15388137102127075,
+        "wm_loss": 0.11420717090368271
+      },
+      {
+        "step": 4,
+        "loss": 0.2887219786643982,
+        "grad_norm": 7.960556507110596,
+        "action_loss": 0.17319385707378387,
+        "wm_loss": 0.11552810668945312
+      }
+    ],
+    [
+      {
+        "step": 1,
+        "loss": 0.18234838545322418,
+        "grad_norm": 3.789555072784424,
+        "action_loss": 0.06747781485319138,
+        "wm_loss": 0.1148705706000328
+      },
+      {
+        "step": 2,
+        "loss": 0.2274036407470703,
+        "grad_norm": 4.414041996002197,
+        "action_loss": 0.11329113692045212,
+        "wm_loss": 0.1141124963760376
+      },
+      {
+        "step": 3,
+        "loss": 0.26808854937553406,
+        "grad_norm": 3.1065480709075928,
+        "action_loss": 0.15388137102127075,
+        "wm_loss": 0.11420717090368271
+      },
+      {
+        "step": 4,
+        "loss": 0.2887219786643982,
+        "grad_norm": 7.960556507110596,
+        "action_loss": 0.17319385707378387,
+        "wm_loss": 0.11552810668945312
+      }
+    ]
+  ],
+  "limitations": "Four engineering updates on one RTX3090. No production, task-success, cross-hardware or longer-horizon reproducibility claim. Exact tensor comparisons are independent of safetensors header ordering."
+}

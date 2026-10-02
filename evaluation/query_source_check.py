@@ -20,7 +20,8 @@ def main():
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--batch-size', type=int, choices=[1, 8], default=1)
+    parser.add_argument('--batch-size', type=int, choices=[1, 4, 8], default=1)
+    parser.add_argument('--unfreeze-last-n', type=int, choices=[4, 32], default=4)
     parser.add_argument('--reserve-adam-moments', action='store_true')
     args = parser.parse_args()
     if args.output.exists():
@@ -45,6 +46,7 @@ def main():
     cfg.init_from_vla_jepa = None
     cfg.query_token_adaptation = 'input_residual'
     cfg.smol_gradient_checkpointing = True
+    cfg.unfreeze_last_n = args.unfreeze_last_n
     cfg.device = 'cuda'
     policy = plugin.VLAJEPASmolVLMPolicy(cfg).to('cuda')
     policy.model.video_encoder.requires_grad_(False)
@@ -95,7 +97,7 @@ def main():
     with torch.autocast('cuda', dtype=torch.bfloat16):
         losses = policy.model(**policy._prepare_model_inputs(batch, training=True))
         total = losses['action_loss'] + losses['wm_loss']
-    if args.batch_size == 1:
+    if args.batch_size == 1 and args.unfreeze_last_n == 4:
         reference = read_json(ROOT / 'studies/recovery/diagnostics/rotary_buffer_precision.json')
         if file_hash(args.checkpoint / 'model.safetensors') != reference['checkpoint_sha256']:
             raise ValueError('Batch-one reference uses the verified 5k checkpoint')
@@ -114,6 +116,7 @@ def main():
     write_json(args.output, {'checkpoint_sha256': file_hash(args.checkpoint / 'model.safetensors'),
         'source_manifest': manifest, 'diagnostic_source_sha256': file_hash(__file__),
         'episode': 53, 'frames': frames, 'seed': 92000, 'batch_size': args.batch_size,
+        'unfreeze_last_n': args.unfreeze_last_n,
         'exact_warm_tensor_restoration': True, 'missing_initial_tensor': query_key,
         'query_parameters': query.delta.numel(), 'query_token_ids': query.token_ids.tolist(),
         'config_round_trip': True, 'repeated_expansion_hook_count_stable': True,

@@ -1,0 +1,231 @@
+{
+  "purpose": "native_query_resume_equivalence_engineering",
+  "recipe_sha256": "eb391bd889b77f73466c2478c43ce8111659405868fac648b710eed4e04aaa24",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "audit_sha256": "952075b37412fc89e9be45a0983fc41e92c6b406d2e70d922545ef20199cd10e",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "resumed_run": "20261002T052808955028Z-Query-recovery-train",
+  "uninterrupted_run": "20261002T054910257277Z-Query-recovery-train",
+  "deterministic_algorithms": false,
+  "isolated_worker_rng": false,
+  "state_comparison": {
+    "pretrained_model/model.safetensors": {
+      "tensor_count": 1481,
+      "exact_values": false,
+      "different_tensors": 441,
+      "max_abs_difference": 7.907859981060028e-06,
+      "largest_differences": [
+        {
+          "tensor": "model.action_model.model.transformer_blocks.0.norm1.linear.weight",
+          "max_abs_difference": 7.907859981060028e-06,
+          "different_elements": 1179122,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.timestep_encoder.timestep_embedder.linear_2.weight",
+          "max_abs_difference": 7.860828191041946e-06,
+          "different_elements": 589618,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.transformer_blocks.2.attn1.to_k.weight",
+          "max_abs_difference": 7.84359872341156e-06,
+          "different_elements": 1572370,
+          "finite": true
+        },
+        {
+          "tensor": "model.qwen.hidden_adapter.weight",
+          "max_abs_difference": 7.808208465576172e-06,
+          "different_elements": 1964873,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.timestep_encoder.timestep_embedder.linear_1.weight",
+          "max_abs_difference": 7.797032594680786e-06,
+          "different_elements": 196482,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.transformer_blocks.2.attn1.to_q.weight",
+          "max_abs_difference": 7.770955562591553e-06,
+          "different_elements": 589573,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.state_encoder.layer2.weight",
+          "max_abs_difference": 7.75698572397232e-06,
+          "different_elements": 765114,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.transformer_blocks.14.attn1.to_q.weight",
+          "max_abs_difference": 7.60052353143692e-06,
+          "different_elements": 589545,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.transformer_blocks.14.attn1.to_k.weight",
+          "max_abs_difference": 7.543712854385376e-06,
+          "different_elements": 1572294,
+          "finite": true
+        },
+        {
+          "tensor": "model.action_model.model.transformer_blocks.3.attn1.to_k.weight",
+          "max_abs_difference": 7.517635822296143e-06,
+          "different_elements": 589444,
+          "finite": true
+        }
+      ],
+      "resumed_sha256": "38e3d57babaae78a5749bafa6278929490a8a9316674ebd9e055d275c1ce4654",
+      "uninterrupted_sha256": "407d8619ae0e26a591af4aa3c4b509ddd6faf17404c129a96472741cd4c5b7d8"
+    },
+    "training_state/optimizer_state.safetensors": {
+      "tensor_count": 1323,
+      "exact_values": false,
+      "different_tensors": 882,
+      "max_abs_difference": 0.03046436421573162,
+      "largest_differences": [
+        {
+          "tensor": "state/4/exp_avg",
+          "max_abs_difference": 0.03046436421573162,
+          "different_elements": 3840,
+          "finite": true
+        },
+        {
+          "tensor": "state/245/exp_avg",
+          "max_abs_difference": 0.003907997437636368,
+          "different_elements": 5236,
+          "finite": true
+        },
+        {
+          "tensor": "state/412/exp_avg",
+          "max_abs_difference": 0.0028857593424618244,
+          "different_elements": 960,
+          "finite": true
+        },
+        {
+          "tensor": "state/431/exp_avg",
+          "max_abs_difference": 0.0023538209206890315,
+          "different_elements": 960,
+          "finite": true
+        },
+        {
+          "tensor": "state/430/exp_avg",
+          "max_abs_difference": 0.0020052718464285135,
+          "different_elements": 960,
+          "finite": true
+        },
+        {
+          "tensor": "state/4/exp_avg_sq",
+          "max_abs_difference": 0.001741972053423524,
+          "different_elements": 3840,
+          "finite": true
+        },
+        {
+          "tensor": "state/246/exp_avg",
+          "max_abs_difference": 0.0015876013203524053,
+          "different_elements": 7,
+          "finite": true
+        },
+        {
+          "tensor": "state/439/exp_avg",
+          "max_abs_difference": 0.0013694932858925313,
+          "different_elements": 960,
+          "finite": true
+        },
+        {
+          "tensor": "state/421/exp_avg",
+          "max_abs_difference": 0.001313269603997469,
+          "different_elements": 960,
+          "finite": true
+        },
+        {
+          "tensor": "state/424/exp_avg",
+          "max_abs_difference": 0.0011591343209147453,
+          "different_elements": 307200,
+          "finite": true
+        }
+      ],
+      "resumed_sha256": "1886167d81187894994a296a6d11efe8f887bde92491780c7db719cc6746b2ab",
+      "uninterrupted_sha256": "a8573bbf484db7162ad3f7a6eabd2c7d9cbe7fe5836baa69fbbee32b2abcec86"
+    },
+    "training_state/rng_state.safetensors": {
+      "tensor_count": 8,
+      "exact_values": false,
+      "different_tensors": 1,
+      "max_abs_difference": 216.0,
+      "largest_differences": [
+        {
+          "tensor": "torch_rng_state",
+          "max_abs_difference": 216.0,
+          "different_elements": 11,
+          "finite": true
+        }
+      ],
+      "resumed_sha256": "fbc903952e7ba42995895736e717a252d0443f3ae68b2c6e04c0c24a9e1707d1",
+      "uninterrupted_sha256": "2f8da4d674fb97823345c8a32bf8f964d337258c43081e1351cac3317ed72f5c"
+    },
+    "training_state/scheduler_state.json": {
+      "equal_json": true
+    },
+    "training_state/training_step.json": {
+      "equal_json": true
+    }
+  },
+  "training_metrics": [
+    [
+      {
+        "step": 3,
+        "loss": 0.2653706669807434,
+        "grad_norm": 2.964557409286499,
+        "action_loss": 0.15114019811153412,
+        "wm_loss": 0.11423047631978989
+      },
+      {
+        "step": 4,
+        "loss": 0.27267545461654663,
+        "grad_norm": 5.973501205444336,
+        "action_loss": 0.15710978209972382,
+        "wm_loss": 0.11556567251682281
+      }
+    ],
+    [
+      {
+        "step": 1,
+        "loss": 0.1992781162261963,
+        "grad_norm": 4.590105056762695,
+        "action_loss": 0.08437050879001617,
+        "wm_loss": 0.11490759998559952
+      },
+      {
+        "step": 2,
+        "loss": 0.21611131727695465,
+        "grad_norm": 1.8565398454666138,
+        "action_loss": 0.10196398943662643,
+        "wm_loss": 0.11414732784032822
+      },
+      {
+        "step": 3,
+        "loss": 0.26872333884239197,
+        "grad_norm": 5.569802761077881,
+        "action_loss": 0.15449443459510803,
+        "wm_loss": 0.11422890424728394
+      },
+      {
+        "step": 4,
+        "loss": 0.27252599596977234,
+        "grad_norm": 4.829168796539307,
+        "action_loss": 0.15695905685424805,
+        "wm_loss": 0.11556694656610489
+      }
+    ]
+  ],
+  "limitations": "Four engineering updates on one RTX3090. No production, task-success, cross-hardware or longer-horizon reproducibility claim. Exact tensor comparisons are independent of safetensors header ordering."
+}

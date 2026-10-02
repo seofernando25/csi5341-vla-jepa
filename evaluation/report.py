@@ -136,13 +136,16 @@ def render(output):
             r'tiling, action/world architecture and losses remain unchanged. Physical '
             r'arm error on 200 held-out frames selects checkpoints; final trials remain '
             r'reserved.' + '\n\n'
-            r'The legacy inference loader also rounds nonpersistent rotary frequencies '
-            r'to BF16, unlike native FP32-buffer training. With identical weights and '
-            r'random draws, this raises one-frame action loss from 0.0460 to 0.0618; '
-            r'restoring the original buffers reverses it exactly. Historical inference '
-            r'diagnostics retain this confound. Paired local tests of the fixed 5k '
-            r'checkpoint yield 1/10 successes in each precision mode, on the same task; '
-            r'the defect has not rescued control in this sample.' + '\n\n'
+            r'Inference rounds nonpersistent rotary frequencies to BF16, unlike native '
+            r'FP32-buffer training. Changing only these buffers raises one-frame action '
+            r'loss 0.0460$\rightarrow$0.0618; restoring their original values reverses it '
+            r'exactly. Historical inference diagnostics retain this confound. Paired '
+            r'local 5k tests yield 1/10 successes in each mode, on the same task: no '
+            r'observed control improvement.' + '\n\n'
+            r'Four native input-query engineering updates (20.10\,GiB, RTX3090) pass '
+            r'optimizer/save/resume. Separate worker-RNG isolation and deterministic '
+            r'algorithms give identical uninterrupted/resumed state. These checks '
+            r'establish no control benefit and are excluded from production selection.' + '\n\n'
             f"At {last['step']:,} additional updates, held-out arm RMSE was "
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
             f"{first['step']:,}; gripper error changed from "

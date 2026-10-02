@@ -1,0 +1,46 @@
+{
+  "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "diagnostic_source_sha256": "2d4ff2f851fa44b0b484f5d1678e92e9ccd45e9e95f9595eeb2f2395287cb390",
+  "episode": 53,
+  "frame": 40,
+  "seed": 92000,
+  "intervention": "trainable FP32 masters to BF16; native buffers fixed",
+  "buffers": {
+    "model.qwen.model.model.text_model.rotary_emb.inv_freq": {
+      "dtype": "torch.float32",
+      "shape": [
+        32
+      ],
+      "max_bf16_rounding_error": 0.0013881921768188477
+    },
+    "model.qwen.model.model.text_model.rotary_emb.original_inv_freq": {
+      "dtype": "torch.float32",
+      "shape": [
+        32
+      ],
+      "max_bf16_rounding_error": 0.0013881921768188477
+    }
+  },
+  "native_losses": {
+    "native": {
+      "action_loss": 0.04600533843040466,
+      "wm_loss": 0.11882805824279785
+    },
+    "bf16_masters": {
+      "action_loss": 0.04532357305288315,
+      "wm_loss": 0.11882247775793076
+    },
+    "native_restored": {
+      "action_loss": 0.04600533843040466,
+      "wm_loss": 0.11882805824279785
+    }
+  },
+  "limitations": "One native training-frame forward per precision mode, no optimizer update or rollout. Only the declared precision intervention is applied and restored. No task-success inference."
+}

@@ -333,6 +333,8 @@ def main():
     parser.add_argument("--repetitions", type=int, default=3)
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--label", help="Distinct result label for a supplied architecture")
+    parser.add_argument("--buffer-precision", choices=["legacy", "native_rope"], default="legacy",
+                        help="Record an explicit rotary-frequency inference amendment")
     args = parser.parse_args()
     if args.command == "collect":
         collect(args)
@@ -348,6 +350,8 @@ def main():
         import re
         if args.variant != 'S500' or not re.fullmatch(r'[A-Za-z0-9_-]{1,40}', args.label):
             parser.error('Custom labels require a SmolVLM checkpoint and a safe label')
+    if args.buffer_precision != 'legacy' and (args.variant != 'S500' or not args.label):
+        parser.error('Native rotary precision requires an explicitly labeled SmolVLM experiment')
     loader_variant = args.variant
     args.variant = args.label or args.variant
     run_id = (
@@ -367,6 +371,8 @@ def main():
         "initial_states_manifest_sha256": file_hash(
             ROOT / "studies/evaluation/initial_states.json"
         ),
+        "loader_implementation_sha256": file_hash(ROOT / "evaluation/models.py"),
+        "evaluator_implementation_sha256": file_hash(Path(__file__)),
     }
     if args.checkpoint:
         record["checkpoint_sha256"] = file_hash(args.checkpoint / "model.safetensors")
@@ -375,7 +381,7 @@ def main():
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
         load_started = time.perf_counter()
-        policy, metadata = load_policy(loader_variant, args.checkpoint)
+        policy, metadata = load_policy(loader_variant, args.checkpoint, buffer_precision=args.buffer_precision)
         metadata["loader_variant"] = loader_variant
         metadata["variant"] = args.variant
         torch.cuda.synchronize()

@@ -19,6 +19,8 @@ def main():
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--parameter-cast', action='store_true',
+                        help='Hold native buffers fixed and isolate BF16 deployment of FP32 trainable masters')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier diagnostic results')
@@ -43,6 +45,8 @@ def main():
             p.data = p.data.float()
     load_model(policy, args.checkpoint / 'model.safetensors', strict=True, device='cpu')
     buffers = {name: value.detach().clone() for name, value in policy.named_buffers() if value.is_floating_point()}
+    masters = {name: p.detach().clone() for name, p in policy.named_parameters()
+               if args.parameter_cast and p.requires_grad}
     metadata = LeRobotDatasetMetadata('local/libero_spatial', root=args.dataset_root)
     rename = {'observation.images.wrist_image': 'observation.images.image2'}
     if 53 not in read_json(ROOT / 'studies/evaluation/training_split.json')['train_episodes']:
@@ -58,11 +62,14 @@ def main():
                                       metadata.camera_keys, rename, pre)
     policy.train()
     results = {}
-    for mode in ('native', 'bf16_buffers', 'native_restored'):
+    for mode in ('native', 'bf16_masters' if args.parameter_cast else 'bf16_buffers', 'native_restored'):
         for name, original in buffers.items():
             parent, _, leaf = name.rpartition('.')
             module = policy.get_submodule(parent) if parent else policy
             module._buffers[leaf] = original.to(torch.bfloat16) if mode == 'bf16_buffers' else original.clone()
+        for name, p in policy.named_parameters():
+            if name in masters:
+                p.data = masters[name].to(torch.bfloat16) if mode == 'bf16_masters' else masters[name].clone()
         torch.manual_seed(92000)
         with torch.autocast('cuda', dtype=torch.bfloat16):
             losses = policy.model(**policy._prepare_model_inputs(batch, training=True))
@@ -73,11 +80,13 @@ def main():
     write_json(args.output, {'checkpoint_sha256': file_hash(args.checkpoint / 'model.safetensors'),
         'source_manifest': {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))},
         'diagnostic_source_sha256': file_hash(__file__), 'episode': 53, 'frame': 40, 'seed': 92000,
+        'intervention': 'trainable FP32 masters to BF16; native buffers fixed' if args.parameter_cast
+                        else 'floating buffers to BF16; parameters fixed',
         'buffers': {name: {'dtype': str(v.dtype), 'shape': list(v.shape),
                     'max_bf16_rounding_error': float((v - v.to(torch.bfloat16).to(v.dtype)).abs().max())}
                     for name, v in buffers.items()}, 'native_losses': results,
         'limitations': 'One native training-frame forward per precision mode, no optimizer update or rollout. '
-        'Weights remain identical; only floating buffers are cast and restored.'})
+        'Only the declared precision intervention is applied and restored. No task-success inference.'})
     print(results)
 
 

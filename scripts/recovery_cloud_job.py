@@ -27,6 +27,7 @@ def main():
     parser.add_argument('--architecture-source', type=Path, required=True)
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--deadline', type=float, required=True, help='Unix UTC; leaves time for local export')
+    parser.add_argument('--recipe', type=Path, default=ROOT / 'evaluation/recovery_config.json')
     args = parser.parse_args()
     os.chdir(ROOT)
     folder = ROOT / 'outputs/recovery/cloud'
@@ -34,10 +35,18 @@ def main():
     state_path = folder / 'job.json'
     if state_path.exists():
         raise FileExistsError('Do not overwrite an existing cloud job; inspect and resume explicitly')
-    recipe = read_json(ROOT / 'evaluation/recovery_config.json')
+    recipe_path = args.recipe.resolve()
+    recipe = read_json(recipe_path)
+    if recipe.get('engineering_only'):
+        raise ValueError('Cloud supervisor cannot launch an engineering-only recipe')
     source = args.architecture_source.resolve()
     child_env = dict(os.environ, PYTHONPATH=str(source / 'src') + ':' + str(ROOT))
-    record = {'study': recipe['study'], 'recipe_sha256': file_hash(ROOT / 'evaluation/recovery_config.json'),
+    query_enabled = recipe.get('query_token_adaptation', 'none') == 'input_residual'
+    if query_enabled:
+        child_env['PYTORCH_ALLOC_CONF'] = 'expandable_segments:True'
+    label_prefix = 'Query-n0008' if query_enabled else 'RGB-n0008'
+    inference_args = ['--buffer-precision', recipe.get('inference_buffer_precision', 'legacy')]
+    record = {'study': recipe['study'], 'recipe_sha256': file_hash(recipe_path),
               'started_at': time.time(), 'deadline': args.deadline, 'status': 'preflight', 'stages': []}
     training_output = None
     telemetry = None
@@ -102,7 +111,8 @@ def main():
             write()
             before = set((ROOT / 'studies/recovery/training').glob('*'))
             command = [sys.executable, '-m', 'evaluation.recovery_train', '--dataset-root', str(args.dataset_root),
-                       '--architecture-source', str(source), '--checkpoint', str(args.checkpoint), '--steps', str(stop)]
+                       '--architecture-source', str(source), '--checkpoint', str(args.checkpoint),
+                       '--recipe', str(recipe_path), '--steps', str(stop)]
             if resume:
                 command += ['--resume', str(resume)]
             try:
@@ -132,18 +142,21 @@ def main():
             # Pin complete stage state with hard links while later native saves
             # prune their own directory. The local exporter can back this up while
             # training continues without racing checkpoint retention.
-            backup = ROOT / 'outputs/recovery/training/cloud-backups/train/checkpoints' / f'{stop:06d}'
+            backup_root = ROOT / 'outputs/recovery/training/cloud-backups'
+            if query_enabled:
+                backup_root /= 'query-r1'
+            backup = backup_root / 'train/checkpoints' / f'{stop:06d}'
             backup.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(available[-1], backup, copy_function=os.link)
             record['backup_files'] = {str(p.relative_to(ROOT)): {'bytes': p.stat().st_size, 'sha256': file_hash(p)}
                                       for p in backup.rglob('*') if p.is_file()}
             record.update(status='development', selected_checkpoint=str(best.relative_to(ROOT)))
             write()
-            label = f'RGB-n0008-{stop}'
+            label = f'{label_prefix}-{stop}'
             try:
                 run([sys.executable, '-m', 'evaluation.run', 'rollout', '--variant', 'S500',
                      '--checkpoint', str(best), '--label', label, '--phase', 'development',
-                     '--episodes', str(recipe['development_episodes_per_task'])], f'rollout-{stop}.log', 1500)
+                     '--episodes', str(recipe['development_episodes_per_task']), *inference_args], f'rollout-{stop}.log', 1500)
                 stage['development_status'] = 'completed'
             except RuntimeError as exc:
                 stage['development_status'], stage['development_error'] = 'failed', str(exc)
@@ -153,8 +166,8 @@ def main():
             write()
             try:
                 run([sys.executable, '-m', 'evaluation.run', 'benchmark', '--variant', 'S500',
-                     '--checkpoint', record['selected_checkpoint'], '--label', 'RGB-n0008-selected',
-                     '--predictions', '500', '--repetitions', '3'], 'benchmark.log', 1200)
+                     '--checkpoint', record['selected_checkpoint'], '--label', f'{label_prefix}-selected',
+                     '--predictions', '500', '--repetitions', '3', *inference_args], 'benchmark.log', 1200)
                 record['benchmark_status'] = 'completed'
             except (RuntimeError, TimeoutError) as exc:
                 record['benchmark_status'], record['benchmark_error'] = 'failed', str(exc)

@@ -7,6 +7,7 @@ import dataclasses
 import json
 import logging
 import math
+import os
 import shutil
 import sys
 import time
@@ -29,17 +30,30 @@ def main():
     parser.add_argument('--resume', type=Path, help='Native recovery checkpoint pretrained_model directory')
     parser.add_argument('--steps', type=int, required=True, help='Absolute recovery update at which to stop')
     parser.add_argument('--preflight', action='store_true', help='At most 20 updates; exercise validation at the stop step')
+    parser.add_argument('--recipe', type=Path, default=ROOT / 'evaluation/recovery_config.json')
     args = parser.parse_args()
-    recipe_path = ROOT / 'evaluation/recovery_config.json'
+    recipe_path = args.recipe.resolve()
     recipe = read_json(recipe_path)
     if not 1 <= args.steps <= recipe['decay_steps']:
         parser.error('Stop step exceeds the registered schedule')
     if args.preflight and args.steps > 20:
         parser.error('Engineering validation preflight is bounded to 20 updates')
+    if recipe.get('engineering_only') and not args.preflight:
+        parser.error('Engineering recipes cannot launch production training')
+    if recipe['batch_size'] != 8 or recipe['validation_samples_per_task'] != 20:
+        parser.error('Registered physical-action evaluation requires 25 batches of eight')
+    if recipe.get('deterministic_training'):
+        os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
+        torch.use_deterministic_algorithms(True)
     logging.getLogger('transformers.processing_utils').addFilter(OncePerWarning())
     source = args.architecture_source.resolve()
     amendment = read_json(source / 'amendment.json')
-    expected = read_json(ROOT / 'studies/recovery/diagnostics/image_pipeline_amendment.json')
+    query_enabled = recipe.get('query_token_adaptation', 'none') == 'input_residual'
+    expected_path = ('query_source_amendment.json' if query_enabled else 'image_pipeline_amendment.json')
+    expected = read_json(ROOT / 'studies/recovery/diagnostics' / expected_path)
+    if query_enabled and (not recipe.get('smol_gradient_checkpointing')
+                          or recipe.get('inference_buffer_precision') != 'native_rope'):
+        raise ValueError('Query study requires registered checkpointing and native inference rotary buffers')
     manifest = {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))}
     if manifest != expected['source_manifest'] or amendment['source_manifest'] != manifest:
         raise ValueError('Recovery source differs from the registered input amendment')
@@ -58,7 +72,7 @@ def main():
     from safetensors import safe_open
     from safetensors.torch import load_model
 
-    run_id = datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ') + '-RGB-recovery-train'
+    run_id = datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ') + ('-Query-recovery-train' if query_enabled else '-RGB-recovery-train')
     evidence = ROOT / 'studies/recovery/training' / run_id
     runtime = ROOT / 'outputs/recovery/training' / run_id
     evidence.mkdir(parents=True)
@@ -70,6 +84,9 @@ def main():
               'requested_stop_step': args.steps, 'environment': environment(),
               'purpose': 'engineering_preflight' if args.steps < 500 else 'recovery_adaptation',
               'validation_timing_override': args.steps if args.preflight else None,
+              'allocator_config': os.environ.get('PYTORCH_ALLOC_CONF', os.environ.get('PYTORCH_CUDA_ALLOC_CONF')),
+              'deterministic_algorithms': torch.are_deterministic_algorithms_enabled(),
+              'isolated_worker_rng': recipe.get('isolate_data_loader_rng', False),
               'limitations': 'Recovery updates are additional to the legacy 10k. Offline accuracy is not task success.'}
     write_json(evidence / 'run.json', record)
     policy_cfg = PreTrainedConfig.from_pretrained(args.checkpoint)
@@ -78,6 +95,9 @@ def main():
     policy_cfg.jepa_encoder_name = str(artifact('world_model'))
     policy_cfg.init_from_vla_jepa = None
     policy_cfg.unfreeze_last_n = recipe['unfreeze_last_n']
+    if query_enabled:
+        policy_cfg.query_token_adaptation = 'input_residual'
+        policy_cfg.smol_gradient_checkpointing = True
     policy_cfg.device = 'cuda'
     policy_cfg.image_processor_backend = 'torchvision'
     policy_cfg.optimizer_lr = recipe['learning_rate']
@@ -118,6 +138,9 @@ def main():
             raise ValueError('Resume dataset differs')
         if config.policy.unfreeze_last_n != recipe['unfreeze_last_n']:
             raise ValueError('Resume trainability differs')
+        if query_enabled and (config.policy.query_token_adaptation != 'input_residual'
+                              or not config.policy.smol_gradient_checkpointing):
+            raise ValueError('Resume changed registered query adaptation')
         protected = ('chunk_size', 'n_action_steps', 'normalization_mapping', 'conditioning_dim',
                      'decoder_adaptation', 'adapter_type', 'train_multimodal_projector', 'freeze_vision_tower',
                      'image_processor_backend', 'torch_dtype', 'action_hidden_size', 'action_model_type',
@@ -151,6 +174,10 @@ def main():
 
     def loaders(config, dataset, heldout, step, parallel_dims):
         train, validation = originals['make_dataloaders'](config, dataset, heldout, step, parallel_dims)
+        if recipe.get('isolate_data_loader_rng'):
+            # Worker base seeds must not consume the CPU RNG used by flow times,
+            # especially when an iterator is reconstructed during resume.
+            train.generator = torch.Generator().manual_seed(recipe['worker_seed'])
         state['step'] = step
         indices = validation_indices(heldout)
         rows = heldout.hf_dataset.select(indices)
@@ -162,6 +189,8 @@ def main():
         validation = torch.utils.data.DataLoader(torch.utils.data.Subset(heldout, indices),
                         batch_size=config.batch_size, shuffle=False, num_workers=config.num_workers,
                         collate_fn=validation.collate_fn,
+                        generator=(torch.Generator().manual_seed(recipe['validation_seed'])
+                                   if recipe.get('isolate_data_loader_rng') else None),
                         multiprocessing_context='spawn' if config.num_workers else None)
         return train, validation
 
@@ -175,7 +204,15 @@ def main():
             if p.requires_grad:
                 p.data = p.data.float()
         checkpoint = Path(kw['cfg'].pretrained_path)
-        load_model(policy, checkpoint / 'model.safetensors', strict=True, device='cpu')
+        if query_enabled and not args.resume:
+            missing, unexpected = load_model(policy, checkpoint / 'model.safetensors', strict=False, device='cpu')
+            query_key = 'model.qwen.query_adapter.delta'
+            if set(missing) != {query_key} or unexpected:
+                raise ValueError('Only the declared new query residual may lack initial weights')
+            if torch.count_nonzero(policy.state_dict()[query_key]):
+                raise ValueError('New query residual must initialize to zero')
+        else:
+            load_model(policy, checkpoint / 'model.safetensors', strict=True, device='cpu')
         counts = Counter()
         with safe_open(checkpoint / 'model.safetensors', framework='pt', device='cpu') as saved:
             for name, tensor in policy.state_dict().items():
@@ -184,7 +221,8 @@ def main():
                         raise ValueError(f'Warm-start tensor precision changed: {name}')
                     counts[str(tensor.dtype)] += tensor.numel()
         write_json(evidence / 'initialization.json', {'exact_restoration': True,
-                   'checkpoint_sha256': file_hash(checkpoint / 'model.safetensors'), 'parameter_dtypes': counts})
+                   'checkpoint_sha256': file_hash(checkpoint / 'model.safetensors'), 'parameter_dtypes': counts,
+                   'new_zero_query_parameters': 3840 if query_enabled and not args.resume else 0})
         backbone, other = [], []
         trainability = {}
         for name, p in policy.named_parameters():

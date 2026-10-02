@@ -1,0 +1,46 @@
+{
+  "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "diagnostic_source_sha256": "2fc61d26df139a7e0721545d53d9929ad152b4efbee74be7abb2f96f5a407025",
+  "episode": 53,
+  "frames": [
+    40,
+    41,
+    42,
+    43
+  ],
+  "seed": 92000,
+  "batch_size": 4,
+  "unfreeze_last_n": 32,
+  "exact_warm_tensor_restoration": true,
+  "missing_initial_tensor": "model.qwen.query_adapter.delta",
+  "query_parameters": 3840,
+  "query_token_ids": [
+    49280,
+    49281,
+    49282,
+    49308
+  ],
+  "config_round_trip": true,
+  "repeated_expansion_hook_count_stable": true,
+  "buffer_precision": "native_fp32_rotary_frequencies",
+  "nonreentrant_checkpointing": true,
+  "native_action_loss": 0.17686979472637177,
+  "native_weighted_world_loss": 0.11940353363752365,
+  "query_joint_gradient_l2": 27.218778610229492,
+  "finite_gradient_tensors": 693,
+  "trainable_parameters": 629486471,
+  "reserved_adam_moment_bytes": 5035891768,
+  "peak_allocated_bytes": 18283279360,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "limitations": "Native forward/backward only, no optimizer update or policy export. Optional synthetic AdamW moments exclude optimizer-step workspace; this is not a completed training preflight or task-performance result."
+}

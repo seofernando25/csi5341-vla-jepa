@@ -1,0 +1,17 @@
+{
+  "purpose": "Worker-iterator consumption of CPU RNG used by native CPU Beta flow-time sampler",
+  "torch": "2.11.0+cu128",
+  "native_action_head_sha256": "65f2c30ccac625dc02801344f1ea6799198ad2a1a74cb5967ab62defdd9c975f",
+  "data_loader_module_sha256": "8417b5e9bfbcaba7e0e374b012e104d42155ff3e3a0c05ef3f864fa2f8d15d4c",
+  "observations": [
+    {
+      "private_generator": false,
+      "cpu_global_rng_preserved": false
+    },
+    {
+      "private_generator": true,
+      "cpu_global_rng_preserved": true
+    }
+  ],
+  "limitations": "CPU dummy dataset with zero workers isolates iterator initialization, not robot performance. Private generator and deterministic algorithm flags are separate engineering amendments only; current r1/RSI remain unchanged."
+}
