@@ -79,7 +79,7 @@ RGB recovery adapts four final SmolVLM decoder layers from legacy 10k weights: f
 
 Inference rounds nonpersistent rotary frequencies to BF16, unlike native FP32-buffer training. Changing only these buffers raises one-frame action loss 0.0460$\rightarrow$0.0618; restoring their original values reverses it exactly. Sequential local 20k tests yield 4/10 in each mode, with one gain and one loss: no aggregate control improvement.
 
-Full-decoder/query recovery passes RTX5090 native save/resume (23.74\,GiB); isolated-loader RNG also passes a bounded four-update reproducibility check. Engineering is excluded from selection. At 5,000 query updates, held-out arm MSE is 0.0285; development yields 2/10 (diagnostic trials). A local 200-frame check preserves all 25 initial batch scores; 500 updates raise arm MSE 0.0237$\rightarrow$0.0400. Learning changes remain coupled.
+Full-decoder/query recovery passes RTX5090 native save/resume (23.74\,GiB); isolated-loader RNG also passes a bounded four-update reproducibility check. Engineering is excluded from selection. After 10,000 query updates, held-out selection retains update 9,500, with arm MSE 0.0218; development yields 5/10 (diagnostic trials). A local 200-frame check preserves all 25 initial batch scores; 500 updates raise arm MSE 0.0237$\rightarrow$0.0400. Learning changes remain coupled.
 
 At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 at 500; gripper error changed from 13.6\% to 4.8\%. On two held-out frames per task, finite-draw mean arm error remains 9.9--67.2$\times$ B16 across all ten tasks.
 
@@ -95,10 +95,18 @@ The 20,000-update checkpoint achieved 6/10 development successes. RTX5090 infere
 Fixed parent20k and B16 checkpoints complete 100 paired original development states on RTX3090, with identical task/state/seed membership and unchanged solver, horizon and preprocessing. B16 succeeds in 82/100 trials and SmolVLM in 31/100. Both succeed in 31 states; B16 alone succeeds in 51, SmolVLM alone in 0, and both fail in 18. These development trials include earlier diagnostic states and are not pooled with them. Different training histories and model-specific numerical loaders prevent architecture-only causal attribution. Final acceptance remains untested.
 
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F16_expanded_development.pdf}\caption{Registered expanded development comparison. Left: trial-count Wilson 95\% intervals; right: ten paired states per task. Development findings do not establish performance on the reserved official final cohort.}\end{figure}
+\FloatBarrier\subsection{Completed decoder and query adaptation}
+The fixed 10k follow-up adapts all 32 text-decoder layers and four input-query residuals from the corrected 20k parent. Vision remains frozen. Data, processing, action/world modules and objectives retain the registered recipe. Held-out arm MSE selects update 9,500 (0.02181); the separate 10k native state remains resumable. On ten paired RTX5090 development states, parent and selected query policy succeed in 4/10 and 5/10 trials: 1 gain and 0 losses. These repeated diagnostic states do not establish reliable improvement, an isolated architectural benefit or final acceptance.
+
+Selected-policy pipeline median/p95 latency is 108.6/110.5 ms, with 2.94 GiB peak allocated inference memory (1,500 predictions per timing mode). In a paired local 200-frame audit, casting parameters to BF16 while preserving native rotary buffers raises arm MSE by 0.43\% and gripper error by 0.08 percentage points. The registered follow-up threshold is not triggered; this offline audit does not establish closed-loop precision equivalence.
+
+Both final native checkpoints (26 files) were hash-verified locally before rental deletion. Recorded project cloud spending is USD11.27 from account credit differences, below the USD14 ceiling. Research is stopped for the requested closeout. Matched final success/memory acceptance remains unmet.
+
+\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F13_query_recovery_progress.pdf}\\[1em]\includegraphics[width=.88\linewidth]{figures/F18_query_parent_development.pdf}\caption{Completed query adaptation: twenty full validations on the fixed 200-frame set (top), and paired development outcomes on one state per task (bottom). Lower offline error does not imply final LIBERO performance. The selected policy is update 9,500 of the fixed 10,000-update study.}\end{figure}
 
 \FloatBarrier
 \section{Decision rule and limitations}
-The prespecified engineering target is at least 25\% lower peak inference memory with at most a five-percentage-point success drop from B16. Estimates are reported with uncertainty; an inconclusive interval does not establish performance preservation. Retaining the world model consistently prevents module removal from masquerading as a quantization benefit. A single GPU, limited adaptation budget, and differing pretraining histories limit broader conclusions.
+The prespecified engineering target is at least 25\% lower peak inference memory with at most a five-percentage-point success drop from B16. Estimates are reported with uncertainty; an inconclusive interval does not establish performance preservation. Retaining the world model consistently prevents module removal from masquerading as a quantization benefit. Limited GPU coverage, adaptation budget, and differing pretraining histories limit broader conclusions.
 
 The inherited world-model loss uses bidirectional video embeddings; it does not measure causal future prediction. Deployment receives current observations only. Validation trajectories are held out from this adaptation, not necessarily from published models' earlier training. Checkpoint loading audits all mismatches; documented unused tensors and verified tied aliases are excluded.
 
@@ -106,7 +114,7 @@ Backbones retain their native processors: SmolVLM expands each 224-pixel image i
 
 \textbf{Summary.} Deployment savings and retained manipulation success must both be demonstrated.
 
-\begin{thebibliography}{6}\small
+\begin{thebibliography}{6}\small\setlength{\itemsep}{1pt}
 \bibitem{vla} Sun et al. VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model. arXiv:2602.10098, 2026.
 \bibitem{libero} Liu et al. LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning. arXiv:2306.03310, 2023.
 \bibitem{smol} Marafioti et al. SmolVLM: Redefining Small and Efficient Multimodal Models. arXiv:2504.05299, 2025.

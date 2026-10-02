@@ -1,0 +1,70 @@
+{
+  "purpose": "verified_local_native_export_reuse",
+  "status": "completed",
+  "at": "2026-10-02T17:15:48.338894+00:00",
+  "study": "n0008-query-decoder-recovery-r1",
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "source_directory": "outputs/recovery/training/cloud-backups/query-r1/train/checkpoints/010000",
+  "destination_directory": "outputs/recovery/training/20261002T082128082928Z-Query-recovery-train/train/checkpoints/010000",
+  "native_step": 10000,
+  "native_optimizer_parameter_states": 693,
+  "files": {
+    "pretrained_model/config.json": {
+      "bytes": 4118,
+      "sha256": "2556caa398d3bd4e066e092c6a30497deeb6335c75f3c0c46abc84ce60ee10f4"
+    },
+    "pretrained_model/model.safetensors": {
+      "bytes": 3555892908,
+      "sha256": "376619a14cad6ffedde4fb438058b709d72b2b454bdfee4fd8abb574a9da9444"
+    },
+    "pretrained_model/train_config.json": {
+      "bytes": 10710,
+      "sha256": "787c0fca4fa371af89e4adfcba82a77cf20dfc6fa7bb2ccfda300b746b1d9cc7"
+    },
+    "pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_preprocessor.json": {
+      "bytes": 1424,
+      "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+    },
+    "pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+      "bytes": 1316,
+      "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+    },
+    "pretrained_model/policy_postprocessor.json": {
+      "bytes": 1500,
+      "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+    },
+    "pretrained_model/recovery_registration.json": {
+      "bytes": 972,
+      "sha256": "75928be383ddd36158c51e04161c6fd5e366fd1b9c4f68ed62312526624a3d0d"
+    },
+    "training_state/training_step.json": {
+      "bytes": 225,
+      "sha256": "a899f2a617c9f7a0de7454e4165b8e456ff86d444a4e5f485429892f4e313b2c"
+    },
+    "training_state/rng_state.safetensors": {
+      "bytes": 15708,
+      "sha256": "cdde349c238e9e4e073eb8047fcf8ffd927d4c4f1fa57432d87ec4afbd001c2d"
+    },
+    "training_state/scheduler_state.json": {
+      "bytes": 300,
+      "sha256": "cf4c0aeffa051ba6c72162df35e731fa5bd16f8e1f5b6d9aabd48094322a01d5"
+    },
+    "training_state/optimizer_state.safetensors": {
+      "bytes": 5036072236,
+      "sha256": "7bceeac5a16de8223f108e3e72b0b04fbd78b50e0875b6cf1ca2efe6de2933d0"
+    },
+    "training_state/optimizer_param_groups.json": {
+      "bytes": 12604,
+      "sha256": "685f204557bcc8b3ba8e72bad8fa12221abd1730369ded6bafff8806a5b835a7"
+    }
+  },
+  "verified_files": 13,
+  "bytes_reused": 8592015337,
+  "source_backup_proof_sha256": "a221872fd7df37c0940fc089868a66a73c2e7cedb1b45089e199e726e3df1d0e",
+  "exporter_unchanged": true,
+  "limitations": "Operational hard-link reuse of byte-identical immutable native state; original exporter still independently verifies all final files. No runtime journal, selection, scores or scientific settings changed."
+}

@@ -140,7 +140,8 @@ def render(output):
         if query_milestones:
             query = max(query_milestones, key=lambda item: item['native_step'])
             qdev = query['development_summary']
-            query_text = (f" At {query['selected_step']:,} query updates, held-out arm MSE is "
+            query_text = (f" After {query['native_step']:,} query updates, held-out selection retains "
+                          f"update {query['selected_step']:,}, with arm MSE "
                           f"{query['heldout_arm_mse']:.4f}; development yields "
                           f"{qdev['successes']}/{qdev['episodes']} (diagnostic trials).")
         initializer_path = ROOT / 'studies/recovery/diagnostics/query_initial_validation.json'
@@ -238,6 +239,58 @@ def render(output):
         )
         recovery_float = r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
         cloud_section = cloud_section.replace(recovery_float, stability + recovery_float)
+    query_final_path = ROOT / 'studies/recovery/diagnostics/query_10000_milestone.json'
+    if query_final_path.exists():
+        query = read_json(query_final_path)
+        paired = read_json(ROOT / 'studies/recovery/diagnostics/query_parent5090_development_pair.json')
+        timing = read_json(ROOT / 'studies/recovery/diagnostics/query_final_benchmark.json')
+        precision = read_json(ROOT / 'studies/recovery/diagnostics/query_deployment_precision.json')
+        closeout = read_json(ROOT / 'studies/recovery/diagnostics/cloud_closeout.json')
+        selected_hash = query['checkpoint_sha256']
+        if (query['native_step'] != 10000 or not query['selected_local_weights_verified']
+                or timing['checkpoint_sha256'] != selected_hash
+                or precision['status'] != 'completed' or precision['checkpoint_sha256'] != selected_hash
+                or paired['input_records'][1]['checkpoint_sha256'] != selected_hash
+                or closeout['status'] != 'completed' or not closeout['provider_rental_absent']):
+            raise ValueError('Require verified final query, matched control, precision and closeout evidence')
+        for name in ['F13_query_recovery_progress.pdf', 'F18_query_parent_development.pdf']:
+            shutil.copyfile(ROOT / 'studies/recovery/figures' / name, output / 'figures' / name)
+        transitions = paired['transitions']
+        pipeline = timing['summary']['pipeline']
+        cast = precision['comparison']
+        cloud_section += (
+            '\n' + r'\FloatBarrier\subsection{Completed decoder and query adaptation}' + '\n'
+            r'The fixed 10k follow-up adapts all 32 text-decoder layers and four input-query '
+            r'residuals from the corrected 20k parent. Vision remains frozen. Data, processing, '
+            r'action/world modules and objectives retain the registered recipe. '
+            f"Held-out arm MSE selects update {query['selected_step']:,} "
+            f"({query['heldout_arm_mse']:.5f}); the separate 10k native state remains resumable. "
+            f"On ten paired RTX5090 development states, parent and selected query policy succeed "
+            f"in {paired['left_successes']}/10 and {paired['right_successes']}/10 trials: "
+            f"{transitions['gained_success']} gain and {transitions['lost_success']} losses. "
+            r'These repeated diagnostic states do not establish reliable improvement, '
+            r'an isolated architectural benefit or final acceptance.' + '\n\n'
+            f"Selected-policy pipeline median/p95 latency is {pipeline['median_ms']:.1f}/"
+            f"{pipeline['p95_ms']:.1f} ms, with {timing['peak_allocated_gib']:.2f} GiB peak "
+            r'allocated inference memory (1,500 predictions per timing mode). '
+            r'In a paired local 200-frame audit, casting parameters to BF16 while preserving '
+            r'native rotary buffers raises arm MSE by '
+            f"{100*cast['bf16_relative_arm_mse_change']:.2f}\\% and gripper error by "
+            f"{100*cast['bf16_minus_native_gripper_error']:.2f} percentage points. "
+            r'The registered follow-up threshold is not triggered; this offline audit '
+            r'does not establish closed-loop precision equivalence.' + '\n\n'
+            f"Both final native checkpoints (26 files) were hash-verified locally before rental "
+            f"deletion. Recorded project cloud spending is USD{closeout['total_project_account_credit_delta_usd']:.2f} "
+            r'from account credit differences, below the USD14 ceiling. Research is stopped '
+            r'for the requested closeout. Matched final success/memory acceptance remains unmet.' + '\n\n'
+            r'\begin{figure}[ht]\centering'
+            r'\includegraphics[width=\linewidth]{figures/F13_query_recovery_progress.pdf}\\[1em]'
+            r'\includegraphics[width=.88\linewidth]{figures/F18_query_parent_development.pdf}'
+            r'\caption{Completed query adaptation: twenty full validations on the fixed '
+            r'200-frame set (top), and paired development outcomes on one state per task '
+            r'(bottom). Lower offline error does not imply final LIBERO performance. '
+            r'The selected policy is update 9,500 of the fixed 10,000-update study.}\end{figure}'
+        )
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")
@@ -486,7 +539,7 @@ CLOUDSECTION
 
 \FloatBarrier
 \section{Decision rule and limitations}
-The prespecified engineering target is at least 25\% lower peak inference memory with at most a five-percentage-point success drop from B16. Estimates are reported with uncertainty; an inconclusive interval does not establish performance preservation. Retaining the world model consistently prevents module removal from masquerading as a quantization benefit. A single GPU, limited adaptation budget, and differing pretraining histories limit broader conclusions.
+The prespecified engineering target is at least 25\% lower peak inference memory with at most a five-percentage-point success drop from B16. Estimates are reported with uncertainty; an inconclusive interval does not establish performance preservation. Retaining the world model consistently prevents module removal from masquerading as a quantization benefit. Limited GPU coverage, adaptation budget, and differing pretraining histories limit broader conclusions.
 
 The inherited world-model loss uses bidirectional video embeddings; it does not measure causal future prediction. Deployment receives current observations only. Validation trajectories are held out from this adaptation, not necessarily from published models' earlier training. Checkpoint loading audits all mismatches; documented unused tensors and verified tied aliases are excluded.
 
@@ -494,7 +547,7 @@ Backbones retain their native processors: SmolVLM expands each 224-pixel image i
 
 \textbf{Summary.} Deployment savings and retained manipulation success must both be demonstrated.
 
-\begin{thebibliography}{6}\small
+\begin{thebibliography}{6}\small\setlength{\itemsep}{1pt}
 \bibitem{vla} Sun et al. VLA-JEPA: Enhancing Vision-Language-Action Model with Latent World Model. arXiv:2602.10098, 2026.
 \bibitem{libero} Liu et al. LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning. arXiv:2306.03310, 2023.
 \bibitem{smol} Marafioti et al. SmolVLM: Redefining Small and Efficient Multimodal Models. arXiv:2504.05299, 2025.
