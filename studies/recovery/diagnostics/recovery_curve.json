@@ -1,0 +1,74 @@
+{
+  "recipe_sha256": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+  "runs": [
+    {
+      "run_id": "20261002T005935534170Z-RGB-recovery-train",
+      "metrics_sha256": "a0078ac4fce5d1719e03fbf5db0bb338328b496dcae7fd97c748c16f609e73ea",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      }
+    },
+    {
+      "run_id": "20261002T013825115833Z-RGB-recovery-train",
+      "metrics_sha256": "8fd6e3ec03a3b8ba7eadb07de656c062a441e3ecdce74cc715dbfadae8ba9eeb",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      }
+    }
+  ],
+  "latest_training_step": 2375,
+  "validation": [
+    {
+      "step": 500,
+      "native_loss": 0.30230177104473116,
+      "arm_rmse": 0.2834787463158957,
+      "gripper_error_percent": 13.584036838066002,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 1000,
+      "native_loss": 0.2789882254600525,
+      "arm_rmse": 0.26515205868065084,
+      "gripper_error_percent": 12.509593246354566,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 1500,
+      "native_loss": 0.2700630348920822,
+      "arm_rmse": 0.25082126796048254,
+      "gripper_error_percent": 10.821181887950882,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 2000,
+      "native_loss": 0.26717853665351865,
+      "arm_rmse": 0.2444179873236569,
+      "gripper_error_percent": 11.051419800460476,
+      "frames": 200,
+      "valid_actions": 1303
+    }
+  ],
+  "development": [
+    {
+      "stage": 2000,
+      "selected_step": 2000,
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "run_id": "20261002T013631571548Z-RGB-n0008-2000-rollout",
+      "episodes_csv_sha256": "e58ec9f6b84d6799370f92bc1c9948314f3e1a207fcee6857beeb0e527cc2b43",
+      "successes": 1,
+      "episodes": 10
+    }
+  ],
+  "limitations": "Ongoing, single-seed amended study. Offline action errors are not LIBERO success. No matched retrained baseline."
+}

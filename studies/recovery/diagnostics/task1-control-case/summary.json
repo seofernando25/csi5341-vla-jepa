@@ -1,0 +1,46 @@
+{
+  "traces": [
+    {
+      "label": "B16",
+      "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+      "source_manifest": null,
+      "commands_sha256": "ee38fafb93899cabcbb0400e6317856ccb773721f817bddeb977c527512bc4e2",
+      "task_id": 1,
+      "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+      "seed": 2000,
+      "steps": 113,
+      "success": true,
+      "eef_path_length": 1.1443555410651516,
+      "eef_net_displacement": 0.43667950646092246,
+      "gripper_command_switches": 1,
+      "closed_command_fraction": 0.5221238938053098,
+      "arm_command_magnitude_ge_one_fraction": 0.0,
+      "trace_implementation_sha256": "f7c9c263492590778c428d1e0686d1aaf393b6985028929f784072d476674639"
+    },
+    {
+      "label": "RGB-2k",
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "commands_sha256": "ad56a8ddd432278c47aeb87f392e71db9e6034735b7fc6300645b9ee7bc9710f",
+      "task_id": 1,
+      "initial_state_hash": "56d71efe6b6b63a4f7a0b91fa9a4d717e57dd2d18150db053a7bffd53bbe13e7",
+      "seed": 2000,
+      "steps": 280,
+      "success": false,
+      "eef_path_length": 1.320618773364819,
+      "eef_net_displacement": 0.4817925543701508,
+      "gripper_command_switches": 28,
+      "closed_command_fraction": 0.3892857142857143,
+      "arm_command_magnitude_ge_one_fraction": 0.0,
+      "trace_implementation_sha256": "f7c9c263492590778c428d1e0686d1aaf393b6985028929f784072d476674639"
+    }
+  ],
+  "identical_initial_cameras": true,
+  "limitations": "One development case; different model/training/input histories. Trajectories diverge, so per-step command differences are not expert imitation errors. No architecture causality or success-rate estimate."
+}

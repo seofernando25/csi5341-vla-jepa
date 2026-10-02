@@ -8,7 +8,7 @@ Active goal, requested 2026-10-01: diagnose failed control and develop an evalua
 
 | Check | Finding |
 | --- | --- |
-| Cloud lifecycle | Rental deleted after twelve exported checkpoint/optimizer files were hash-verified. Total spending USD2.17; USD11.83 remains authorized. |
+| Original confirmation lifecycle | Original rental deleted after twelve exported checkpoint/optimizer files were hash-verified. It consumed USD2.17 of the total USD14 authorization; the recovery uses the remaining allowance. |
 | Demonstration actions | On twenty selected held-out frames, n0008-10k arm-command MSE is 0.04796, versus B16 0.000556 and a training-set mean predictor 0.07994. These are simulator command units, not metres. |
 | Action processing | Expert labels round-trip with maximum arm error below 1e-7 and no valid-frame gripper errors. The pinned normalizer ignores the saved gripper mask, producing -1/+1 labels rather than the original 0/1 convention. This complicates loss comparison, but does not break the tested command round-trip. |
 | Camera/state conventions | Dataset images visually match the simulator after the existing 180-degree rotation. The existing environment processor applies that rotation and constructs the same eight state fields. No verified convention error yet. |
@@ -28,14 +28,23 @@ The [paper](https://arxiv.org/html/2602.10098v1#A2) reports 30k simulation fine-
 
 [SmolVLA's primary paper](https://arxiv.org/html/2506.01844v1#S4.SS3) reports 90% LIBERO-Spatial success for its 450M model, with frozen VLM and 100k simulation updates at batch 64. Its conditioning uses earlier visual/language features, no image tiling, a different action expert and more frequent feedback. This is evidence that small SmolVLM-based control can work, not evidence that our transplanted VLA-JEPA architecture should match it. The registered 20k×8 recovery still exposes 40× fewer frame samples than that recipe and 48× fewer than VLA-JEPA's appendix. These literature differences guide diagnosis; they are not implemented changes to the current study.
 
-## Next gates
+## Gates and open questions
 
-1. Fit sixteen frames from training episode zero with native losses and fresh optimizer state. Require at least 90% lower arm-command MSE and at most 5% gripper errors on these frames. This is an overfit diagnostic, not a deliverable model.
-2. Repeat under the corrected image pipeline before drawing architecture conclusions. If needed, compare explicit partial backbone trainability. Check trajectories and action traces before selecting larger compute.
-3. Register a separate recovery training recipe, with backbone learning rate, batch/exposure, checkpoint selection and cost ceiling declared before running. Keep data/split, action/world architecture and inherited losses fixed.
-4. Select by held-out physical arm error; use development rollouts to diagnose control. Then perform matched final success, latency and memory measurements. Export and verify durable artifacts before rental deletion.
+The corrected sixteen-frame overfit gate passed, and the separate native recovery recipe is registered and running. Neither establishes a useful policy.
+
+| Question | Evidence needed |
+| --- | --- |
+| Does correcting the input and adapting the decoder recover control? | Registered 2k/5k/10k/20k development rollouts, plus held-out arm/gripper curves. Multiple interventions prevent attributing improvement solely to RGB scaling. |
+| How does control fail? | One bounded development episode's issued commands, observed robot states and sparse camera frames using `evaluation.control_trace`. It preserves the evaluator's actions, seeds, observation processing and horizon. Instrumented wall time is not a latency measurement. |
+| Is the policy visually grounded rather than memorizing state? | Paired conditioning diagnostics and trajectory inspection. Existing black-image/state ablations are outside the training distribution and are insufficient. |
+| Did n0008's architecture help? | A matched corrected-input root confirmation; original confounded screen scores cannot answer this. |
+| Is the final model useful and efficient? | Matched final LIBERO success, latency and peak inference memory after held-out checkpoint selection. Export and verify durable artifacts before rental deletion. |
 
 The [registered recovery recipe](../../evaluation/recovery_config.json) starts from the verified native legacy 10k weights with fresh AdamW, batch eight and four trainable decoder layers. Decoder/other learning rates are 1e-5/1e-4, with 200-update warmup and a fixed 20k cosine horizon. Stages at 2k/5k/10k/20k preserve native optimizer, RNG and scheduler state. Every 500 updates measures native loss and physical action/gripper errors on the frozen 200 held-out frames, excluding padded actions. The latest two checkpoints and the best by arm MSE are retained; final LIBERO is reserved.
+
+The first 2k stage completed with arm MSE 0.05974, versus 0.08036 at 500 updates, and 11.1% held-out gripper errors. Its ten development episodes yielded one success (task 5). Earlier B16 achieved eight successes on the same ten starting states; that reference ran on different hardware and is not a formal matched final comparison. Native recovery resumes toward 5k with the same optimizer and schedule.
+
+The [paired task-1 diagnostic](diagnostics/task1-control-case/) uses identical initial camera arrays, state hash and seed. B16 succeeds after 113 actions; RGB-2k fails after 280. The latter issues 28 gripper-command transitions, versus one for B16, and the snapshots show unsuccessful approach/grasp behavior. This is a concrete control symptom, not a causal estimate or proof that unstable gripper commands explain every failure. Task 0 also fails under B16, replicating its earlier development result; one difficult case cannot diagnose the entire study. The saved compact trace summaries contain checkpoint, source and command-stream hashes.
 
 Native batch-eight training, exact FP32-master restoration, checkpoint resume and full validation scoring passed locally. Recovery training is running on one RTX 5090 at USD0.526/hour, within the original USD14 total ceiling. Cloud CUDA/BF16, LIBERO EGL reset and the frozen timing-bank hash passed. Training stops by October 2 at 18:00 UTC to allow verified export before provider cleanup at 20:00 UTC. Stage backups and exporter restart after PC boot. The goal remains open until actual task performance passes the acceptance criterion or an external resource limit prevents progress.
 

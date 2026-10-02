@@ -122,6 +122,42 @@ def render(output):
             r'200 held-out samples; each latency curve contains 1,500 predictions. Closed-loop '
             r'development success was 0/10 and is not inferred from prediction loss.}\end{figure}'
         )
+    recovery_path = ROOT / 'studies/recovery/diagnostics/recovery_curve.json'
+    recovery_figure = ROOT / 'studies/recovery/figures/F8_recovery_progress.pdf'
+    if recovery_path.exists() and recovery_figure.exists():
+        recovery = read_json(recovery_path)
+        first, last = recovery['validation'][0], recovery['validation'][-1]
+        shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
+        cloud_section += (
+            '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
+            r'A separate registered study corrects RGB scaling and adapts the last four '
+            r'SmolVLM decoder layers. It starts from the verified legacy 10k weights with '
+            r'fresh AdamW, batch eight, decoder/other learning rates of '
+            r'$10^{-5}/10^{-4}$, and a fixed 20k-update cosine schedule. Native '
+            r'data membership, image tiling, action/world architecture and losses remain '
+            r'unchanged. Checkpoint selection uses physical arm-command error on 200 fixed '
+            r'held-out frames; final robot trials remain reserved.' + '\n\n'
+            f"At {last['step']:,} additional updates, held-out arm RMSE was "
+            f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
+            f"{first['step']:,}; gripper error changed from "
+            f"{first['gripper_error_percent']:.1f}\\% to {last['gripper_error_percent']:.1f}\\%. "
+            r'These ongoing, single-seed measurements do not demonstrate successful '
+            r'control or isolate the effect of each recovery intervention.' + '\n'
+            r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
+            r'\caption{Registered RGB-recovery validation. Physical command errors use '
+            r'1,303 valid actions from the same 200 held-out frames, excluding padding. '
+            r'The gray curve is median training loss per 100 updates. Recovery steps are '
+            r'additional to the legacy 10k checkpoint. These are offline diagnostics, '
+            r'not LIBERO success measurements.}\end{figure}'
+        )
+        if recovery.get('development'):
+            trial = recovery['development'][-1]
+            cloud_section += (
+                '\n' + r'\begin{samepage}' + f"The {trial['selected_step']:,}-update checkpoint achieved "
+                f"{trial['successes']}/{trial['episodes']} development successes. "
+                r'This small diagnostic does not establish final performance retention.'
+                + r'\end{samepage}' + '\n'
+            )
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")
@@ -368,13 +404,11 @@ RESULTFIGURES
 
 CLOUDSECTION
 
-The companion repository provides checkpoint hashes, the delivery checklist, raw measurements, and reproduction commands. CUDA checks and finite training losses do not establish manipulation success; missing measurements are never imputed.
-
 \FloatBarrier
 \section{Decision rule and limitations}
 The prespecified engineering target is at least 25\% lower peak inference memory with at most a five-percentage-point success drop from B16. Estimates are reported with uncertainty; an inconclusive interval does not establish performance preservation. Retaining the world model consistently prevents module removal from masquerading as a quantization benefit. A single GPU, limited adaptation budget, and differing pretraining histories limit broader conclusions.
 
-The inherited world-model loss uses a bidirectional video encoder to produce both context and shifted targets (the checkpoint's noncausal setting). Its loss is not an evaluation of causal future prediction. Video context enters only the training-time predictor; deployment receives current observations. Validation trajectories are held out from this adaptation run, not necessarily from published models' earlier training. Checkpoint loading audits all mismatches: only verified tied-weight aliases and four unused checkpoint-only predictor state/extrinsics tensors are omitted.
+The inherited world-model loss uses bidirectional video embeddings; it does not measure causal future prediction. Deployment receives current observations only. Validation trajectories are held out from this adaptation, not necessarily from published models' earlier training. Checkpoint loading audits all mismatches; documented unused tensors and verified tied aliases are excluded.
 
 Camera observations and outer policy preprocessing are matched, but each backbone retains its native image/token processor. A CPU probe confirms that SmolVLM expands a 224-pixel image into seventeen 512-pixel tiles. Thus the backbone comparison includes different visual token workloads; parameter count alone does not predict latency. Native pixel scaling was checked independently. Neural-only timing is separated from processor-inclusive timing.
 

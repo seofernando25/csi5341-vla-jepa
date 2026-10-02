@@ -27,6 +27,38 @@ def checked_relative(name, parent):
     return path
 
 
+def transfer_with_updates(command, update=None, interval=60, timeout=7200):
+    """Keep metadata fresh during a large immutable checkpoint transfer."""
+    started = time.monotonic()
+    process = subprocess.Popen(command)
+    try:
+        while True:
+            remaining = timeout - (time.monotonic() - started)
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(command, timeout)
+            try:
+                code = process.wait(timeout=min(interval, remaining))
+                if code:
+                    raise subprocess.CalledProcessError(code, command)
+                return
+            except subprocess.TimeoutExpired:
+                if update is not None:
+                    try:
+                        update()
+                    except Exception as exc:
+                        # A metadata/API failure must not discard an otherwise
+                        # healthy checkpoint transfer or expose HTTP headers.
+                        print('Transfer metadata retry:', type(exc).__name__, flush=True)
+    finally:
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--key-file', type=Path, required=True)
@@ -68,12 +100,12 @@ def main():
                 '-o', 'ConnectTimeout=15', '-o', 'StrictHostKeyChecking=accept-new',
                 '-o', f'UserKnownHostsFile={args.known_hosts}', '-i', str(args.ssh_key), '-p', str(port), f'root@{host}']
 
-    def sync(instance, relative, destination, filters=()):
+    def sync(instance, relative, destination, filters=(), update=None):
         destination.mkdir(parents=True, exist_ok=True)
-        subprocess.run(['rsync', '-az', '--partial', '--compress-choice=zstd', *filters,
+        transfer_with_updates(['rsync', '-az', '--partial', '--compress-choice=zstd', *filters,
                         '-e', shlex.join(ssh(instance)[:-1]),
                         f'root@{instance["ssh_host"]}:{ROOT}/{relative}', str(destination)],
-                       check=True, timeout=7200)
+                       update=update)
 
     def metadata(instance):
         sync(instance, 'studies/recovery/training/', ROOT / 'studies/recovery/training')
@@ -100,7 +132,21 @@ def main():
                     and file_hash(ROOT / name) == expected['sha256'] for name, expected in selected.items()):
                 continue
             status('exporting_checkpoint', directory=str(directory))
-            sync(instance, str(directory) + '/', ROOT / directory)
+
+            def refresh_during_copy():
+                remote = subprocess.run(ssh(instance) + [f'cat {shlex.quote(str(ROOT / "outputs/recovery/cloud/job.json"))}'],
+                                        capture_output=True, text=True, timeout=40, check=True)
+                job = json.loads(remote.stdout)
+                write_json(folder / 'remote-job.json', job)
+                metadata(instance)
+                spent = rental['account_credit_at_project_start'] - float(api('GET', 'users/current/')['credit'])
+                if spent >= 13.5:
+                    subprocess.run(ssh(instance) + ['pkill -INT -f "python.*evaluation.recovery_train" || true'],
+                                   capture_output=True, timeout=40)
+                status('exporting_checkpoint', directory=str(directory), job_status=job['status'],
+                       target_step=job.get('target_step'), total_spent_usd=spent)
+
+            sync(instance, str(directory) + '/', ROOT / directory, update=refresh_during_copy)
             for name, expected in selected.items():
                 p = ROOT / name
                 if p.stat().st_size != expected['bytes'] or file_hash(p) != expected['sha256']:
