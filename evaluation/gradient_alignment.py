@@ -23,6 +23,16 @@ def alignment(left, right):
             'finite': all(bool(torch.isfinite(g).all()) for g in (*left, *right) if g is not None)}
 
 
+def query_residual(ids, query_ids, delta, hidden):
+    """Add only to query positions; zero initialization preserves native values."""
+    matches = ids[..., None] == query_ids
+    if hidden.shape[:2] != ids.shape:
+        raise ValueError('Query positions and hidden states differ')
+    indices = matches.to(torch.int64).argmax(-1)
+    residual = torch.nn.functional.embedding(indices, delta).to(hidden.dtype)
+    return hidden + residual * matches.any(-1)[..., None]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--checkpoint', type=Path, required=True)
@@ -33,6 +43,8 @@ def main():
     parser.add_argument('--frame', type=int, default=30)
     parser.add_argument('--include-heads', action='store_true',
                         help='Also audit action/world heads and remaining trainable parameters')
+    parser.add_argument('--query-probe', choices=['input', 'late'],
+                        help='Zero query residual: input embeddings or first trainable decoder layer')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier diagnostic results')
@@ -87,14 +99,51 @@ def main():
         grouped = {id(p) for values in groups.values() for p in values}
         groups['remaining_trainable'] = [p for p in policy.parameters()
                                         if p.requires_grad and id(p) not in grouped]
+    handles, query_count = [], 0
+    if args.query_probe:
+        if getattr(policy.model.qwen.model, 'is_gradient_checkpointing', False):
+            raise ValueError('Transient hooks require eager backward, without checkpoint recomputation')
+        tubelet = policy.model.video_encoder.config.tubelet_size
+        prompt_steps = policy.config.num_video_frames // tubelet - 1
+        query_ids = torch.tensor(policy.model.action_token_ids[:prompt_steps]
+                                 + [policy.model.embodied_action_token_id], device='cuda')
+        delta = torch.nn.Parameter(torch.zeros(len(query_ids), policy.model.qwen.native_hidden_size,
+                                              device='cuda', dtype=torch.float32))
+        groups['zero_query_probe'] = [delta]
+        query_count = delta.numel()
+        query_state = {}
+
+        def embedding_hook(module, inputs, output):
+            query_state['ids'] = inputs[0]
+            if args.query_probe == 'input':
+                return query_residual(inputs[0], query_ids, delta, output)
+
+        handles.append(policy.model.qwen.model.get_input_embeddings().register_forward_hook(embedding_hook))
+        if args.query_probe == 'late':
+            if not policy.config.unfreeze_last_n:
+                raise ValueError('Late probe requires trainable decoder layers')
+
+            def late_hook(module, inputs, kwargs):
+                hidden = inputs[0] if inputs else kwargs['hidden_states']
+                value = query_residual(query_state['ids'], query_ids, delta, hidden)
+                if inputs:
+                    return (value, *inputs[1:]), kwargs
+                return inputs, {**kwargs, 'hidden_states': value}
+
+            handles.append(layers[-policy.config.unfreeze_last_n].register_forward_pre_hook(
+                late_hook, with_kwargs=True))
     parameters = [p for values in groups.values() for p in values if p.requires_grad]
     # Public policy metrics are detached floats. Request the same native
     # objectives directly, from one shared forward graph.
     torch.manual_seed(92000)
-    with torch.autocast('cuda', dtype=torch.bfloat16):
-        inputs = policy._prepare_model_inputs(batch, training=True)
-        losses = policy.model(**inputs)
-        action, world = losses['action_loss'], losses['wm_loss']
+    try:
+        with torch.autocast('cuda', dtype=torch.bfloat16):
+            inputs = policy._prepare_model_inputs(batch, training=True)
+            losses = policy.model(**inputs)
+            action, world = losses['action_loss'], losses['wm_loss']
+    finally:
+        for handle in handles:
+            handle.remove()
     left = torch.autograd.grad(action, parameters, retain_graph=True, allow_unused=True)
     right = torch.autograd.grad(world, parameters, allow_unused=True)
     results, offset = {}, 0
@@ -110,11 +159,12 @@ def main():
               'native_action_loss': float(action.detach()), 'native_weighted_world_loss': float(world.detach()),
               'world_loss_weight': policy.config.world_model_loss_weight, 'groups': results,
               'trainable_parameters': sum(p.numel() for p in policy.parameters() if p.requires_grad),
+              'query_probe': args.query_probe, 'external_zero_query_parameters': query_count,
               'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
               'limitations': 'One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export.'}
     if args.include_heads:
         result['all_trainable_parameters_covered'] = (
-            sum(p.numel() for p in parameters) == result['trainable_parameters'])
+            sum(p.numel() for p in parameters) == result['trainable_parameters'] + query_count)
         if not result['all_trainable_parameters_covered']:
             raise ValueError('Full-policy diagnostic missed trainable parameters')
         joint_squared = 0.

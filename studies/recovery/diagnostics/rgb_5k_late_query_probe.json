@@ -1,0 +1,115 @@
+{
+  "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+  "diagnostic_source_sha256": "a354b03c7b956fc9fa6426f45d73664fbe7123f9b5411efa4faaa9c9ef146ef1",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "episode": 53,
+  "frame": 40,
+  "seed": 92000,
+  "task_id": 0,
+  "native_action_loss": 0.061795808374881744,
+  "native_weighted_world_loss": 0.11882054805755615,
+  "world_loss_weight": 0.1,
+  "groups": {
+    "hidden_adapter": {
+      "action_gradient_l2": 0.292030434033278,
+      "weighted_world_gradient_l2": 0.00036637074087019113,
+      "cosine": -0.004354292890916286,
+      "action_parameters_with_grad": 1,
+      "world_parameters_with_grad": 1,
+      "finite": true
+    },
+    "decoder_adapter": {
+      "action_gradient_l2": 0.8988611941652265,
+      "weighted_world_gradient_l2": 0.0002295991918849677,
+      "cosine": 0.019207546135328164,
+      "action_parameters_with_grad": 3,
+      "world_parameters_with_grad": 3,
+      "finite": true
+    },
+    "decoder_layer_28": {
+      "action_gradient_l2": 0.9166143550992096,
+      "weighted_world_gradient_l2": 0.00019450676579073307,
+      "cosine": -0.08864766121268437,
+      "action_parameters_with_grad": 9,
+      "world_parameters_with_grad": 9,
+      "finite": true
+    },
+    "decoder_layer_29": {
+      "action_gradient_l2": 0.7552782123672209,
+      "weighted_world_gradient_l2": 0.00019066547454921873,
+      "cosine": -0.08180666777970348,
+      "action_parameters_with_grad": 9,
+      "world_parameters_with_grad": 9,
+      "finite": true
+    },
+    "decoder_layer_30": {
+      "action_gradient_l2": 1.2128621802933681,
+      "weighted_world_gradient_l2": 0.00018651965310333425,
+      "cosine": -0.23984547170940848,
+      "action_parameters_with_grad": 9,
+      "world_parameters_with_grad": 9,
+      "finite": true
+    },
+    "decoder_layer_31": {
+      "action_gradient_l2": 0.5928774959160101,
+      "weighted_world_gradient_l2": 0.00021135104016317078,
+      "cosine": 0.0054323702101787994,
+      "action_parameters_with_grad": 9,
+      "world_parameters_with_grad": 9,
+      "finite": true
+    },
+    "action_head": {
+      "action_gradient_l2": 1.626756128563609,
+      "weighted_world_gradient_l2": 0.0,
+      "cosine": null,
+      "action_parameters_with_grad": 248,
+      "world_parameters_with_grad": 0,
+      "finite": true
+    },
+    "world_predictor": {
+      "action_gradient_l2": 0.0,
+      "weighted_world_gradient_l2": 0.05540604306953045,
+      "cosine": null,
+      "action_parameters_with_grad": 0,
+      "world_parameters_with_grad": 152,
+      "finite": true
+    },
+    "remaining_trainable": {
+      "action_gradient_l2": 0.0,
+      "weighted_world_gradient_l2": 0.0,
+      "cosine": null,
+      "action_parameters_with_grad": 0,
+      "world_parameters_with_grad": 0,
+      "finite": true
+    },
+    "zero_query_probe": {
+      "action_gradient_l2": 0.01406353375075777,
+      "weighted_world_gradient_l2": 3.2152334805867508e-06,
+      "cosine": -0.0059867202981816825,
+      "action_parameters_with_grad": 1,
+      "world_parameters_with_grad": 1,
+      "finite": true
+    }
+  },
+  "trainable_parameters": 354177671,
+  "query_probe": "late",
+  "external_zero_query_parameters": 3840,
+  "peak_allocated_bytes": 5546900480,
+  "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export.",
+  "all_trainable_parameters_covered": true,
+  "full_policy_gradients": {
+    "action_gradient_l2": 2.6024857258357454,
+    "weighted_world_gradient_l2": 0.05540911664444187,
+    "cosine": -0.0005385889280227005,
+    "action_parameters_with_grad": 289,
+    "world_parameters_with_grad": 193,
+    "finite": true,
+    "joint_gradient_l2": 2.6030456602003187
+  }
+}
