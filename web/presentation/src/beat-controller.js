@@ -1,8 +1,57 @@
-/* Presenter controls use authored cue boundaries, not narration callbacks. */
-const PRESENTATION_BEATS={0:[2.1,10],2:[5.9,6.9],3:[.8,9.6,16.7,31.7,36.6,45.7,56],4:[1.4,7.7,20,30,36],5:[4,8.8],6:[1.1,11],7:[1.1,17.8],8:[2.4],9:[1,11,21,35,46],10:[2.8,4.8,10.5,16.3,27.8],11:[1.5,24.7],12:[2],13:[2],14:[2],15:[2],16:[2],17:[2],18:[2,5.8]};
-const presenter={manual:true,stop:0,speed:1};
-function cueTimes(i=index){return PRESENTATION_BEATS[i]||[motionLength(i)];}
-function playTo(seconds){const span=Math.max(0,seconds-sceneSeconds());presenter.manual=true;presenter.stop=clamp(seconds/motionLength());presenter.speed=index===2?1:Math.max(1,span/1.6);animation=span>.001;if(index===0||index===2){for(const clip of [humanClip,robotClip]){clip.playbackRate=presenter.speed;clip.play().catch(()=>{});}}lastPaint=performance.now();document.getElementById('animate').textContent='Replay beat';}
-function resetPresenter(){presenter.manual=true;presenter.stop=0;p=0;animation=false;playTo(cueTimes()[0]);}
-function advanceBeat(direction=1){audio.pause();continuous=false;const time=animation&&presenter.manual?presenter.stop*motionLength():sceneSeconds(),cues=cueTimes();if(direction>0){const next=cues.find(t=>t>time+.03);if(next!==undefined)playTo(next);else moveScene(1);}else{const at=cues.findIndex(t=>t>=time-.03),prior=Math.max(0,at-1);if(time<=cues[0]+.03)moveScene(-1);else{p=(prior?cues[prior-1]:0)/motionLength();playTo(cues[prior]);}}render();}
-function replayBeat(){const time=sceneSeconds(),cues=cueTimes(),at=Math.max(0,cues.findIndex(t=>t>=time-.03));p=(at?cues[at-1]:0)/motionLength();playTo(cues[at]);}
+/* Browser adapter for the pure clock. Chapter selection and controls stay elsewhere. */
+const presenter = new CueClock();
+function cueSpecs(i = index) {
+  return SCENE_CUES[i];
+}
+function cueTimes(i = index) {
+  return cueSpecs(i).map((s) => s.end);
+}
+function syncPresenterFrame() {
+  motion.chapterProgress =
+    presenter.cursor === 0 || presenter.run?.direction === 0
+      ? presenter.progress
+      : 1;
+  p = clamp(presenter.seconds / motionLength());
+  animation = presenter.running;
+  render();
+}
+function syncPresenterMedia() {
+  if (index === 0 || index === 2) {
+    const run = presenter.run;
+    syncMedia(
+      presenter.seconds,
+      presenter.running && run?.direction > 0,
+      run ? Math.abs(run.to - run.from) / (run.duration / 1000) : 1,
+    );
+  }
+}
+function resetPresenter(atEnd = false) {
+  presenter.manual = true;
+  presenter.load(cueSpecs(), performance.now(), atEnd);
+  syncPresenterMedia();
+  syncPresenterFrame();
+}
+function advanceBeat(direction = 1) {
+  audio.pause();
+  const result =
+    direction > 0
+      ? presenter.next(performance.now())
+      : presenter.previous(performance.now());
+  if (result === "chapter") moveScene(direction);
+  else if (result === "beat") {
+    syncPresenterMedia();
+    syncPresenterFrame();
+  }
+}
+function replayBeat() {
+  if (presenter.replay(performance.now()) === "beat") {
+    syncPresenterMedia();
+    syncPresenterFrame();
+  }
+}
+function tickPresenter(now) {
+  if (animation && presenter.manual && presenter.tick(now)) {
+    syncPresenterFrame();
+    if (!presenter.running) syncPresenterMedia();
+  }
+}

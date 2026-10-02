@@ -1,0 +1,1116 @@
+{
+  "chapters": 18,
+  "named_beats": 48,
+  "rendered_paths": 160,
+  "samples_per_path": 5,
+  "rendered_samples": 800,
+  "path_coverage": [
+    "all forward beats",
+    "all replay beats",
+    "all within-chapter reversals",
+    "all chapter boundaries forward and backward"
+  ],
+  "pixel_comparison_deviations": 0,
+  "automated_checks": [
+    "forward and previous state",
+    "replay final state",
+    "rapid input ignored without queueing",
+    "30-second held state",
+    "chapter-return bridge",
+    "media follows scene clock"
+  ],
+  "visual_review": "Start, intermediate and end contact sheets reviewed for every chapter and chapter boundary; corrected premature feature reveal, extra staggered reveals, flow update timing, and target-image crossing.",
+  "limitations": [
+    "Sampled rendered states; not every frame visually watched",
+    "No sustained device frame-rate benchmark",
+    "Existing narrated movie and PDFs predate this browser refactor"
+  ],
+  "paths": [
+    {
+      "chapter": 1,
+      "beat": 1,
+      "label": "Opening question",
+      "direction": "forward",
+      "durationMs": 1100
+    },
+    {
+      "chapter": 1,
+      "beat": 1,
+      "label": "Opening question",
+      "direction": "replay",
+      "durationMs": 1100
+    },
+    {
+      "chapter": 1,
+      "beat": 2,
+      "label": "Video becomes a representation",
+      "direction": "forward",
+      "durationMs": 1000
+    },
+    {
+      "chapter": 1,
+      "beat": 2,
+      "label": "Video becomes a representation",
+      "direction": "back",
+      "durationMs": 1000
+    },
+    {
+      "chapter": 1,
+      "beat": 2,
+      "label": "Video becomes a representation",
+      "direction": "replay",
+      "durationMs": 1000
+    },
+    {
+      "chapter": 2,
+      "beat": 1,
+      "label": "Watch the demonstrations",
+      "direction": "forward",
+      "durationMs": 5900
+    },
+    {
+      "chapter": 2,
+      "beat": 1,
+      "label": "Watch the demonstrations",
+      "direction": "replay",
+      "durationMs": 5900
+    },
+    {
+      "chapter": 2,
+      "beat": 2,
+      "label": "Compare the available supervision",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 2,
+      "beat": 2,
+      "label": "Compare the available supervision",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 2,
+      "beat": 2,
+      "label": "Compare the available supervision",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 1,
+      "label": "Cost of control labels",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 1,
+      "label": "Cost of control labels",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 2,
+      "label": "Why use video?",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 2,
+      "label": "Why use video?",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 2,
+      "label": "Why use video?",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 3,
+      "label": "LAPA: pixel reconstruction",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 3,
+      "label": "LAPA: pixel reconstruction",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 3,
+      "label": "LAPA: pixel reconstruction",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 4,
+      "label": "UniVLA: feature reconstruction",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 4,
+      "label": "UniVLA: feature reconstruction",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 4,
+      "label": "UniVLA: feature reconstruction",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 5,
+      "label": "A target is not a pipeline",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 5,
+      "label": "A target is not a pipeline",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 5,
+      "label": "A target is not a pipeline",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 6,
+      "label": "VLA-JEPA: predictive alignment",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 6,
+      "label": "VLA-JEPA: predictive alignment",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 6,
+      "label": "VLA-JEPA: predictive alignment",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 7,
+      "label": "What does the policy see?",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 7,
+      "label": "What does the policy see?",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": 7,
+      "label": "What does the policy see?",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 1,
+      "label": "Observation and instruction",
+      "direction": "forward",
+      "durationMs": 800
+    },
+    {
+      "chapter": 4,
+      "beat": 1,
+      "label": "Observation and instruction",
+      "direction": "replay",
+      "durationMs": 800
+    },
+    {
+      "chapter": 4,
+      "beat": 2,
+      "label": "Observed transition",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 2,
+      "label": "Observed transition",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 2,
+      "label": "Observed transition",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 3,
+      "label": "Predict future features",
+      "direction": "forward",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 3,
+      "label": "Predict future features",
+      "direction": "back",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 3,
+      "label": "Predict future features",
+      "direction": "replay",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 4,
+      "label": "Encode the future target",
+      "direction": "forward",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 4,
+      "label": "Encode the future target",
+      "direction": "back",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 4,
+      "label": "Encode the future target",
+      "direction": "replay",
+      "durationMs": 650
+    },
+    {
+      "chapter": 4,
+      "beat": 5,
+      "label": "Compare the features",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 5,
+      "label": "Compare the features",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": 5,
+      "label": "Compare the features",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 1,
+      "label": "Represent the task",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 1,
+      "label": "Represent the task",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 2,
+      "label": "Encode both inputs",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 2,
+      "label": "Encode both inputs",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 2,
+      "label": "Encode both inputs",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": 3,
+      "label": "Produce latent tokens",
+      "direction": "forward",
+      "durationMs": 650
+    },
+    {
+      "chapter": 5,
+      "beat": 3,
+      "label": "Produce latent tokens",
+      "direction": "back",
+      "durationMs": 650
+    },
+    {
+      "chapter": 5,
+      "beat": 3,
+      "label": "Produce latent tokens",
+      "direction": "replay",
+      "durationMs": 650
+    },
+    {
+      "chapter": 6,
+      "beat": 1,
+      "label": "Condition the predictor",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 6,
+      "beat": 1,
+      "label": "Condition the predictor",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 6,
+      "beat": 2,
+      "label": "Predict the next state",
+      "direction": "forward",
+      "durationMs": 800
+    },
+    {
+      "chapter": 6,
+      "beat": 2,
+      "label": "Predict the next state",
+      "direction": "back",
+      "durationMs": 800
+    },
+    {
+      "chapter": 6,
+      "beat": 2,
+      "label": "Predict the next state",
+      "direction": "replay",
+      "durationMs": 800
+    },
+    {
+      "chapter": 7,
+      "beat": 1,
+      "label": "Separate prediction and target",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 7,
+      "beat": 1,
+      "label": "Separate prediction and target",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 7,
+      "beat": 2,
+      "label": "Learn from the mismatch",
+      "direction": "forward",
+      "durationMs": 1200
+    },
+    {
+      "chapter": 7,
+      "beat": 2,
+      "label": "Learn from the mismatch",
+      "direction": "back",
+      "durationMs": 1200
+    },
+    {
+      "chapter": 7,
+      "beat": 2,
+      "label": "Learn from the mismatch",
+      "direction": "replay",
+      "durationMs": 1200
+    },
+    {
+      "chapter": 8,
+      "beat": 1,
+      "label": "Inputs above the boundary",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": 1,
+      "label": "Inputs above the boundary",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": 2,
+      "label": "Future is a target only",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": 2,
+      "label": "Future is a target only",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": 2,
+      "label": "Future is a target only",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 1,
+      "label": "A demonstration is a control sequence",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 1,
+      "label": "A demonstration is a control sequence",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 2,
+      "label": "Sample random controls",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 2,
+      "label": "Sample random controls",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 2,
+      "label": "Sample random controls",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 3,
+      "label": "Create a training mixture",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 3,
+      "label": "Create a training mixture",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 3,
+      "label": "Create a training mixture",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 4,
+      "label": "Define the target update",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 4,
+      "label": "Define the target update",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 4,
+      "label": "Define the target update",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": 5,
+      "label": "Match the update",
+      "direction": "forward",
+      "durationMs": 1100
+    },
+    {
+      "chapter": 9,
+      "beat": 5,
+      "label": "Match the update",
+      "direction": "back",
+      "durationMs": 1100
+    },
+    {
+      "chapter": 9,
+      "beat": 5,
+      "label": "Match the update",
+      "direction": "replay",
+      "durationMs": 1100
+    },
+    {
+      "chapter": 10,
+      "beat": 1,
+      "label": "Start with random controls",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 1,
+      "label": "Start with random controls",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 2,
+      "label": "First learned update",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 2,
+      "label": "First learned update",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 2,
+      "label": "First learned update",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 3,
+      "label": "Second learned update",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 3,
+      "label": "Second learned update",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 3,
+      "label": "Second learned update",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 4,
+      "label": "Third learned update",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 4,
+      "label": "Third learned update",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 4,
+      "label": "Third learned update",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": 5,
+      "label": "Generate the action chunk",
+      "direction": "forward",
+      "durationMs": 850
+    },
+    {
+      "chapter": 10,
+      "beat": 5,
+      "label": "Generate the action chunk",
+      "direction": "back",
+      "durationMs": 850
+    },
+    {
+      "chapter": 10,
+      "beat": 5,
+      "label": "Generate the action chunk",
+      "direction": "replay",
+      "durationMs": 850
+    },
+    {
+      "chapter": 11,
+      "beat": 1,
+      "label": "Two sources, two objectives",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 11,
+      "beat": 1,
+      "label": "Two sources, two objectives",
+      "direction": "replay",
+      "durationMs": 750
+    },
+    {
+      "chapter": 11,
+      "beat": 2,
+      "label": "Adapt the robot interface",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 11,
+      "beat": 2,
+      "label": "Adapt the robot interface",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 11,
+      "beat": 2,
+      "label": "Adapt the robot interface",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 12,
+      "beat": 1,
+      "label": "Standard LIBERO comparison",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 12,
+      "beat": 1,
+      "label": "Standard LIBERO comparison",
+      "direction": "replay",
+      "durationMs": 750
+    },
+    {
+      "chapter": 13,
+      "beat": 1,
+      "label": "LIBERO-Plus comparison",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 13,
+      "beat": 1,
+      "label": "LIBERO-Plus comparison",
+      "direction": "replay",
+      "durationMs": 750
+    },
+    {
+      "chapter": 14,
+      "beat": 1,
+      "label": "Human-video ablation",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 14,
+      "beat": 1,
+      "label": "Human-video ablation",
+      "direction": "replay",
+      "durationMs": 750
+    },
+    {
+      "chapter": 15,
+      "beat": 1,
+      "label": "A benchmark counterexample",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 15,
+      "beat": 1,
+      "label": "A benchmark counterexample",
+      "direction": "replay",
+      "durationMs": 750
+    },
+    {
+      "chapter": 16,
+      "beat": 1,
+      "label": "Proposed comparisons",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 16,
+      "beat": 1,
+      "label": "Proposed comparisons",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 16,
+      "beat": 2,
+      "label": "What we will measure",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 16,
+      "beat": 2,
+      "label": "What we will measure",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 16,
+      "beat": 2,
+      "label": "What we will measure",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": 1,
+      "label": "Deployment limitations",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": 1,
+      "label": "Deployment limitations",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": 2,
+      "label": "Interpret the evidence",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": 2,
+      "label": "Interpret the evidence",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": 2,
+      "label": "Interpret the evidence",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 1,
+      "label": "Predict states; learn control",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 1,
+      "label": "Predict states; learn control",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 2,
+      "label": "Strongest evidence",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 2,
+      "label": "Strongest evidence",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 2,
+      "label": "Strongest evidence",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 3,
+      "label": "Our open question",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 3,
+      "label": "Our open question",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": 3,
+      "label": "Our open question",
+      "direction": "replay",
+      "durationMs": 600
+    },
+    {
+      "chapter": 2,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 5900
+    },
+    {
+      "chapter": 3,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 800
+    },
+    {
+      "chapter": 5,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 6,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 7,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 11,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 12,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 13,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 14,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 15,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 750
+    },
+    {
+      "chapter": 16,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 18,
+      "beat": "chapter",
+      "direction": "forward",
+      "durationMs": 600
+    },
+    {
+      "chapter": 17,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 16,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 15,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 14,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 13,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 12,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 11,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 10,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 9,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 8,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 7,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 6,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 5,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 4,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 3,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 2,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    },
+    {
+      "chapter": 1,
+      "beat": "chapter",
+      "direction": "back",
+      "durationMs": 600
+    }
+  ]
+}

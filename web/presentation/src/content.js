@@ -1,654 +1,755 @@
-const DATA=[
+const DATA = [
   {
-    "n": 1,
-    "speaker": "Noah",
-    "budget": 18.933333333333334,
-    "section": "CSI 5341 · Paper presentation",
-    "title": "VLA-JEPA",
-    "purpose": "Introduce the central research question and the speakers.",
-    "chunks": [
+    n: 1,
+    speaker: "Noah",
+    budget: 18.933333333333334,
+    section: "CSI 5341 · Paper presentation",
+    title: "VLA-JEPA",
+    purpose: "Introduce the central research question and the speakers.",
+    chunks: [
       {
-        "text": "Hi everyone. We're Noah and Fernando. Today we're looking at VLA JEPA, a method that asks whether watching human videos can help a robot learn to act. We'll walk through how it works, look at the paper's evidence, and finish with the efficiency questions we're exploring in our own project.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Hi everyone. We're Noah and Fernando. Today we're looking at VLA JEPA, a method that asks whether watching human videos can help a robot learn to act. We'll walk through how it works, look at the paper's evidence, and finish with the efficiency questions we're exploring in our own project.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Sun et al., VLA-JEPA, arXiv:2602.10098v1 (2026), abstract and introduction.",
-    "wordCount": 50,
-    "pauseSeconds": 0.45,
-    "start": 0,
-    "end": 18.933333333333334,
-    "measuredSyntheticWithPauses": 18.933333333333334,
-    "deliveryCues": [
+    source:
+      "Sun et al., VLA-JEPA, arXiv:2602.10098v1 (2026), abstract and introduction.",
+    wordCount: 50,
+    pauseSeconds: 0.45,
+    start: 0,
+    end: 18.933333333333334,
+    measuredSyntheticWithPauses: 18.933333333333334,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 9.5,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 9.5,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Hi everyone. We're Noah and Fernando. Today we're looking at VLA JEPA, a method that asks whether watching human videos can help a robot learn to act. We'll walk through how it works, look at the paper's evidence, and finish with the efficiency questions we're exploring in our own project.",
-    "backup": false,
-    "id": "chapter-1",
-    "audioAsset": "narration-01.mp3"
+    notes:
+      "Hi everyone. We're Noah and Fernando. Today we're looking at VLA JEPA, a method that asks whether watching human videos can help a robot learn to act. We'll walk through how it works, look at the paper's evidence, and finish with the efficiency questions we're exploring in our own project.",
+    backup: false,
+    id: "chapter-1",
+    audioAsset: "narration-01.mp3",
   },
   {
-    "hidden": true,
-    "id": "reserved-retired-intro"
+    hidden: true,
+    id: "reserved-retired-intro",
   },
   {
-    "n": 2,
-    "speaker": "Noah",
-    "budget": 32.53333333333333,
-    "section": "Problem and insight",
-    "title": "What can video teach a robot?",
-    "purpose": "Make the task and representation problem concrete before introducing components.",
-    "chunks": [
+    n: 2,
+    speaker: "Noah",
+    budget: 32.53333333333333,
+    section: "Problem and insight",
+    title: "What can video teach a robot?",
+    purpose:
+      "Make the task and representation problem concrete before introducing components.",
+    chunks: [
       {
-        "text": "Watch these two examples. On the left, a person puts a jar into a box. On the right, a robot puts a block into a bowl. Both show a change in the world. But only the robot demonstration comes with the control commands that produced it. Human videos are easier to collect, yet they don't tell a robot how to move its own joints or gripper. So the question is: can we learn something useful from the visual transition, and connect that knowledge to robot control? That's the gap this paper addresses.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Watch these two examples. On the left, a person puts a jar into a box. On the right, a robot puts a block into a bowl. Both show a change in the world. But only the robot demonstration comes with the control commands that produced it. Human videos are easier to collect, yet they don't tell a robot how to move its own joints or gripper. So the question is: can we learn something useful from the visual transition, and connect that knowledge to robot control? That's the gap this paper addresses.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Human footage: Something-Something-v2 validation sample 174198.webm, label putting jar into box, template Putting [something] into [something]. Retrieved from the public morpheushoc/something-something-v2 archive mirror and checked against its validation.json annotation; native 427x240, 12 fps, 5.916 seconds. Cropped to 426x192; output duplicates source frames at 60 fps. Before/during/after stills are from this same clip. This is a verified V2 dataset example, not an identified VLA-JEPA training example. Dataset: https://www.qualcomm.com/developer/software/something-something-v-2-dataset . Mirror: https://huggingface.co/datasets/morpheushoc/something-something-v2 . Robot footage: real DROID episode AUTOLab+0d4edc83+2023-10-27-19h-52m-50s, exterior camera 24400334. Cropped; approximate timing restored from the 5.901-second recorded control-timestamp span, with an end hold. Paired trajectory.h5 contains recorded controls. Both videos play once silently, then hold. This is dataset footage, not a VLA-JEPA policy rollout. https://droid-dataset.github.io/visualizer/",
-    "wordCount": 92,
-    "pauseSeconds": 0.45,
-    "start": 18.933333333333334,
-    "end": 51.46666666666667,
-    "measuredSyntheticWithPauses": 32.53333333333333,
-    "deliveryCues": [
+    source:
+      "Human footage: Something-Something-v2 validation sample 174198.webm, label putting jar into box, template Putting [something] into [something]. Retrieved from the public morpheushoc/something-something-v2 archive mirror and checked against its validation.json annotation; native 427x240, 12 fps, 5.916 seconds. Cropped to 426x192; output duplicates source frames at 60 fps. Before/during/after stills are from this same clip. This is a verified V2 dataset example, not an identified VLA-JEPA training example. Dataset: https://www.qualcomm.com/developer/software/something-something-v-2-dataset . Mirror: https://huggingface.co/datasets/morpheushoc/something-something-v2 . Robot footage: real DROID episode AUTOLab+0d4edc83+2023-10-27-19h-52m-50s, exterior camera 24400334. Cropped; approximate timing restored from the 5.901-second recorded control-timestamp span, with an end hold. Paired trajectory.h5 contains recorded controls. Both videos play once silently, then hold. This is dataset footage, not a VLA-JEPA policy rollout. https://droid-dataset.github.io/visualizer/",
+    wordCount: 92,
+    pauseSeconds: 0.45,
+    start: 18.933333333333334,
+    end: 51.46666666666667,
+    measuredSyntheticWithPauses: 32.53333333333333,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 16.3,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 16.3,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Watch these two examples. On the left, a person puts a jar into a box. On the right, a robot puts a block into a bowl. Both show a change in the world. But only the robot demonstration comes with the control commands that produced it. Human videos are easier to collect, yet they don't tell a robot how to move its own joints or gripper. So the question is: can we learn something useful from the visual transition, and connect that knowledge to robot control? That's the gap this paper addresses.",
-    "id": "chapter-2",
-    "audioAsset": "narration-03.mp3"
+    notes:
+      "Watch these two examples. On the left, a person puts a jar into a box. On the right, a robot puts a block into a bowl. Both show a change in the world. But only the robot demonstration comes with the control commands that produced it. Human videos are easier to collect, yet they don't tell a robot how to move its own joints or gripper. So the question is: can we learn something useful from the visual transition, and connect that knowledge to robot control? That's the gap this paper addresses.",
+    id: "chapter-2",
+    audioAsset: "narration-03.mp3",
   },
   {
-    "n": 3,
-    "speaker": "Noah",
-    "budget": 76.16666666666667,
-    "section": "Related work",
-    "title": "Feature prediction is shared; the pipeline differs",
-    "purpose": "Explain the contribution relative to robot-supervised VLAs, latent-action learning, and JEPA.",
-    "chunks": [
+    n: 3,
+    speaker: "Noah",
+    budget: 76.16666666666667,
+    section: "Related work",
+    title: "Feature prediction is shared; the pipeline differs",
+    purpose:
+      "Explain the contribution relative to robot-supervised VLAs, latent-action learning, and JEPA.",
+    chunks: [
       {
-        "text": "Let's start with the problem these methods share. A normal vision language action model learns from robot demonstrations: it sees an image and an instruction, and predicts the recorded controls. But collecting those controls is expensive. Human videos are much easier to find, and they show useful changes without recording a robot's motor commands. So how do we turn watching into supervision? LAPA learns a compact code from a pair of video frames, using reconstruction of the future pixels. The policy learns to predict that code, and is then adapted to robot actions. UniVLA follows a related idea, but its reconstruction target is DINO visual features. That's an important distinction: feature-space learning already existed before VLA JEPA. VLA JEPA changes how the policy is trained. Its tokens come from the current observation and instruction. Those tokens must help predict future state features, while the actual future frame is kept on the target side. Robot demonstrations then teach a separate action head to produce controls. The contribution isn't simply that it uses embeddings. It's the training pathway, and which information the policy is allowed to see. Now let's unpack that pathway.",
-        "pause": 0.45,
-        "focus": "Explain the concrete example before naming the abstraction.",
-        "voice": "Warm conversational explanation; brief natural breaths."
-      }
+        text: "Let's start with the problem these methods share. A normal vision language action model learns from robot demonstrations: it sees an image and an instruction, and predicts the recorded controls. But collecting those controls is expensive. Human videos are much easier to find, and they show useful changes without recording a robot's motor commands. So how do we turn watching into supervision? LAPA learns a compact code from a pair of video frames, using reconstruction of the future pixels. The policy learns to predict that code, and is then adapted to robot actions. UniVLA follows a related idea, but its reconstruction target is DINO visual features. That's an important distinction: feature-space learning already existed before VLA JEPA. VLA JEPA changes how the policy is trained. Its tokens come from the current observation and instruction. Those tokens must help predict future state features, while the actual future frame is kept on the target side. Robot demonstrations then teach a separate action head to produce controls. The contribution isn't simply that it uses embeddings. It's the training pathway, and which information the policy is allowed to see. Now let's unpack that pathway.",
+        pause: 0.45,
+        focus: "Explain the concrete example before naming the abstraction.",
+        voice: "Warm conversational explanation; brief natural breaths.",
+      },
     ],
-    "source": "LAPA (2024), §3; UniVLA (RSS 2025), §III; VLA-JEPA (2026), §3. Different targets and pipelines; feature prediction is not unique to VLA-JEPA.",
-    "wordCount": 190,
-    "pauseSeconds": 0.45,
-    "start": 51.46666666666667,
-    "end": 127.63333333333334,
-    "measuredSyntheticWithPauses": 76.16666666666667,
-    "deliveryCues": [
+    source:
+      "LAPA (2024), §3; UniVLA (RSS 2025), §III; VLA-JEPA (2026), §3. Different targets and pipelines; feature prediction is not unique to VLA-JEPA.",
+    wordCount: 190,
+    pauseSeconds: 0.45,
+    start: 51.46666666666667,
+    end: 127.63333333333334,
+    measuredSyntheticWithPauses: 76.16666666666667,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Start from the visible example; keep the explanation connected."
+        time: 0,
+        instruction:
+          "Start from the visible example; keep the explanation connected.",
       },
       {
-        "time": 38.1,
-        "instruction": "Emphasize the distinction between an illustration and the learned quantity."
-      }
+        time: 38.1,
+        instruction:
+          "Emphasize the distinction between an illustration and the learned quantity.",
+      },
     ],
-    "notes": "Let's start with the problem these methods share. A normal vision language action model learns from robot demonstrations: it sees an image and an instruction, and predicts the recorded controls. But collecting those controls is expensive. Human videos are much easier to find, and they show useful changes without recording a robot's motor commands. So how do we turn watching into supervision? LAPA learns a compact code from a pair of video frames, using reconstruction of the future pixels. The policy learns to predict that code, and is then adapted to robot actions. UniVLA follows a related idea, but its reconstruction target is DINO visual features. That's an important distinction: feature-space learning already existed before VLA JEPA. VLA JEPA changes how the policy is trained. Its tokens come from the current observation and instruction. Those tokens must help predict future state features, while the actual future frame is kept on the target side. Robot demonstrations then teach a separate action head to produce controls. The contribution isn't simply that it uses embeddings. It's the training pathway, and which information the policy is allowed to see. Now let's unpack that pathway.",
-    "backup": false,
-    "id": "chapter-3",
-    "audioAsset": "narration-04.mp3"
+    notes:
+      "Let's start with the problem these methods share. A normal vision language action model learns from robot demonstrations: it sees an image and an instruction, and predicts the recorded controls. But collecting those controls is expensive. Human videos are much easier to find, and they show useful changes without recording a robot's motor commands. So how do we turn watching into supervision? LAPA learns a compact code from a pair of video frames, using reconstruction of the future pixels. The policy learns to predict that code, and is then adapted to robot actions. UniVLA follows a related idea, but its reconstruction target is DINO visual features. That's an important distinction: feature-space learning already existed before VLA JEPA. VLA JEPA changes how the policy is trained. Its tokens come from the current observation and instruction. Those tokens must help predict future state features, while the actual future frame is kept on the target side. Robot demonstrations then teach a separate action head to produce controls. The contribution isn't simply that it uses embeddings. It's the training pathway, and which information the policy is allowed to see. Now let's unpack that pathway.",
+    backup: false,
+    id: "chapter-3",
+    audioAsset: "narration-04.mp3",
   },
   {
-    "n": 4,
-    "speaker": "Noah",
-    "budget": 46.9,
-    "section": "Method 1 of 5 · Human video supervision",
-    "title": "Predict a future state in feature space",
-    "purpose": "Explain the JEPA target/predictor distinction using the original paper figure.",
-    "chunks": [
+    n: 4,
+    speaker: "Noah",
+    budget: 46.9,
+    section: "Method 1 of 5 · Human video supervision",
+    title: "Predict a future state in feature space",
+    purpose:
+      "Explain the JEPA target/predictor distinction using the original paper figure.",
+    chunks: [
       {
-        "text": "Think about watching someone put a jar into a box. You can anticipate the outcome without drawing every pixel of the next frame. That's the intuition, but let's make the model's prediction precise. The latent action tokens describe a transition. The world predictor takes those tokens, together with encoded state history, and predicts the next state's embedding. A frozen V JEPA two encoder processes the actual future video to give us a target. We compare the two representations. We're predicting future visual features, not an image, and not the robot's joint coordinates. A separate action head handles control. Let's follow those same pieces through the model.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Think about watching someone put a jar into a box. You can anticipate the outcome without drawing every pixel of the next frame. That's the intuition, but let's make the model's prediction precise. The latent action tokens describe a transition. The world predictor takes those tokens, together with encoded state history, and predicts the next state's embedding. A frozen V JEPA two encoder processes the actual future video to give us a target. We compare the two representations. We're predicting future visual features, not an image, and not the robot's joint coordinates. A separate action head handles control. Let's follow those same pieces through the model.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 106,
-    "pauseSeconds": 0.45,
-    "start": 127.63333333333334,
-    "end": 174.53333333333333,
-    "measuredSyntheticWithPauses": 46.9,
-    "deliveryCues": [
+    source:
+      "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    wordCount: 106,
+    pauseSeconds: 0.45,
+    start: 127.63333333333334,
+    end: 174.53333333333333,
+    measuredSyntheticWithPauses: 46.9,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 23.4,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 23.4,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Think about watching someone put a jar into a box. You can anticipate the outcome without drawing every pixel of the next frame. That's the intuition, but let's make the model's prediction precise. The latent action tokens describe a transition. The world predictor takes those tokens, together with encoded state history, and predicts the next state's embedding. A frozen V JEPA two encoder processes the actual future video to give us a target. We compare the two representations. We're predicting future visual features, not an image, and not the robot's joint coordinates. A separate action head handles control. Let's follow those same pieces through the model.",
-    "backup": false,
-    "id": "chapter-4",
-    "audioAsset": "narration-05.mp3"
+    notes:
+      "Think about watching someone put a jar into a box. You can anticipate the outcome without drawing every pixel of the next frame. That's the intuition, but let's make the model's prediction precise. The latent action tokens describe a transition. The world predictor takes those tokens, together with encoded state history, and predicts the next state's embedding. A frozen V JEPA two encoder processes the actual future video to give us a target. We compare the two representations. We're predicting future visual features, not an image, and not the robot's joint coordinates. A separate action head handles control. Let's follow those same pieces through the model.",
+    backup: false,
+    id: "chapter-4",
+    audioAsset: "narration-05.mp3",
   },
   {
-    "n": 5,
-    "speaker": "Noah",
-    "budget": 22.666666666666668,
-    "section": "Method 2 of 5 · Architecture",
-    "title": "First, encode the observation and instruction",
-    "purpose": "Introduce the first architecture path before revealing the predictor.",
-    "chunks": [
+    n: 5,
+    speaker: "Noah",
+    budget: 22.666666666666668,
+    section: "Method 2 of 5 · Architecture",
+    title: "First, encode the observation and instruction",
+    purpose:
+      "Introduce the first architecture path before revealing the predictor.",
+    chunks: [
       {
-        "text": "First, the policy reads the current observation and the instruction. Its vision language backbone is Qwen three V L, with two billion parameters. It produces latent action tokens: an internal representation of the transition the instruction calls for. These tokens will condition prediction and control, but they aren't motor commands yet.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "First, the policy reads the current observation and the instruction. Its vision language backbone is Qwen three V L, with two billion parameters. It produces latent action tokens: an internal representation of the transition the instruction calls for. These tokens will condition prediction and control, but they aren't motor commands yet.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 51,
-    "pauseSeconds": 0.45,
-    "start": 174.53333333333333,
-    "end": 197.2,
-    "measuredSyntheticWithPauses": 22.666666666666668,
-    "deliveryCues": [
+    source:
+      "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    wordCount: 51,
+    pauseSeconds: 0.45,
+    start: 174.53333333333333,
+    end: 197.2,
+    measuredSyntheticWithPauses: 22.666666666666668,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 11.3,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 11.3,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "First, the policy reads the current observation and the instruction. Its vision language backbone is Qwen three V L, with two billion parameters. It produces latent action tokens: an internal representation of the transition the instruction calls for. These tokens will condition prediction and control, but they aren't motor commands yet.",
-    "backup": false,
-    "id": "chapter-5",
-    "audioAsset": "narration-06.mp3"
+    notes:
+      "First, the policy reads the current observation and the instruction. Its vision language backbone is Qwen three V L, with two billion parameters. It produces latent action tokens: an internal representation of the transition the instruction calls for. These tokens will condition prediction and control, but they aren't motor commands yet.",
+    backup: false,
+    id: "chapter-5",
+    audioAsset: "narration-06.mp3",
   },
   {
-    "n": 6,
-    "speaker": "Noah",
-    "budget": 23.416666666666668,
-    "section": "Method 2 of 5 · Architecture",
-    "title": "Predict the next state’s embedding",
-    "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
-    "chunks": [
+    n: 6,
+    speaker: "Noah",
+    budget: 23.416666666666668,
+    section: "Method 2 of 5 · Architecture",
+    title: "Predict the next state’s embedding",
+    purpose:
+      "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
+    chunks: [
       {
-        "text": "Next, the world predictor combines those tokens with encoded state history. Its output is the next state's embedding. That distinction matters: the tokens represent a transition; the prediction represents the future state. There's no image decoder in this branch. The actual future will supply a training target, rather than an input to the policy.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Next, the world predictor combines those tokens with encoded state history. Its output is the next state's embedding. That distinction matters: the tokens represent a transition; the prediction represents the future state. There's no image decoder in this branch. The actual future will supply a training target, rather than an input to the policy.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 54,
-    "pauseSeconds": 0.45,
-    "start": 197.2,
-    "end": 220.61666666666665,
-    "measuredSyntheticWithPauses": 23.416666666666668,
-    "deliveryCues": [
+    source:
+      "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    wordCount: 54,
+    pauseSeconds: 0.45,
+    start: 197.2,
+    end: 220.61666666666665,
+    measuredSyntheticWithPauses: 23.416666666666668,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 11.7,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 11.7,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Next, the world predictor combines those tokens with encoded state history. Its output is the next state's embedding. That distinction matters: the tokens represent a transition; the prediction represents the future state. There's no image decoder in this branch. The actual future will supply a training target, rather than an input to the policy.",
-    "backup": false,
-    "id": "chapter-6",
-    "audioAsset": "narration-07.mp3"
+    notes:
+      "Next, the world predictor combines those tokens with encoded state history. Its output is the next state's embedding. That distinction matters: the tokens represent a transition; the prediction represents the future state. There's no image decoder in this branch. The actual future will supply a training target, rather than an input to the policy.",
+    backup: false,
+    id: "chapter-6",
+    audioAsset: "narration-07.mp3",
   },
   {
-    "n": 7,
-    "speaker": "Noah",
-    "budget": 24.416666666666668,
-    "section": "Method 2 of 5 · Architecture",
-    "title": "Compare the prediction with the observed future",
-    "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
-    "chunks": [
+    n: 7,
+    speaker: "Noah",
+    budget: 24.416666666666668,
+    section: "Method 2 of 5 · Architecture",
+    title: "Compare the prediction with the observed future",
+    purpose:
+      "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
+    chunks: [
       {
-        "text": "Now we can check the prediction. The frozen encoder processes the actual future frames and produces the target embedding. The alignment loss measures the mismatch. Training updates the prediction path, including the vision language model, while the target encoder stays fixed. So a video teaches the policy which representations are useful for anticipating what happens next.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Now we can check the prediction. The frozen encoder processes the actual future frames and produces the target embedding. The alignment loss measures the mismatch. Training updates the prediction path, including the vision language model, while the target encoder stays fixed. So a video teaches the policy which representations are useful for anticipating what happens next.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 56,
-    "pauseSeconds": 0.45,
-    "start": 220.61666666666665,
-    "end": 245.0333333333333,
-    "measuredSyntheticWithPauses": 24.416666666666668,
-    "deliveryCues": [
+    source:
+      "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    wordCount: 56,
+    pauseSeconds: 0.45,
+    start: 220.61666666666665,
+    end: 245.0333333333333,
+    measuredSyntheticWithPauses: 24.416666666666668,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 12.2,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 12.2,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Now we can check the prediction. The frozen encoder processes the actual future frames and produces the target embedding. The alignment loss measures the mismatch. Training updates the prediction path, including the vision language model, while the target encoder stays fixed. So a video teaches the policy which representations are useful for anticipating what happens next.",
-    "backup": false,
-    "id": "chapter-7",
-    "audioAsset": "narration-08.mp3"
+    notes:
+      "Now we can check the prediction. The frozen encoder processes the actual future frames and produces the target embedding. The alignment loss measures the mismatch. Training updates the prediction path, including the vision language model, while the target encoder stays fixed. So a video teaches the policy which representations are useful for anticipating what happens next.",
+    backup: false,
+    id: "chapter-7",
+    audioAsset: "narration-08.mp3",
   },
   {
-    "n": 8,
-    "speaker": "Noah",
-    "budget": 44.96666666666667,
-    "section": "Method 3 of 5 · Information flow",
-    "title": "The predictor sees history, while future states are targets",
-    "purpose": "Resolve the subtle difference between target supervision and teacher-forced world-model history.",
-    "chunks": [
+    n: 8,
+    speaker: "Noah",
+    budget: 44.96666666666667,
+    section: "Method 3 of 5 · Information flow",
+    title: "The predictor sees history, while future states are targets",
+    purpose:
+      "Resolve the subtle difference between target supervision and teacher-forced world-model history.",
+    chunks: [
       {
-        "text": "Here's the boundary that makes the comparison meaningful. The policy starts from the current observation and instruction. The world predictor can use encoded state history, but not frames from the future it is being asked to predict. Those future frames are used by the frozen encoder to build the training target. We compare against that target, and the error updates the trainable pathway. This is different from an inverse model that receives both frames to label a transition. At deployment, we keep the observation, instruction, tokens and action head. The future target is gone. These tokens still aren't motor commands. Fernando will show how robot demonstrations teach the action head to turn them into an executable sequence.",
-        "pause": 0.45,
-        "focus": "Explain the concrete example before naming the abstraction.",
-        "voice": "Warm conversational explanation; brief natural breaths."
-      }
+        text: "Here's the boundary that makes the comparison meaningful. The policy starts from the current observation and instruction. The world predictor can use encoded state history, but not frames from the future it is being asked to predict. Those future frames are used by the frozen encoder to build the training target. We compare against that target, and the error updates the trainable pathway. This is different from an inverse model that receives both frames to label a transition. At deployment, we keep the observation, instruction, tokens and action head. The future target is gone. These tokens still aren't motor commands. Fernando will show how robot demonstrations teach the action head to turn them into an executable sequence.",
+        pause: 0.45,
+        focus: "Explain the concrete example before naming the abstraction.",
+        voice: "Warm conversational explanation; brief natural breaths.",
+      },
     ],
-    "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 117,
-    "pauseSeconds": 0.45,
-    "start": 245.0333333333333,
-    "end": 290.0,
-    "measuredSyntheticWithPauses": 44.96666666666667,
-    "deliveryCues": [
+    source:
+      "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
+    wordCount: 117,
+    pauseSeconds: 0.45,
+    start: 245.0333333333333,
+    end: 290.0,
+    measuredSyntheticWithPauses: 44.96666666666667,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Start from the visible example; keep the explanation connected."
+        time: 0,
+        instruction:
+          "Start from the visible example; keep the explanation connected.",
       },
       {
-        "time": 22.5,
-        "instruction": "Emphasize the distinction between an illustration and the learned quantity."
-      }
+        time: 22.5,
+        instruction:
+          "Emphasize the distinction between an illustration and the learned quantity.",
+      },
     ],
-    "notes": "Here's the boundary that makes the comparison meaningful. The policy starts from the current observation and instruction. The world predictor can use encoded state history, but not frames from the future it is being asked to predict. Those future frames are used by the frozen encoder to build the training target. We compare against that target, and the error updates the trainable pathway. This is different from an inverse model that receives both frames to label a transition. At deployment, we keep the observation, instruction, tokens and action head. The future target is gone. These tokens still aren't motor commands. Fernando will show how robot demonstrations teach the action head to turn them into an executable sequence.",
-    "backup": false,
-    "id": "chapter-8",
-    "audioAsset": "narration-09.mp3"
+    notes:
+      "Here's the boundary that makes the comparison meaningful. The policy starts from the current observation and instruction. The world predictor can use encoded state history, but not frames from the future it is being asked to predict. Those future frames are used by the frozen encoder to build the training target. We compare against that target, and the error updates the trainable pathway. This is different from an inverse model that receives both frames to label a transition. At deployment, we keep the observation, instruction, tokens and action head. The future target is gone. These tokens still aren't motor commands. Fernando will show how robot demonstrations teach the action head to turn them into an executable sequence.",
+    backup: false,
+    id: "chapter-8",
+    audioAsset: "narration-09.mp3",
   },
   {
-    "n": 9,
-    "speaker": "Fernando",
-    "budget": 60.15,
-    "section": "Method 4 of 5 · Action generation",
-    "title": "Learn to update a whole sequence of robot controls",
-    "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
-    "chunks": [
+    n: 9,
+    speaker: "Fernando",
+    budget: 60.15,
+    section: "Method 4 of 5 · Action generation",
+    title: "Learn to update a whole sequence of robot controls",
+    purpose:
+      "Explain interpolation, velocity supervision, and inference as separate operations.",
+    chunks: [
       {
-        "text": "Thanks, Noah. Let's make that sequence concrete before we call it flow matching. A robot demonstration records controls over time: how to move the end effector, how to rotate it, and when to close the gripper. The action head predicts a short chunk of those controls together. In this illustration, each panel shows a whole control sequence. The horizontal axis is the sequence of commands, not the robot's path across the table. Start with a demonstrated sequence on the right. Now sample a random sequence of the same shape on the left. During training, we mix those two sequences at a randomly chosen mixing time. The model sees that mixture, the mixing time, and the policy's conditioning tokens. Its job is to predict the velocity pointing from the random sample toward the demonstration. The orange arrow shows that training target; the blue arrow shows the model's estimate. We train by matching them, across many examples and mixing times. That's flow matching. We're learning how to update a sequence of controls, not moving a physical robot from a noise cloud.",
-        "pause": 0.45,
-        "focus": "Explain the concrete example before naming the abstraction.",
-        "voice": "Warm conversational explanation; brief natural breaths."
-      }
+        text: "Thanks, Noah. Let's make that sequence concrete before we call it flow matching. A robot demonstration records controls over time: how to move the end effector, how to rotate it, and when to close the gripper. The action head predicts a short chunk of those controls together. In this illustration, each panel shows a whole control sequence. The horizontal axis is the sequence of commands, not the robot's path across the table. Start with a demonstrated sequence on the right. Now sample a random sequence of the same shape on the left. During training, we mix those two sequences at a randomly chosen mixing time. The model sees that mixture, the mixing time, and the policy's conditioning tokens. Its job is to predict the velocity pointing from the random sample toward the demonstration. The orange arrow shows that training target; the blue arrow shows the model's estimate. We train by matching them, across many examples and mixing times. That's flow matching. We're learning how to update a sequence of controls, not moving a physical robot from a noise cloud.",
+        pause: 0.45,
+        focus: "Explain the concrete example before naming the abstraction.",
+        voice: "Warm conversational explanation; brief natural breaths.",
+      },
     ],
-    "source": "Paper §3.3, Eqs. 7–8. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
-    "wordCount": 179,
-    "pauseSeconds": 0.45,
-    "start": 290.0,
-    "end": 350.15,
-    "measuredSyntheticWithPauses": 60.15,
-    "deliveryCues": [
+    source:
+      "Paper §3.3, Eqs. 7–8. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
+    wordCount: 179,
+    pauseSeconds: 0.45,
+    start: 290.0,
+    end: 350.15,
+    measuredSyntheticWithPauses: 60.15,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Start from the visible example; keep the explanation connected."
+        time: 0,
+        instruction:
+          "Start from the visible example; keep the explanation connected.",
       },
       {
-        "time": 30.1,
-        "instruction": "Emphasize the distinction between an illustration and the learned quantity."
-      }
+        time: 30.1,
+        instruction:
+          "Emphasize the distinction between an illustration and the learned quantity.",
+      },
     ],
-    "notes": "Thanks, Noah. Let's make that sequence concrete before we call it flow matching. A robot demonstration records controls over time: how to move the end effector, how to rotate it, and when to close the gripper. The action head predicts a short chunk of those controls together. In this illustration, each panel shows a whole control sequence. The horizontal axis is the sequence of commands, not the robot's path across the table. Start with a demonstrated sequence on the right. Now sample a random sequence of the same shape on the left. During training, we mix those two sequences at a randomly chosen mixing time. The model sees that mixture, the mixing time, and the policy's conditioning tokens. Its job is to predict the velocity pointing from the random sample toward the demonstration. The orange arrow shows that training target; the blue arrow shows the model's estimate. We train by matching them, across many examples and mixing times. That's flow matching. We're learning how to update a sequence of controls, not moving a physical robot from a noise cloud.",
-    "backup": false,
-    "id": "chapter-9",
-    "audioAsset": "narration-10.mp3"
+    notes:
+      "Thanks, Noah. Let's make that sequence concrete before we call it flow matching. A robot demonstration records controls over time: how to move the end effector, how to rotate it, and when to close the gripper. The action head predicts a short chunk of those controls together. In this illustration, each panel shows a whole control sequence. The horizontal axis is the sequence of commands, not the robot's path across the table. Start with a demonstrated sequence on the right. Now sample a random sequence of the same shape on the left. During training, we mix those two sequences at a randomly chosen mixing time. The model sees that mixture, the mixing time, and the policy's conditioning tokens. Its job is to predict the velocity pointing from the random sample toward the demonstration. The orange arrow shows that training target; the blue arrow shows the model's estimate. We train by matching them, across many examples and mixing times. That's flow matching. We're learning how to update a sequence of controls, not moving a physical robot from a noise cloud.",
+    backup: false,
+    id: "chapter-9",
+    audioAsset: "narration-10.mp3",
   },
   {
-    "n": 10,
-    "speaker": "Fernando",
-    "budget": 42.583333333333336,
-    "section": "Method 4 of 5 · Action generation",
-    "title": "Generate a control sequence with repeated learned updates",
-    "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
-    "chunks": [
+    n: 10,
+    speaker: "Fernando",
+    budget: 42.583333333333336,
+    section: "Method 4 of 5 · Action generation",
+    title: "Generate a control sequence with repeated learned updates",
+    purpose:
+      "Explain interpolation, velocity supervision, and inference as separate operations.",
+    chunks: [
       {
-        "text": "At deployment we don't have a demonstration to mix in. We start with a fresh random control sequence. The learned model predicts an update, conditioned on what the robot sees and what it has been asked to do. Apply a small update, ask the model again, and repeat. Here the sequence becomes more structured over four updates; the shape is illustrative, not a measured policy output. The head produces an action chunk that the controller can execute, and the policy is queried again as new observations arrive. So training teaches the update rule using known examples. Inference follows that learned rule without a future target or a demonstrated answer. This is a separate generation process from predicting visual embeddings.",
-        "pause": 0.45,
-        "focus": "Explain the concrete example before naming the abstraction.",
-        "voice": "Warm conversational explanation; brief natural breaths."
-      }
+        text: "At deployment we don't have a demonstration to mix in. We start with a fresh random control sequence. The learned model predicts an update, conditioned on what the robot sees and what it has been asked to do. Apply a small update, ask the model again, and repeat. Here the sequence becomes more structured over four updates; the shape is illustrative, not a measured policy output. The head produces an action chunk that the controller can execute, and the policy is queried again as new observations arrive. So training teaches the update rule using known examples. Inference follows that learned rule without a future target or a demonstrated answer. This is a separate generation process from predicting visual embeddings.",
+        pause: 0.45,
+        focus: "Explain the concrete example before naming the abstraction.",
+        voice: "Warm conversational explanation; brief natural breaths.",
+      },
     ],
-    "source": "Paper §3.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
-    "wordCount": 119,
-    "pauseSeconds": 0.45,
-    "start": 350.15,
-    "end": 392.7333333333333,
-    "measuredSyntheticWithPauses": 42.583333333333336,
-    "deliveryCues": [
+    source:
+      "Paper §3.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
+    wordCount: 119,
+    pauseSeconds: 0.45,
+    start: 350.15,
+    end: 392.7333333333333,
+    measuredSyntheticWithPauses: 42.583333333333336,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Start from the visible example; keep the explanation connected."
+        time: 0,
+        instruction:
+          "Start from the visible example; keep the explanation connected.",
       },
       {
-        "time": 21.3,
-        "instruction": "Emphasize the distinction between an illustration and the learned quantity."
-      }
+        time: 21.3,
+        instruction:
+          "Emphasize the distinction between an illustration and the learned quantity.",
+      },
     ],
-    "notes": "At deployment we don't have a demonstration to mix in. We start with a fresh random control sequence. The learned model predicts an update, conditioned on what the robot sees and what it has been asked to do. Apply a small update, ask the model again, and repeat. Here the sequence becomes more structured over four updates; the shape is illustrative, not a measured policy output. The head produces an action chunk that the controller can execute, and the policy is queried again as new observations arrive. So training teaches the update rule using known examples. Inference follows that learned rule without a future target or a demonstrated answer. This is a separate generation process from predicting visual embeddings.",
-    "backup": false,
-    "id": "chapter-10",
-    "audioAsset": "narration-11.mp3"
+    notes:
+      "At deployment we don't have a demonstration to mix in. We start with a fresh random control sequence. The learned model predicts an update, conditioned on what the robot sees and what it has been asked to do. Apply a small update, ask the model again, and repeat. Here the sequence becomes more structured over four updates; the shape is illustrative, not a measured policy output. The head produces an action chunk that the controller can execute, and the policy is queried again as new observations arrive. So training teaches the update rule using known examples. Inference follows that learned rule without a future target or a demonstrated answer. This is a separate generation process from predicting visual embeddings.",
+    backup: false,
+    id: "chapter-10",
+    audioAsset: "narration-11.mp3",
   },
   {
-    "n": 11,
-    "speaker": "Fernando",
-    "budget": 47.28333333333333,
-    "section": "Method 5 of 5 · Joint optimization",
-    "title": "Visual supervision transfers; robot controls need an interface",
-    "purpose": "Explain which loss applies to each data source and what remains frozen.",
-    "chunks": [
+    n: 11,
+    speaker: "Fernando",
+    budget: 47.28333333333333,
+    section: "Method 5 of 5 · Joint optimization",
+    title: "Visual supervision transfers; robot controls need an interface",
+    purpose:
+      "Explain which loss applies to each data source and what remains frozen.",
+    chunks: [
       {
-        "text": "Now the two data sources fit together. Human video supplies future visual targets, so it trains the predictive pathway without robot control labels. Robot demonstrations supply visual targets and recorded controls, so they also train the action head. Do all those demonstrations have to come from the same robot? Not every example in the paper does. LIBERO uses a Panda arm, SimplerEnv includes Google Robot and WidowX, and the real-world experiment uses a Franka Research three. But controls aren't interchangeable just because they have seven numbers. Their coordinate frames, units, gripper conventions and command timing need to be consistent with the controller, and the paper post-trains for its target setups. Our clips illustrate the data types; they are not evidence of zero-shot transfer between arbitrary robots. With that distinction in place, let's look at what the paper actually measures.",
-        "pause": 0.45,
-        "focus": "Explain the concrete example before naming the abstraction.",
-        "voice": "Warm conversational explanation; brief natural breaths."
-      }
+        text: "Now the two data sources fit together. Human video supplies future visual targets, so it trains the predictive pathway without robot control labels. Robot demonstrations supply visual targets and recorded controls, so they also train the action head. Do all those demonstrations have to come from the same robot? Not every example in the paper does. LIBERO uses a Panda arm, SimplerEnv includes Google Robot and WidowX, and the real-world experiment uses a Franka Research three. But controls aren't interchangeable just because they have seven numbers. Their coordinate frames, units, gripper conventions and command timing need to be consistent with the controller, and the paper post-trains for its target setups. Our clips illustrate the data types; they are not evidence of zero-shot transfer between arbitrary robots. With that distinction in place, let's look at what the paper actually measures.",
+        pause: 0.45,
+        focus: "Explain the concrete example before naming the abstraction.",
+        voice: "Warm conversational explanation; brief natural breaths.",
+      },
     ],
-    "source": "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper §§4.1–4.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
-    "wordCount": 139,
-    "pauseSeconds": 0.45,
-    "start": 392.7333333333333,
-    "end": 440.01666666666665,
-    "measuredSyntheticWithPauses": 47.28333333333333,
-    "deliveryCues": [
+    source:
+      "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper §§4.1–4.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
+    wordCount: 139,
+    pauseSeconds: 0.45,
+    start: 392.7333333333333,
+    end: 440.01666666666665,
+    measuredSyntheticWithPauses: 47.28333333333333,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Start from the visible example; keep the explanation connected."
+        time: 0,
+        instruction:
+          "Start from the visible example; keep the explanation connected.",
       },
       {
-        "time": 23.6,
-        "instruction": "Emphasize the distinction between an illustration and the learned quantity."
-      }
+        time: 23.6,
+        instruction:
+          "Emphasize the distinction between an illustration and the learned quantity.",
+      },
     ],
-    "notes": "Now the two data sources fit together. Human video supplies future visual targets, so it trains the predictive pathway without robot control labels. Robot demonstrations supply visual targets and recorded controls, so they also train the action head. Do all those demonstrations have to come from the same robot? Not every example in the paper does. LIBERO uses a Panda arm, SimplerEnv includes Google Robot and WidowX, and the real-world experiment uses a Franka Research three. But controls aren't interchangeable just because they have seven numbers. Their coordinate frames, units, gripper conventions and command timing need to be consistent with the controller, and the paper post-trains for its target setups. Our clips illustrate the data types; they are not evidence of zero-shot transfer between arbitrary robots. With that distinction in place, let's look at what the paper actually measures.",
-    "backup": false,
-    "id": "chapter-11",
-    "audioAsset": "narration-12.mp3"
+    notes:
+      "Now the two data sources fit together. Human video supplies future visual targets, so it trains the predictive pathway without robot control labels. Robot demonstrations supply visual targets and recorded controls, so they also train the action head. Do all those demonstrations have to come from the same robot? Not every example in the paper does. LIBERO uses a Panda arm, SimplerEnv includes Google Robot and WidowX, and the real-world experiment uses a Franka Research three. But controls aren't interchangeable just because they have seven numbers. Their coordinate frames, units, gripper conventions and command timing need to be consistent with the controller, and the paper post-trains for its target setups. Our clips illustrate the data types; they are not evidence of zero-shot transfer between arbitrary robots. With that distinction in place, let's look at what the paper actually measures.",
+    backup: false,
+    id: "chapter-11",
+    audioAsset: "narration-12.mp3",
   },
   {
-    "n": 12,
-    "speaker": "Fernando",
-    "budget": 13.5,
-    "section": "Paper results · Sun et al.",
-    "title": "Standard LIBERO: a near tie",
-    "purpose": "Compare matched benchmark numbers with correct units and a near-tie caveat.",
-    "chunks": [
+    n: 12,
+    speaker: "Fernando",
+    budget: 13.5,
+    section: "Paper results · Sun et al.",
+    title: "Standard LIBERO: a near tie",
+    purpose:
+      "Compare matched benchmark numbers with correct units and a near-tie caveat.",
+    chunks: [
       {
-        "text": "These are the paper's reported results. On standard LIBERO, VLA JEPA and OpenVLA O F T are almost tied: ninety seven point two versus ninety seven point one percent. That alone isn't a strong argument for the method.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "These are the paper's reported results. On standard LIBERO, VLA JEPA and OpenVLA O F T are almost tied: ninety seven point two versus ninety seven point one percent. That alone isn't a strong argument for the method.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
-    "wordCount": 38,
-    "pauseSeconds": 0.45,
-    "start": 440.01666666666665,
-    "end": 453.51666666666665,
-    "measuredSyntheticWithPauses": 13.5,
-    "deliveryCues": [
+    source:
+      "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
+    wordCount: 38,
+    pauseSeconds: 0.45,
+    start: 440.01666666666665,
+    end: 453.51666666666665,
+    measuredSyntheticWithPauses: 13.5,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 6.8,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 6.8,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "These are the paper's reported results. On standard LIBERO, VLA JEPA and OpenVLA O F T are almost tied: ninety seven point two versus ninety seven point one percent. That alone isn't a strong argument for the method.",
-    "backup": false,
-    "id": "chapter-12",
-    "audioAsset": "narration-13.mp3"
+    notes:
+      "These are the paper's reported results. On standard LIBERO, VLA JEPA and OpenVLA O F T are almost tied: ninety seven point two versus ninety seven point one percent. That alone isn't a strong argument for the method.",
+    backup: false,
+    id: "chapter-12",
+    audioAsset: "narration-13.mp3",
   },
   {
-    "n": 13,
-    "speaker": "Fernando",
-    "budget": 21.45,
-    "section": "Paper results · Sun et al.",
-    "title": "LIBERO-Plus: a larger gain under perturbations",
-    "purpose": "Compare matched benchmark numbers with correct units and a near-tie caveat.",
-    "chunks": [
+    n: 13,
+    speaker: "Fernando",
+    budget: 21.45,
+    section: "Paper results · Sun et al.",
+    title: "LIBERO-Plus: a larger gain under perturbations",
+    purpose:
+      "Compare matched benchmark numbers with correct units and a near-tie caveat.",
+    chunks: [
       {
-        "text": "LIBERO Plus is more revealing because it changes the camera, lighting, and object layout. The authors report seventy nine point five percent for VLA JEPA, versus sixty nine point six for OpenVLA O F T: a nine point nine percentage point gain. That supports robustness under these particular shifts. It doesn't tell us that every failure has been solved.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "LIBERO Plus is more revealing because it changes the camera, lighting, and object layout. The authors report seventy nine point five percent for VLA JEPA, versus sixty nine point six for OpenVLA O F T: a nine point nine percentage point gain. That supports robustness under these particular shifts. It doesn't tell us that every failure has been solved.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
-    "wordCount": 59,
-    "pauseSeconds": 0.45,
-    "start": 453.51666666666665,
-    "end": 474.96666666666664,
-    "measuredSyntheticWithPauses": 21.45,
-    "deliveryCues": [
+    source:
+      "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
+    wordCount: 59,
+    pauseSeconds: 0.45,
+    start: 453.51666666666665,
+    end: 474.96666666666664,
+    measuredSyntheticWithPauses: 21.45,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 10.7,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 10.7,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "LIBERO Plus is more revealing because it changes the camera, lighting, and object layout. The authors report seventy nine point five percent for VLA JEPA, versus sixty nine point six for OpenVLA O F T: a nine point nine percentage point gain. That supports robustness under these particular shifts. It doesn't tell us that every failure has been solved.",
-    "backup": false,
-    "id": "chapter-13",
-    "audioAsset": "narration-14.mp3"
+    notes:
+      "LIBERO Plus is more revealing because it changes the camera, lighting, and object layout. The authors report seventy nine point five percent for VLA JEPA, versus sixty nine point six for OpenVLA O F T: a nine point nine percentage point gain. That supports robustness under these particular shifts. It doesn't tell us that every failure has been solved.",
+    backup: false,
+    id: "chapter-13",
+    audioAsset: "narration-14.mp3",
   },
   {
-    "n": 14,
-    "speaker": "Fernando",
-    "budget": 18.75,
-    "section": "Paper results · Sun et al.",
-    "title": "Human video improves LIBERO-Plus robustness",
-    "purpose": "Use controlled within-method ablation and a counterexample to temper the main claim.",
-    "chunks": [
+    n: 14,
+    speaker: "Fernando",
+    budget: 18.75,
+    section: "Paper results · Sun et al.",
+    title: "Human video improves LIBERO-Plus robustness",
+    purpose:
+      "Use controlled within-method ablation and a counterexample to temper the main claim.",
+    chunks: [
       {
-        "text": "The ablation asks a more direct question: what happens without human video? On LIBERO Plus, the paper reports a drop from seventy nine point five to sixty two point nine percent. That's sixteen point six percentage points within the same method, giving stronger evidence for the contribution of that training source.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "The ablation asks a more direct question: what happens without human video? On LIBERO Plus, the paper reports a drop from seventy nine point five to sixty two point nine percent. That's sixteen point six percentage points within the same method, giving stronger evidence for the contribution of that training source.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
-    "wordCount": 51,
-    "pauseSeconds": 0.45,
-    "start": 474.96666666666664,
-    "end": 493.71666666666664,
-    "measuredSyntheticWithPauses": 18.75,
-    "deliveryCues": [
+    source:
+      "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
+    wordCount: 51,
+    pauseSeconds: 0.45,
+    start: 474.96666666666664,
+    end: 493.71666666666664,
+    measuredSyntheticWithPauses: 18.75,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 9.4,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 9.4,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "The ablation asks a more direct question: what happens without human video? On LIBERO Plus, the paper reports a drop from seventy nine point five to sixty two point nine percent. That's sixteen point six percentage points within the same method, giving stronger evidence for the contribution of that training source.",
-    "backup": false,
-    "id": "chapter-14",
-    "audioAsset": "narration-15.mp3"
+    notes:
+      "The ablation asks a more direct question: what happens without human video? On LIBERO Plus, the paper reports a drop from seventy nine point five to sixty two point nine percent. That's sixteen point six percentage points within the same method, giving stronger evidence for the contribution of that training source.",
+    backup: false,
+    id: "chapter-14",
+    audioAsset: "narration-15.mp3",
   },
   {
-    "n": 15,
-    "speaker": "Fernando",
-    "budget": 17.983333333333334,
-    "section": "Paper results · Sun et al.",
-    "title": "Human video does not improve every benchmark",
-    "purpose": "Use controlled within-method ablation and a counterexample to temper the main claim.",
-    "chunks": [
+    n: 15,
+    speaker: "Fernando",
+    budget: 17.983333333333334,
+    section: "Paper results · Sun et al.",
+    title: "Human video does not improve every benchmark",
+    purpose:
+      "Use controlled within-method ablation and a counterexample to temper the main claim.",
+    chunks: [
       {
-        "text": "But the benefit isn't universal. On the Google robot tasks in SimplerEnv, adding human video reduces reported success from seventy eight point four to sixty five point two percent. The strongest evidence here is for LIBERO Plus robustness, rather than improvement on every benchmark.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "But the benefit isn't universal. On the Google robot tasks in SimplerEnv, adding human video reduces reported success from seventy eight point four to sixty five point two percent. The strongest evidence here is for LIBERO Plus robustness, rather than improvement on every benchmark.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
-    "wordCount": 44,
-    "pauseSeconds": 0.45,
-    "start": 493.71666666666664,
-    "end": 511.7,
-    "measuredSyntheticWithPauses": 17.983333333333334,
-    "deliveryCues": [
+    source:
+      "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
+    wordCount: 44,
+    pauseSeconds: 0.45,
+    start: 493.71666666666664,
+    end: 511.7,
+    measuredSyntheticWithPauses: 17.983333333333334,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 9.0,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 9.0,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "But the benefit isn't universal. On the Google robot tasks in SimplerEnv, adding human video reduces reported success from seventy eight point four to sixty five point two percent. The strongest evidence here is for LIBERO Plus robustness, rather than improvement on every benchmark.",
-    "backup": false,
-    "id": "chapter-15",
-    "audioAsset": "narration-16.mp3"
+    notes:
+      "But the benefit isn't universal. On the Google robot tasks in SimplerEnv, adding human video reduces reported success from seventy eight point four to sixty five point two percent. The strongest evidence here is for LIBERO Plus robustness, rather than improvement on every benchmark.",
+    backup: false,
+    id: "chapter-15",
+    audioAsset: "narration-16.mp3",
   },
   {
-    "speaker": "Fernando",
-    "budget": 27.25,
-    "section": "Our project · Proposal and work so far",
-    "title": "Our proposal: evaluate efficiency without assuming success",
-    "purpose": "Explain the planned comparison and current preparation without announcing results.",
-    "chunks": [
+    speaker: "Fernando",
+    budget: 27.25,
+    section: "Our project · Proposal and work so far",
+    title: "Our proposal: evaluate efficiency without assuming success",
+    purpose:
+      "Explain the planned comparison and current preparation without announcing results.",
+    chunks: [
       {
-        "text": "That brings us to our project proposal. We're asking whether this approach can be made more practical on a single GPU. We plan to compare reduced precision against the same baseline, measuring memory, latency, and task success together. We're also exploring a smaller vision language backbone while keeping the predictive and action components. So far, our work is on the implementation and evaluation setup. We're not announcing project performance results here, and we don't yet know which approach will offer the best trade-off.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "That brings us to our project proposal. We're asking whether this approach can be made more practical on a single GPU. We plan to compare reduced precision against the same baseline, measuring memory, latency, and task success together. We're also exploring a smaller vision language backbone while keeping the predictive and action components. So far, our work is on the implementation and evaluation setup. We're not announcing project performance results here, and we don't yet know which approach will offer the best trade-off.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Presenters’ project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
-    "n": 16,
-    "start": 511.7,
-    "end": 538.95,
-    "wordCount": 83,
-    "pauseSeconds": 0.45,
-    "measuredSyntheticWithPauses": 27.25,
-    "deliveryCues": [
+    source:
+      "Presenters’ project proposal and work in progress. No project performance results, speedups, success retention or memory reductions are announced. Planned comparisons require matched evaluation; outcomes remain open.",
+    n: 16,
+    start: 511.7,
+    end: 538.95,
+    wordCount: 83,
+    pauseSeconds: 0.45,
+    measuredSyntheticWithPauses: 27.25,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 13.6,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 13.6,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "That brings us to our project proposal. We're asking whether this approach can be made more practical on a single GPU. We plan to compare reduced precision against the same baseline, measuring memory, latency, and task success together. We're also exploring a smaller vision language backbone while keeping the predictive and action components. So far, our work is on the implementation and evaluation setup. We're not announcing project performance results here, and we don't yet know which approach will offer the best trade-off.",
-    "backup": false,
-    "id": "chapter-16",
-    "audioAsset": "narration-17.mp3"
+    notes:
+      "That brings us to our project proposal. We're asking whether this approach can be made more practical on a single GPU. We plan to compare reduced precision against the same baseline, measuring memory, latency, and task success together. We're also exploring a smaller vision language backbone while keeping the predictive and action components. So far, our work is on the implementation and evaluation setup. We're not announcing project performance results here, and we don't yet know which approach will offer the best trade-off.",
+    backup: false,
+    id: "chapter-16",
+    audioAsset: "narration-17.mp3",
   },
   {
-    "n": 17,
-    "speaker": "Fernando",
-    "budget": 23.966666666666665,
-    "section": "Critical analysis",
-    "title": "Deployment gaps remain beyond headline averages",
-    "purpose": "Identify benchmark, statistical, semantic and hardware limits without inventing experiments.",
-    "chunks": [
+    n: 17,
+    speaker: "Fernando",
+    budget: 23.966666666666665,
+    section: "Critical analysis",
+    title: "Deployment gaps remain beyond headline averages",
+    purpose:
+      "Identify benchmark, statistical, semantic and hardware limits without inventing experiments.",
+    chunks: [
       {
-        "text": "The paper also leaves open questions. Under sensor noise, VLA JEPA trails pi zero in this comparison. Its real robot study uses only ten trials per task, with some wrong object selections. And training used eight A one hundred GPUs. Our proposed single GPU study concerns efficiency and deployment; it doesn't establish that reproducing the paper's training is cheap.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "The paper also leaves open questions. Under sensor noise, VLA JEPA trails pi zero in this comparison. Its real robot study uses only ten trials per task, with some wrong object selections. And training used eight A one hundred GPUs. Our proposed single GPU study concerns efficiency and deployment; it doesn't establish that reproducing the paper's training is cheap.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Sun et al., Table 3, §4.1, §4.4 and Appendix B. Ten trials per task describes the authors’ real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
-    "wordCount": 59,
-    "pauseSeconds": 0.45,
-    "start": 538.95,
-    "end": 562.9166666666667,
-    "measuredSyntheticWithPauses": 23.966666666666665,
-    "deliveryCues": [
+    source:
+      "Sun et al., Table 3, §4.1, §4.4 and Appendix B. Ten trials per task describes the authors’ real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
+    wordCount: 59,
+    pauseSeconds: 0.45,
+    start: 538.95,
+    end: 562.9166666666667,
+    measuredSyntheticWithPauses: 23.966666666666665,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 12.0,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 12.0,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "The paper also leaves open questions. Under sensor noise, VLA JEPA trails pi zero in this comparison. Its real robot study uses only ten trials per task, with some wrong object selections. And training used eight A one hundred GPUs. Our proposed single GPU study concerns efficiency and deployment; it doesn't establish that reproducing the paper's training is cheap.",
-    "backup": false,
-    "id": "chapter-17",
-    "audioAsset": "narration-18.mp3"
+    notes:
+      "The paper also leaves open questions. Under sensor noise, VLA JEPA trails pi zero in this comparison. Its real robot study uses only ten trials per task, with some wrong object selections. And training used eight A one hundred GPUs. Our proposed single GPU study concerns efficiency and deployment; it doesn't establish that reproducing the paper's training is cheap.",
+    backup: false,
+    id: "chapter-17",
+    audioAsset: "narration-18.mp3",
   },
   {
-    "n": 18,
-    "speaker": "Fernando",
-    "budget": 17.1,
-    "section": "Takeaway and discussion",
-    "title": "Predictive supervision strengthens the policy",
-    "purpose": "Close with a defensible takeaway and one answerable discussion question.",
-    "chunks": [
+    n: 18,
+    speaker: "Fernando",
+    budget: 17.1,
+    section: "Takeaway and discussion",
+    title: "Predictive supervision strengthens the policy",
+    purpose:
+      "Close with a defensible takeaway and one answerable discussion question.",
+    chunks: [
       {
-        "text": "Our takeaway is that predicting future features can help train a robot policy, with the clearest evidence here coming from robustness under perturbations. For our project, the question remains open: can we reduce the resource cost while keeping useful control? That's what we want to evaluate. Thank you.",
-        "pause": 0.45,
-        "focus": "Explain the visual relationship",
-        "voice": "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence."
-      }
+        text: "Our takeaway is that predicting future features can help train a robot policy, with the clearest evidence here coming from robustness under perturbations. For our project, the question remains open: can we reduce the resource cost while keeping useful control? That's what we want to evaluate. Thank you.",
+        pause: 0.45,
+        focus: "Explain the visual relationship",
+        voice:
+          "Conversational explanation to classmates, connected phrasing and gentle emphasis; no announcer cadence.",
+      },
     ],
-    "source": "Paper, sections 3 and 4.5. Suggested discussion experiment: controlled appearance changes versus changed dynamics, under matched data and compute. This is our proposed test, not a result in the paper.",
-    "wordCount": 48,
-    "pauseSeconds": 0.45,
-    "start": 562.9166666666667,
-    "end": 580.0166666666668,
-    "measuredSyntheticWithPauses": 17.1,
-    "deliveryCues": [
+    source:
+      "Paper, sections 3 and 4.5. Suggested discussion experiment: controlled appearance changes versus changed dynamics, under matched data and compute. This is our proposed test, not a result in the paper.",
+    wordCount: 48,
+    pauseSeconds: 0.45,
+    start: 562.9166666666667,
+    end: 580.0166666666668,
+    measuredSyntheticWithPauses: 17.1,
+    deliveryCues: [
       {
-        "time": 0,
-        "instruction": "Begin as a connected explanation; avoid a dramatic reset."
+        time: 0,
+        instruction:
+          "Begin as a connected explanation; avoid a dramatic reset.",
       },
       {
-        "time": 8.6,
-        "instruction": "Place gentle emphasis on the main distinction; leave a short breath between ideas."
-      }
+        time: 8.6,
+        instruction:
+          "Place gentle emphasis on the main distinction; leave a short breath between ideas.",
+      },
     ],
-    "notes": "Our takeaway is that predicting future features can help train a robot policy, with the clearest evidence here coming from robustness under perturbations. For our project, the question remains open: can we reduce the resource cost while keeping useful control? That's what we want to evaluate. Thank you.",
-    "backup": false,
-    "id": "chapter-18",
-    "audioAsset": "narration-19.mp3"
-  }
-];const stage=document.getElementById('stage'),audio=document.getElementById('audio');let index=0,p=0,playing=false,animation=false,last=0,auto=false;
-const ink='#142033',blue='#0284c7',gray='#94a3b8',muted='#64748b',orange='#bf531c',light='#e8f5fb';const clamp=x=>Math.max(0,Math.min(1,x));const ease=x=>{x=clamp(x);return x*x*(3-2*x)};const phase=(a,b)=>ease((p-a)/(b-a));
+    notes:
+      "Our takeaway is that predicting future features can help train a robot policy, with the clearest evidence here coming from robustness under perturbations. For our project, the question remains open: can we reduce the resource cost while keeping useful control? That's what we want to evaluate. Thank you.",
+    backup: false,
+    id: "chapter-18",
+    audioAsset: "narration-19.mp3",
+  },
+];

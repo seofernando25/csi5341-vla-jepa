@@ -8,14 +8,19 @@ Click / Right / Space: next animation beat. Right click / Left: previous beat.
 Replay beat repeats the current cue; Chapters jumps sections. End is authoring-only.
 N: notes. Hover near the bottom: chapter rail and playback controls.
 Narration assets are retained for exports. The main browser has no narration button.
-Chapter rail navigates the whole talk. Final view displays the complete visual state.
+Chapter rail navigates the whole talk. Each beat holds until the next input.
 
 Organization
   index.html       minimal page, local script dependencies
   styles.css       immersive stage, hover controls and chapter rail
   src/content.js   chapter content, notes, timing, sources and speaker allocation
-  src/player.js    chapter selection and keyboard controls
-  src/timeline.js  global chapter navigation and narration sequence
+  src/player.js    chapter selection and notes
+  src/controls.js  single keyboard, mouse and button bindings
+  src/timing/cues.js named windows and explicit transition durations
+  src/timing/clock.js pure playback state machine
+  src/beat-controller.js browser clock adapter
+  src/media.js     deterministic footage playback
+  src/timeline.js  chapter rail view
   src/drawing.js   canvas primitives, verified media and the human/robot scene
   src/motion-type.js  reel-card, typewriter and squash/settle text effects
   src/renderer.js  one retained canvas, display-refresh rendering
@@ -26,11 +31,13 @@ Organization
   src/choreography.js    explicit visual beat lengths and transformation primitives
   src/recorded-control.js verified DROID pose commands
   assets/three/feature-reel.js original procedural 3D feature sculpture
-  src/scenes/reference.js opening, discussion, proposal and appendix SVG scenes
+  src/scenes/related.js related-work comparison
+  src/scenes/benchmarks-data.js benchmark values
+  src/scenes/dispatch.js scene routing
   data.json        human-readable content mirror
   assets/          local footage, source frames, fonts, math and stock voice audio
 
-The method objects change position continuously between chapters 4–8.
+Shared method objects retain continuity between chapters 4–8. The future target dissolves in place to avoid crossing the diagram.
 Feature ribbons and action-space curves are schematic, not model measurements.
 The target is a future-state embedding. Transition tokens condition prediction and control.
 A separate flow-matching action head generates controls; no future-image decoder is required.

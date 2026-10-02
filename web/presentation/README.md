@@ -12,12 +12,17 @@ python3 -m http.server 8000 --bind 127.0.0.1
 
 Open http://localhost:8000/web/presentation/. No package installation, account or API key is required. Serve over HTTP rather than opening index.html directly so local modules and media load reliably. All runtime resources use relative paths, including when hosted under a subdirectory.
 
-Click the stage, press Right or Space to play the next animation beat. Right-click or press Left to return to the previous beat; chapter navigation jumps directly to a section. Each beat plays and holds without audio. Replay beat repeats the current beat; N opens notes. Hover near the bottom for controls; use Full screen for presenting. Narration is retained as an export asset, with its browser button hidden. End is a hidden authoring shortcut for the final state.
+Click the stage, press Right or Space to play the next animation beat. Right-click or press Left to return to the previous beat; chapter navigation jumps directly to a section. Each beat plays and holds without audio. Replay beat repeats the current beat; N opens notes. Hover near the bottom for controls; use Full screen for presenting. Narration is retained as an export asset, with its browser controls removed. End is a hidden authoring shortcut for the final state.
 
 ## Edit and rebuild
 
 - `src/content.js`: wording, presenter notes, sources and timing; keep `data.json` in sync.
-- `src/beat-controller.js`: presenter cue boundaries and playback speed.
+- `src/timing/cues.js`: one named active window and explicit duration per advance; idle authored time is skipped.
+- `src/timing/clock.js`: pure forward/back/replay state machine, with no DOM, audio or drawing dependencies.
+- `src/beat-controller.js`: clock-to-browser adapter; `src/controls.js` binds every input once.
+- `src/player.js`: chapter selection and notes; `src/timeline.js`: chapter rail only.
+- `src/media.js`: footage seeking/playback; `src/renderer.js`: frame loop.
+- `src/scenes/dispatch.js`: scene routing; scene files own compositions, and shared drawing primitives stay in `drawing.js`.
 - `src/choreography.js` and `src/scenes/`: motion and composition.
 - `assets/`: runtime fonts, math images, footage, Three.js, p5 and stock narration.
 - `tools/`: local authoring server, browser rendering and movie assembly. See [rebuild instructions](tools/README.txt).
@@ -37,3 +42,9 @@ Three.js is MIT licensed (license included), p5.js is LGPL-2.1 licensed (license
 The related-work sequence introduces the cost of control labels before contrasting pixel, feature and future-state supervision. The flow-matching sequence uses complete move/rotate/grip control chunks; its command-time axis is separate from generation time. Robot examples illustrate multiple embodiments, with compatible control conventions and target-specific post-training explained explicitly. Shared connector primitives keep one tangent-aligned tip per path; masked text changes take about 0.38 seconds.
 
 Motion typography lives in `src/motion-type.js`: masked reel-card changes retain a shared word prefix, selected terms squash and settle, and short instructions type in. Existing heading transitions are preserved. Effects stop at their settled state and the browser respects reduced-motion preferences. Authoring exports use the same deterministic beat times.
+
+## Transition review
+
+The source contains 21 JavaScript files, grouped by concern. All 48 beats across 18 chapters have explicit durations: ordinary transitions are 600 ms; deliberate footage and continuous demonstrations are longer. An advance plays one beat and holds. Inputs received during that beat are ignored rather than queued. Previous reverses the current beat; at a chapter boundary it returns to the preceding chapter’s final state. Replay repeats only the current beat. Neither the clock nor navigation depends on narration.
+
+Run `node web/presentation/tools/tests/manual-cues.cjs` from the repository root. For visual review, run `python3 web/presentation/tools/serve.py`, open its localhost address with `?authoring=1`, open Notes and choose **Audit every transition**. It captures all forward/replay paths, within-chapter reversals, and chapter boundaries in both directions at five positions. Output stays in ignored `build/rendered/`. This deterministic sampled audit checks layouts and replay consistency; it does not measure sustained real-device frame rate.

@@ -8,7 +8,7 @@ class Handler(SimpleHTTPRequestHandler):
  def __init__(self,*a,**kw):super().__init__(*a,directory=str(ROOT),**kw)
  def do_POST(self):
   name=self.path.rsplit('/',1)[-1]
-  if not self.path.startswith('/export/') or not re.fullmatch(r'(video-\d\d\.h264|slide-\d\d\.png|audit-\d\d-\d+\.png|type-\d\d-\d+\.png)',name):self.send_error(400);return
+  if not self.path.startswith('/export/') or not re.fullmatch(r'(video-\d\d\.h264|slide-\d\d\.png|audit-\d\d-\d+\.png|type-\d\d-\d+\.png|review-\d\d-(?:\d+|chapter)-(?:forward|back|replay)-[0-4]\.png|review-report\.json)',name):self.send_error(400);return
   size=int(self.headers.get('Content-Length','0'))
   if size<=0 or size>500_000_000:self.send_error(413);return
   (OUT/name).write_bytes(self.rfile.read(size));self.send_response(200);self.end_headers();self.wfile.write(b'ok')

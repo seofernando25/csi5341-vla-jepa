@@ -25,3 +25,8 @@ Only those visible main chapters are exported; the full viewer is unchanged.
 
 Append &typeaudit=1 to export only final/intermediate stills plus sub-second
 typography samples. It does not encode chapter videos.
+
+For all-transition review, choose Audit every transition from Notes in authoring mode.
+It saves five samples for every forward/replay/reverse beat and chapter boundary
+under build/rendered/review-*.png, plus review-report.json (160 paths, 800 samples).
+This is a deterministic visual audit, not a live FPS measurement.

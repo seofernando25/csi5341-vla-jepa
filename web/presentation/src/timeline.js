@@ -1,14 +1,29 @@
-/* Global chapter navigation and local motion are distinct clocks. */
-const mainScenes=visibleScenes.filter(i=>i<19),totalDuration=mainScenes.reduce((v,i)=>v+DATA[i].budget,0);
-let continuous=false;
-const fmt=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
-const chapterNames=i=>i===0?'Opening':i===2?'The data gap':i===3?'Related work':i<9?'Future-state prediction':i<12?'Robot control':i<16?'Evidence':i===16?'Our proposal':'Critical discussion';
-for(const i of mainScenes){const b=document.createElement('button');b.style.flex=DATA[i].budget;b.dataset.chapter=i;b.title=fmt(DATA[i].start)+' · '+DATA[i].title;b.setAttribute('aria-label',b.title);b.onclick=e=>{const narrating=continuous&&!audio.paused;select(i);const local=clamp((e.clientX-b.getBoundingClientRect().left)/b.getBoundingClientRect().width);audio.currentTime=local*DATA[i].budget;if(narrating){continuous=true;audio.play();}updateTimeline();};document.getElementById('chapter-timeline').append(b);}
-window.updateTimeline=()=>{const time=(DATA[index].start||0)+(continuous?audio.currentTime:DATA[index].budget*p);document.getElementById('chapter-label').textContent=chapterNames(index)+' · '+(index<19?sceneNumber(index)+'/18':'Appendix');document.getElementById('clock-label').textContent=continuous?fmt(time)+' / '+fmt(Math.round(totalDuration)):'Beat '+(Math.max(0,cueTimes().findIndex(t=>t>=sceneSeconds()-.03))+1)+' / '+cueTimes().length;for(const b of document.querySelectorAll('[data-chapter]')){const i=Number(b.dataset.chapter);b.classList.toggle('current',i===index);b.classList.toggle('visited',i<index);b.style.setProperty('--position',Math.min(100,(continuous?audio.currentTime/DATA[index].budget:p)*100)+'%');}};
-const oldReveal=revealUI;revealUI=function(){oldReveal();document.getElementById('timeline-shell').classList.add('show');clearTimeout(revealUI.timer);revealUI.timer=setTimeout(()=>document.getElementById('timeline-shell').classList.remove('show'),2200);};
-document.getElementById('talk').onclick=()=>{if(index>=19)return;if(audio.paused){if(audio.currentTime<.05){p=0;motion.from=null;if(index===0||index===2)startComparison();}continuous=true;presenter.manual=false;animation=true;audio.play().catch(()=>{});}else{continuous=false;audio.pause();}};
-audio.ontimeupdate=()=>updateTimeline();audio.onended=()=>{if(continuous){const n=mainScenes.indexOf(index)+1;if(n<mainScenes.length){select(mainScenes[n]);continuous=true;audio.play().catch(()=>{});}else continuous=false;}updateTimeline();};
-document.getElementById('animate').onclick=replayBeat;
-updateTimeline();revealUI();
-
-window.addEventListener('keydown',e=>{if(e.key==='End'){animation=false;p=1;motion.from=null;if(index===2||index===0)holdComparison(8);render();}if(e.key==='Home'){resetPresenter();}});
+/* Chapter rail is a view of presenter state; it does not bind playback handlers. */
+const mainScenes = visibleScenes,
+  totalDuration = mainScenes.reduce((v, i) => v + DATA[i].budget, 0);
+const fmt = (t) =>
+  Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+for (const i of mainScenes) {
+  const b = document.createElement("button");
+  b.style.flex = DATA[i].budget;
+  b.dataset.chapter = i;
+  b.title = DATA[i].title;
+  b.setAttribute("aria-label", "Chapter " + sceneNumber(i) + " · " + b.title);
+  b.onclick = () => select(i);
+  document.getElementById("chapter-timeline").append(b);
+}
+window.updateTimeline = () => {
+  document.getElementById("chapter-label").textContent =
+    "Chapter " + sceneNumber(index) + " / 18";
+  document.getElementById("clock-label").textContent =
+    presenter.spec?.label || "";
+  for (const b of document.querySelectorAll("[data-chapter]")) {
+    const i = Number(b.dataset.chapter);
+    b.classList.toggle("current", i === index);
+    b.classList.toggle("visited", i < index);
+    b.style.setProperty(
+      "--position",
+      ((presenter.cursor + 1) / cueSpecs().length) * 100 + "%",
+    );
+  }
+};
