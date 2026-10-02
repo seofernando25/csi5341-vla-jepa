@@ -14,11 +14,11 @@ function methodPose(){let a=poseFor(index);if(!motion.from)return a;let t=ease((
 function photo(c,im,x,y,w,h){c.save();c.beginPath();c.roundRect(x,y,w,h,10);c.clip();c.fillStyle='#eef2f4';c.fillRect(x,y,w,h);if(im.complete&&im.naturalWidth){let k=Math.min(w/im.naturalWidth,h/im.naturalHeight);c.drawImage(im,x+(w-im.naturalWidth*k)/2,y+(h-im.naturalHeight*k)/2,im.naturalWidth*k,im.naturalHeight*k);}c.restore();}
 function pill(c,text,x,y,color=blue){c.font='600 12px "Plus Jakarta Sans"';let w=c.measureText(text).width+24;c.fillStyle=color+'12';c.beginPath();c.roundRect(x-w/2,y-14,w,26,13);c.fill();label(c,text,x,y+3,12,color,true,'center');}
 function featureRibbon(c,x,y,w=125,color=blue,amount=1){const vals=[.3,.79,.52,.91,.24,.63,.4,.83,.32,.58,.92,.45];for(let j=0;j<vals.length;j++){let h=8+vals[j]*28*amount;c.fillStyle=color;c.globalAlpha=.3+vals[j]*.7;c.beginPath();c.roundRect(x-w/2+j*w/12,y-h/2,w/12-3,h,2);c.fill();}c.globalAlpha=1;}
-function block(c,x,y,labelText,sub,color=ink){c.fillStyle='#f1f6f8';c.beginPath();c.roundRect(x-70,y-40,140,80,14);c.fill();label(c,labelText,x,y-3,20,color,true,'center');label(c,sub,x,y+21,11,muted,false,'center');}
+function block(c,x,y,labelText,sub,color=ink){c.fillStyle='#f1f6f8';c.beginPath();c.roundRect(x-70,y-40,140,80,14);c.fill();c.font='700 20px "Plus Jakarta Sans"';const titleSize=Math.min(20,120/c.measureText(labelText).width*20);label(c,labelText,x,y-3,titleSize,color,true,'center');c.font='500 10px "Plus Jakarta Sans"';const lines=[];for(const part of sub.split('|')){let row='';for(const word of part.split(' ')){const next=row?row+' '+word:word;if(row&&c.measureText(next).width>120){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);}lines.forEach((line,j)=>label(c,line,x,y+15+j*13,10,muted,false,'center'));}
 function link(c,x,y,x2,y2,color=blue,t=1,bend=0){const dx=x2-x,dy=y2-y;const pts=Math.abs(dx)>Math.abs(dy)?[[x,y],[x+dx*.38,y+bend],[x2-dx*.38,y2+bend],[x2,y2]]:[[x,y],[x+bend,y+dy*.38],[x2+bend,y2-dy*.38],[x2,y2]];curve(c,pts,color,2,t,true);}
 function methodMotion(c){const s=sceneSeconds(),a=methodPose(),now=a.now,future=a.future;
 const title={4:'Predict a future state — in feature space',5:'The tokens describe an intended transition',6:'The predictor outputs the next state’s features',7:'The target stays fixed. The prediction learns.',8:'The policy never receives its future target'}[index];
-headerC(c,'Method · '+({4:'From video to supervision',5:'Policy representation',6:'World prediction',7:'Predictive alignment',8:'The information boundary'}[index]),title,'Paper §3.2 · SSV2 validation example #174198 · Features are schematic; not measured robot coordinates');
+headerC(c,'Method · '+({4:'From video to supervision',5:'Policy representation',6:'World prediction',7:'Predictive alignment',8:'The information boundary'}[index]),title,'Paper §3.2');
 photo(c,humanExamples[0],...now);photo(c,humanExamples[2],...future);
 if(index===4){
  label(c,'Now',now[0],now[1]-18,17,ink,true);label(c,'Later',future[0],future[1]-18,17,ink,true);
@@ -37,22 +37,30 @@ if(index===4){
  block(c,...a.model,'VLM','Qwen3-VL-2B');link(c,335,261,380,264,blue,beat(s,3));curve(c,[[285,384],[334,384],[328,284],[380,284]],blue,2,beat(s,3),true);
  emerge(c,s,8,()=>featureRibbon(c,...a.z,170));link(c,523,264,628,264,blue,beat(s,7));stampText(c,'Latent action tokens',730,322,20,blue,true,clamp((s-7)/TYPE_MOTION.stampSeconds),'center');
  label(c,'An intended transition',730,356,16,muted,false,'center');label(c,'Supervision only',820,461,12,orange,false,'center');
- label(c,'These tokens condition both prediction and control.',52,468,23,ink,true);label(c,'They are neither pixels nor executable motor commands.',52,493,16,muted);
+ label(c,'These tokens condition both prediction and control.',52,468,23,ink,true);
  }else if(index===6){
  label(c,'Encoded state history',65,164,17,ink,true);featureRibbon(c,155,330,170,gray);pill(c,'Frozen V-JEPA 2 encoder',155,373,ink);
  block(c,...a.model,'Predictor','causal state history + tokens');featureRibbon(c,...a.z,130);label(c,'Latent action tokens',475,140,17,blue,true,'center');
  link(c,475,192,475,245,blue,beat(s,.2));link(c,255,330,403,290,gray,beat(s,.2));curve(c,[[548,285],[597,285],[587,365],[622,365]],blue,2,beat(s,9),true);
  label(c,'Future target only',814,301,12,orange,false,'center');emerge(c,s,10,()=>featureRibbon(c,...a.pred,155));stampText(c,'Predicted next-state embedding',710,414,19,blue,true,clamp((s-10)/TYPE_MOTION.stampSeconds),'center');
- label(c,'The output describes the next state; the tokens describe the transition.',52,476,18,ink);label(c,'No image decoder is needed for this supervision objective.',52,499,16,muted);
+ label(c,'Predict features. No image decoder.',52,489,20,ink,true);
  }else if(index===7){
- block(c,...a.model,'Predictor','trainable');featureRibbon(c,...a.z,105);link(c,335,187,335,241,blue,beat(s,.1));link(c,230,250,263,272,gray,beat(s,.1));curve(c,[[230,384],[350,450],[785,475],[785,426]],orange,2,beat(s,.2),true);pill(c,'Frozen video encoder',483,448,orange);link(c,405,281,540,281,blue,beat(s,.35));
- label(c,'Observed future',65,451,13,orange,true);label(c,'Predicted',570,227,17,blue,true,'center');stampText(c,'Target · frozen',785,227,17,orange,true,clamp((s-.2)/TYPE_MOTION.stampSeconds),'center');
+ // Two independent lanes: each encoder precedes its own feature vector.
+ block(c,335,238,'Predictor','trainable');featureRibbon(c,335,156,105);
+ link(c,335,178,335,195,blue,beat(s,.1));link(c,230,239,260,239,gray,beat(s,.1));
+ block(c,335,382,'Video encoder','frozen',orange);link(c,230,382,260,382,orange,beat(s,.2));
+ curve(c,[[408,238],[452,238],[453,253],[500,253]],blue,2,beat(s,.35),true);
+ curve(c,[[408,382],[452,382],[453,397],[500,397]],orange,2,beat(s,.35),true);
+ label(c,'Now',65,180,12,muted,true);label(c,'Observed future',65,451,12,orange,true);
+ label(c,'Predicted features',505,213,16,blue,true);label(c,'Target features · frozen',505,357,16,orange,true);
  const u=beat(s,5,12),target=[.3,.79,.52,.91,.24,.63,.4,.83],initial=[.85,.2,.81,.24,.75,.2,.9,.19];
- for(let j=0;j<8;j++){let yy=253+j*22,v=target[j]+(initial[j]-target[j])*Math.pow(1-u,2)+.11*(1-u)*Math.sin(u*26+j);segment(c,550,yy,662,yy,'#e6edf1',2);segment(c,550,yy,550+112*v,yy,blue,7);segment(c,740,yy,852,yy,'#e6edf1',2);segment(c,740,yy,740+112*target[j],yy,orange,7);}
- const gap=1-u;c.save();c.globalAlpha=1-beat(s,17,.8);pill(c,'Feature mismatch',700,452,ink);c.restore();label(c,'Training makes noisy corrections, not a literal motion between states.',52,495,16,muted);
+ for(let j=0;j<8;j++){const x=507+j*45,v=target[j]+(initial[j]-target[j])*Math.pow(1-u,2)+.11*(1-u)*Math.sin(u*26+j);c.fillStyle='#edf3f6';c.beginPath();c.roundRect(x,226,24,69,3);c.fill();c.roundRect(x,370,24,69,3);c.fill();c.fillStyle=blue;c.beginPath();c.roundRect(x,295-69*clamp(v),24,69*clamp(v),3);c.fill();c.fillStyle=orange;c.beginPath();c.roundRect(x,439-69*target[j],24,69*target[j],3);c.fill();}
+ c.save();c.globalAlpha=1-beat(s,17,.8);pill(c,'Compare features',691,329,ink);c.restore();
+ label(c,'Only the prediction is updated.',52,489,19,ink,true);
+
  }else{
  label(c,'Initial observation',65,165,16,ink,true);block(c,...a.model,'Predictor','causal history');featureRibbon(c,...a.z,130);label(c,'Policy → latent tokens',485,142,16,blue,true,'center');link(c,245,234,413,268,blue,beat(s,.2));link(c,485,195,485,238,blue,beat(s,.2));link(c,558,279,686,279,blue,beat(s,.8));featureRibbon(c,...a.pred,140);label(c,'Prediction',760,322,18,blue,true,'center');
- c.save();c.strokeStyle='#dbe4ec';c.setLineDash([3,7]);c.beginPath();c.moveTo(52,347);c.lineTo(908,347);c.stroke();c.restore();label(c,'Training target only',65,395,21,orange,true);label(c,'Future frames stay below this boundary.',65,432,17,muted);link(c,702,396,662,396,orange,beat(s,1.5));pill(c,'Compare only',610,396,orange);label(c,'At deployment: observation + instruction → tokens → action head.',52,491,18,ink,true);
+ c.save();c.strokeStyle='#dbe4ec';c.setLineDash([3,7]);c.beginPath();c.moveTo(52,347);c.lineTo(908,347);c.stroke();c.restore();label(c,'Training target only',65,395,21,orange,true);link(c,702,396,662,396,orange,beat(s,1.5));pill(c,'Compare only',610,396,orange);label(c,'At deployment: observation + instruction → tokens → action head.',52,491,18,ink,true);
  }
 }
 function relatedMotion(c){const sec=sceneSeconds();headerC(c,'Related work · Why learn from video?','Same ambition. Different supervision.','OpenVLA · LAPA §3 · UniVLA §III · VLA-JEPA §3');

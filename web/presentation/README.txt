@@ -4,9 +4,10 @@ Serve this folder with a local static server; see README.md for repository comma
 18 narrated chapters. Main narration: about 9:40.
 Noah covers 1–8; Fernando covers 9–18, approximately equal time.
 
-Arrow keys: chapters. Space: replay/pause local motion. Home: replay. End: final audit state.
+Click / Right / Space: next animation beat. Right click / Left: previous beat.
+Replay beat repeats the current cue; Chapters jumps sections. End is authoring-only.
 N: notes. Hover near the bottom: chapter rail and playback controls.
-Play narration continues through the main talk; chapter motion has an independent clock.
+Narration assets are retained for exports. The main browser has no narration button.
 Chapter rail navigates the whole talk. Final view displays the complete visual state.
 
 Organization

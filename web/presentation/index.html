@@ -1,21 +1,22 @@
 <!doctype html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VLA-JEPA · Motion presentation</title>
 <script type="module" src="assets/three/feature-reel.js"></script>
-<link rel="stylesheet" href="styles.css?v=story-20261002-v4">
+<link rel="stylesheet" href="styles.css?v=presenter-20261002-v1">
 <button class="menu-hint show" id="menu" aria-label="Open slide navigation">Chapters</button>
-<div class="layout"><nav id="slides" class="drawer" aria-label="Slides"><button id="closeNav" aria-label="Close slide navigation" style="float:right">×</button><h1>VLA-JEPA</h1></nav><main><div class="viewer"><div class="stage" id="stage" role="region" aria-label="Presentation slide"></div><div class="controls show" id="controls"><button id="prev" aria-label="Previous slide">←</button><button id="next" aria-label="Next slide">→</button><button id="step">Build →</button><button id="animate">Replay motion</button><button id="talk" class="primary">Play narration</button><input id="scrub" aria-label="Scene build" type="range" min="0" max="1000" value="0" hidden><button id="audit">Final view</button><button id="notesBtn">Notes</button><button id="fullscreen">Full screen</button><span id="status"></span></div><div id="caption" class="screen-reader" aria-live="polite"></div><section class="notes" id="notes" hidden><h2 id="noteTitle"></h2><p id="script"></p><p id="delivery" class="source"></p><p id="source" class="source"></p></section><span id="runtime" hidden></span></div></main></div><div id="welcome">← → chapters · Space replays motion · Hover below for the timeline · N opens notes</div><audio id="audio" preload="none"></audio>
+<div class="layout"><nav id="slides" class="drawer" aria-label="Slides"><button id="closeNav" aria-label="Close slide navigation" style="float:right">×</button><h1>VLA-JEPA</h1></nav><main><div class="viewer"><div class="stage" id="stage" role="region" aria-label="Presentation slide"></div><div class="controls show" id="controls"><button id="prev" aria-label="Previous animation">←</button><button id="next" aria-label="Next animation">→</button><button id="step" hidden>Build</button><button id="animate">Replay beat</button><button id="talk" hidden>Play narration</button><input id="scrub" aria-label="Scene build" type="range" min="0" max="1000" value="0" hidden><button id="audit" hidden>Final view</button><button id="notesBtn">Notes</button><button id="fullscreen">Full screen</button><span id="status" hidden></span></div><div id="caption" class="screen-reader" aria-live="polite"></div><section class="notes" id="notes" hidden><h2 id="noteTitle"></h2><p id="script"></p><p id="delivery" class="source"></p><p id="source" class="source"></p></section><span id="runtime" hidden></span></div></main></div><div id="welcome">Click / → / Space: next animation · Right click / ←: previous · N: notes</div><audio id="audio" preload="none"></audio>
 <script src="assets/p5.min.js?v=story-20261002-v4"></script><div class="timeline-shell" id="timeline-shell"><div class="timeline-labels"><span id="chapter-label">Opening</span><span id="clock-label">0:00 / 9:40</span></div><div id="chapter-timeline" aria-label="Presentation chapter timeline"></div></div>
 <script src="src/content.js?v=type-20261002-v3"></script>
 <script src="src/scenes/reference.js?v=story-20261002-v4"></script>
-<script src="src/drawing.js?v=story-20261002-v4"></script>
+<script src="src/drawing.js?v=presenter-20261002-v1"></script>
 <script src="src/motion-type.js?v=type-20261002-v2"></script>
 <script src="src/recorded-control.js?v=story-20261002-v4"></script>
-<script src="src/choreography.js?v=story-20261002-v4"></script>
-<script src="src/scenes/method.js?v=type-20261002-v1"></script>
-<script src="src/scenes/flow.js?v=type-20261002-v1"></script>
+<script src="src/choreography.js?v=presenter-20261002-v1"></script>
+<script src="src/scenes/method.js?v=presenter-20261002-v1"></script>
+<script src="src/scenes/flow.js?v=presenter-20261002-v1"></script>
 <script src="src/scenes/results.js?v=type-20261002-v1"></script>
-<script src="src/scenes/bookends.js?v=type-20261002-v1"></script>
-<script src="src/player.js?v=story-20261002-v4"></script>
-<script src="src/renderer.js?v=story-20261002-v4"></script>
-<script src="src/timeline.js?v=story-20261002-v4"></script>
+<script src="src/scenes/bookends.js?v=presenter-20261002-v1"></script>
+<script src="src/beat-controller.js?v=presenter-20261002-v1"></script>
+<script src="src/player.js?v=presenter-20261002-v1"></script>
+<script src="src/renderer.js?v=presenter-20261002-v1"></script>
+<script src="src/timeline.js?v=presenter-20261002-v1"></script>
 <script>if(new URLSearchParams(location.search).has("authoring")){const s=document.createElement("script");s.src="tools/export.js?v=type-20261002-v2";document.body.append(s);}</script>
 </html>

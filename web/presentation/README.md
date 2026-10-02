@@ -12,11 +12,12 @@ python3 -m http.server 8000 --bind 127.0.0.1
 
 Open http://localhost:8000/web/presentation/. No package installation, account or API key is required. Serve over HTTP rather than opening index.html directly so local modules and media load reliably. All runtime resources use relative paths, including when hosted under a subdirectory.
 
-Arrow keys change chapters; Space controls scene motion; End shows the final visual state; N opens notes. Hover near the bottom for the chapter timeline and narration controls. Use Full screen for presenting. Narration continues through the main talk; scene motion has an independent clock.
+Click the stage, press Right or Space to play the next animation beat. Right-click or press Left to return to the previous beat; chapter navigation jumps directly to a section. Each beat plays and holds without audio. Replay beat repeats the current beat; N opens notes. Hover near the bottom for controls; use Full screen for presenting. Narration is retained as an export asset, with its browser button hidden. End is a hidden authoring shortcut for the final state.
 
 ## Edit and rebuild
 
 - `src/content.js`: wording, presenter notes, sources and timing; keep `data.json` in sync.
+- `src/beat-controller.js`: presenter cue boundaries and playback speed.
 - `src/choreography.js` and `src/scenes/`: motion and composition.
 - `assets/`: runtime fonts, math images, footage, Three.js, p5 and stock narration.
 - `tools/`: local authoring server, browser rendering and movie assembly. See [rebuild instructions](tools/README.txt).
