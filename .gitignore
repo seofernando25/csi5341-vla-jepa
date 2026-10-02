@@ -49,3 +49,4 @@ studies/evaluation/report/*.out
 
 # Raw per-batch diagnostic streams stay local; compact summaries are published.
 studies/evaluation/training/*/metrics.jsonl
+studies/recovery/training/*/metrics.jsonl

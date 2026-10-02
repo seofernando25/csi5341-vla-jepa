@@ -1,0 +1,107 @@
+{
+  "protocol": "Batch-eight native training; checkpoint/optimizer/RNG/scheduler resume; engineering validation at update 14 over frozen 200 held-out frames. Registered staged production training starts independently from legacy 10k, with fresh optimizer. Later recipe metadata adds stage stops; scientific optimizer/trainability settings unchanged.",
+  "runs": [
+    {
+      "run_id": "20261002T003237495813Z-RGB-recovery-train",
+      "status": "completed",
+      "completed_steps": 10,
+      "purpose": "engineering preflight; not a selected policy",
+      "recipe_sha256": "29d2f94b827c9efac1be7288ebef9d621fd4b43c2a5cbf3611771bdb4fc3bf41",
+      "run_record_sha256": "783c87515e5c72736141ed45da73ccb864f2116a53bce5bbee271b6017940f48",
+      "native_initialization": {
+        "exact_restoration": true,
+        "checkpoint_sha256": "bc6109ff47eb686b524e758a01d884d9437e3cce17fe43ae78277426cf54f3e8",
+        "parameter_dtypes": {
+          "torch.bfloat16": 794179072,
+          "torch.float32": 354177671
+        }
+      },
+      "update_count": 10,
+      "median_update_seconds": 2.692384457999651,
+      "peak_allocated_bytes": 16328476160,
+      "learning_rates_at_end": {
+        "adapter_action_world": 5.4726368159203955e-06,
+        "smol_decoder": 5.472636815920396e-07
+      },
+      "checkpoint_records": [
+        {
+          "step": 10,
+          "checkpoint_sha256": "3127eb1bd0cf813917eacd5e5e010cba2e26b07c963c511c51c86522e3e5e224",
+          "model_bytes": 3005267764,
+          "retained": true
+        }
+      ]
+    },
+    {
+      "run_id": "20261002T003406170559Z-RGB-recovery-train",
+      "status": "completed",
+      "completed_steps": 12,
+      "purpose": "engineering preflight; not a selected policy",
+      "recipe_sha256": "29d2f94b827c9efac1be7288ebef9d621fd4b43c2a5cbf3611771bdb4fc3bf41",
+      "run_record_sha256": "779a4c7f557ea12d58ddcaf594aa953af09cde52c51857946051e182c3a74f02",
+      "native_initialization": {
+        "exact_restoration": true,
+        "checkpoint_sha256": "3127eb1bd0cf813917eacd5e5e010cba2e26b07c963c511c51c86522e3e5e224",
+        "parameter_dtypes": {
+          "torch.bfloat16": 794179072,
+          "torch.float32": 354177671
+        }
+      },
+      "update_count": 2,
+      "median_update_seconds": 2.8198962484984804,
+      "peak_allocated_bytes": 16327973888,
+      "learning_rates_at_end": {
+        "adapter_action_world": 6.4676616915422925e-06,
+        "smol_decoder": 6.467661691542293e-07
+      },
+      "checkpoint_records": [
+        {
+          "step": 12,
+          "checkpoint_sha256": "e6b835d5203be3c281a5624ad79e9b6ec594eb26730cd243e9b8bd6923b73ddb",
+          "model_bytes": 3005267764,
+          "retained": true
+        }
+      ]
+    },
+    {
+      "run_id": "20261002T003505317205Z-RGB-recovery-train",
+      "status": "completed",
+      "completed_steps": 14,
+      "purpose": "engineering preflight; not a selected policy",
+      "recipe_sha256": "29d2f94b827c9efac1be7288ebef9d621fd4b43c2a5cbf3611771bdb4fc3bf41",
+      "run_record_sha256": "72614156918fd04ae8edadd200162bce9c227783f5cd663a6342041750842246",
+      "native_initialization": {
+        "exact_restoration": true,
+        "checkpoint_sha256": "e6b835d5203be3c281a5624ad79e9b6ec594eb26730cd243e9b8bd6923b73ddb",
+        "parameter_dtypes": {
+          "torch.bfloat16": 794179072,
+          "torch.float32": 354177671
+        }
+      },
+      "update_count": 2,
+      "median_update_seconds": 2.8212561735017516,
+      "peak_allocated_bytes": 16327973888,
+      "learning_rates_at_end": {
+        "adapter_action_world": 7.4626865671641785e-06,
+        "smol_decoder": 7.462686567164179e-07
+      },
+      "checkpoint_records": [
+        {
+          "step": 12,
+          "checkpoint_sha256": "e6b835d5203be3c281a5624ad79e9b6ec594eb26730cd243e9b8bd6923b73ddb",
+          "model_bytes": 3005267764,
+          "retained": true
+        },
+        {
+          "step": 14,
+          "checkpoint_sha256": "d7e00c3ea5c6b91bb81622f732c0468d6ff42f2aefc37ca72d3e0c553d7c4620",
+          "model_bytes": 3005267764,
+          "retained": true,
+          "heldout_arm_mse": 0.07093694228960078,
+          "heldout_gripper_error": 0.12663085188027629,
+          "heldout_valid_actions": 1303
+        }
+      ]
+    }
+  ]
+}
