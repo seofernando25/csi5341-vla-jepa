@@ -31,6 +31,8 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--episode', type=int, default=0)
     parser.add_argument('--frame', type=int, default=30)
+    parser.add_argument('--include-heads', action='store_true',
+                        help='Also audit action/world heads and remaining trainable parameters')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier diagnostic results')
@@ -79,6 +81,12 @@ def main():
     layers = policy.model.qwen.model.model.text_model.layers
     for index in range(len(layers) - policy.config.unfreeze_last_n, len(layers)):
         groups[f'decoder_layer_{index}'] = list(layers[index].parameters())
+    if args.include_heads:
+        groups['action_head'] = list(policy.model.action_model.parameters())
+        groups['world_predictor'] = list(policy.model.video_predictor.parameters())
+        grouped = {id(p) for values in groups.values() for p in values}
+        groups['remaining_trainable'] = [p for p in policy.parameters()
+                                        if p.requires_grad and id(p) not in grouped]
     parameters = [p for values in groups.values() for p in values if p.requires_grad]
     # Public policy metrics are detached floats. Request the same native
     # objectives directly, from one shared forward graph.
@@ -95,6 +103,7 @@ def main():
         results[name] = alignment(left[offset:offset + size], right[offset:offset + size])
         offset += size
     result = {'checkpoint_sha256': file_hash(args.checkpoint / 'model.safetensors'),
+              'diagnostic_source_sha256': file_hash(__file__),
               'source_manifest': {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))},
               'episode': int(sample['episode_index']), 'frame': int(sample['frame_index']), 'seed': 92000,
               'task_id': int(sample['task_index']),
@@ -103,6 +112,18 @@ def main():
               'trainable_parameters': sum(p.numel() for p in policy.parameters() if p.requires_grad),
               'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
               'limitations': 'One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export.'}
+    if args.include_heads:
+        result['all_trainable_parameters_covered'] = (
+            sum(p.numel() for p in parameters) == result['trainable_parameters'])
+        if not result['all_trainable_parameters_covered']:
+            raise ValueError('Full-policy diagnostic missed trainable parameters')
+        joint_squared = 0.
+        for a, b in zip(left, right, strict=True):
+            if a is not None or b is not None:
+                joint = (a if a is not None else 0) + (b if b is not None else 0)
+                joint_squared += float(joint.float().square().sum())
+        result['full_policy_gradients'] = {**alignment(left, right),
+                                         'joint_gradient_l2': joint_squared ** .5}
     write_json(args.output, result)
     print(result)
     if not all(r['finite'] for r in results.values()):
