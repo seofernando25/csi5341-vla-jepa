@@ -8,6 +8,8 @@ Active goal, requested 2026-10-01: diagnose failed control and develop an evalua
 
 The query milestones give2/10 development successes at500 updates and [4/10 at2,000](diagnostics/query_2000_milestone.json), with held-out arm MSE0.033997 and7.06% gripper errors at2k. Both13-file native backups are independently hash-verified locally;693 optimizer states and scheduler counters match their completed steps. The fixed study continues toward5k. Coupled training/numerical changes prevent isolated causal attribution against the original endpoint; final acceptance remains untested. [Separate query curves](figures/F13_query_recovery_progress.pdf) exclude engineering and incomplete validations. Rebuild with `python -m evaluation.recovery_progress --study query`.
 
+The [paired development outcomes](diagnostics/query_500_2000_development_pair.json) retain successes on tasks5/7 and gain tasks1/3 at2k; no paired state regresses, while six still fail. [F14](figures/F14_query_development.pdf) shows the same ten starting states/seeds on native-precisionRTX5090. The analyzer verifies recorded environment, loader/evaluator, solver/horizon and episode identity; nine evidence guards pass. These repeated diagnostic states do not establish representative task rates, statistical significance or final acceptance.
+
 ## Evidence so far
 
 | Check | Finding |
