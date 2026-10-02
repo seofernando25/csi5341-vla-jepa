@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from scripts.recovery_export import completion_window, job_identity, transfer_with_updates
+from scripts.recovery_export import completion_window, job_identity, transfer_with_updates, native_export_directory
 
 
 def test_transfer_updates_survive_metadata_failure():
@@ -48,3 +48,18 @@ def test_followup_identity_includes_scientific_registration_and_start():
     first = {'study': 'a', 'recipe_sha256': 'abc', 'started_at': 100}
     assert job_identity(first) != job_identity({**first, 'started_at': 101})
     assert job_identity(first) != job_identity({**first, 'recipe_sha256': 'def'})
+
+
+@pytest.mark.parametrize('folder', ['run-id', 'cloud-backups', 'cloud-backups/query-r1'])
+def test_native_export_accepts_current_and_scoped_followup_backups(folder):
+    path = f'outputs/recovery/training/{folder}/train/checkpoints/002000/pretrained_model/model.safetensors'
+    assert str(native_export_directory(path)) == f'outputs/recovery/training/{folder}/train/checkpoints/002000'
+
+
+@pytest.mark.parametrize('path', ['outputs/recovery/training/../secret',
+                                'outputs/recovery/training/cloud-backups/unregistered/train/checkpoints/002000/pretrained_model/model.safetensors',
+                                'outputs/recovery/training/run/train/checkpoints/not-a-step/training_state/rng_state.safetensors',
+                                'outputs/recovery/training/run/train/checkpoints/002000/unrelated/key.txt'])
+def test_export_rejects_paths_outside_native_or_registered_backup_layout(path):
+    with pytest.raises(ValueError):
+        native_export_directory(path)

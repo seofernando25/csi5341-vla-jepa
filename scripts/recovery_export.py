@@ -28,6 +28,18 @@ def checked_relative(name, parent):
     return path
 
 
+def native_export_directory(name):
+    allowed = Path('outputs/recovery/training')
+    path = checked_relative(name, allowed)
+    parts = path.relative_to(allowed).parts
+    offset = 2 if parts[:2] == ('cloud-backups', 'query-r1') else 1
+    if (len(parts) != offset + 5 or parts[offset:offset + 2] != ('train', 'checkpoints')
+            or not parts[offset + 2].isdigit()
+            or parts[offset + 3] not in {'pretrained_model', 'training_state'}):
+        raise ValueError('Unexpected native checkpoint export shape')
+    return allowed.joinpath(*parts[:offset + 3])
+
+
 def completion_window(now, minutes, identity, previous, spent, hourly, cleanup_epoch):
     """A restart cannot extend a verified-run review past its first expiry."""
     expiry = now + minutes * 60
@@ -139,12 +151,7 @@ def main():
         allowed = Path('outputs/recovery/training')
         directories = set()
         for name in files:
-            path = checked_relative(name, allowed)
-            # .../<run>/train/checkpoints/<step>/{pretrained_model,training_state}/file
-            parts = path.relative_to(allowed).parts
-            if len(parts) < 6 or parts[1:3] != ('train', 'checkpoints') or not parts[3].isdigit():
-                raise ValueError('Unexpected native checkpoint export shape')
-            directories.add(allowed.joinpath(*parts[:4]))
+            directories.add(native_export_directory(name))
         for directory in directories:
             selected = {name: value for name, value in files.items() if Path(name).is_relative_to(directory)}
             model = next((v['sha256'] for n, v in selected.items() if n.endswith('/model.safetensors')), None)
