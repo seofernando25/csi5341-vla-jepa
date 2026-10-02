@@ -1,0 +1,11 @@
+{
+  "purpose": "native_parent_tf32_profile_recheck",
+  "parent_anchor_sha256": "fed2aeca6174a65543faac37cedd81c650c1a3e3b5bef4e060aa97d4be1887f9",
+  "historical_anchor_sha256": "a3483d0230c4ad0a2f6ecf1a33315e628a959da6ec2eeb53ec877996911a992a",
+  "arm_gripper_validity_scores_identical_in_all25_batches": true,
+  "new_matmul_allow_tf32": true,
+  "historical_matmul_allow_tf32": false,
+  "native_mean_loss_difference": -2.197027206413127e-06,
+  "maximum_batch_action_loss_difference": 1.0021030902862549e-05,
+  "limitations": "Aggregate physical prediction error scores match in each batch; this does not establish prediction-tensor or closed-loop equivalence. Loss differs under the registered numerical profile. No training, optimizer, rollout or acceptance claim."
+}
