@@ -1,0 +1,106 @@
+{
+  "purpose": "cpu_chat_template_warning_parity",
+  "status": "passed",
+  "transformers_version": "5.5.4",
+  "processor_model": {
+    "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+    "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+  },
+  "processor_class": "SmolVLMProcessor",
+  "library_source_sha256": {
+    "processing_smolvlm.py": "e164215713b7e1d4ec9ff94de05f14512683b7d275909368d95ce300b836db8d",
+    "processing_utils.py": "90a592d355bb01e1976f97a0fff39837f2862fe43dce35aa5d9bbf65b84bda9b"
+  },
+  "checkpoint_config_sha256": "dd48717a03e3169ff0896c2ca1c17fdcb3df2d8bbdebf7ea11a65714831532d0",
+  "instruction_mapping_sha256": "2da5e389151b14889a522d405e62c4617f816ec8b25a0236b31db792ca246c75",
+  "audit_sha256": "61bc7397ffcd246189d92f9ec6a4ee20f26f92605da7ac0d42742c85a9b8e4a2",
+  "template_tokenize": false,
+  "explicit_video_defaults": {
+    "num_frames": 64,
+    "fps": 1
+  },
+  "tasks": [
+    {
+      "dataset_task_id": 0,
+      "libero_task_id": 6,
+      "rendered_prompt_sha256": "23f7ad056c4c21db74fd2e402ef1322c36a15f9cfed140f12d4550936f1ed940",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 1,
+      "libero_task_id": 4,
+      "rendered_prompt_sha256": "7acb5737ecaf140cbfd529b17ccd688fcf37f590c8c567d8610c5587ad45725b",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 2,
+      "libero_task_id": 5,
+      "rendered_prompt_sha256": "0c6ab3d09659e5570febeedd5a3e32e3712f43ca55bdeedace1af237cc15ea88",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 3,
+      "libero_task_id": 7,
+      "rendered_prompt_sha256": "e49796bed0541d772b2531066c95bf4b25e4d9dd04e02628d3cf3aa5d03b5713",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 4,
+      "libero_task_id": 0,
+      "rendered_prompt_sha256": "c699ca60689e72f484ec62df0228f4163021d719b3983507fdcd16495245ab04",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 5,
+      "libero_task_id": 3,
+      "rendered_prompt_sha256": "5a118619f4f83fc2f09ab78136c7dabde4cbd3e41fdd60bb3cc6f28190a929b1",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 6,
+      "libero_task_id": 8,
+      "rendered_prompt_sha256": "703aa67b0a91fe9abf8a73d8454829579140b17b7734668009467e85856a3bbb",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 7,
+      "libero_task_id": 1,
+      "rendered_prompt_sha256": "2cecec63afccfe718e20afd1629245d44665602f9d4e25fad013e3884866fcac",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 8,
+      "libero_task_id": 2,
+      "rendered_prompt_sha256": "c72f57f189dab0ec31b4d7d8a7854ed1f5ac0fdebff4f105ad2cd1300e56a3be",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    },
+    {
+      "dataset_task_id": 9,
+      "libero_task_id": 9,
+      "rendered_prompt_sha256": "4def405d9982377eac762af5409e795031fc51b2187f69620281fa6e7e13bb15",
+      "rendering_identical": true,
+      "original_warnings": 1,
+      "explicit_processor_kwargs_warnings": 0
+    }
+  ],
+  "finding": "SmolVLMProcessor injects default video kwargs into **kwargs when processor_kwargs is empty, even for string-only image prompts. ProcessorMixin logs the warning. Explicit identical defaults produce the exact same rendered strings without this warning. No image processing runs in this check.",
+  "limitations": "Prompt rendering only; no model load, image-transform equivalence, training, rollout, speedup or robot-success claim. Current frozen study source remains unchanged."
+}
