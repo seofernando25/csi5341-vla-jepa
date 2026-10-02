@@ -104,6 +104,13 @@ def main():
         summary[split] = {k: float(np.mean([r[k] for r in rows])) for k in metrics}
         summary[split]['frames'] = len(rows)
     write_json(args.output, {'variant': args.variant, 'checkpoint_sha256': file_hash(checkpoint / 'model.safetensors'),
+        'environment_observed_at_completion': {
+            'gpu': torch.cuda.get_device_name(), 'capability': list(torch.cuda.get_device_capability()),
+            'torch': torch.__version__, 'cuda': torch.version.cuda,
+            'deterministic_algorithms': torch.are_deterministic_algorithms_enabled(),
+            'matmul_allow_tf32': torch.backends.cuda.matmul.allow_tf32,
+            'cudnn_allow_tf32': torch.backends.cudnn.allow_tf32,
+            'cudnn_benchmark': torch.backends.cudnn.benchmark},
         'cohort_sha256': file_hash(args.cohort), 'diagnostic_source_sha256': file_hash(__file__),
         'buffer_precision': args.buffer_precision, 'loader_sha256': file_hash(ROOT / 'evaluation/models.py'),
         'source_manifest': {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))}

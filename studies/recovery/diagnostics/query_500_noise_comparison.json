@@ -1,0 +1,70 @@
+{
+  "purpose": "matched_saved_endpoint_query_noise_comparison",
+  "input_sha256": {
+    "rgb_20k_native_noise_environment.json": "e00fca3a628c7e4737c697d5bfc5a30dc036c5ef65beb94554e5e810e936f7bf",
+    "query_500_native_noise_environment.json": "7a0cbedd17f383dbb07326bd3e832c4d7e4d53d2f5a42191c22e8055f3091ac0"
+  },
+  "analysis_sha256": "5e469b5fce0ec2a693f3ab06df80dcb26b1dfb93edfe5d3c3d1c7ee08937fae4",
+  "checkpoint_sha256": {
+    "r1 parent: 20k": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+    "Query study: 500": "b5e00f997bcc3cb54f66028252b8cb4008a7d0662d8b46f473dc073c17a3fb2b"
+  },
+  "source_manifest": {
+    "r1 parent: 20k": {
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+    },
+    "Query study: 500": {
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+    }
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "capability": [
+      8,
+      6
+    ],
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "deterministic_algorithms": false,
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": true,
+    "cudnn_benchmark": false
+  },
+  "cohort_sha256": "7a5c3955cb7c7bf0743672b7d4ac034dc11b4846b65f64622df3b44218a8a058",
+  "heldout": {
+    "r1 parent: 20k": {
+      "single_draw_arm_mse_mean": 0.018298662663437427,
+      "mean_prediction_arm_mse": 0.014373664651066065,
+      "within_draw_arm_variance": 0.003924997488502413,
+      "gripper_error_mean": 0.041428571428571426,
+      "gripper_majority_error": 0.03571428571428571,
+      "gripper_any_disagreement_fraction": 0.07142857142857142,
+      "frames": 20
+    },
+    "Query study: 500": {
+      "single_draw_arm_mse_mean": 0.03466155470814556,
+      "mean_prediction_arm_mse": 0.02607034198590554,
+      "within_draw_arm_variance": 0.008591212099418044,
+      "gripper_error_mean": 0.08571428571428572,
+      "gripper_majority_error": 0.07857142857142857,
+      "gripper_any_disagreement_fraction": 0.09285714285714285,
+      "frames": 20
+    }
+  },
+  "heldout_change": {
+    "single_draw_arm_mse_mean": 0.016362892044708133,
+    "mean_prediction_arm_mse": 0.011696677334839476,
+    "within_draw_arm_variance": 0.004666214610915631
+  },
+  "mean_prediction_fraction_of_mse_increase": 0.7148294630851799,
+  "limitations": "20 fixed held-out demonstration frames and five draws each; descriptive equal-frame averages, not independent trials or statistical bias. Query adaptation, decoder trainability, fresh optimizer/schedule and training numerical amendments are coupled. No isolated cause, deployed ensemble, generalization or robot-success claim."
+}
