@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -18,9 +19,13 @@ def main():
     parser.add_argument('--architecture-source', type=Path, required=True)
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--buffer-precision', choices=['legacy', 'native_rope'], required=True)
+    parser.add_argument('--registration', type=Path, default=ROOT / 'studies/recovery/native_rope_registration.json')
     args = parser.parse_args()
-    registration_path = ROOT / 'studies/recovery/native_rope_registration.json'
+    registration_path = args.registration.resolve()
     registration = read_json(registration_path)
+    prefix = registration.get('variant_prefix', 'RGB-n0008-5k')
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,28}', prefix):
+        raise ValueError('Registration needs a safe distinct variant prefix')
     if file_hash(args.checkpoint / 'model.safetensors') != registration['checkpoint_sha256']:
         raise ValueError('Use only the preregistered fixed checkpoint')
     if file_hash(ROOT / 'evaluation/models.py') != registration['loader_sha256']:
@@ -36,10 +41,14 @@ def main():
     from evaluation import run
     from evaluation.models import load_policy
 
+    if (registration.get('evaluator_sha256') is not None
+            and file_hash(ROOT / 'evaluation/run.py') != registration['evaluator_sha256']):
+        raise ValueError('Evaluator differs from registered amendment')
+
     if (file_hash(ROOT / 'evaluation/protocol.json') != registration['protocol_sha256']
             or file_hash(ROOT / 'studies/evaluation/initial_states.json') != registration['initial_states_sha256']):
         raise ValueError('Protocol or initial states changed')
-    label = 'RGB-n0008-5k-' + ('NativeRoPE' if args.buffer_precision == 'native_rope' else 'LegacyRoPE')
+    label = prefix + '-' + ('NativeRoPE' if args.buffer_precision == 'native_rope' else 'LegacyRoPE')
     run_id = datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ') + '-' + label + '-rollout'
     folder = ROOT / 'studies/evaluation/runs' / run_id
     folder.mkdir(parents=True, exist_ok=False)

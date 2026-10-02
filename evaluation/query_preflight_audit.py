@@ -25,8 +25,9 @@ def main():
     expected = read_json(ROOT / 'studies/recovery/diagnostics/query_source_amendment.json')['source_manifest']
     recipe_path = args.recipe
     recipe = read_json(recipe_path)
-    if not recipe.get('engineering_only') or recipe['unfreeze_last_n'] != 4:
-        raise ValueError('This audit covers the registered four-layer engineering gate')
+    expected_states = {4: 441, 32: 693}.get(recipe['unfreeze_last_n'])
+    if not recipe.get('engineering_only') or expected_states is None:
+        raise ValueError('This audit covers registered four-layer or full-decoder engineering gates')
     recipe_hash = file_hash(recipe_path)
     results, previous_hash = [], None
     for index, run_id in enumerate(args.runs):
@@ -36,6 +37,8 @@ def main():
                 or record['recipe_sha256'] != recipe_hash or record['source_manifest'] != expected
                 or not initialization['exact_restoration']):
             raise ValueError('Run is not completed registered engineering evidence')
+        if recipe.get('required_gpu') and record['environment']['gpu'] != recipe['required_gpu']:
+            raise ValueError('Native preflight did not run on the registered intended GPU')
         stop = record['completed_steps']
         rows = [json.loads(line) for line in (folder / 'metrics.jsonl').read_text().splitlines()]
         training = [r for r in rows if r['phase'] == 'training']
@@ -56,7 +59,8 @@ def main():
         if not all((checkpoint / name).is_file() for name in required):
             raise ValueError('Incomplete native checkpoint')
         config = read_json(checkpoint / 'pretrained_model/config.json')
-        if config['query_token_adaptation'] != 'input_residual' or not config['smol_gradient_checkpointing']:
+        if (config['query_token_adaptation'] != 'input_residual' or not config['smol_gradient_checkpointing']
+                or config['unfreeze_last_n'] != recipe['unfreeze_last_n']):
             raise ValueError('Serialized checkpoint lost query configuration')
         model_hash = file_hash(checkpoint / 'pretrained_model/model.safetensors')
         if index == 1 and (record['resume_checkpoint_sha256'] != previous_hash
@@ -70,7 +74,7 @@ def main():
             counters = [float(saved.get_tensor(k)) for k in saved.keys() if k.endswith('/step')]
             query_moments = {k: saved.get_tensor(k) for k in saved.keys()
                              if tuple(saved.get_slice(k).get_shape()) == (4, 960)}
-        if len(counters) != 441 or set(counters) != {float(stop)} or len(query_moments) != 2:
+        if len(counters) != expected_states or set(counters) != {float(stop)} or len(query_moments) != 2:
             raise ValueError('Native optimizer counters or query moments were not resumed')
         if not all(v.dtype == torch.float32 and bool(torch.isfinite(v).all()) and bool(torch.count_nonzero(v))
                    for v in query_moments.values()):
@@ -91,6 +95,7 @@ def main():
         previous_hash = model_hash
     write_json(args.output, {'purpose': 'native_query_engineering_save_resume_gate', 'status': 'passed',
                'recipe_sha256': recipe_hash, 'source_manifest': expected, 'audit_sha256': file_hash(__file__),
+               'trainable_decoder_layers': recipe['unfreeze_last_n'],
                'gpu': record['environment']['gpu'], 'allocator_config': record['allocator_config'],
                'runs': results, 'limitations': 'Four engineering updates on RTX3090, excluded from production '
                'selection and curves. Exact inherited tensor restoration, optimizer counters/moments and scheduler '

@@ -42,6 +42,8 @@ def main():
         parser.error('Engineering recipes cannot launch production training')
     if recipe['batch_size'] != 8 or recipe['validation_samples_per_task'] != 20:
         parser.error('Registered physical-action evaluation requires 25 batches of eight')
+    if recipe.get('required_gpu') and torch.cuda.get_device_name() != recipe['required_gpu']:
+        raise ValueError('This engineering gate must run on the registered intended GPU')
     if recipe.get('deterministic_training'):
         os.environ.setdefault('CUBLAS_WORKSPACE_CONFIG', ':4096:8')
         torch.use_deterministic_algorithms(True)

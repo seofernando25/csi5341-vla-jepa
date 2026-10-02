@@ -177,9 +177,10 @@ def recovery_live(root):
     if curve and (not visible or visible[-1] != curve[-1]):
         visible.append(curve[-1])
     done = job.get('status') in {'completed', 'failed'}
-    return {'arm': 'RGB-n0008', 'stage': 'RTX 5090 · ' + job.get('status', 'preparing'),
+    label = 'Query-n0008' if job.get('study', '').startswith('n0008-query-') else 'RGB-n0008'
+    return {'arm': label, 'stage': 'RTX 5090 · ' + job.get('status', 'preparing'),
             'status': job['status'] if done else 'running', 'cloud': True,
-            'progress': {'label': 'RGB-n0008', 'phase': 'recovery · ' + job.get('status', 'preparing'),
+            'progress': {'label': label, 'phase': 'recovery · ' + job.get('status', 'preparing'),
                          'step': curve[-1]['step'] if curve else 0, 'total': job.get('target_step'),
                          'curve': visible, 'completed': job.get('status') == 'completed',
                          'updated_at': updated, 'cloud': True}}
