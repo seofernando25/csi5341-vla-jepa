@@ -1,0 +1,44 @@
+{
+  "purpose": "expanded_fixed_parent_baseline_development_comparison",
+  "registered_at": "2026-10-02T12:05:46.454828+00:00",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "episodes_per_task": 10,
+  "tasks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "phase": "development",
+  "variants": {
+    "B16": {
+      "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+      "buffer_precision": "legacy",
+      "source_manifest": null
+    },
+    "RGB-parent20k": {
+      "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+      "buffer_precision": "native_rope",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      }
+    }
+  },
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+  "protocol_sha256": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+  "initial_states_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "selection": "Smol parent fixed at held-out-selected completed r1 step20000 before this cohort. B16 fixed pretrained LIBERO artifact. Neither100-trial results nor prior10-trial outcomes select weights; no new training or final trials.",
+  "scope": "All ten original development states per task, identical task/state/seed membership across models on local3090. Existing model-specific deployment loaders, action horizon7/solver4 and preprocessing preserved. Source manifest for Smol is observed at runtime. No inference speed comparison from rollout wall time. No architecture-only causal claim because training histories and numerical loaders differ.",
+  "limits": "One sequential local evaluator at a time; no Vast spending or cloud interruption. Failures are recorded, never silently retried as new evidence. Partial outcomes cannot stand in for100 completed episodes. Expanded development findings do not establish final acceptance."
+}
