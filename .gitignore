@@ -49,3 +49,7 @@ studies/evaluation/report/*.out
 
 # Raw per-batch diagnostic streams stay local; compact summaries are published.
 studies/evaluation/training/*/metrics.jsonl
+
+# Required presentation clips, explicitly retained for the offline viewer.
+!/web/presentation/assets/droid-demonstration.mp4
+!/web/presentation/assets/human-demonstration.mp4

@@ -13,6 +13,12 @@ Report task success, inference latency, peak GPU memory, and hardware under matc
 
 [Mac / next-agent handoff](HANDOFF.md) · [Working report](studies/evaluation/report/report.pdf) · [Reproduction commands](studies/evaluation/README.md) · [Hardware](studies/HARDWARE.md) · [Later cloud comparison](studies/CROSS_HARDWARE_PLAN.md)
 
+## Presentation
+
+The [immersive presentation](web/presentation/README.md) includes its required local footage, narration, fonts, diagrams and 3D dependencies. Serve the repository with `python3 -m http.server 8000 --bind 127.0.0.1` and open `http://localhost:8000/web/presentation/`.
+
+[Slides](web/presentation/documents/slides.pdf) · [Slides with backups](web/presentation/documents/slides-with-backups.pdf) · [Presenter guide](web/presentation/documents/presenter-guide.pdf)
+
 ## Setup
 
 ```bash
