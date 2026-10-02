@@ -4,6 +4,7 @@
     {
       "run_id": "20261002T082128082928Z-Query-recovery-train",
       "metrics_sha256": "d4c3aaaf22d541a0e2b14ef69f7b97f668b742705784b7432defd3b135ae6fa2",
+      "metrics_snapshot_bytes": 223142,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -16,6 +17,7 @@
     {
       "run_id": "20261002T084920932999Z-Query-recovery-train",
       "metrics_sha256": "58d3d233cbc35cbd86fd6b180cfc9c05fa22c7e315e5b26118b92c218c2621a0",
+      "metrics_snapshot_bytes": 670845,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -28,6 +30,7 @@
     {
       "run_id": "20261002T100838646425Z-Query-recovery-train",
       "metrics_sha256": "e5aa0156d15b2dd675a729d25a412592f58c953a0dda16e806a2707f75c34916",
+      "metrics_snapshot_bytes": 1343831,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -39,7 +42,8 @@
     },
     {
       "run_id": "20261002T124515345333Z-Query-recovery-train",
-      "metrics_sha256": "21ae9fc3a872bf627df2ec6e4a7e3303891b0344756eb91286f1c6407ef0c63d",
+      "metrics_sha256": "01852cbca58b837a1a3bb3046090a726b8b97e927b9ff55ab073aa9ffb37edc1",
+      "metrics_snapshot_bytes": 1188652,
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -53,7 +57,7 @@
   "study": "n0008-query-decoder-recovery-r1",
   "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
   "registration_sha256": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
-  "latest_training_step": 5138,
+  "latest_training_step": 7653,
   "validation": [
     {
       "step": 500,
@@ -132,6 +136,46 @@
       "native_loss": 0.21704015672206878,
       "arm_rmse": 0.16868089255672766,
       "gripper_error_percent": 5.6792018419033,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 5500,
+      "native_loss": 0.21207718133926393,
+      "arm_rmse": 0.15875189232470113,
+      "gripper_error_percent": 4.758250191864927,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 6000,
+      "native_loss": 0.2119489187002182,
+      "arm_rmse": 0.16230911876630447,
+      "gripper_error_percent": 5.755947812739831,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 6500,
+      "native_loss": 0.21421486675739287,
+      "arm_rmse": 0.16218641097751815,
+      "gripper_error_percent": 5.525709900230238,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 7000,
+      "native_loss": 0.2115594071149826,
+      "arm_rmse": 0.15870781980696427,
+      "gripper_error_percent": 7.137375287797391,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 7500,
+      "native_loss": 0.20840098977088928,
+      "arm_rmse": 0.15447986385717644,
+      "gripper_error_percent": 6.907137375287798,
       "frames": 200,
       "valid_actions": 1303
     }

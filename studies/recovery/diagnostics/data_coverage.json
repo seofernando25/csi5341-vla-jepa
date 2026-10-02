@@ -1,0 +1,154 @@
+{
+  "status": "verified",
+  "purpose": "frozen_demonstration_coverage_audit",
+  "implementation_sha256": "049748c5f5c9da9b93b1caefd56fb7c5af667f31a1777f5958370f7c6d5aad8e",
+  "split_sha256": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+  "validation_samples_sha256": "2e346770b60c8d25ba9f4c10714b337377e24df17657db5181d4d999260889e3",
+  "task_mapping_sha256": "2da5e389151b14889a522d405e62c4617f816ec8b25a0236b31db792ca246c75",
+  "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "dataset_files": {
+    "data/chunk-000/file-000.parquet": "a692650a78e4428b457997963c29d2998f81cf0d40a723f1649ce054cdc79394",
+    "meta/episodes/chunk-000/file-000.parquet": "4c36448b7d31854d271ad6103b8caa8d9aec78bf96a7944189167b23a8486678",
+    "meta/info.json": "252e1d1bb49b7eaea1cae761eae127e57740b3961b3f2811ef45da9cd43c7857",
+    "meta/stats.json": "959e85c8b7bfb1656d2987a7c89a783c020efd1829f99f4b4b15c6bdaa830822",
+    "meta/tasks.parquet": "f2796545e03ffd6a38f6422a6d95aaa5d599aa09e7772862a7abce8cf6a200b3",
+    "videos/observation.images.image/chunk-000/file-000.mp4": "f065c8289979d0db7b5e451b2e7b3c7d61585f33d0482ada1e307310a8f30954",
+    "videos/observation.images.wrist_image/chunk-000/file-000.mp4": "270d138f74ba5737da6064be061fcd01637f9ab403c0d1a47271eb7e7337927e"
+  },
+  "train_episodes": 384,
+  "heldout_episodes": 48,
+  "train_frames": 47043,
+  "heldout_frames": 5927,
+  "tasks": [
+    {
+      "instruction": "pick up the black bowl between the plate and the ramekin and place it on the plate",
+      "dataset_task_id": 4,
+      "libero_task_id": 0,
+      "train_episodes": 40,
+      "heldout_episodes": 5,
+      "train_frames": 4006,
+      "heldout_frames": 481,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.08515613374997343
+    },
+    {
+      "instruction": "pick up the black bowl next to the ramekin and place it on the plate",
+      "dataset_task_id": 7,
+      "libero_task_id": 1,
+      "train_episodes": 40,
+      "heldout_episodes": 5,
+      "train_frames": 5224,
+      "heldout_frames": 716,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.11104733966796335
+    },
+    {
+      "instruction": "pick up the black bowl from table center and place it on the plate",
+      "dataset_task_id": 8,
+      "libero_task_id": 2,
+      "train_episodes": 41,
+      "heldout_episodes": 5,
+      "train_frames": 4770,
+      "heldout_frames": 573,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.10139659460493591
+    },
+    {
+      "instruction": "pick up the black bowl on the cookie box and place it on the plate",
+      "dataset_task_id": 5,
+      "libero_task_id": 3,
+      "train_episodes": 38,
+      "heldout_episodes": 5,
+      "train_frames": 3770,
+      "heldout_frames": 517,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.08013944688901643
+    },
+    {
+      "instruction": "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate",
+      "dataset_task_id": 1,
+      "libero_task_id": 4,
+      "train_episodes": 37,
+      "heldout_episodes": 5,
+      "train_frames": 5480,
+      "heldout_frames": 777,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.11648916948323874
+    },
+    {
+      "instruction": "pick up the black bowl on the ramekin and place it on the plate",
+      "dataset_task_id": 2,
+      "libero_task_id": 5,
+      "train_episodes": 35,
+      "heldout_episodes": 4,
+      "train_frames": 4021,
+      "heldout_frames": 451,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.08547499096571222
+    },
+    {
+      "instruction": "pick up the black bowl next to the cookie box and place it on the plate",
+      "dataset_task_id": 0,
+      "libero_task_id": 6,
+      "train_episodes": 41,
+      "heldout_episodes": 5,
+      "train_frames": 5128,
+      "heldout_frames": 647,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.10900665348723508
+    },
+    {
+      "instruction": "pick up the black bowl on the stove and place it on the plate",
+      "dataset_task_id": 3,
+      "libero_task_id": 7,
+      "train_episodes": 31,
+      "heldout_episodes": 4,
+      "train_frames": 4207,
+      "heldout_frames": 540,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.08942882044087325
+    },
+    {
+      "instruction": "pick up the black bowl next to the plate and place it on the plate",
+      "dataset_task_id": 6,
+      "libero_task_id": 8,
+      "train_episodes": 42,
+      "heldout_episodes": 5,
+      "train_frames": 4998,
+      "heldout_frames": 572,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.10624322428416555
+    },
+    {
+      "instruction": "pick up the black bowl on the wooden cabinet and place it on the plate",
+      "dataset_task_id": 9,
+      "libero_task_id": 9,
+      "train_episodes": 39,
+      "heldout_episodes": 5,
+      "train_frames": 5439,
+      "heldout_frames": 653,
+      "selected_heldout_frames": 20,
+      "training_frame_fraction": 0.11561762642688604
+    }
+  ],
+  "corrected_r1_exposure": {
+    "recipe_sha256": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+    "completion_sha256": "4b02fbb7e899a31017f4b06b44538605718b359b90b4de8da630cbde0b04b9f5",
+    "optimizer_updates": 20000,
+    "batch_size": 8,
+    "populated_native_optimizer_states": 440,
+    "native_exposure_proofs": {
+      "training_step.json": {
+        "bytes": 225,
+        "sha256": "6822421a59e2b0e907ffb81b67eb8f83590b797ece8ecaabfc30735139d2a8ce"
+      },
+      "optimizer_state.safetensors": {
+        "bytes": 2833532304,
+        "sha256": "ff9f6eac66b66b0e2bb18880a6158f7f25111a7a79f5563d0c25220e722b0c9e"
+      }
+    },
+    "anchor_frame_presentations": 160000,
+    "train_frame_count_equivalent": 3.4011436345471164
+  },
+  "limitations": "Every registered task is represented; this does not establish adequate coverage or convergence. Sample presentations are repeated anchor frames, not independent demonstrations, compute or robot success. Legacy incorrect-input training is not pooled with corrected exposure. Dataset IDs differ from simulator IDs and are linked by exact instruction. No prediction, policy, split or sampler change occurred."
+}
