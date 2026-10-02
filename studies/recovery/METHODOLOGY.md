@@ -136,3 +136,16 @@ The [first higher-rate observation](diagnostics/local_lr_high_250_observation.js
 The [completed higher-rate branch](diagnostics/local_lr_high_completion.json) reaches500 optimizer updates/1000 microsteps with independently verified native state. ArmMSE increases from0.039993 to0.044763 while total validation loss decreases from0.24809 to0.24360; gripper errors decrease from8.83% to7.29%. Held-out arm error therefore retains the250-update policy, whose hash differs from the latest native resume weights. The lower-rate branch and parent anchor remain pending; this trajectory is not robot success or a comparison of rates.
 
 The [CPU data-coverage audit](diagnostics/data_coverage.json) rehashes all seven frozen dataset files and checks every episode/frame range, task instruction, training/held-out partition and selected validation row. All ten simulator tasks have31–42 training demonstrations;384 training episodes contain47,043 frames and48 held-out episodes contain5,927 frames. Dataset and simulator task IDs differ, so tables join by the verified instruction bijection. The completed correctedR1 native topology and all440 populated optimizer counters verify20k updates at batch8:160,000 repeated anchor-frame presentations, equivalent in count to3.40 times the training frames. This is not unique coverage or evidence of convergence. The paper appendix's30k×256 gives7.68M total presentations (48×), but its corpus, sampling, pretraining and trainability differ; do not interpret that as a per-task exposure or compute ratio. Reproduce with `python -m evaluation.data_coverage --help` without loading a policy.
+
+The [lower-rate midpoint](diagnostics/local_lr_low_250_observation.json) records all200 frames/1303 actions at250 updates: armMSE0.024138, gripper5.45% and joint loss0.20632. All13 native files and693 populated counters independently verify500 microsteps/250 updates. Endpoint scores, terminal numerical flags and the matched parent anchor remain pending; no checkpoint selection or control improvement is established by this partial observation.
+
+The [deployment-precision registration](deployment_precision_registration.json) reserves a forward-only comparison of the final held-out-selected query policy's native FP32 masters and BF16 deployment on the same200 frames/1303 actions. Both preserve native FP32 rotary buffers and use identical seeds with TF32 disabled. [CPU integration checks](diagnostics/deployment_precision_cpu_check.json) verify all1,481 saved tensor values,694 master tensors and both buffers using existing5k weights; no predictions were run. Execute only after verified10k exports, both local branches, the matched parent anchor and an idleRTX3090. A BF16 arm-MSE increase of10% or gripper-error increase of2 points triggers a separately registered precision follow-up; this descriptive rule is not task acceptance. Batch8 validation memory and parameter storage are not final inference latency/VRAM.
+
+```sh
+python -m evaluation.deployment_precision_audit \
+  --architecture-source outputs/recovery/query-adaptation-source \
+  --checkpoint "$QUERY_SELECTED_POLICY" --native-checkpoint "$QUERY_FINAL_NATIVE" \
+  --parent-anchor outputs/recovery/passive/parent-native-selection.json \
+  --dataset-root "$CSI5341_DATASET" \
+  --output outputs/recovery/passive/query-deployment-precision.json
+```

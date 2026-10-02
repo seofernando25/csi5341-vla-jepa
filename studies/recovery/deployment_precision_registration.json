@@ -1,0 +1,58 @@
+{
+  "purpose": "registered_passive_final_query_deployment_precision",
+  "registered_at": "2026-10-02T15:28:18.365908+00:00",
+  "status": "registered_before_forward_measurements",
+  "query_study": "n0008-query-decoder-recovery-r1",
+  "query_recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+  "implementation_manifest": {
+    "evaluation/deployment_precision_audit.py": "c9c97856399b319c2462097878c1f406f569becad5788601dc17e568036a6002",
+    "evaluation/models.py": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+    "evaluation/common.py": "cda56f8ff6d04c79c007d1310208bf7e1db59eb2713dc7b7aeeb386e0bcc5374",
+    "evaluation/query_milestone.py": "b2739036e7e38170d8a7d1837412765cce01f192d2e3024aa419f57ffed4331d",
+    "evaluation/local_lr_pair_analysis.py": "c29bb886fa3cdc5d20826e47ba2297c7c223ae7978d7a4f085e8fe74fd641210",
+    "studies/recovery/query_recovery_registration.json": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
+    "studies/recovery/local_lr_pair_registration.json": "3e12320ecb2f582bcd7c9d2762e5a94936161d5de69c46a2072b2abc4c42ea21",
+    "studies/recovery/parent_native_selection_registration.json": "634ad6d7cac5bec14c9faaed3337a6d75da784f67100824cdd42518f9d022931"
+  },
+  "data_manifest": {
+    "studies/evaluation/training_split.json": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+    "studies/evaluation/validation_samples.json": "2e346770b60c8d25ba9f4c10714b337377e24df17657db5181d4d999260889e3"
+  },
+  "selection": "Use only the final verified10k query milestone and the existing journal minimum held-out armMSE; ties choose earlier step. Retained selected weights may precede10k. Do not choose by development outcomes or by this precision audit.",
+  "checkpoint_binding": "At execution, revalidate completed production training/selected-validation context, all20 journal entries, actual25 selected validation batches, independently rehash all13 final native files/counters and actual selected policy. Configs must match after omitting only pretrained_path; processor/normalizer/recovery registration bytes must match. train_config.json is recorded but may contain stage-specific resume/stop bookkeeping and is not loaded for inference.",
+  "modes": [
+    "native_masters",
+    "bf16_deployment"
+  ],
+  "numerical_flags": {
+    "deterministic_algorithms": true,
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": true,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true
+  },
+  "buffer_rule": "Both cases preserve exactly the two constructor-native FP32 rotary buffers; reject any other floating buffer rather than introduce a confounded cast.",
+  "master_rule": "Require exactly694 savedFP32 trainable tensors with matching elements. Promote before loading in native case; BF16 case loads rounded values and uses the protected existing native_rope deployment cast. Freeze every parameter during forward-only evaluation.",
+  "batch_size": 8,
+  "frames": 200,
+  "valid_actions": 1303,
+  "validation_seed": 73000,
+  "action_validation_seed": 83000,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "scope": "Forward-only same-weights parameter-precision audit after both registered local rate branches and the matched native parent anchor finish, and only after the final10k native/selected export milestone. Require idle3090. No optimizer, backward, training, rollout, source/loader/settings change, rental or extra paid work.",
+  "follow_up_trigger": {
+    "relative_arm_mse_degradation": 0.1,
+    "gripper_error_increase": 0.02,
+    "meaning": "If either BF16 degradation reaches this descriptive threshold, preregister a separate sensitive-layer FP32 study and matched control/resource tests. Otherwise prioritize optimization/exposure evidence. This is an operational research trigger on a fixed selected set, not a statistical or task-performance acceptance claim."
+  },
+  "limitations": "Fixed200-frame selected held-out set, one seed, sameGPU and deterministicBF16 autocast. TF32 is disabled in both cases; native-training validation used TF32 enabled, so do not equate these new scores with the training selection metric. Parameter storage bytes and batch8 validation peak are not batch1 deployment latency/VRAM. No closed-loop or final success evidence; no precision fix is adopted by this diagnostic alone."
+}
