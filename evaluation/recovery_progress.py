@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import argparse
 import json
 from collections import defaultdict
 
@@ -16,8 +17,17 @@ from evaluation.common import ROOT, file_hash, read_json, write_json
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--study', choices=('r1', 'query'), default='r1')
+    args = parser.parse_args()
+    query = args.study == 'query'
     root = ROOT / 'studies/recovery'
-    recipe_hash = file_hash(ROOT / 'evaluation/recovery_config.json')
+    recipe_hash = file_hash(ROOT / 'evaluation' / ('query_recovery_config.json' if query else 'recovery_config.json'))
+    registration = read_json(root / 'query_recovery_registration.json') if query else None
+    if query and registration['recipe_sha256'] != recipe_hash:
+        raise ValueError('Query recipe differs from its registration')
+    curve_name = 'query_recovery_curve' if query else 'recovery_curve'
+    figure_name = 'F13_query_recovery_progress' if query else 'F8_recovery_progress'
     training, validation, action = {}, defaultdict(list), defaultdict(list)
     provenance = []
     for folder in sorted((root / 'training').glob('*')):
@@ -27,6 +37,10 @@ def main():
         record = read_json(record_path)
         if record.get('purpose') != 'recovery_adaptation' or record.get('recipe_sha256') != recipe_hash:
             continue
+        if query and (record.get('study') != registration['study']
+                      or record.get('source_manifest') != registration['source_manifest']
+                      or record.get('initial_checkpoint_sha256') != registration['initial_checkpoint_sha256']):
+            raise ValueError(f'Query provenance differs from registration: {record["run_id"]}')
         provenance.append({'run_id': record['run_id'], 'metrics_sha256': file_hash(metrics),
                            'source_manifest': record['source_manifest']})
         # The exporter atomically replaces metadata files. Ignore a final
@@ -64,25 +78,32 @@ def main():
     job_path = ROOT / 'outputs/recovery/cloud/remote-job.json'
     job = read_json(job_path) if job_path.exists() else {}
     stages = job.get('stages', []) if job.get('recipe_sha256') == recipe_hash else []
-    completion_path = root / 'diagnostics/completed_r1.json'
+    completion_path = root / 'diagnostics' / (f'{curve_name}.json' if query else 'completed_r1.json')
     if not stages and completion_path.exists():
         completion = read_json(completion_path)
         if completion.get('recipe_sha256') == recipe_hash:
             stages = [{'completed_step': r['stage'], 'selected_step': r['selected_step'],
                        'selected_checkpoint_sha256': r['checkpoint_sha256']}
-                      for r in completion['milestones']]
+                      for r in completion['development' if query else 'milestones']]
     for stage in stages:
         for path in sorted((ROOT / 'studies/evaluation/runs').glob('*/run.json')):
             run = read_json(path)
             summary = run.get('summary', {})
-            if (run.get('variant') == f"RGB-n0008-{stage['completed_step']}"
+            if (run.get('variant') == f"{'Query' if query else 'RGB'}-n0008-{stage['completed_step']}"
                     and run.get('status') == 'completed' and run.get('phase') == 'development'
                     and run.get('experiment') == 'rollout' and summary.get('episodes') == 10
                     and sorted(summary.get('task_ids', [])) == list(range(10))
                     and run.get('checkpoint_sha256') == stage['selected_checkpoint_sha256']):
+                if query and run.get('arguments', {}).get('buffer_precision') != 'native_rope':
+                    raise ValueError('Query development used a different inference-buffer protocol')
                 development.append({'stage': stage['completed_step'], 'selected_step': stage['selected_step'],
                                     'checkpoint_sha256': run['checkpoint_sha256'], 'run_id': run['run_id'],
                                     'episodes_csv_sha256': file_hash(path.parent / 'episodes.csv'),
+                                    **({'buffer_precision': 'native_rope',
+                                        'run_record_sha256': file_hash(path),
+                                        'initial_states_manifest_sha256': run['initial_states_manifest_sha256'],
+                                        'loader_sha256': run['loader_implementation_sha256'],
+                                        'evaluator_sha256': run['evaluator_implementation_sha256']} if query else {}),
                                     'successes': summary['successes'], 'episodes': summary['episodes']})
                 break
     plt.rcParams.update({'font.family': 'serif', 'font.serif': ['STIXGeneral'],
@@ -96,7 +117,7 @@ def main():
     for ax, (key, label, color) in zip(axes, panels):
         ax.plot(steps, [r[key] for r in rows], 'o-', ms=4.5, lw=1.5, color=color)
         ax.set_ylabel(label)
-        ax.set_xlabel('Additional recovery updates (thousands)')
+        ax.set_xlabel('Query recovery updates (thousands)' if query else 'Additional recovery updates (thousands)')
         ax.grid(axis='y', color='#dce1e7', lw=.6)
         ax.spines[['top', 'right']].set_visible(False)
         ax.spines[['left', 'bottom']].set_color('#bac4ce')
@@ -111,26 +132,39 @@ def main():
                      [np.median([r['loss'] for r in group]) for group in bins],
                      color='#94a1ad', lw=1, alpha=.7, label='Train: median / 100 updates')
         axes[0].legend(frameon=False, fontsize=7, loc='lower left')
-    fig.text(.09, .018, 'Corrected RGB · n0008 · 200 fixed held-out frames · inference errors exclude padded actions · no task-success claim',
+    if query:
+        for ax in axes:
+            maximum = max(float(np.max(line.get_ydata())) for line in ax.lines)
+            ax.set_ylim(0, maximum * 1.12)
+    footer = ('Full decoder + input queries · native rotary buffers · 200 fixed held-out frames · offline errors, not task success'
+              if query else 'Corrected RGB · n0008 · 200 fixed held-out frames · inference errors exclude padded actions · no task-success claim')
+    fig.text(.09, .018, footer,
              fontsize=8, color='#596776')
     fig.tight_layout(rect=[0, .065, 1, 1])
     figures = root / 'figures'
     figures.mkdir(exist_ok=True)
     for suffix in ('pdf', 'svg', 'png'):
-        path = figures / f'F8_recovery_progress.{suffix}'
+        path = figures / f'{figure_name}.{suffix}'
         fig.savefig(path, dpi=200)
         if suffix == 'svg':
             path.write_text('\n'.join(line.rstrip() for line in path.read_text().splitlines()) + '\n')
     plt.close(fig)
     compact = root / 'diagnostics'
-    with (compact / 'recovery_curve.csv').open('w') as handle:
+    with (compact / f'{curve_name}.csv').open('w') as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
-    write_json(compact / 'recovery_curve.json', {'recipe_sha256': recipe_hash, 'runs': provenance,
+    write_json(compact / f'{curve_name}.json', {'recipe_sha256': recipe_hash, 'runs': provenance,
+               **({'study': registration['study'],
+                   'initial_checkpoint_sha256': registration['initial_checkpoint_sha256'],
+                   'registration_sha256': file_hash(root / 'query_recovery_registration.json')} if query else {}),
                'latest_training_step': max(training, default=0), 'validation': rows,
                'development': development,
-               'limitations': 'Ongoing, single-seed amended study. Offline action errors are not LIBERO success. No matched retrained baseline.'})
+               'limitations': ('Ongoing, single-seed coupled query/decoder/numerical amendment. Offline errors are not LIBERO success. '
+                               'Development is ten diagnostic episodes per stage, not final acceptance. '
+                               'Rollout metadata does not independently record the declared training plugin source manifest. '
+                               'No matched retrained baseline.' if query else
+                               'Ongoing, single-seed amended study. Offline action errors are not LIBERO success. No matched retrained baseline.')})
     print(json.dumps({'complete_validations': len(rows), 'latest_training_step': max(training, default=0)}))
 
 

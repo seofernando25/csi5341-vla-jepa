@@ -134,14 +134,15 @@ def render(output):
             low, high = task_summary['mean_error_ratio_range']
             task_text = (f'On two held-out frames per task, finite-draw mean arm error '
                          f'remains {low:.1f}--{high:.1f}$\\times$ B16 across all ten tasks. ')
-        query_path = ROOT / 'studies/recovery/diagnostics/query_500_milestone.json'
         query_text = ''
-        if query_path.exists():
-            query = read_json(query_path)
+        query_milestones = [read_json(path) for path in
+                            (ROOT / 'studies/recovery/diagnostics').glob('query_*_milestone.json')]
+        if query_milestones:
+            query = max(query_milestones, key=lambda item: item['native_step'])
             qdev = query['development_summary']
             query_text = (f" At {query['selected_step']:,} query updates, held-out arm MSE is "
                           f"{query['heldout_arm_mse']:.4f}; development yields "
-                          f"{qdev['successes']}/{qdev['episodes']}. This early checkpoint is not an improvement.")
+                          f"{qdev['successes']}/{qdev['episodes']}. These diagnostic trials do not establish improvement or final acceptance.")
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'

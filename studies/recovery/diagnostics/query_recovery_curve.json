@@ -1,0 +1,110 @@
+{
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "runs": [
+    {
+      "run_id": "20261002T082128082928Z-Query-recovery-train",
+      "metrics_sha256": "d4c3aaaf22d541a0e2b14ef69f7b97f668b742705784b7432defd3b135ae6fa2",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+      }
+    },
+    {
+      "run_id": "20261002T084920932999Z-Query-recovery-train",
+      "metrics_sha256": "58d3d233cbc35cbd86fd6b180cfc9c05fa22c7e315e5b26118b92c218c2621a0",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+      }
+    },
+    {
+      "run_id": "20261002T100838646425Z-Query-recovery-train",
+      "metrics_sha256": "2ed12156b772b4a0a619890f8102e084e38879926892a89868cef960020a879f",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+      }
+    }
+  ],
+  "study": "n0008-query-decoder-recovery-r1",
+  "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "registration_sha256": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
+  "latest_training_step": 2439,
+  "validation": [
+    {
+      "step": 500,
+      "native_loss": 0.24301979541778565,
+      "arm_rmse": 0.19995231907232158,
+      "gripper_error_percent": 6.983883346124329,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 1000,
+      "native_loss": 0.23152902603149414,
+      "arm_rmse": 0.1908800532158706,
+      "gripper_error_percent": 6.676899462778204,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 1500,
+      "native_loss": 0.24055452406406402,
+      "arm_rmse": 0.20408118856487997,
+      "gripper_error_percent": 9.056024558710668,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 2000,
+      "native_loss": 0.23401888310909272,
+      "arm_rmse": 0.18438236674678024,
+      "gripper_error_percent": 7.06062931696086,
+      "frames": 200,
+      "valid_actions": 1303
+    }
+  ],
+  "development": [
+    {
+      "stage": 500,
+      "selected_step": 500,
+      "checkpoint_sha256": "b5e00f997bcc3cb54f66028252b8cb4008a7d0662d8b46f473dc073c17a3fb2b",
+      "run_id": "20261002T084731750653Z-Query-n0008-500-rollout",
+      "episodes_csv_sha256": "c140cb6a5801b3a355edda885b8e88f3be73eeaaf690c70045c6673b9f0c3a25",
+      "buffer_precision": "native_rope",
+      "run_record_sha256": "f3558f9b748ee0095beb39fb7866252ae328d44bd89778c5fe89b9b24cf05fb9",
+      "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "successes": 2,
+      "episodes": 10
+    },
+    {
+      "stage": 2000,
+      "selected_step": 2000,
+      "checkpoint_sha256": "cebb1c47d6ba51c2d1ede23058054a8165f9414525d0b2b8e58362ba671f82f7",
+      "run_id": "20261002T100656505851Z-Query-n0008-2000-rollout",
+      "episodes_csv_sha256": "feaf77a5361d7fc52983c5bbdc5d394ef4f243ea8319b3737bbd3d3ad10729b7",
+      "buffer_precision": "native_rope",
+      "run_record_sha256": "8350428204bd871c4d3787a4b58bfdcdeb2732cdba70ee3b780c99f36dfd41eb",
+      "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "successes": 4,
+      "episodes": 10
+    }
+  ],
+  "limitations": "Ongoing, single-seed coupled query/decoder/numerical amendment. Offline errors are not LIBERO success. Development is ten diagnostic episodes per stage, not final acceptance. Rollout metadata does not independently record the declared training plugin source manifest. No matched retrained baseline."
+}
