@@ -63,7 +63,7 @@ class CueClock {
     if (!this.running) return false;
     const run = this.run,
       t = Math.max(0, Math.min(1, (now - run.began) / run.duration));
-    this.progress = t;
+    this.progress = (run.progressFrom || 0) + (1 - (run.progressFrom || 0)) * t;
     this.seconds = run.from + (run.to - run.from) * t;
     if (t === 1) {
       this.running = false;
@@ -74,6 +74,15 @@ class CueClock {
       this.run = null;
     }
     return true;
+  }
+  accelerate(now) {
+    if (!this.running || this.run.duration <= 120) return;
+    this.tick(now);
+    if (!this.running) return;
+    this.run.progressFrom = this.progress;
+    this.run.from = this.seconds;
+    this.run.began = now;
+    this.run.duration = Math.min(120, this.run.duration * (1 - this.progress));
   }
   cancel() {
     this.running = false;

@@ -25,9 +25,16 @@ function dotC(c, x, y, r, color) {
   c.fill();
 }
 // Trim the shaft at the arrowhead base: rounded caps never protrude past the tip.
-function arrowTip(c, x, y, angle, color, width = 2) {
-  const length = 8,
-    half = 3.5;
+function arrowTip(
+  c,
+  x,
+  y,
+  angle,
+  color,
+  width = 2,
+  length = Math.max(7, width * 3.5),
+) {
+  const half = Math.max(2.7, width * 1.35);
   c.save();
   c.translate(x, y);
   c.rotate(angle);
@@ -52,11 +59,14 @@ function arrowPath(c, points, color, width, head, angle) {
         ),
     );
   const total = lengths.at(-1),
-    cut = head ? Math.max(0, total - 7) : total;
+    headLength = Math.max(7, width * 3.5),
+    hasHead = head && total > headLength + 2,
+    cut = hasHead ? total - headLength : total;
+  let base = points.at(-1);
   c.save();
   c.strokeStyle = color;
   c.lineWidth = width;
-  c.lineCap = "round";
+  c.lineCap = hasHead ? "butt" : "round";
   c.lineJoin = "round";
   c.beginPath();
   c.moveTo(...points[0]);
@@ -64,15 +74,26 @@ function arrowPath(c, points, color, width, head, angle) {
     if (lengths[j] <= cut) c.lineTo(...points[j]);
     else {
       const u = (cut - lengths[j - 1]) / (lengths[j] - lengths[j - 1] || 1);
-      c.lineTo(
+      base = [
         points[j - 1][0] + u * (points[j][0] - points[j - 1][0]),
         points[j - 1][1] + u * (points[j][1] - points[j - 1][1]),
-      );
+      ];
+      c.lineTo(...base);
       break;
     }
   }
   c.stroke();
-  if (head && total > 8) arrowTip(c, ...points.at(-1), angle, color, width);
+  if (hasHead) {
+    const tip = points.at(-1);
+    arrowTip(
+      c,
+      ...tip,
+      Math.atan2(tip[1] - base[1], tip[0] - base[0]),
+      color,
+      width,
+      Math.hypot(tip[0] - base[0], tip[1] - base[1]),
+    );
+  }
   c.restore();
 }
 function segment(c, x, y, x2, y2, color, width = 2, head = false) {

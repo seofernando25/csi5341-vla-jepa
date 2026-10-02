@@ -45,6 +45,10 @@ Motion typography lives in `src/motion-type.js`: masked reel-card changes retain
 
 ## Transition review
 
-The source contains 21 JavaScript files, grouped by concern. All 48 beats across 18 chapters have explicit durations: ordinary transitions are 600 ms; deliberate footage and continuous demonstrations are longer. An advance plays one beat and holds. Inputs received during that beat are ignored rather than queued. Previous reverses the current beat; at a chapter boundary it returns to the preceding chapter’s final state. Replay repeats only the current beat. Neither the clock nor navigation depends on narration.
+The source contains 21 JavaScript files, grouped by concern. All 48 beats across 18 chapters have explicit durations: ordinary transitions are 600 ms; deliberate footage and continuous demonstrations are longer. An advance plays one beat and holds. Right during a playing beat accelerates its remaining motion to at most 120 ms, preserving its current progress. No extra beats are queued. Previous reverses the current beat; at a chapter boundary it returns to the preceding chapter’s final state. Replay repeats only the current beat. Neither the clock nor navigation depends on narration.
 
 Run `node web/presentation/tools/tests/manual-cues.cjs` from the repository root. For visual review, run `python3 web/presentation/tools/serve.py`, open its localhost address with `?authoring=1`, open Notes and choose **Audit every transition**. It captures all forward/replay paths, within-chapter reversals, and chapter boundaries in both directions at five positions. Output stays in ignored `build/rendered/`. This deterministic sampled audit checks layouts and replay consistency; it does not measure sustained real-device frame rate.
+
+Live footage loops at normal speed in chapters 1 and 2, independently of manual cue timing. Export captures retain explicit video seeks for deterministic rendering. All arrowheads share a trimmed shaft/base join; short connectors use a direct path to avoid hooked tips.
+
+Arrowhead regression checks: `node web/presentation/tools/tests/arrowheads.cjs`. These verify that each head meets the shaft exactly, including short connectors, reversed paths, and a zero terminal Bézier tangent.

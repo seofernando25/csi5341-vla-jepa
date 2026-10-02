@@ -66,10 +66,20 @@ for (const [scene, times] of Object.entries(changes)) {
     assert(times.filter((t) => t >= spec.start && t <= spec.end).length <= 1);
 }
 const media = fs.readFileSync(path.join(root, "src/media.js"), "utf8");
-const mediaContext = vm.createContext({document:{createElement:()=>({setAttribute(){},style:{}}),body:{append(){}}},Image:function(){},sceneSeconds:()=>12});
-vm.runInContext(media,mediaContext);
-assert.equal(vm.runInContext("comparisonTime()",mediaContext),12);
-assert.equal(vm.runInContext("comparisonExportTime=3.2;comparisonTime()",mediaContext),3.2);
+const mediaContext = vm.createContext({
+  document: {
+    createElement: () => ({ setAttribute() {}, style: {} }),
+    body: { append() {} },
+  },
+  Image: function () {},
+  sceneSeconds: () => 12,
+});
+vm.runInContext(media, mediaContext);
+assert.equal(vm.runInContext("comparisonTime()", mediaContext), 12);
+assert.equal(
+  vm.runInContext("comparisonExportTime=3.2;comparisonTime()", mediaContext),
+  3.2,
+);
 console.log(
   `18 chapters; ${tested} beats tested forward, backward and replay; rapid input and held states checked.`,
 );
@@ -84,4 +94,23 @@ for (const beats of Object.values(specs)) {
   c.tick(700);
   assert.equal(c.running, false);
   assert.equal(c.next(700), "chapter");
+}
+
+// Acceleration preserves visible progress and reaches the same endpoint in <=120 ms.
+for (const beats of Object.values(specs)) {
+  for (const b of beats) {
+    const c = new Clock();
+    c.load([b], 0);
+    c.tick(b.duration * 0.4);
+    const before = c.seconds,
+      progress = c.progress;
+    c.accelerate(b.duration * 0.4);
+    assert.equal(c.seconds, before);
+    assert.equal(c.progress, progress);
+    c.tick(b.duration * 0.4 + 60);
+    assert(c.progress >= progress);
+    c.tick(b.duration * 0.4 + 120);
+    assert.equal(c.running, false);
+    assert.equal(c.seconds, b.end);
+  }
 }

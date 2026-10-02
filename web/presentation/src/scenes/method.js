@@ -148,19 +148,26 @@ function link(c, x, y, x2, y2, color = blue, t = 1, bend = 0) {
   const dx = x2 - x,
     dy = y2 - y;
   const pts =
-    Math.abs(dx) > Math.abs(dy)
+    Math.hypot(dx, dy) < 60
       ? [
           [x, y],
-          [x + dx * 0.38, y + bend],
-          [x2 - dx * 0.38, y2 + bend],
+          [x + dx / 3, y + dy / 3],
+          [x + (dx * 2) / 3, y + (dy * 2) / 3],
           [x2, y2],
         ]
-      : [
-          [x, y],
-          [x + bend, y + dy * 0.38],
-          [x2 + bend, y2 - dy * 0.38],
-          [x2, y2],
-        ];
+      : Math.abs(dx) > Math.abs(dy)
+        ? [
+            [x, y],
+            [x + dx * 0.38, y + bend],
+            [x2 - dx * 0.38, y2 + bend],
+            [x2, y2],
+          ]
+        : [
+            [x, y],
+            [x + bend, y + dy * 0.38],
+            [x2 + bend, y2 - dy * 0.38],
+            [x2, y2],
+          ];
   curve(c, pts, color, 2, t, true);
 }
 function methodMotion(c) {
@@ -196,7 +203,11 @@ function methodMotion(c) {
         Math.abs(2 * ease(motion.chapterProgress ?? 1) - 1),
         2,
       );
-    photo(c, humanExamples[2], ...(motion.from ? poseFor(index).future : future));
+    photo(
+      c,
+      humanExamples[2],
+      ...(motion.from ? poseFor(index).future : future),
+    );
     c.restore();
   }
   if (index === 4) {
@@ -256,8 +267,8 @@ function methodMotion(c) {
     );
     link(c, 748, 354, 730, 378, orange, beat(s, 27, 0.45));
     emerge(c, s, 35, () => {
-      segment(c, 450, 405, 462, 405, gray, 1.4);
-      segment(c, 612, 405, 623, 405, gray, 1.4);
+      segment(c, 450, 405, 495, 405, blue, 1.6, true);
+      segment(c, 625, 405, 580, 405, orange, 1.6, true);
       pill(c, "Compare", 538, 405, ink);
     });
     label(

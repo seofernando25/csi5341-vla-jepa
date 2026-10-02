@@ -16,6 +16,14 @@ function syncPresenterFrame() {
   render();
 }
 function syncPresenterMedia() {
+  if (
+    presenter.manual &&
+    motion.exportTime === null &&
+    comparisonExportTime === null
+  ) {
+    setLiveMedia(index);
+    return;
+  }
   if (index === 0 || index === 2) {
     const run = presenter.run;
     syncMedia(
@@ -37,6 +45,9 @@ function advanceBeat(direction = 1) {
     direction > 0
       ? presenter.next(performance.now())
       : presenter.previous(performance.now());
+  if (result === "busy" && direction > 0) {
+    presenter.accelerate(performance.now());
+  }
   if (result === "chapter") moveScene(direction);
   else if (result === "beat") {
     syncPresenterMedia();

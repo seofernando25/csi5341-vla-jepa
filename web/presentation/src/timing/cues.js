@@ -13,7 +13,7 @@ const SCENE_CUES = {
     cue("Video becomes a representation", 7, 10, 1000),
   ],
   2: [
-    cue("Watch the demonstrations", 0, 5.9, 5900),
+    cue("Watch the demonstrations", 0, 5.9, 800),
     cue("Compare the available supervision", 6.09, 6.9),
   ],
   3: [

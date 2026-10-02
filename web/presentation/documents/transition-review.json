@@ -17,7 +17,8 @@
     "rapid input ignored without queueing",
     "30-second held state",
     "chapter-return bridge",
-    "media follows scene clock"
+    "acceleration preserves progress and endpoint",
+    "57 exact arrowhead joins"
   ],
   "visual_review": "Start, intermediate and end contact sheets reviewed for every chapter and chapter boundary; corrected premature feature reveal, extra staggered reveals, flow update timing, and target-image crossing.",
   "limitations": [
@@ -66,14 +67,14 @@
       "beat": 1,
       "label": "Watch the demonstrations",
       "direction": "forward",
-      "durationMs": 5900
+      "durationMs": 800
     },
     {
       "chapter": 2,
       "beat": 1,
       "label": "Watch the demonstrations",
       "direction": "replay",
-      "durationMs": 5900
+      "durationMs": 800
     },
     {
       "chapter": 2,
@@ -912,7 +913,7 @@
       "chapter": 2,
       "beat": "chapter",
       "direction": "forward",
-      "durationMs": 5900
+      "durationMs": 800
     },
     {
       "chapter": 3,
@@ -1112,5 +1113,11 @@
       "direction": "back",
       "durationMs": 600
     }
-  ]
+  ],
+  "followup": {
+    "media": "Normal-speed native looping on opening/comparison; no cue seeks or rate changes in live mode",
+    "input": "Right accelerates the current remainder to <=120ms while preserving progress; no queued beats",
+    "arrowheads": "57 geometric join cases pass, including short/reversed/zero-tangent routes; shared heads reviewed in rendered scenes",
+    "comparison": "Replaced isolated dashes with two short arrows into the comparison"
+  }
 }

@@ -371,27 +371,16 @@ function humanRobotScene(c) {
   label(c, "ACT", 535, 145, 12, orange, true);
   label(c, "Robot demonstration", 535, 178, 26, ink, true);
   c.save();
-  c.globalAlpha = 1 - blend;
   c.beginPath();
-  c.roundRect(52, 206, 418, 189, 12);
+  const humanHeight = mix(189, 140, blend);
+  c.roundRect(52, 206, 418, humanHeight, 12);
   c.clip();
-  if (humanClip.readyState >= 2) c.drawImage(humanClip, 52, 206, 418, 189);
+  if (humanClip.readyState >= 2)
+    c.drawImage(humanClip, 52, 206, 418, humanHeight);
+  else photo(c, humanExamples[0], 52, 206, 418, humanHeight);
   c.restore();
   c.save();
   c.globalAlpha = blend;
-  for (let j = 0; j < 3; j++) {
-    photo(c, humanExamples[j], 52 + j * 143, 227, 132, 75);
-    label(
-      c,
-      ["Before", "During", "After"][j],
-      118 + j * 143,
-      326,
-      13,
-      muted,
-      false,
-      "center",
-    );
-  }
   featureRibbon(c, 261, 375, 230, blue);
   c.restore();
   c.save();
@@ -420,7 +409,12 @@ function humanRobotScene(c) {
     ink,
     true,
   );
-  controlTrace(c, Math.min(time, 5.901));
+  controlTrace(
+    c,
+    presenter.manual && comparisonExportTime === null
+      ? robotClip.currentTime
+      : Math.min(time, 5.901),
+  );
 }
 
 function actionGlyph(c, x, y, w, h) {

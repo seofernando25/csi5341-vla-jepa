@@ -41,6 +41,7 @@ function select(n, atEnd = false) {
   document.getElementById("source").textContent = DATA[index].source;
   document.getElementById("caption").textContent =
     "Right / Space: next beat · Left: previous beat · Chapters: jump";
+  setLiveMedia(index, true);
   resetPresenter(atEnd);
   render();
 }

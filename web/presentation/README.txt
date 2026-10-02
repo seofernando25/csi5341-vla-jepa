@@ -47,7 +47,7 @@ Human example: SSV2 validation sample 174198, putting jar into box.
 Verified against validation metadata; not identified as a VLA-JEPA training sample.
 Robot example: DROID AUTOLab+0d4edc83+2023-10-27-19h-52m-50s, camera 24400334.
 Real timing restored from control timestamps. This is dataset footage, not VLA-JEPA rollout.
-Footage plays once then holds; native capture frames are duplicated, not invented by interpolation.
+Live footage loops at normal speed independently of animation cues. Export capture uses explicit seeks; native capture frames are duplicated, not invented by interpolation.
 The exported movie is constant 60 fps; live browser speed depends on the display and hardware.
 
 Sources
