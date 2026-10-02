@@ -1,0 +1,48 @@
+{
+  "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "diagnostic_source_sha256": "5f4167e95d33beecea91c05b8f80819687e3291f99c90148276b2a8f9cafa29a",
+  "episode": 53,
+  "frame": 40,
+  "seed": 92000,
+  "intervention": "earlier28 decoder BF16 masters toFP32; native buffers and parameter values fixed; trainability flags unchanged",
+  "intervened_parameter_count": 252,
+  "intervened_parameter_elements": 275304960,
+  "buffers": {
+    "model.qwen.model.model.text_model.rotary_emb.inv_freq": {
+      "dtype": "torch.float32",
+      "shape": [
+        32
+      ],
+      "max_bf16_rounding_error": 0.0013881921768188477
+    },
+    "model.qwen.model.model.text_model.rotary_emb.original_inv_freq": {
+      "dtype": "torch.float32",
+      "shape": [
+        32
+      ],
+      "max_bf16_rounding_error": 0.0013881921768188477
+    }
+  },
+  "native_losses": {
+    "native": {
+      "action_loss": 0.027546575292944908,
+      "wm_loss": 0.1114218458533287
+    },
+    "fp32_earlier_decoder": {
+      "action_loss": 0.027546575292944908,
+      "wm_loss": 0.1114218458533287
+    },
+    "native_restored": {
+      "action_loss": 0.027546575292944908,
+      "wm_loss": 0.1114218458533287
+    }
+  },
+  "limitations": "One native training-frame forward per precision mode, no optimizer update or rollout. Only the declared precision intervention is applied and restored. No task-success inference."
+}

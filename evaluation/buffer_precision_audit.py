@@ -19,8 +19,11 @@ def main():
     parser.add_argument('--checkpoint', type=Path, required=True)
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--parameter-cast', action='store_true',
+    cast = parser.add_mutually_exclusive_group()
+    cast.add_argument('--parameter-cast', action='store_true',
                         help='Hold native buffers fixed and isolate BF16 deployment of FP32 trainable masters')
+    cast.add_argument('--decoder-master-expansion', action='store_true',
+                      help='Isolate BF16-to-FP32 casting of the earlier 28 decoder layers before adaptation')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier diagnostic results')
@@ -45,8 +48,16 @@ def main():
             p.data = p.data.float()
     load_model(policy, args.checkpoint / 'model.safetensors', strict=True, device='cpu')
     buffers = {name: value.detach().clone() for name, value in policy.named_buffers() if value.is_floating_point()}
+    earlier = set()
+    if args.decoder_master_expansion:
+        layers = policy.model.qwen.model.model.text_model.layers
+        if cfg.unfreeze_last_n != 4 or len(layers) != 32:
+            raise ValueError('Master-expansion audit requires the original last-four-of32 parent')
+        earlier = {id(p) for layer in layers[:28] for p in layer.parameters()}
     masters = {name: p.detach().clone() for name, p in policy.named_parameters()
-               if args.parameter_cast and p.requires_grad}
+               if (args.parameter_cast and p.requires_grad) or id(p) in earlier}
+    if args.decoder_master_expansion and (not masters or any(p.dtype != torch.bfloat16 for p in masters.values())):
+        raise ValueError('Earlier parent decoder masters must originally be BF16')
     metadata = LeRobotDatasetMetadata('local/libero_spatial', root=args.dataset_root)
     rename = {'observation.images.wrist_image': 'observation.images.image2'}
     if 53 not in read_json(ROOT / 'studies/evaluation/training_split.json')['train_episodes']:
@@ -62,14 +73,21 @@ def main():
                                       metadata.camera_keys, rename, pre)
     policy.train()
     results = {}
-    for mode in ('native', 'bf16_masters' if args.parameter_cast else 'bf16_buffers', 'native_restored'):
+    changed_mode = ('fp32_earlier_decoder' if args.decoder_master_expansion else
+                    'bf16_masters' if args.parameter_cast else 'bf16_buffers')
+    for mode in ('native', changed_mode, 'native_restored'):
         for name, original in buffers.items():
             parent, _, leaf = name.rpartition('.')
             module = policy.get_submodule(parent) if parent else policy
             module._buffers[leaf] = original.to(torch.bfloat16) if mode == 'bf16_buffers' else original.clone()
         for name, p in policy.named_parameters():
             if name in masters:
-                p.data = masters[name].to(torch.bfloat16) if mode == 'bf16_masters' else masters[name].clone()
+                if mode == 'bf16_masters':
+                    p.data = masters[name].to(torch.bfloat16)
+                elif mode == 'fp32_earlier_decoder':
+                    p.data = masters[name].float()
+                else:
+                    p.data = masters[name].clone()
         torch.manual_seed(92000)
         with torch.autocast('cuda', dtype=torch.bfloat16):
             losses = policy.model(**policy._prepare_model_inputs(batch, training=True))
@@ -80,8 +98,13 @@ def main():
     write_json(args.output, {'checkpoint_sha256': file_hash(args.checkpoint / 'model.safetensors'),
         'source_manifest': {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))},
         'diagnostic_source_sha256': file_hash(__file__), 'episode': 53, 'frame': 40, 'seed': 92000,
-        'intervention': 'trainable FP32 masters to BF16; native buffers fixed' if args.parameter_cast
+        'intervention': 'earlier28 decoder BF16 masters toFP32; native buffers and parameter values fixed; trainability flags unchanged'
+                        if args.decoder_master_expansion else
+                        'trainable FP32 masters to BF16; native buffers fixed' if args.parameter_cast
                         else 'floating buffers to BF16; parameters fixed',
+        **({'intervened_parameter_count': len(masters),
+            'intervened_parameter_elements': sum(v.numel() for v in masters.values())}
+           if args.decoder_master_expansion else {}),
         'buffers': {name: {'dtype': str(v.dtype), 'shape': list(v.shape),
                     'max_bf16_rounding_error': float((v - v.to(torch.bfloat16).to(v.dtype)).abs().max())}
                     for name, v in buffers.items()}, 'native_losses': results,
