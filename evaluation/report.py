@@ -219,6 +219,25 @@ def render(output):
             r'95\% intervals; right: ten paired states per task. Development findings do not '
             r'establish performance on the reserved official final cohort.}\end{figure}'
         )
+    rate_path = ROOT / 'studies/recovery/diagnostics/local_lr_pair_comparison.json'
+    if rate_path.exists():
+        rates = read_json(rate_path)
+        if rates.get('status') != 'completed' or rates.get('purpose') != 'registered_local_learning_rate_comparison':
+            raise ValueError('Require the completed verified learning-rate comparison')
+        high, low = [rates['branches'][key][-1] for key in ('high', 'low')]
+        stability = (
+            '\n\n' + r'\textbf{Fine-tuning stability.} Two registered local branches restart from '
+            r'the fixed parent: full decoder/query adaptation, effective batch eight, '
+            r'500 optimizer updates (1,000 microsteps). Only the global learning-rate '
+            r'scale differs by tenfold. Endpoint arm MSE is '
+            f"{high['arm_mse']:.5f} at higher rates versus {low['arm_mse']:.5f} at lower rates; "
+            f"the matched native parent scores {rates['parent']['arm_mse']:.5f}. "
+            f"Held-out selection retains the {tex(rates['heldout_selected']['branch'])}. "
+            r'This single-seed stability comparison is not evidence of improved robot success.'
+            '\n\n'
+        )
+        recovery_float = r'\begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}'
+        cloud_section = cloud_section.replace(recovery_float, stability + recovery_float)
     final_paper = final_measurements_ready(analysis, selection, adaptation)
     results = analysis.get("results", {})
     phase = analysis.get("rollout_phase", "not measured")

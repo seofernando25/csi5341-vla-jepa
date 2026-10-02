@@ -1,0 +1,32 @@
+{
+  "purpose": "cpu_only_precision_restore_engineering_check",
+  "implementation_sha256": "c9c97856399b319c2462097878c1f406f569becad5788601dc17e568036a6002",
+  "registration_sha256": "c6ce493c4516deb802555993fe397b818fe7e7c3c36996fabd2360276f2e0a5d",
+  "checkpoint_sha256": "03ef7e7d326e801351171b02edbf6ea8bc9ebf0db58b4ca815e7f46c049d2709",
+  "status": "completed",
+  "cases": [
+    {
+      "mode": "native_masters",
+      "checked_state_tensors": 1481,
+      "declared_weight_values_verified": true,
+      "fp32_master_tensors": 694,
+      "native_rotary_buffers": [
+        "model.qwen.model.model.text_model.rotary_emb.inv_freq",
+        "model.qwen.model.model.text_model.rotary_emb.original_inv_freq"
+      ],
+      "parameter_bytes": 3555694108
+    },
+    {
+      "mode": "bf16_deployment",
+      "checked_state_tensors": 1481,
+      "declared_weight_values_verified": true,
+      "fp32_master_tensors": 0,
+      "native_rotary_buffers": [
+        "model.qwen.model.model.text_model.rotary_emb.inv_freq",
+        "model.qwen.model.model.text_model.rotary_emb.original_inv_freq"
+      ],
+      "parameter_bytes": 2296721166
+    }
+  ],
+  "limitations": "Existing5k weights used solely for CPU construction/load/value/dtype/buffer checks. No forward predictions, held-out scores, GPU compute, training, rollout, precision performance or task-success evidence. Final10k selected policy binding remains required for the actual scientific comparison."
+}
