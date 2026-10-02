@@ -1,22 +1,22 @@
 # SmolVLM recovery
 
-Active goal: obtain a useful LIBERO policy while preserving the original RSI history.
+Active goal: obtain a useful SmolVLM LIBERO policy while preserving the original RSI history. Acceptance requires **at least 25% lower peak inference memory and a success drop of at most five percentage points against B16**, on matched hardware and final trials. No recovery model has passed this target.
 
-**Verified input bug:** the GPU processor scaled 0–1 images again, reducing vision contrast by 255×. The plugin is fixed and a real-processor regression test passes. Old GPU-study results remain recorded but are confounded; they do not establish that SmolVLM is inadequate.
+**Completed:** corrected-input recovery trained for 20k updates with four trainable decoder layers. Its selected endpoint achieved [31/100 development successes versus B16's 82/100](diagnostics/expanded_development_pair.json) on the same RTX3090 cohort. Training histories and numerical loaders differ, so this does not isolate backbone capacity. The earlier cloud result was 6/10 under its recorded legacy precision; these cohorts are not pooled.
 
-Corrected inputs plus four trainable decoder layers passed the sixteen-frame overfit gate after 1,250 updates: 94% lower arm error and 0.9% gripper errors. This is training-only evidence. The separate full-split recovery is running; development rollouts test actual control at registered milestones.
+**Current:** the separate [query/decoder study](query_recovery_registration.json) starts from that exact parent and trains all 32 decoder layers plus four input-query residuals for a fixed 10k updates. Native-precision RTX5090 development results are 2/10, 4/10 and 2/10 at 500, 2k and 5k updates. [Measured curves](figures/F13_query_recovery_progress.pdf) include complete validation through 9.5k; final control evaluation is pending. Held-out physical arm error selects checkpoints, never robot outcomes.
 
-- [Methodology, evidence and remaining questions](METHODOLOGY.md)
-- [Compact diagnostics and provenance](diagnostics/)
-- [Action-accuracy vector figure](figures/F7_action_audit.pdf), rebuilt with `python -m evaluation.recovery_analysis`
-- [Recovery curves](figures/F8_recovery_progress.pdf), rebuilt from complete evaluations with `python -m evaluation.recovery_progress`
+The [local learning-rate comparison](diagnostics/local_lr_pair_comparison.json) completed 500 optimizer updates per branch. Neither the original rate nor a tenfold lower rate beat the matched parent on arm error; the parent remains selected. [F17](figures/F17_local_learning_rate_pair.pdf) retains the actual curves and checkpoint provenance.
 
-Final target: at least 25% less inference memory and no more than five points below matched B16 success. Recovery training is running on one RTX 5090 at USD0.526/hour. Total spending remains capped at USD14; native state is exported before deletion, with provider cleanup October 2 at 20:00 UTC.
+Two verified defects informed recovery: GPU processing rescaled 0–1 images again, reducing contrast by 255×; the legacy loader rounded rotary frequencies to BF16. Corrected processing and native rotary buffers are separately recorded. These findings have not explained the whole control gap. Historical results remain available with their original provenance.
 
-The [recovery recipe](../../evaluation/recovery_config.json) uses batch eight, four trainable decoder layers and fresh AdamW (decoder 1e-5; adapter/action/world 1e-4). Its fixed 20k-update schedule resumes at 2k/5k/10k milestones. Held-out physical action error selects the checkpoint; final LIBERO remains reserved. Native batch-eight training, exact weight restoration, optimizer resume and 200-frame validation passed locally.
+Next: complete the fixed cloud run, verify native/selected exports, run the [registered same-GPU parent comparison](parent5090_native_registration.json), and perform the [local deployment-precision audit](deployment_precision_registration.json). Ten-episode development checks remain diagnostic; final acceptance is still reserved.
 
-For failure diagnosis, `python -m evaluation.control_trace --help` records one development episode's commands, robot states and sparse camera frames through the unchanged evaluator. Raw traces stay in ignored runtime storage; they are not timing benchmarks or final trials.
+The RTX5090 rental costs USD0.526/hour. **USD14 is a ceiling, not a spending target:** release it promptly after required exports and the bounded comparison are verified, without waiting for local analysis or report writing. No additional paid training is planned. Provider cleanup is October 2 at 20:00 UTC.
 
-Recovery achieved **1/10 development successes at 2k, 0/10 at 5k and 1/10 at the 10k milestone**, despite improving held-out action error. The [paired task-1 trace](diagnostics/task1-control-case/) shows Qwen completing in 113 steps while RGB-2k fails at 280, with 1 versus 28 gripper-command transitions. This identifies a control symptom in one case; it does not establish the sole failure cause. The completed20k endpoint reaches6/10 development successes, with held-out arm MSE0.02334 and4.8% gripper errors. Full retained native state is locally verified; final performance remains unmeasured.
+- [Methodology and diagnostic history](METHODOLOGY.md)
+- [Compact evidence and hashes](diagnostics/)
+- [Original recovery curves](figures/F8_recovery_progress.pdf)
+- [Concise LaTeX report](../evaluation/report/report.pdf)
 
-**Inference precision mismatch:** the legacy loader rounds nonpersistent rotary frequencies to BF16, unlike native training. A reversible fixed-frame audit confirms higher action loss. A [separate paired development test](native_rope_registration.json) preserves original FP32 frequencies; the same fixed 5k checkpoint achieves 1/10 development successes in both modes on the local RTX3090. The defect is real but has not rescued control. Historical diagnostics retain their original loader provenance.
+Rebuild query curves with `python -m evaluation.recovery_progress --study query`. `python -m evaluation.control_trace --help` documents development-only command/state traces; raw traces are excluded from timing benchmarks and final trials.
