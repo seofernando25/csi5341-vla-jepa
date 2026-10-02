@@ -87,12 +87,14 @@ def verify_files(directory, expected):
             raise ValueError('Local native export bytes differ from backup proof')
 
 
-def verify_counters(directory, stop, trainability):
+def verify_counters(directory, stop, trainability, *, batch_size=8, accumulation_steps=1):
+    if accumulation_steps < 1 or stop % accumulation_steps:
+        raise ValueError('Require a complete optimizer accumulation boundary')
     from safetensors import safe_open
     state = directory / 'training_state'
     topology = read_json(state / 'training_step.json')
     if {key: topology.get(key) for key in ('step', 'batch_size', 'dp_world_size', 'grad_accum_steps')} != {
-            'step': stop, 'batch_size': 8, 'dp_world_size': 1, 'grad_accum_steps': 1}:
+            'step': stop, 'batch_size': batch_size, 'dp_world_size': 1, 'grad_accum_steps': accumulation_steps}:
         raise ValueError('Native resume step or topology differs')
     scheduler = read_json(state / 'scheduler_state.json')
     if scheduler['last_epoch'] != stop or scheduler['_step_count'] != stop + 1:
@@ -115,7 +117,7 @@ def verify_counters(directory, stop, trainability):
         if set(saved.keys()) != {f'state/{p}/{key}' for p in populated for key in ('step', 'exp_avg', 'exp_avg_sq')}:
             raise ValueError('Native optimizer state membership differs')
         for p in populated:
-            if saved.get_tensor(f'state/{p}/step').item() != stop:
+            if saved.get_tensor(f'state/{p}/step').item() != stop // accumulation_steps:
                 raise ValueError('Native optimizer counter differs')
             mean, variance = [saved.get_slice(f'state/{p}/{k}') for k in ('exp_avg', 'exp_avg_sq')]
             if (mean.get_dtype() != 'F32' or variance.get_dtype() != 'F32' or mean.get_shape() != variance.get_shape()

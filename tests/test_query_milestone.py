@@ -145,6 +145,31 @@ def test_unused_post_capture_norm_is_distinct_from_populated_optimizer_states(tm
     assert (epoch, populated, unused) == (5000, 693, ['model.qwen.model.model.text_model.norm.weight'])
 
 
+def test_accumulated_resume_counts_updates_separately_from_microsteps(tmp_path):
+    import torch
+    from safetensors.torch import save_file
+    trainability, tensors = native_state(tmp_path)
+    state = tmp_path / 'training_state'
+    (state / 'training_step.json').write_text(json.dumps(
+        {'step': 5000, 'batch_size': 4, 'dp_world_size': 1, 'grad_accum_steps': 2}))
+    for key in tensors:
+        if key.endswith('/step'):
+            tensors[key] = torch.tensor([2500.])
+    save_file(tensors, state / 'optimizer_state.safetensors')
+    assert verify_counters(tmp_path, 5000, trainability, batch_size=4, accumulation_steps=2)[:2] == (5000, 693)
+    with pytest.raises(ValueError, match='topology'):
+        verify_counters(tmp_path, 5000, trainability)
+    tensors['state/0/step'] = torch.tensor([5000.])
+    save_file(tensors, state / 'optimizer_state.safetensors')
+    with pytest.raises(ValueError, match='counter'):
+        verify_counters(tmp_path, 5000, trainability, batch_size=4, accumulation_steps=2)
+
+
+def test_accumulated_resume_rejects_partial_microbatch_boundary(tmp_path):
+    with pytest.raises(ValueError, match='boundary'):
+        verify_counters(tmp_path, 5001, {}, batch_size=4, accumulation_steps=2)
+
+
 @pytest.mark.parametrize('failure', ['counter', 'missing', 'precision'])
 def test_wrong_or_missing_optimizer_state_is_rejected(tmp_path, failure):
     import torch

@@ -1,0 +1,52 @@
+{
+  "study": "n0008-local-learning-rate-pair-r1",
+  "registered_at": "2026-10-02T13:11:33.696178+00:00",
+  "status": "registered_before_production",
+  "execution_order": [
+    "high",
+    "low"
+  ],
+  "recipe_sha256": {
+    "high": "f8765ee55e5ab89c6320544eee330166ac9e08c749edb78573be96a344f0dfaf",
+    "low": "887922702bbc3eb5a33ad6198b6f868b64d370f6bf10c4d83a8bf0e2afb9dca3"
+  },
+  "harness_sha256": "e2918dd5d2a5b5c7127747f4b4076f78cb96dbcd646776e732dbe7a26969b93a",
+  "supervisor_sha256": "3b8b30d9ffdb581daa140a9c0188ea65ccaf729dc77aa4f09118bdd7a1ef45d6",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "parent_files": {
+    "config.json": "dd48717a03e3169ff0896c2ca1c17fdcb3df2d8bbdebf7ea11a65714831532d0",
+    "model.safetensors": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+    "policy_postprocessor.json": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79",
+    "policy_postprocessor_step_2_unnormalizer_processor.safetensors": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7",
+    "policy_preprocessor.json": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4",
+    "policy_preprocessor_step_4_normalizer_processor.safetensors": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7",
+    "recovery_registration.json": "f59a65ec2c827a25bb8c6b1274c866b4626a80ff38dea7e945a1a6ddea2bc756",
+    "train_config.json": "c6ae248033da30066e3b4914083aa5487d80735d3592decfc807f918c65e32f7"
+  },
+  "data_manifest_sha256": {
+    "studies/evaluation/training_split.json": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+    "studies/evaluation/validation_samples.json": "2e346770b60c8d25ba9f4c10714b337377e24df17657db5181d4d999260889e3"
+  },
+  "native_gate_sha256": "309b6c1ad63bc269e5c5f130f92b0f10d948c16277d507c377dc0dd94268f794",
+  "parent_validation_sha256": "a3483d0230c4ad0a2f6ecf1a33315e628a959da6ec2eeb53ec877996911a992a",
+  "parent_arm_mse": 0.023663215424954115,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "stop_microsteps": [
+    1000
+  ],
+  "optimizer_updates_per_branch": 500,
+  "selection": "Lowest physical armMSE over registered200 held-out frames, across parent and250/500-update checkpoints of both branches. Ties prefer fewer optimizer updates, then alphabetical branch label. Parent stays selected if neither branch improves. Robot rollouts are later diagnostics and never choose weights.",
+  "hypothesis": "Resetting full-decoder training to higher learning rates may disrupt the useful parent; a ten-times lower shared rate scale may preserve or improve held-out commands. This is tested within identical local branches, not against different cloud hardware or batching.",
+  "limits": "Single seed and coupled global learning-rate scales; cannot isolate decoder versus head rates. Native microbatch schedule is twice optimizer update counts. Engineering weights excluded, originalRSI/r1/query untouched, no new paid jobs or rentals. No control or final-acceptance claim from offline errors. Sequential execution may affect timing; no latency claim from training wall time.",
+  "counter_verifier_sha256": "b2739036e7e38170d8a7d1837412765cce01f192d2e3024aa419f57ffed4331d",
+  "maximum_silent_seconds": 600,
+  "operational": "Exclusive boot-enabled local supervisor. Native saves every100 microsteps=50 optimizer updates. Resume only verified full native topology/counters/moments, with at most3 service starts/hour and60s backoff. A600s absence of actual native logs/metrics triggers bounded child termination; operational failures remain recorded. No new paid work or cloud modification."
+}

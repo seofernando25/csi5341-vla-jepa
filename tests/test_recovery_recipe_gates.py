@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 
 import pytest
@@ -28,6 +29,10 @@ def test_frozen_r1_recipe_is_unchanged():
     assert file_hash(ROOT / 'evaluation/recovery_config.json') == '0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074'
 
 
+def test_frozen_cloud_query_recipe_is_unchanged():
+    assert file_hash(ROOT / 'evaluation/query_recovery_config.json') == 'f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610'
+
+
 @pytest.mark.parametrize('changes,steps', [
     ({'engineering_only': False}, 4),
     ({'batch_size': 8}, 4),
@@ -45,6 +50,30 @@ def test_accumulation_cannot_bypass_scientific_or_save_boundaries(tmp_path, monk
     with pytest.raises(SystemExit) as error:
         recovery_train.main()
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize('changes,steps', [({'learning_rate': 0.01}, 1000), ({}, 1002)])
+def test_local_pair_requires_registered_recipe_and_stage(tmp_path, monkeypatch, changes, steps):
+    recipe = read_json(ROOT / 'evaluation/local_lr_high_config.json')
+    recipe.update(changes)
+    path = tmp_path / 'recipe.json'
+    path.write_text(json.dumps(recipe, indent=2) + '\n')
+    monkeypatch.setattr(sys, 'argv', ['recovery_train', '--recipe', str(path), '--steps', str(steps),
+                                    '--dataset-root', str(tmp_path), '--architecture-source', str(tmp_path),
+                                    '--checkpoint', str(tmp_path)])
+    with pytest.raises(SystemExit) as error:
+        recovery_train.main()
+    assert error.value.code == 2
+
+
+def test_local_pair_only_varies_rate_scale_and_study_identifier():
+    high, low = [read_json(ROOT / f'evaluation/local_lr_{name}_config.json') for name in ('high', 'low')]
+    rates = {'learning_rate', 'backbone_learning_rate', 'decay_learning_rate'}
+    assert {key for key in high if high[key] != low[key]} == rates | {'study'}
+    assert all(math.isclose(low[key], high[key] / 10, rel_tol=1e-14) for key in rates)
+    assert high['batch_size'] * high['gradient_accumulation_steps'] == 8
+    assert high['stage_stop_steps'] == [1000]
+    assert high['validation_batch_size'] == 8
 
 
 def test_nonlegacy_inference_requires_distinct_smol_label(monkeypatch):

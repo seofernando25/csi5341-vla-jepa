@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--architecture-source', type=Path, required=True)
     parser.add_argument('--checkpoint', type=Path, required=True, help='Verified legacy 10k warm start')
     parser.add_argument('--resume', type=Path, help='Native recovery checkpoint pretrained_model directory')
-    parser.add_argument('--steps', type=int, required=True, help='Absolute recovery update at which to stop')
+    parser.add_argument('--steps', type=int, required=True, help='Absolute native microbatch step at which to stop')
     parser.add_argument('--preflight', action='store_true', help='At most 20 updates; exercise validation at the stop step')
     parser.add_argument('--recipe', type=Path, default=ROOT / 'evaluation/recovery_config.json')
     args = parser.parse_args()
@@ -44,10 +44,22 @@ def main():
     validation_batch_size = recipe.get('validation_batch_size', recipe['batch_size'])
     engineering_accumulation = (args.preflight and recipe.get('engineering_only')
                                and recipe['batch_size'] == 4 and accumulation_steps == 2)
+    local_registration = None
+    registered_accumulation = False
+    if recipe.get('local_lr_pair') and not args.preflight and not recipe.get('engineering_only'):
+        local_registration = read_json(ROOT / 'studies/recovery/local_lr_pair_registration.json')
+        registered_accumulation = (
+            file_hash(recipe_path) in local_registration['recipe_sha256'].values()
+            and local_registration['harness_sha256'] == file_hash(__file__)
+            and args.steps in local_registration['stop_microsteps']
+            and recipe['batch_size'] == 4 and accumulation_steps == 2)
     if (validation_batch_size != 8 or recipe['validation_samples_per_task'] != 20
-            or (not engineering_accumulation and (recipe['batch_size'] != 8 or accumulation_steps != 1))
+            or (not engineering_accumulation and not registered_accumulation
+                and (recipe['batch_size'] != 8 or accumulation_steps != 1))
             or args.steps % accumulation_steps):
         parser.error('Registered physical-action evaluation requires 25 batches of eight')
+    if recipe.get('local_lr_pair') and not registered_accumulation:
+        parser.error('Local learning-rate pair differs from its registered recipe/harness/stage')
     if recipe.get('required_gpu') and torch.cuda.get_device_name() != recipe['required_gpu']:
         raise ValueError('This engineering gate must run on the registered intended GPU')
     if recipe.get('deterministic_training'):
@@ -97,6 +109,8 @@ def main():
               'isolated_worker_rng': recipe.get('isolate_data_loader_rng', False),
               'native_step_unit': 'microbatch', 'gradient_accumulation_steps': accumulation_steps,
               'effective_batch_size': recipe['batch_size'] * accumulation_steps,
+              'local_lr_pair_registration_sha256': (file_hash(ROOT / 'studies/recovery/local_lr_pair_registration.json')
+                                                    if local_registration else None),
               'limitations': 'Recovery updates are additional to the legacy 10k. Offline accuracy is not task success.'}
     write_json(evidence / 'run.json', record)
     policy_cfg = PreTrainedConfig.from_pretrained(args.checkpoint)
@@ -208,6 +222,13 @@ def main():
         return train, validation
 
     def make_policy(*a, **kw):
+        record['numerical_flags'] = {
+            'deterministic_algorithms': torch.are_deterministic_algorithms_enabled(),
+            'matmul_allow_tf32': torch.backends.cuda.matmul.allow_tf32,
+            'cudnn_allow_tf32': torch.backends.cudnn.allow_tf32,
+            'cudnn_benchmark': torch.backends.cudnn.benchmark,
+            'cudnn_deterministic': torch.backends.cudnn.deterministic,
+        }
         # Construct first, cast trainable masters, THEN load. Loading into BF16 first
         # would silently round a resumed decoder's saved FP32 optimizer parameters.
         kw['defer_weight_load'] = True
@@ -316,6 +337,7 @@ def main():
         if not math.isfinite(tracker.loss.val) or not math.isfinite(tracker.grad_norm.val):
             raise RuntimeError('Non-finite recovery loss or gradient; stop before another update')
         emit({'phase': 'training', 'step': state['step'], 'loss': tracker.loss.val,
+              'optimizer_updates': state['step'] // accumulation_steps,
               'grad_norm': tracker.grad_norm.val, 'update_seconds': time.perf_counter() - started,
               'data_seconds': tracker.dataloading_s.val, 'preprocessing_seconds': tracker.preprocessing_s.val,
               'peak_allocated_bytes': torch.cuda.max_memory_allocated(),
@@ -330,6 +352,7 @@ def main():
                    {'study': recipe['study'], 'recipe_sha256': record['recipe_sha256'], 'source_manifest': manifest})
         model = directory / 'pretrained_model/model.safetensors'
         entry = {'step': step, 'checkpoint_sha256': file_hash(model), 'model_bytes': model.stat().st_size,
+                 'native_microsteps': step, 'optimizer_updates': step // accumulation_steps,
                  'retained': True}
         rows = state['action_rows']
         if rows:
