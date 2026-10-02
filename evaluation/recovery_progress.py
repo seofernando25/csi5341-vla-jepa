@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import argparse
 import json
+import hashlib
 from collections import defaultdict
 
 import matplotlib
@@ -41,11 +42,13 @@ def main():
                       or record.get('source_manifest') != registration['source_manifest']
                       or record.get('initial_checkpoint_sha256') != registration['initial_checkpoint_sha256']):
             raise ValueError(f'Query provenance differs from registration: {record["run_id"]}')
-        provenance.append({'run_id': record['run_id'], 'metrics_sha256': file_hash(metrics),
+        metric_bytes = metrics.read_bytes()
+        provenance.append({'run_id': record['run_id'], 'metrics_sha256': hashlib.sha256(metric_bytes).hexdigest(),
+                           'metrics_snapshot_bytes': len(metric_bytes),
                            'source_manifest': record['source_manifest']})
         # The exporter atomically replaces metadata files. Ignore a final
         # incomplete line if reading a directly written local stream.
-        for line in metrics.read_text().splitlines():
+        for line in metric_bytes.decode().splitlines():
             try:
                 row = json.loads(line)
             except json.JSONDecodeError:
