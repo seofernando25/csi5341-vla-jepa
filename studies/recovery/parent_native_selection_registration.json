@@ -20,8 +20,8 @@
     "parent_zero_query_native_all32"
   ],
   "gpu": "NVIDIA GeForce RTX 3090",
-  "numerical": "Native FP32 buffers and trainable masters, BF16 autocast, deterministic algorithms and cudnn, matmulTF32 off. Exactly restored inherited weights; added queries zero only in the untrained case.",
-  "scope": "Forward-only fixed200-frame/1303-action validation on same local GPU. Preserve native losses, postprocessing, seeds and membership. No backward, optimizer, training, rollout, threshold/solver change, final trials or selection. Modelsource is the registered query snapshot; none-adaptation bypass for parent, zero residual for initializer, trained query500 as observed positive-update control.",
+  "numerical": "Native FP32 buffers and trainable masters, BF16 autocast, deterministic algorithms and cudnn, matmulTF32 enabled to match native training. Exactly restored inherited weights; untrained query residual is zero.",
+  "scope": "Forward-only parent20k/source6/full32 zero-query validation on the registered200 held-out frames and1303 valid actions. Preserve native losses, postprocessing, batch membership and validation seeds. Execute only after both local rate branches finish on an idleRTX3090; compare all25 batches to the historical TF32-disabled parent. No backward, optimizer, training, rollout or prediction-semantic change.",
   "limitations": "Forward-only fixed200-frame/1303-action parent validation on local3090 with full32 zero-query source6 and native-training numerical profile, especially TF32 enabled. Execute after both local branches finish, with no concurrent GPU compute. Compare all25 batch scores to historical TF32-disabled initializer; do not assume equality. Parent-relative selection is provisional until this matched anchor is measured; no training, rollout, architecture change or robot-success claim.",
   "matmul_allow_tf32": true,
   "parent_files": {
