@@ -79,7 +79,7 @@ RGB recovery adapts four final SmolVLM decoder layers from legacy 10k weights: f
 
 Inference rounds nonpersistent rotary frequencies to BF16, unlike native FP32-buffer training. Changing only these buffers raises one-frame action loss 0.0460$\rightarrow$0.0618; restoring their original values reverses it exactly. Sequential local 20k tests yield 4/10 in each mode, with one gain and one loss: no aggregate control improvement.
 
-Registered full-decoder/input-query recovery passes native optimizer/save/resume on RTX5090 (23.74\,GiB). An earlier four-update RTX3090 check passes uninterrupted/resume equality with isolated worker RNG and deterministic algorithms. Engineering is excluded from selection. At 2,000 query updates, held-out arm MSE is 0.0340; development yields 4/10. These diagnostic trials do not establish improvement or final acceptance.
+Full-decoder/query recovery passes RTX5090 native save/resume (23.74\,GiB); isolated-loader RNG also passes a bounded four-update reproducibility check. Engineering is excluded from selection. At 2,000 query updates, held-out arm MSE is 0.0340; development yields 4/10 (diagnostic trials). A local 200-frame check preserves all 25 initial batch scores; 500 updates raise arm MSE 0.0237$\rightarrow$0.0400. Learning changes remain coupled.
 
 At 20,000 additional updates, held-out arm RMSE was 0.153, compared with 0.283 at 500; gripper error changed from 13.6\% to 4.8\%. On two held-out frames per task, finite-draw mean arm error remains 9.9--67.2$\times$ B16 across all ten tasks.
 

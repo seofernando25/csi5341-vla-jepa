@@ -1,0 +1,13 @@
+{
+  "measurement_sha256": "a3483d0230c4ad0a2f6ecf1a33315e628a959da6ec2eeb53ec877996911a992a",
+  "analysis_sha256": "db9efd9146cbd0cf1404d1f66256aab62f4f5d919c9d368d79cd74eaf07f6777",
+  "registration_sha256": "fb473144372e08d54b7702c4d9ac6915187884cecdedd6cc908d194a540f93d1",
+  "comparison": {
+    "initialization_batch_scores_exactly_equal": true,
+    "tested_batches": 25,
+    "physical_arm_mse_increase_at500": 0.016301027616596978,
+    "physical_arm_mse_ratio_at500": 1.6888762716248056,
+    "gripper_error_increase_pp_at500": 1.9953952417498082,
+    "interpretation": "Exact equality refers to all25 saved batch scores, not independently saved prediction tensors. Learning interventions remain coupled. This is passive validation, not robot success or general equivalence."
+  }
+}

@@ -142,7 +142,16 @@ def render(output):
             qdev = query['development_summary']
             query_text = (f" At {query['selected_step']:,} query updates, held-out arm MSE is "
                           f"{query['heldout_arm_mse']:.4f}; development yields "
-                          f"{qdev['successes']}/{qdev['episodes']}. These diagnostic trials do not establish improvement or final acceptance.")
+                          f"{qdev['successes']}/{qdev['episodes']} (diagnostic trials).")
+        initializer_path = ROOT / 'studies/recovery/diagnostics/query_initial_validation.json'
+        if initializer_path.exists():
+            initializer = read_json(initializer_path)
+            if initializer.get('status') == 'completed' and initializer['comparison']['initialization_batch_scores_exactly_equal']:
+                parent_initial, _, trained_initial = initializer['cases']
+                query_text += (f" A local 200-frame check preserves all 25 initial batch scores; "
+                               f"500 updates raise arm MSE {parent_initial['summary']['arm_mse']:.4f}"
+                               r"$\rightarrow$" + f"{trained_initial['summary']['arm_mse']:.4f}. "
+                               "Learning changes remain coupled.")
         shutil.copyfile(recovery_figure, output / 'figures' / recovery_figure.name)
         cloud_section += (
             '\n' + r'\FloatBarrier\section{Corrected-input recovery}' + '\n'
@@ -157,10 +166,9 @@ def render(output):
             r'exactly. Sequential '
             r'local 20k tests yield 4/10 in each mode, with one gain and one loss: no '
             r'aggregate control improvement.' + '\n\n'
-            r'Registered full-decoder/input-query recovery passes native '
-            r'optimizer/save/resume on RTX5090 (23.74\,GiB). An earlier four-update '
-            r'RTX3090 check passes uninterrupted/resume equality with isolated worker '
-            r'RNG and deterministic algorithms. Engineering is excluded from selection.'
+            r'Full-decoder/query recovery passes RTX5090 native save/resume '
+            r'(23.74\,GiB); isolated-loader RNG also passes a bounded '
+            r'four-update reproducibility check. Engineering is excluded from selection.'
             + query_text + '\n\n'
             f"At {last['step']:,} additional updates, held-out arm RMSE was "
             f"{last['arm_rmse']:.3f}, compared with {first['arm_rmse']:.3f} at "
