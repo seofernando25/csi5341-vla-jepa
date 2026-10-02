@@ -1,0 +1,212 @@
+{
+  "purpose": "native_query_engineering_save_resume_gate",
+  "status": "passed",
+  "recipe_sha256": "132e223e6d0721e0f84f0b1fb2b279eb50d26d8c13c28c38d490f863ec1350df",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "audit_sha256": "58e68e20f019255226742a60c1e8236136e184db92e4ce6d55a7bcc062ed88a2",
+  "trainable_decoder_layers": 32,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "allocator_config": "expandable_segments:True",
+  "microbatch_size": 4,
+  "gradient_accumulation_steps": 2,
+  "effective_batch_size": 8,
+  "validation_batch_size": 8,
+  "runs": [
+    {
+      "run_id": "20261002T124934367454Z-Query-recovery-train",
+      "completed_steps": 4,
+      "checkpoint_sha256": "79159158e8c4fdadee7f1cd5bdfd1489b8ea6e300ec955c8f2100796dccf3220",
+      "initialization": {
+        "exact_restoration": true,
+        "checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+        "parameter_dtypes": {
+          "torch.bfloat16": 518874112,
+          "torch.float32": 629482631
+        },
+        "new_zero_query_parameters": 3840
+      },
+      "metrics_sha256": "2aa59175e18b79ce857ca3588ce72754ef2fe311a0c70edd61f1eb44528bea93",
+      "training_steps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "query_delta_l2": 0.00012811896158382297,
+      "query_optimizer_moment_keys": [
+        "state/4/exp_avg",
+        "state/4/exp_avg_sq"
+      ],
+      "optimizer_counters": 2,
+      "native_microsteps": 4,
+      "optimizer_updates": 2,
+      "scheduler_microsteps": 4,
+      "optimizer_parameter_states": 693,
+      "validation_frames": 200,
+      "valid_actions": 1303,
+      "peak_allocated_bytes": 18659096576,
+      "update_seconds": [
+        4.156368515992654,
+        3.9626823050057283,
+        3.971047077997355,
+        3.9456256329867756
+      ],
+      "files": {
+        "pretrained_model/config.json": {
+          "bytes": 4124,
+          "sha256": "3b7d91dae0f5f49f8757a2418d031a20220554a992ade81f60ef5227afe1d477"
+        },
+        "pretrained_model/model.safetensors": {
+          "bytes": 3555892908,
+          "sha256": "79159158e8c4fdadee7f1cd5bdfd1489b8ea6e300ec955c8f2100796dccf3220"
+        },
+        "pretrained_model/policy_postprocessor.json": {
+          "bytes": 1500,
+          "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+        },
+        "pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+          "bytes": 1316,
+          "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+        },
+        "pretrained_model/policy_preprocessor.json": {
+          "bytes": 1424,
+          "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+        },
+        "pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+          "bytes": 1316,
+          "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+        },
+        "pretrained_model/recovery_registration.json": {
+          "bytes": 986,
+          "sha256": "68e31d27134ca402d88502fb385eaf7352d4ec9771a556a7034465361757dd9e"
+        },
+        "pretrained_model/train_config.json": {
+          "bytes": 10587,
+          "sha256": "16d2b4c47167270938c6fea62cbf190cc49ba7b21c3f9ba175debc71c8c846c7"
+        },
+        "training_state/optimizer_param_groups.json": {
+          "bytes": 12620,
+          "sha256": "1dd3d0b93a221ee20eb28c9868ecbd82223c8c5ce0529da5e2018fd520f06408"
+        },
+        "training_state/optimizer_state.safetensors": {
+          "bytes": 5036072236,
+          "sha256": "4f000099eeb78725aa7e1efbc386cfe61bd465e5dee5a52dcd8b3c34fc5f026b"
+        },
+        "training_state/rng_state.safetensors": {
+          "bytes": 15708,
+          "sha256": "3986e77fc56575ea004671cde2a6739b01475b8bffa623a4060ce8980df77266"
+        },
+        "training_state/scheduler_state.json": {
+          "bytes": 308,
+          "sha256": "fe832013b5db797c1d7f7b2148fe48d6dd2d9fbedf07e5e5efbcf84d55f7b2b9"
+        },
+        "training_state/training_step.json": {
+          "bytes": 221,
+          "sha256": "9bd24a2ae0e892b1f3e4dfe12568510de0a641cb1601576cd235063c44c2d9a5"
+        }
+      }
+    },
+    {
+      "run_id": "20261002T125300820010Z-Query-recovery-train",
+      "completed_steps": 8,
+      "checkpoint_sha256": "9152961901600e243cf175ea76b9c40b2a6ff4bc1500b0b009896a10dcc476ac",
+      "initialization": {
+        "exact_restoration": true,
+        "checkpoint_sha256": "79159158e8c4fdadee7f1cd5bdfd1489b8ea6e300ec955c8f2100796dccf3220",
+        "parameter_dtypes": {
+          "torch.bfloat16": 518874112,
+          "torch.float32": 629486471
+        },
+        "new_zero_query_parameters": 0
+      },
+      "metrics_sha256": "f125c96b871fbd54d6e2da0e5a63112f5a6b514ed473de4a1daaab9e1a675044",
+      "training_steps": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "query_delta_l2": 0.00032118355738930404,
+      "query_optimizer_moment_keys": [
+        "state/4/exp_avg",
+        "state/4/exp_avg_sq"
+      ],
+      "optimizer_counters": 4,
+      "native_microsteps": 8,
+      "optimizer_updates": 4,
+      "scheduler_microsteps": 8,
+      "optimizer_parameter_states": 693,
+      "validation_frames": 200,
+      "valid_actions": 1303,
+      "peak_allocated_bytes": 18659096576,
+      "update_seconds": [
+        4.081919793999987,
+        3.858269412012305,
+        3.757058460992994,
+        3.8860525069903815
+      ],
+      "files": {
+        "pretrained_model/config.json": {
+          "bytes": 4080,
+          "sha256": "db84460d8f3911d6cff0eca6379d26cf01e8f1dfcfe1a61e165857fe8183b4e2"
+        },
+        "pretrained_model/model.safetensors": {
+          "bytes": 3555892908,
+          "sha256": "9152961901600e243cf175ea76b9c40b2a6ff4bc1500b0b009896a10dcc476ac"
+        },
+        "pretrained_model/policy_postprocessor.json": {
+          "bytes": 1500,
+          "sha256": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79"
+        },
+        "pretrained_model/policy_postprocessor_step_2_unnormalizer_processor.safetensors": {
+          "bytes": 1316,
+          "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+        },
+        "pretrained_model/policy_preprocessor.json": {
+          "bytes": 1424,
+          "sha256": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4"
+        },
+        "pretrained_model/policy_preprocessor_step_4_normalizer_processor.safetensors": {
+          "bytes": 1316,
+          "sha256": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7"
+        },
+        "pretrained_model/recovery_registration.json": {
+          "bytes": 986,
+          "sha256": "68e31d27134ca402d88502fb385eaf7352d4ec9771a556a7034465361757dd9e"
+        },
+        "pretrained_model/train_config.json": {
+          "bytes": 10634,
+          "sha256": "c38935e2f98c0394361b6ff656952266b7c52628d6fde9d327020f92d3b8a992"
+        },
+        "training_state/optimizer_param_groups.json": {
+          "bytes": 12621,
+          "sha256": "b66152da7f53cf23e861886401add89d5dd0103b4b3a2c3c57021ee006485871"
+        },
+        "training_state/optimizer_state.safetensors": {
+          "bytes": 5036072236,
+          "sha256": "956302733d87432c415f98f28bc73bbf05a1e268301cb14f8c7263053cd45ee0"
+        },
+        "training_state/rng_state.safetensors": {
+          "bytes": 15708,
+          "sha256": "39ee05cdf184cb7c10e2fe52fdcffe0bfafb907907441f9b073250cb71253b24"
+        },
+        "training_state/scheduler_state.json": {
+          "bytes": 309,
+          "sha256": "10d385acc805cf637350fbefcdb85b086af772f9a772e4874848bb7c05a91e93"
+        },
+        "training_state/training_step.json": {
+          "bytes": 221,
+          "sha256": "5a53a5b3957a295351b615595a0f138fe6c462a98424160b2bdfaaef88c5f292"
+        }
+      }
+    }
+  ],
+  "limitations": "Four engineering updates on the recorded GPU, excluded from production selection and curves. Exact inherited tensor restoration, optimizer counters/moments and scheduler resume verified. RNG is serialized and hash-verified; no uninterrupted-run equivalence claim. The native scheduler advances per microbatch, independently of optimizer accumulation; this is not numerical equivalence to physical batch-eight training. No longer-horizon, cross-hardware reproducibility or task-success claim."
+}

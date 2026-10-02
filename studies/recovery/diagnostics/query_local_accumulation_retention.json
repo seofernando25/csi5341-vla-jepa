@@ -1,0 +1,19 @@
+{
+  "purpose": "verified_disposable_engineering_retention",
+  "at": "2026-10-02T12:57:53.173295+00:00",
+  "proof_sha256": "309b6c1ad63bc269e5c5f130f92b0f10d948c16277d507c377dc0dd94268f794",
+  "deleted": [
+    {
+      "native_microsteps": 4,
+      "checkpoint_sha256": "79159158e8c4fdadee7f1cd5bdfd1489b8ea6e300ec955c8f2100796dccf3220",
+      "bytes": 8592015254
+    },
+    {
+      "native_microsteps": 8,
+      "checkpoint_sha256": "9152961901600e243cf175ea76b9c40b2a6ff4bc1500b0b009896a10dcc476ac",
+      "bytes": 8592015259
+    }
+  ],
+  "total_bytes": 17184030513,
+  "retained": "Compact actual gate evidence and raw per-run logs/metadata; source and production parent/checkpoints unchanged. Engineering weights are excluded from selection."
+}

@@ -29,6 +29,11 @@ def main():
     if not recipe.get('engineering_only') or expected_states is None:
         raise ValueError('This audit covers registered four-layer or full-decoder engineering gates')
     recipe_hash = file_hash(recipe_path)
+    accumulation = recipe.get('gradient_accumulation_steps', 1)
+    stops = [4, 8] if accumulation == 2 else [2, 4]
+    if (accumulation not in (1, 2) or recipe['batch_size'] * accumulation != 8
+            or recipe.get('validation_batch_size', 8) != 8):
+        raise ValueError('Require effective batch eight and validation batches eight')
     results, previous_hash = [], None
     for index, run_id in enumerate(args.runs):
         folder = ROOT / 'studies/recovery/training' / run_id
@@ -40,11 +45,14 @@ def main():
         if recipe.get('required_gpu') and record['environment']['gpu'] != recipe['required_gpu']:
             raise ValueError('Native preflight did not run on the registered intended GPU')
         stop = record['completed_steps']
+        if stop != stops[index]:
+            raise ValueError('Engineering stage does not match its registered microstep boundary')
         rows = [json.loads(line) for line in (folder / 'metrics.jsonl').read_text().splitlines()]
         training = [r for r in rows if r['phase'] == 'training']
         validation = [r for r in rows if r['phase'] == 'validation']
         action = [r for r in rows if r['phase'] == 'validation_action']
-        if ([r['step'] for r in training] != ([1, 2] if index == 0 else [3, 4])
+        start = 0 if index == 0 else stops[index - 1]
+        if ([r['step'] for r in training] != list(range(start + 1, stop + 1))
                 or len(validation) != 25 or sum(r['samples'] for r in validation) != 200
                 or len(action) != 25 or sum(r['valid_actions'] for r in action) != 1303
                 or not all(math.isfinite(r['loss']) and math.isfinite(r['grad_norm']) for r in training)):
@@ -74,21 +82,25 @@ def main():
             counters = [float(saved.get_tensor(k)) for k in saved.keys() if k.endswith('/step')]
             query_moments = {k: saved.get_tensor(k) for k in saved.keys()
                              if tuple(saved.get_slice(k).get_shape()) == (4, 960)}
-        if len(counters) != expected_states or set(counters) != {float(stop)} or len(query_moments) != 2:
+        optimizer_updates = stop // accumulation
+        if len(counters) != expected_states or set(counters) != {float(optimizer_updates)} or len(query_moments) != 2:
             raise ValueError('Native optimizer counters or query moments were not resumed')
         if not all(v.dtype == torch.float32 and bool(torch.isfinite(v).all()) and bool(torch.count_nonzero(v))
                    for v in query_moments.values()):
             raise ValueError('Query AdamW moments must be finite nonzero FP32 tensors')
         topology = read_json(checkpoint / 'training_state/training_step.json')
         scheduler = read_json(checkpoint / 'training_state/scheduler_state.json')
-        if topology['step'] != stop or topology['batch_size'] != 8 or topology['grad_accum_steps'] != 1 or scheduler['last_epoch'] != stop:
+        if (topology['step'] != stop or topology['batch_size'] != recipe['batch_size']
+                or topology['grad_accum_steps'] != accumulation or scheduler['last_epoch'] != stop):
             raise ValueError('Native topology or scheduler state did not resume')
         files = {str(p.relative_to(checkpoint)): {'bytes': p.stat().st_size, 'sha256': file_hash(p)}
                  for p in sorted(checkpoint.rglob('*')) if p.is_file()}
         results.append({'run_id': run_id, 'completed_steps': stop, 'checkpoint_sha256': model_hash,
                         'initialization': initialization, 'metrics_sha256': file_hash(folder / 'metrics.jsonl'),
                         'training_steps': [r['step'] for r in training], 'query_delta_l2': float(query.norm()),
-                        'query_optimizer_moment_keys': list(query_moments), 'optimizer_counters': stop,
+                        'query_optimizer_moment_keys': list(query_moments), 'optimizer_counters': optimizer_updates,
+                        'native_microsteps': stop, 'optimizer_updates': optimizer_updates,
+                        'scheduler_microsteps': scheduler['last_epoch'],
                         'optimizer_parameter_states': len(counters), 'validation_frames': 200,
                         'valid_actions': 1303, 'peak_allocated_bytes': max(r['peak_allocated_bytes'] for r in training),
                         'update_seconds': [r['update_seconds'] for r in training], 'files': files})
@@ -97,9 +109,13 @@ def main():
                'recipe_sha256': recipe_hash, 'source_manifest': expected, 'audit_sha256': file_hash(__file__),
                'trainable_decoder_layers': recipe['unfreeze_last_n'],
                'gpu': record['environment']['gpu'], 'allocator_config': record['allocator_config'],
+               'microbatch_size': recipe['batch_size'], 'gradient_accumulation_steps': accumulation,
+               'effective_batch_size': 8, 'validation_batch_size': 8,
                'runs': results, 'limitations': 'Four engineering updates on the recorded GPU, excluded from production '
                'selection and curves. Exact inherited tensor restoration, optimizer counters/moments and scheduler '
                'resume verified. RNG is serialized and hash-verified; no uninterrupted-run equivalence claim. '
+               'The native scheduler advances per microbatch, independently of optimizer accumulation; '
+               'this is not numerical equivalence to physical batch-eight training. '
                'No longer-horizon, cross-hardware reproducibility or task-success claim.'})
     print('Native optimizer/save/resume gate passed; not a production control result.')
 

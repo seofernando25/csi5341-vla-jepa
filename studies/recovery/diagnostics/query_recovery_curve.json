@@ -27,7 +27,19 @@
     },
     {
       "run_id": "20261002T100838646425Z-Query-recovery-train",
-      "metrics_sha256": "2ed12156b772b4a0a619890f8102e084e38879926892a89868cef960020a879f",
+      "metrics_sha256": "e5aa0156d15b2dd675a729d25a412592f58c953a0dda16e806a2707f75c34916",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+      }
+    },
+    {
+      "run_id": "20261002T124515345333Z-Query-recovery-train",
+      "metrics_sha256": "21ae9fc3a872bf627df2ec6e4a7e3303891b0344756eb91286f1c6407ef0c63d",
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
@@ -41,7 +53,7 @@
   "study": "n0008-query-decoder-recovery-r1",
   "initial_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
   "registration_sha256": "96bffe64c271e9c5ab932b01b458c14637ae6809d84dcd8b5bded632a867cf2b",
-  "latest_training_step": 2439,
+  "latest_training_step": 5138,
   "validation": [
     {
       "step": 500,
@@ -74,6 +86,54 @@
       "gripper_error_percent": 7.06062931696086,
       "frames": 200,
       "valid_actions": 1303
+    },
+    {
+      "step": 2500,
+      "native_loss": 0.2313317483663559,
+      "arm_rmse": 0.18902087980407029,
+      "gripper_error_percent": 7.367613200306984,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 3000,
+      "native_loss": 0.2269889098405838,
+      "arm_rmse": 0.19027180374694636,
+      "gripper_error_percent": 6.600153491941673,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 3500,
+      "native_loss": 0.23041035294532775,
+      "arm_rmse": 0.18197086033670398,
+      "gripper_error_percent": 8.365310821181888,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 4000,
+      "native_loss": 0.22437451183795928,
+      "arm_rmse": 0.18743759010184652,
+      "gripper_error_percent": 6.600153491941673,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 4500,
+      "native_loss": 0.21639557898044587,
+      "arm_rmse": 0.17276409389812208,
+      "gripper_error_percent": 6.600153491941673,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 5000,
+      "native_loss": 0.21704015672206878,
+      "arm_rmse": 0.16868089255672766,
+      "gripper_error_percent": 5.6792018419033,
+      "frames": 200,
+      "valid_actions": 1303
     }
   ],
   "development": [
@@ -103,6 +163,20 @@
       "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
       "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
       "successes": 4,
+      "episodes": 10
+    },
+    {
+      "stage": 5000,
+      "selected_step": 5000,
+      "checkpoint_sha256": "03ef7e7d326e801351171b02edbf6ea8bc9ebf0db58b4ca815e7f46c049d2709",
+      "run_id": "20261002T124326525090Z-Query-n0008-5000-rollout",
+      "episodes_csv_sha256": "1f6bcd60b19fab9867e574b50b42d2a0d309732a70d147736d56aa16e2a87949",
+      "buffer_precision": "native_rope",
+      "run_record_sha256": "45bdcf590fd156e79839908cc6cccefb95baf31393d43e34614991be81508922",
+      "initial_states_manifest_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+      "loader_sha256": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluator_sha256": "0fe12e4d9f17aa830572953f74ecdebf08f54fc355221b1795dc36b6f5c00d65",
+      "successes": 2,
       "episodes": 10
     }
   ],
