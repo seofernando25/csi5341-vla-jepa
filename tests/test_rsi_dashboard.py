@@ -1,10 +1,83 @@
 import importlib.util
 import json
+import hashlib
 from pathlib import Path
 
 spec = importlib.util.spec_from_file_location('dashboard', Path(__file__).parents[1] / 'scripts/rsi_dashboard.py')
 dashboard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dashboard)
+
+
+def local_pair_fixture(root, rows):
+    """Synthetic display fixtures, never written to actual study directories."""
+    reg = root / 'studies/recovery/local_lr_pair_registration.json'
+    reg.parent.mkdir(parents=True)
+    registry = {'study': 'synthetic-pair', 'execution_order': ['high', 'low'],
+                'recipe_sha256': {'high': 'high-fixture', 'low': 'low-fixture'},
+                'source_manifest': {'module.py': 'source-fixture'}}
+    reg.write_text(json.dumps(registry))
+    path = root / 'outputs/recovery/local-lr-pair/job.json'
+    path.parent.mkdir(parents=True)
+    job = {'study': registry['study'], 'registration_sha256': hashlib.sha256(reg.read_bytes()).hexdigest(),
+           'status': 'training', 'active_branch': 'high', 'resume_microstep': 0, 'branches': {}}
+    path.write_text(json.dumps(job))
+    folder = root / 'studies/recovery/training/001'
+    folder.mkdir(parents=True)
+    record = {'recipe_sha256': 'high-fixture', 'source_manifest': registry['source_manifest'],
+              'purpose': 'recovery_adaptation'}
+    (folder / 'run.json').write_text(json.dumps(record))
+    (folder / 'metrics.jsonl').write_text(''.join(json.dumps(row) + '\n' for row in rows))
+    return job, path, record, folder
+
+
+def test_local_pair_averages_microbatches_and_counts_only_complete_updates(tmp_path):
+    local_pair_fixture(tmp_path, [dict(phase='training', step=i, loss=i / 10, optimizer_updates=i // 2)
+                                for i in (1, 2, 3)])
+    high, low = dashboard.local_rate_jobs(tmp_path)
+    assert high['progress']['step'] == 1
+    assert high['progress']['native_microstep'] == 3
+    assert high['progress']['total'] == 500
+    assert high['progress']['curve'][0]['loss'] == (0.1 + 0.2) / 2
+    assert high['status'] == 'last observed'  # A state file alone is not a live handle.
+    assert low['status'] == 'queued' and low['progress']['curve'] == []
+
+
+def test_local_resume_discards_uncommitted_old_curve_tail(tmp_path):
+    _, _, record, folder = local_pair_fixture(tmp_path,
+        [dict(phase='training', step=i, loss=.5) for i in range(1, 7)])
+    newer = folder.parent / '002'
+    newer.mkdir()
+    (newer / 'run.json').write_text(json.dumps(record))
+    (newer / 'metrics.jsonl').write_text(''.join(json.dumps(dict(phase='training', step=i, loss=.2)) + '\n'
+                                               for i in (3, 4)))
+    p = dashboard.local_rate_jobs(tmp_path)[0]['progress']
+    assert p['native_microstep'] == 4 and p['step'] == 2
+    assert [v['loss'] for v in p['curve']] == [.5, .2]
+
+
+def test_pending_resume_shows_saved_cursor_before_new_losses(tmp_path):
+    job, path, record, folder = local_pair_fixture(tmp_path,
+        [dict(phase='training', step=i, loss=.5) for i in range(1, 7)])
+    newer = folder.parent / '002'; newer.mkdir()
+    (newer / 'run.json').write_text(json.dumps(record))
+    (newer / 'metrics.jsonl').write_text('')
+    job['resume_microstep'] = 2; path.write_text(json.dumps(job))
+    assert dashboard.local_rate_jobs(tmp_path)[0]['progress']['native_microstep'] == 2
+
+
+def test_local_pair_excludes_unregistered_source_and_engineering_logs(tmp_path):
+    _, _, record, folder = local_pair_fixture(tmp_path, [dict(phase='training', step=1000, loss=.1)])
+    for field, value in [('source_manifest', {}), ('purpose', 'engineering_preflight'),
+                         ('recipe_sha256', 'other-fixture')]:
+        altered = {**record, field: value}
+        (folder / 'run.json').write_text(json.dumps(altered))
+        assert dashboard.local_rate_jobs(tmp_path)[0]['progress']['step'] == 0
+
+
+def test_local_pair_requires_job_registration_identity(tmp_path):
+    job, path, _, _ = local_pair_fixture(tmp_path, [])
+    job['registration_sha256'] = 'wrong-fixture'; path.write_text(json.dumps(job))
+    assert dashboard.local_rate_jobs(tmp_path) == []
 
 
 def test_pareto_minimizes_both_metrics_and_keeps_ties():

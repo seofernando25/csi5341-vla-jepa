@@ -4,6 +4,7 @@ import csv
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import hashlib
 import math
 from pathlib import Path
 import re
@@ -184,6 +185,83 @@ def recovery_live(root):
                          'step': curve[-1]['step'] if curve else 0, 'total': job.get('target_step'),
                          'curve': visible, 'completed': job.get('status') == 'completed',
                          'updated_at': updated, 'cloud': True}}
+
+
+def local_rate_jobs(root):
+    """Registered local branches, with one mean loss per accumulated optimizer update."""
+    path = root / 'outputs/recovery/local-lr-pair/job.json'
+    registration_path = root / 'studies/recovery/local_lr_pair_registration.json'
+    if not path.is_file() or not registration_path.is_file():
+        return []
+    job, registration = read_record(path), read_record(registration_path)
+    if (job.get('study') != registration['study'] or job.get('registration_sha256') !=
+            hashlib.sha256(registration_path.read_bytes()).hexdigest()):
+        return []
+    result = []
+    for branch in registration['execution_order']:
+        points, updated = {}, path.stat().st_mtime
+        records = []
+        for record_path in sorted((root / 'studies/recovery/training').glob('*/run.json')):
+            record = read_record(record_path)
+            if (record.get('recipe_sha256') != registration['recipe_sha256'][branch]
+                    or record.get('source_manifest') != registration['source_manifest']
+                    or record.get('purpose') != 'recovery_adaptation'):
+                continue
+            metrics = record_path.parent / 'metrics.jsonl'
+            if metrics.is_file():
+                rows = []
+                for line in metrics.read_text().splitlines():
+                    try:
+                        row = json.loads(line)
+                    except ValueError:
+                        continue
+                    if row.get('phase') == 'training' and number(row.get('loss')) is not None:
+                        step = row.get('step')
+                        if isinstance(step, int) and step > 0 and row.get('optimizer_updates', step // 2) == step // 2:
+                            rows.append(row)
+                records.append((record_path.parent, metrics, rows))
+        for _, metrics, rows in records:
+            if rows:
+                # A resumed stream supersedes an earlier uncommitted tail.
+                start = min(row['step'] for row in rows)
+                points = {step: row for step, row in points.items() if step < start}
+                points.update({row['step']: row for row in rows})
+            updated = max(updated, metrics.stat().st_mtime)
+        active = job.get('active_branch') == branch
+        if active and records and not records[-1][2]:
+            points = {step: row for step, row in points.items() if step <= job.get('resume_microstep', 0)}
+        curve = []
+        for step in sorted(points):
+            if step % 2 or step - 1 not in points:
+                continue
+            pair = [points[step - 1], points[step]]
+            averaged = {'step': step // 2}
+            for key in ('loss', 'action_loss', 'wm_loss'):
+                values = [row.get(key) for row in pair]
+                averaged[key] = sum(values) / 2 if all(number(value) is not None for value in values) else None
+            curve.append(averaged)
+        visible = curve[::max(1, len(curve) // 300)]
+        if curve and visible[-1] != curve[-1]:
+            visible.append(curve[-1])
+        live = False
+        pid = job.get('child_pid')
+        if active and job.get('status') == 'training' and isinstance(pid, int) and pid > 1:
+            try:
+                command = Path(f'/proc/{pid}/cmdline').read_bytes()
+                live = b'evaluation.recovery_train' in command and f'local_lr_{branch}_config.json'.encode() in command
+            except OSError:
+                pass
+        complete = branch in job.get('branches', {})
+        status = 'completed' if complete else 'running' if live else 'last observed' if points else 'queued'
+        result.append({'id': f'local-rate-{branch}', 'status': status,
+                       'label': f'Local RTX3090 · {branch} rate',
+                       'progress': {'label': f'Local {branch} rate', 'phase': 'learning-rate comparison',
+                                    'step': max(points, default=0) // 2, 'total': 500,
+                                    'native_microstep': max(points, default=0),
+                                    'native_total_microsteps': 1000, 'accumulation_steps': 2,
+                                    'curve': visible, 'completed': complete, 'updated_at': updated,
+                                    'cloud': False, 'unit': 'optimizer updates', 'averaged_microbatches': 2}})
+    return result
 
 
 def confirmation_live(root):
@@ -382,6 +460,7 @@ def snapshot(root=ROOT, service=True, state_name='.rsi'):
             'progress': progress, 'disk_free_gib': shutil.disk_usage(root).free / 1024**3,
             'evaluation': evaluation_history(root),
             'confirmation': confirmation_live(root) if state_name == '.rsi' else None,
+            'local_training_jobs': local_rate_jobs(root) if state_name == '.rsi' else [],
             'events': [{'kind': e['kind'], 'at': e.get('at') or e.get('ended_at') or e.get('started_at'),
                         'attempt': e.get('attempt'), 'batch': e.get('batch_id'), 'reason': e.get('reason')}
                        for e in events[-60:]], 'warnings': warnings}

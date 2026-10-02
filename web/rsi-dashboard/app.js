@@ -1,5 +1,6 @@
 const $ = id => document.getElementById(id);
 let state = null, view = 'chart', selectedStudy = '.rsi', fetching = false, refreshTimer = null, openAttempt = null;
+let selectedCurrentRun = null;
 const finite = x => typeof x === 'number' && Number.isFinite(x);
 const esc = x => String(x ?? '—').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function choices(id, items) {
@@ -99,7 +100,17 @@ function plot() {
 }
 function currentRun() {
   const rollout=state.evaluation.runs.slice().reverse().find(r=>r.experiment==='rollout'&&r.status==='running');
-  if(rollout){
+  const options=[];
+  if(rollout) options.push({id:'rollout:'+rollout.id,label:rollout.variant+' · LIBERO',running:true,rollout});
+  if(state.confirmation?.progress) options.push({id:'confirmation',label:state.confirmation.progress.label+(state.confirmation.progress.cloud?' · cloud':' · confirmation'),running:state.confirmation.status==='running',progress:state.confirmation.progress});
+  for(const job of state.local_training_jobs||[]) options.push({...job,running:job.status==='running'});
+  if(state.progress) options.push({id:'search',label:'Search training',running:state.service==='active',progress:state.progress});
+  if(!options.some(o=>o.id===selectedCurrentRun)) selectedCurrentRun=(options.find(o=>o.running)||options[0])?.id;
+  choices('current-run',options.map(o=>[o.id,o.label]));$('current-run').value=selectedCurrentRun||'';
+  const chosen=options.find(o=>o.id===selectedCurrentRun);
+  const selectedRollout=chosen?.rollout;
+  if(selectedRollout){
+    const rollout=selectedRollout;
     const p=rollout.progress;
     $('current-title').textContent=`${rollout.variant} · LIBERO ${rollout.phase} · running`;
     $('current-stats').textContent=`${p.completed} / ${p.total} episodes · ${p.successes} successes so far`;
@@ -112,11 +123,12 @@ function currentRun() {
     $('current-plot').innerHTML=svg+'</svg>';return;
   }
 
-  const p=state.confirmation?.progress || state.progress, points=p?.curve || [];
-  $('current-title').textContent=p ? `${p.label} · ${p.phase} · ${p.completed?'completed':(state.confirmation?.status==='running'||state.service==='active')?'running':'last observed run'}` : 'Waiting for a training run';
+  const p=chosen?.progress, points=p?.curve || [];
+  $('current-title').textContent=p ? `${p.label} · ${p.phase} · ${p.completed?'completed':chosen.running?'running':chosen.status||'last observed run'}` : 'Waiting for a training run';
   const last=points.at(-1);
-  $('current-stats').textContent=p ? `${p.step??'—'} / ${p.total??'—'} steps${last ? ` · loss ${last.loss.toFixed(3)} at step ${last.step}` : ''}` : '';
+  $('current-stats').textContent=p ? `${p.step??'—'} / ${p.total??'—'} ${p.unit||'optimizer updates'}${last ? ` · loss ${last.loss.toFixed(3)} at update ${last.step}` : ''}` : '';
   $('current-note').textContent=(p?.cloud ? 'Cloud logs sync every minute · held-out results appear after evaluation. ' : 'Logged training loss · updates every 3s · held-out results appear after evaluation. ')+(p ? `Log updated ${new Date(p.updated_at*1000).toLocaleTimeString()}` : '');
+  if(p?.averaged_microbatches) $('current-note').textContent=`Mean loss over ${p.averaged_microbatches} microbatches per update · ${p.native_microstep}/${p.native_total_microsteps} native microsteps · updated ${new Date(p.updated_at*1000).toLocaleTimeString()}`;
   if(!points.length){$('current-plot').innerHTML='<div class="empty">Waiting for the first logged training loss.</div>';return;}
   const keys=[['loss','Total','#1965d2'],['action_loss','Action','#ba6c27'],['wm_loss','World model','#357a57']];
   const values=points.flatMap(p=>keys.map(([k])=>p[k])).filter(finite);
@@ -176,6 +188,7 @@ for(const button of document.querySelectorAll('nav button')) button.onclick=()=>
   for(const v of ['chart','current','runs','proposals','activity'])$(v+'-view').hidden=v!==view;
 };
 $('study').onchange=()=>{$('detail').close();openAttempt=null;selectedStudy=$('study').value;refresh();};
+$('current-run').onchange=()=>{selectedCurrentRun=$('current-run').value;if(state)currentRun();};
 $('dataset').onchange=()=>{if(state){graphSetup();plot();}};
 for(const id of ['metric','gpu','protocol'])$(id).onchange=()=>state&&plot();
 $('batch').onchange=()=>state&&history();for(const id of ['search','run-search'])$(id).oninput=()=>state&&history();
