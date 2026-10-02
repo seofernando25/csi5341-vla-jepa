@@ -1,0 +1,14 @@
+/* Global chapter navigation and local motion are distinct clocks. */
+const mainScenes=visibleScenes.filter(i=>i<19),totalDuration=mainScenes.reduce((v,i)=>v+DATA[i].budget,0);
+let continuous=false;
+const fmt=t=>Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0');
+const chapterNames=i=>i===0?'Opening':i===2?'The data gap':i===3?'Related work':i<9?'Future-state prediction':i<12?'Robot control':i<16?'Evidence':i===16?'Our preliminary results':'Critical discussion';
+for(const i of mainScenes){const b=document.createElement('button');b.style.flex=DATA[i].budget;b.dataset.chapter=i;b.title=fmt(DATA[i].start)+' · '+DATA[i].title;b.setAttribute('aria-label',b.title);b.onclick=e=>{const narrating=continuous&&!audio.paused;select(i);const local=clamp((e.clientX-b.getBoundingClientRect().left)/b.getBoundingClientRect().width);audio.currentTime=local*DATA[i].budget;if(narrating){continuous=true;audio.play();}updateTimeline();};document.getElementById('chapter-timeline').append(b);}
+window.updateTimeline=()=>{const time=(DATA[index].start||0)+(index<19?audio.currentTime:0);document.getElementById('chapter-label').textContent=chapterNames(index)+' · '+(index<19?sceneNumber(index)+'/18':'Appendix');document.getElementById('clock-label').textContent=fmt(time)+' / '+fmt(Math.ceil(totalDuration));for(const b of document.querySelectorAll('[data-chapter]')){const i=Number(b.dataset.chapter);b.classList.toggle('current',i===index);b.classList.toggle('visited',i<index);b.style.setProperty('--position',Math.min(100,audio.currentTime/DATA[index].budget*100)+'%');}};
+const oldReveal=revealUI;revealUI=function(){oldReveal();document.getElementById('timeline-shell').classList.add('show');clearTimeout(revealUI.timer);revealUI.timer=setTimeout(()=>document.getElementById('timeline-shell').classList.remove('show'),2200);};
+document.getElementById('talk').onclick=()=>{if(index>=19)return;if(audio.paused){if(audio.currentTime<.05){p=0;motion.from=null;if(index===0||index===2)startComparison();}continuous=true;animation=true;audio.play().catch(()=>{});}else{continuous=false;audio.pause();}};
+audio.ontimeupdate=()=>updateTimeline();audio.onended=()=>{if(continuous){const n=mainScenes.indexOf(index)+1;if(n<mainScenes.length){select(mainScenes[n]);continuous=true;audio.play().catch(()=>{});}else continuous=false;}updateTimeline();};
+document.getElementById('animate').onclick=()=>{if(p>=1)p=0;animation=!animation;if(index===2||index===0){if(animation)startComparison();else holdComparison(comparisonTime());}last=performance.now();document.getElementById('animate').textContent=animation?'Pause motion':'Replay motion';};
+updateTimeline();revealUI();
+
+window.addEventListener('keydown',e=>{if(e.key==='End'){animation=false;p=1;motion.from=null;if(index===2||index===0)holdComparison(8);render();}if(e.key==='Home'){p=0;animation=true;}});

@@ -1,0 +1,57 @@
+VLA-JEPA · immersive browser presentation
+
+Serve this folder with a local static server; see README.md for repository commands.
+18 narrated chapters + 4 optional technical/pilot appendices. Main narration: about 8:46.
+Noah covers 1–8; Fernando covers 9–18, approximately equal time.
+
+Arrow keys: chapters. Space: replay/pause local motion. Home: replay. End: final audit state.
+N: notes. Hover near the bottom: chapter rail and playback controls.
+Play narration continues through the main talk; chapter motion has an independent clock.
+Chapter rail navigates the whole talk. Final view displays the complete visual state.
+
+Organization
+  index.html       minimal page, local script dependencies
+  styles.css       immersive stage, hover controls and chapter rail
+  src/content.js   chapter content, notes, timing, sources and speaker allocation
+  src/player.js    chapter selection and keyboard controls
+  src/timeline.js  global chapter navigation and narration sequence
+  src/drawing.js   canvas primitives, verified media and the human/robot scene
+  src/renderer.js  one retained canvas, display-refresh rendering
+  src/scenes/method.js  shared semantic objects and interpolated chapter poses
+  src/scenes/flow.js    shared training/inference action-space visual
+  src/scenes/results.js synchronized paired benchmark motion
+  src/scenes/bookends.js opening, real control traces, joint training and evidence
+  src/choreography.js    explicit visual beat lengths and transformation primitives
+  src/recorded-control.js verified DROID pose commands
+  assets/three/feature-reel.js original procedural 3D feature sculpture
+  src/scenes/reference.js opening, discussion, pilot and appendix SVG scenes
+  data.json        human-readable content mirror
+  assets/          local footage, source frames, fonts, math and stock voice audio
+
+The method objects change position continuously between chapters 4–8.
+Feature ribbons and action-space curves are schematic, not model measurements.
+The target is a future-state embedding. Transition tokens condition prediction and control.
+A separate flow-matching action head generates controls; no future-image decoder is required.
+UniVLA already operates in DINO feature space; the comparison concerns pipelines and inputs.
+
+Human example: SSV2 validation sample 174198, putting jar into box.
+Verified against validation metadata; not identified as a VLA-JEPA training sample.
+Robot example: DROID AUTOLab+0d4edc83+2023-10-27-19h-52m-50s, camera 24400334.
+Real timing restored from control timestamps. This is dataset footage, not VLA-JEPA rollout.
+Footage plays once then holds; native capture frames are duplicated, not invented by interpolation.
+The exported movie is constant 60 fps; live browser speed depends on the display and hardware.
+
+Sources
+https://arxiv.org/abs/2602.10098v1
+https://arxiv.org/abs/2505.06111
+https://latentactionpretraining.github.io/
+https://www.qualcomm.com/developer/software/something-something-v-2-dataset
+https://huggingface.co/datasets/morpheushoc/something-something-v2
+https://droid-dataset.github.io/visualizer/
+
+Puck and Charon are synthetic stock voices generated via the authorized OpenRouter account.
+The original presenter pilot quantization and architectural results remain marked preliminary.
+The original procedural Three.js feature sculpture is used on the bookends.
+It is an illustrative motif, not a measured embedding.
+Unused slide images and legacy Panda assets are archived outside this deliverable.
+PDF companion slides show final states. Rehearsal guide contains dialogue and delivery cues.

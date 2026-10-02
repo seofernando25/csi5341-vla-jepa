@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VLA-JEPA · Motion presentation</title>
+<script type="module" src="assets/three/feature-reel.js"></script>
+<link rel="stylesheet" href="styles.css">
+<button class="menu-hint show" id="menu" aria-label="Open slide navigation">Chapters</button>
+<div class="layout"><nav id="slides" class="drawer" aria-label="Slides"><button id="closeNav" aria-label="Close slide navigation" style="float:right">×</button><h1>VLA-JEPA</h1></nav><main><div class="viewer"><div class="stage" id="stage" role="region" aria-label="Presentation slide"></div><div class="controls show" id="controls"><button id="prev" aria-label="Previous slide">←</button><button id="next" aria-label="Next slide">→</button><button id="step">Build →</button><button id="animate">Replay motion</button><button id="talk" class="primary">Play narration</button><input id="scrub" aria-label="Scene build" type="range" min="0" max="1000" value="0" hidden><button id="audit">Final view</button><button id="notesBtn">Notes</button><button id="fullscreen">Full screen</button><span id="status"></span></div><div id="caption" class="screen-reader" aria-live="polite"></div><section class="notes" id="notes" hidden><h2 id="noteTitle"></h2><p id="script"></p><p id="delivery" class="source"></p><p id="source" class="source"></p></section><span id="runtime" hidden></span></div></main></div><div id="welcome">← → chapters · Space replays motion · Hover below for the timeline · N opens notes</div><audio id="audio" preload="none"></audio>
+<script src="assets/p5.min.js"></script><div class="timeline-shell" id="timeline-shell"><div class="timeline-labels"><span id="chapter-label">Opening</span><span id="clock-label">0:00 / 8:46</span></div><div id="chapter-timeline" aria-label="Presentation chapter timeline"></div></div>
+<script src="src/content.js"></script>
+<script src="src/scenes/reference.js"></script>
+<script src="src/drawing.js"></script>
+<script src="src/recorded-control.js"></script>
+<script src="src/choreography.js"></script>
+<script src="src/scenes/method.js"></script>
+<script src="src/scenes/flow.js"></script>
+<script src="src/scenes/results.js"></script>
+<script src="src/scenes/bookends.js"></script>
+<script src="src/player.js"></script>
+<script src="src/renderer.js"></script>
+<script src="src/timeline.js"></script>
+<script>if(new URLSearchParams(location.search).has("authoring")){const s=document.createElement("script");s.src="tools/export.js";document.body.append(s);}</script>
+</html>
