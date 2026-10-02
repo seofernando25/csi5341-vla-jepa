@@ -1,0 +1,732 @@
+{
+  "purpose": "Native action/world gradient diagnostic on one observed training frame per task",
+  "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "diagnostic_source_sha256": "7847e58e2ab506445aed76bfc46aada83b8d2c13aaa59da468f79ff1d9f2288e",
+  "training_split_sha256": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+  "seed": 92000,
+  "native_world_loss_weight": 0.1,
+  "maximum_world_over_action_gradient_l2": 0.0051318417097222565,
+  "minimum_world_over_action_gradient_l2": 3.819139536541385e-05,
+  "frames": [
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 53,
+      "frame": 40,
+      "seed": 92000,
+      "task_id": 0,
+      "native_action_loss": 0.04356538504362106,
+      "native_weighted_world_loss": 0.11896293610334396,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.11203598966774324,
+          "weighted_world_gradient_l2": 0.00039481069284864683,
+          "cosine": 0.0043649327751146575,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.2923866179873395,
+          "weighted_world_gradient_l2": 0.00026784110424502684,
+          "cosine": -0.04878481463417431,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.29658572477591266,
+          "weighted_world_gradient_l2": 0.00016151334386135203,
+          "cosine": 0.06646629593057048,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.262099685397461,
+          "weighted_world_gradient_l2": 0.00017375440209791083,
+          "cosine": 0.111310089717688,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.478406605903862,
+          "weighted_world_gradient_l2": 0.00020429174475116132,
+          "cosine": 0.11295434446146473,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.17598531620013488,
+          "weighted_world_gradient_l2": 0.00020874404698590374,
+          "cosine": 0.007872184866426352,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4901642240,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 73,
+      "frame": 125,
+      "seed": 92000,
+      "task_id": 1,
+      "native_action_loss": 0.05902964621782303,
+      "native_weighted_world_loss": 0.11629028618335724,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.19660917910460227,
+          "weighted_world_gradient_l2": 0.0004923012863204014,
+          "cosine": 0.004421444835647122,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.5804746415813613,
+          "weighted_world_gradient_l2": 0.00032754147976468863,
+          "cosine": 0.029426389238598263,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.6042593829700328,
+          "weighted_world_gradient_l2": 0.00019874524419144325,
+          "cosine": 0.06317910347482933,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.49033499061346325,
+          "weighted_world_gradient_l2": 0.00019538291809792678,
+          "cosine": 0.029645625374279488,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.8357482037391224,
+          "weighted_world_gradient_l2": 0.00025775965424998636,
+          "cosine": -0.05900010551298355,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.3569365027872723,
+          "weighted_world_gradient_l2": 0.00025229297340749045,
+          "cosine": 0.05734043384035651,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4895931904,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 82,
+      "frame": 27,
+      "seed": 92000,
+      "task_id": 2,
+      "native_action_loss": 0.26725155115127563,
+      "native_weighted_world_loss": 0.11732251942157745,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.3294435303493818,
+          "weighted_world_gradient_l2": 0.00046212730753074116,
+          "cosine": 0.0364288512699416,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.5735334547747789,
+          "weighted_world_gradient_l2": 0.00025202993227410223,
+          "cosine": 0.01609417170989116,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.42870578893120304,
+          "weighted_world_gradient_l2": 0.00020731793319245625,
+          "cosine": -0.22106035791398448,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.39967650835903973,
+          "weighted_world_gradient_l2": 0.0001883928504820066,
+          "cosine": -0.1385762378121858,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.5056391235594913,
+          "weighted_world_gradient_l2": 0.000201273757834948,
+          "cosine": 0.1078350006277301,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.35564333088970934,
+          "weighted_world_gradient_l2": 0.0002112219110688913,
+          "cosine": 0.01958848643771895,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4901642240,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 101,
+      "frame": 13,
+      "seed": 92000,
+      "task_id": 3,
+      "native_action_loss": 0.10144920647144318,
+      "native_weighted_world_loss": 0.11392208188772202,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 2.326791163595916,
+          "weighted_world_gradient_l2": 0.0004956634528964911,
+          "cosine": -0.0023420764077507683,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 2.1488859754866283,
+          "weighted_world_gradient_l2": 0.00025935232387836767,
+          "cosine": -0.09633647116704967,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 2.795108370420181,
+          "weighted_world_gradient_l2": 0.00016870326678212794,
+          "cosine": -0.11548164778657122,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 2.6968379251312014,
+          "weighted_world_gradient_l2": 0.0001709278042238472,
+          "cosine": -0.08832406951272993,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 5.512886335984424,
+          "weighted_world_gradient_l2": 0.00021054482166216887,
+          "cosine": -0.04460672586222002,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 1.636095429610781,
+          "weighted_world_gradient_l2": 0.00023739200720197549,
+          "cosine": 0.015362999361456195,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4899864576,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 83,
+      "frame": 26,
+      "seed": 92000,
+      "task_id": 4,
+      "native_action_loss": 0.04512210935354233,
+      "native_weighted_world_loss": 0.11340413242578506,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.09215217172026843,
+          "weighted_world_gradient_l2": 0.0004729103584755613,
+          "cosine": 0.006553270338685265,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.18610738938758506,
+          "weighted_world_gradient_l2": 0.00030721438419194436,
+          "cosine": -0.02083086574134518,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.13337648516189402,
+          "weighted_world_gradient_l2": 0.0001934859474813029,
+          "cosine": 0.06083573644422161,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.12283677943122559,
+          "weighted_world_gradient_l2": 0.00018390065906683122,
+          "cosine": -0.030892479950430506,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.1843422860560761,
+          "weighted_world_gradient_l2": 0.00022531021541717674,
+          "cosine": 0.07979921077484829,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.10915932734727242,
+          "weighted_world_gradient_l2": 0.00025600889748956726,
+          "cosine": 0.021266310507508275,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4895931904,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 96,
+      "frame": 14,
+      "seed": 92000,
+      "task_id": 5,
+      "native_action_loss": 0.046036962419748306,
+      "native_weighted_world_loss": 0.10916391760110855,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.2171554006553615,
+          "weighted_world_gradient_l2": 0.0003763201828238601,
+          "cosine": -0.0037595578795066083,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.5891516603504074,
+          "weighted_world_gradient_l2": 0.00023281098880918982,
+          "cosine": -0.09453840416779603,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.434789426619909,
+          "weighted_world_gradient_l2": 0.00014706002505797573,
+          "cosine": -0.10961331277102664,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.3800849229806492,
+          "weighted_world_gradient_l2": 0.00016513364609405096,
+          "cosine": -0.11682866013856734,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.5214588894849345,
+          "weighted_world_gradient_l2": 0.0001817001301156002,
+          "cosine": -0.2934824517519181,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.373624406620688,
+          "weighted_world_gradient_l2": 0.00018850925100252335,
+          "cosine": -0.17441448682281369,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4898898944,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 102,
+      "frame": 20,
+      "seed": 92000,
+      "task_id": 6,
+      "native_action_loss": 0.05253579840064049,
+      "native_weighted_world_loss": 0.10946464538574219,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.17797229897273645,
+          "weighted_world_gradient_l2": 0.0005838611062721419,
+          "cosine": -0.015056880048440292,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.2941758461538869,
+          "weighted_world_gradient_l2": 0.0004394761278419165,
+          "cosine": 0.029208896729700024,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.319641527019391,
+          "weighted_world_gradient_l2": 0.00030205408198278434,
+          "cosine": 0.04778180636863387,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.2735640126709811,
+          "weighted_world_gradient_l2": 0.000308487417826634,
+          "cosine": -0.05136202322922579,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.4343623842578853,
+          "weighted_world_gradient_l2": 0.00032570487981963296,
+          "cosine": 0.18381809954067438,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.1872113027493254,
+          "weighted_world_gradient_l2": 0.00035040918810794517,
+          "cosine": -0.07020691860868321,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4898898944,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 70,
+      "frame": 41,
+      "seed": 92000,
+      "task_id": 7,
+      "native_action_loss": 0.1028924211859703,
+      "native_weighted_world_loss": 0.11475477367639542,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.5699907727916808,
+          "weighted_world_gradient_l2": 0.00044756936858289883,
+          "cosine": -0.004148656030483936,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 1.3868096637107366,
+          "weighted_world_gradient_l2": 0.0002193630093170545,
+          "cosine": 0.13872565462762296,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 1.4050543894710361,
+          "weighted_world_gradient_l2": 0.0001484070457017641,
+          "cosine": 0.02094446491064959,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 1.2573353353953343,
+          "weighted_world_gradient_l2": 0.00014149803541014204,
+          "cosine": 0.09115304207623369,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 1.9354793265418586,
+          "weighted_world_gradient_l2": 0.0001843269062113648,
+          "cosine": 0.09662347560816749,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.8315056416146638,
+          "weighted_world_gradient_l2": 0.0002013071074752158,
+          "cosine": 0.11659798068710049,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4904295936,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 59,
+      "frame": 43,
+      "seed": 92000,
+      "task_id": 8,
+      "native_action_loss": 0.05239124596118927,
+      "native_weighted_world_loss": 0.12029323726892471,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.15853714707992553,
+          "weighted_world_gradient_l2": 0.0004498835396709938,
+          "cosine": 0.011153185487510705,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.32185775662471083,
+          "weighted_world_gradient_l2": 0.00023096317418829716,
+          "cosine": 0.12769880793958463,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.32786364591836675,
+          "weighted_world_gradient_l2": 0.00016563493825283584,
+          "cosine": 0.2404037910142563,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.2963917219628957,
+          "weighted_world_gradient_l2": 0.00016822844100647304,
+          "cosine": 0.03596131412895699,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 0.49067468645960477,
+          "weighted_world_gradient_l2": 0.00019288006007163366,
+          "cosine": 0.08702251609382643,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.19167657691496792,
+          "weighted_world_gradient_l2": 0.0001971905411412527,
+          "cosine": 0.11832134157058581,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4899864576,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    },
+    {
+      "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      },
+      "episode": 90,
+      "frame": 113,
+      "seed": 92000,
+      "task_id": 9,
+      "native_action_loss": 0.20445974171161652,
+      "native_weighted_world_loss": 0.11347220093011856,
+      "world_loss_weight": 0.1,
+      "groups": {
+        "hidden_adapter": {
+          "action_gradient_l2": 0.2863979738395561,
+          "weighted_world_gradient_l2": 0.00042275503493856574,
+          "cosine": 0.008509667804019523,
+          "action_parameters_with_grad": 1,
+          "world_parameters_with_grad": 1,
+          "finite": true
+        },
+        "decoder_adapter": {
+          "action_gradient_l2": 0.5651095233240379,
+          "weighted_world_gradient_l2": 0.0002768745616257371,
+          "cosine": 0.027493258699119293,
+          "action_parameters_with_grad": 3,
+          "world_parameters_with_grad": 3,
+          "finite": true
+        },
+        "decoder_layer_28": {
+          "action_gradient_l2": 0.6356506340330508,
+          "weighted_world_gradient_l2": 0.00022382188514618407,
+          "cosine": 0.3929135593411093,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_29": {
+          "action_gradient_l2": 0.5528563610842475,
+          "weighted_world_gradient_l2": 0.00021195364592144393,
+          "cosine": 0.2725554684540615,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_30": {
+          "action_gradient_l2": 1.0059960351160713,
+          "weighted_world_gradient_l2": 0.0001983320713319744,
+          "cosine": -0.03800308348858717,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        },
+        "decoder_layer_31": {
+          "action_gradient_l2": 0.35554892156942247,
+          "weighted_world_gradient_l2": 0.00024226268589316288,
+          "cosine": -0.05102416577751414,
+          "action_parameters_with_grad": 9,
+          "world_parameters_with_grad": 9,
+          "finite": true
+        }
+      },
+      "trainable_parameters": 354177671,
+      "peak_allocated_bytes": 4898898944,
+      "limitations": "One training frame, one stochastic draw, batch one. Gradient alignment is local and does not prove objective conflict causes control failure. No optimizer update or weight export."
+    }
+  ],
+  "raw_records_sha256": {
+    "task-0.json": "b18b60c2999cb62ca293d483c1b3201ca5f9d969f0ac1fecd36b1b46dfc4af06",
+    "task-1.json": "9572202ea0e99efdfdcff30aa992981e8890e2e4aea02f0ca9a475158d6c1c08",
+    "task-2.json": "9a9772f57ffcf61f8742cebedd8495bcddee67a68424f96e455f5c07ea6f3cfe",
+    "task-3.json": "5e2f66d77cf0456f1501a187cfe92b9827309bac3f091fc6ec0da0dd645952a7",
+    "task-4.json": "469dae0212363eaa94472d808bf2c0ea122153741199cf10607fb3c64ee4d93e",
+    "task-5.json": "599702e992e01e895da4d2c0dd95d1c15717cabf2e211c4b1e6aba2a8ed2128b",
+    "task-6.json": "8ecb7171b75cb238d0ff95d25141802eba57df81f1cb4ce8babfac6764910e5b",
+    "task-7.json": "35ff276f8bcaef05d94ab2572ae67c1db2a7501a9123dd8a9d0cd3fc0feda29d",
+    "task-8.json": "99e5ea8088f3f557a5ebcc893208ae0140d21803e6a50d296317ed9e345d4cb2",
+    "task-9.json": "4c62c61ef31b31afc977880a4f950adadbb17be38fb784d43ae425146f1d8b1d"
+  },
+  "limitations": "Ten individual training frames and one stochastic draw each; batch one; local gradients. No optimizer updates, loss-weight changes or inference of global objective compatibility."
+}

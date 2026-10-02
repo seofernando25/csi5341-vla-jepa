@@ -1,0 +1,303 @@
+{
+  "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "probes_sha256": "501b6960eef9e901bb647ee09ad541023e21bf2644ad8a4bf609c9a673b7a14b",
+  "excluded_padded_chunks": [
+    {
+      "split": "heldout",
+      "episode": 383,
+      "frame": 130
+    }
+  ],
+  "native_threshold": 0.5,
+  "splits": {
+    "train": {
+      "frames": 20,
+      "actions": 140,
+      "membership": [
+        {
+          "split": "train",
+          "episode": 53,
+          "frame": 40
+        },
+        {
+          "split": "train",
+          "episode": 160,
+          "frame": 17
+        },
+        {
+          "split": "train",
+          "episode": 73,
+          "frame": 125
+        },
+        {
+          "split": "train",
+          "episode": 180,
+          "frame": 108
+        },
+        {
+          "split": "train",
+          "episode": 82,
+          "frame": 27
+        },
+        {
+          "split": "train",
+          "episode": 221,
+          "frame": 53
+        },
+        {
+          "split": "train",
+          "episode": 101,
+          "frame": 13
+        },
+        {
+          "split": "train",
+          "episode": 162,
+          "frame": 40
+        },
+        {
+          "split": "train",
+          "episode": 83,
+          "frame": 26
+        },
+        {
+          "split": "train",
+          "episode": 230,
+          "frame": 12
+        },
+        {
+          "split": "train",
+          "episode": 96,
+          "frame": 14
+        },
+        {
+          "split": "train",
+          "episode": 207,
+          "frame": 78
+        },
+        {
+          "split": "train",
+          "episode": 102,
+          "frame": 20
+        },
+        {
+          "split": "train",
+          "episode": 206,
+          "frame": 1
+        },
+        {
+          "split": "train",
+          "episode": 70,
+          "frame": 41
+        },
+        {
+          "split": "train",
+          "episode": 175,
+          "frame": 98
+        },
+        {
+          "split": "train",
+          "episode": 59,
+          "frame": 43
+        },
+        {
+          "split": "train",
+          "episode": 179,
+          "frame": 69
+        },
+        {
+          "split": "train",
+          "episode": 90,
+          "frame": 113
+        },
+        {
+          "split": "train",
+          "episode": 183,
+          "frame": 66
+        }
+      ],
+      "thresholds": [
+        {
+          "threshold": -0.75,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": -0.5,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": -0.25,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": 0.0,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": 0.25,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": 0.5,
+          "errors": 16,
+          "error_fraction": 0.11428571428571428
+        },
+        {
+          "threshold": 0.75,
+          "errors": 17,
+          "error_fraction": 0.12142857142857143
+        }
+      ]
+    },
+    "heldout": {
+      "frames": 19,
+      "actions": 133,
+      "membership": [
+        {
+          "split": "heldout",
+          "episode": 384,
+          "frame": 21
+        },
+        {
+          "split": "heldout",
+          "episode": 394,
+          "frame": 60
+        },
+        {
+          "split": "heldout",
+          "episode": 379,
+          "frame": 155
+        },
+        {
+          "split": "heldout",
+          "episode": 402,
+          "frame": 34
+        },
+        {
+          "split": "heldout",
+          "episode": 423,
+          "frame": 90
+        },
+        {
+          "split": "heldout",
+          "episode": 424,
+          "frame": 123
+        },
+        {
+          "split": "heldout",
+          "episode": 406,
+          "frame": 107
+        },
+        {
+          "split": "heldout",
+          "episode": 414,
+          "frame": 7
+        },
+        {
+          "split": "heldout",
+          "episode": 399,
+          "frame": 6
+        },
+        {
+          "split": "heldout",
+          "episode": 408,
+          "frame": 58
+        },
+        {
+          "split": "heldout",
+          "episode": 389,
+          "frame": 103
+        },
+        {
+          "split": "heldout",
+          "episode": 398,
+          "frame": 28
+        },
+        {
+          "split": "heldout",
+          "episode": 378,
+          "frame": 15
+        },
+        {
+          "split": "heldout",
+          "episode": 387,
+          "frame": 70
+        },
+        {
+          "split": "heldout",
+          "episode": 403,
+          "frame": 14
+        },
+        {
+          "split": "heldout",
+          "episode": 415,
+          "frame": 78
+        },
+        {
+          "split": "heldout",
+          "episode": 396,
+          "frame": 114
+        },
+        {
+          "split": "heldout",
+          "episode": 407,
+          "frame": 43
+        },
+        {
+          "split": "heldout",
+          "episode": 413,
+          "frame": 49
+        }
+      ],
+      "thresholds": [
+        {
+          "threshold": -0.75,
+          "errors": 21,
+          "error_fraction": 0.15789473684210525
+        },
+        {
+          "threshold": -0.5,
+          "errors": 20,
+          "error_fraction": 0.15037593984962405
+        },
+        {
+          "threshold": -0.25,
+          "errors": 20,
+          "error_fraction": 0.15037593984962405
+        },
+        {
+          "threshold": 0.0,
+          "errors": 19,
+          "error_fraction": 0.14285714285714285
+        },
+        {
+          "threshold": 0.25,
+          "errors": 19,
+          "error_fraction": 0.14285714285714285
+        },
+        {
+          "threshold": 0.5,
+          "errors": 17,
+          "error_fraction": 0.12781954887218044
+        },
+        {
+          "threshold": 0.75,
+          "errors": 17,
+          "error_fraction": 0.12781954887218044
+        }
+      ]
+    }
+  },
+  "limitations": "Passive CPU calculation on saved diagnostic frames, not calibration selection, a rollout, or a change to the registered processor. Any deployed threshold change requires a separate registered inference variant."
+}

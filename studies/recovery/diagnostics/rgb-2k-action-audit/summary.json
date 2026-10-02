@@ -1,0 +1,51 @@
+{
+  "variant": "S500",
+  "checkpoint_sha256": "72cb97a02577ac4ad5f45d30d99dd43eb8117d49154601332d77ae334efdd27e",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+  },
+  "split_manifest_sha256": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+  "protocol": "20 frames/split, two/task; native seven-action chunks; seed 82000+row; BF16",
+  "limitations": "Selected diagnostic frames; Qwen training membership is unknown; no task-success inference. Normalized MSE includes a gripper-label convention mismatch for Qwen and must not rank the two models; compare simulator arm commands instead.",
+  "splits": {
+    "train": {
+      "valid_actions": 7.0,
+      "arm_mse": 0.035995376273058356,
+      "translation_mse": 0.06937489984557033,
+      "mean_arm_mse": 0.08764974838122726,
+      "normalized_mse": 0.10852779322303832,
+      "gripper_error": 0.1142857164144516,
+      "roundtrip_arm_error": 5.662441253662109e-08,
+      "roundtrip_gripper_error": 0.0,
+      "gripper_prediction_mean": 0.24074911326169968,
+      "target_gripper_mean": 0.15714286118745804
+    },
+    "heldout": {
+      "valid_actions": 6.95,
+      "arm_mse": 0.04488464037422091,
+      "translation_mse": 0.08697331338189543,
+      "mean_arm_mse": 0.07993618370965123,
+      "normalized_mse": 0.12472851366037503,
+      "gripper_error": 0.12142857238650322,
+      "roundtrip_arm_error": 5.634501576423645e-08,
+      "roundtrip_gripper_error": 0.0,
+      "gripper_prediction_mean": 0.24396725594997407,
+      "target_gripper_mean": -0.01428571343421936
+    }
+  },
+  "purpose": "Matched-frame recovery diagnostic; additional2k updates after verified legacy10k",
+  "raw_summary_sha256": "a2c16ab136ca6201533a196db3242571aeaf4c5b7293f632ecce8bbf68692bbe",
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3090"
+  },
+  "perturbation_normalized_arm_change_mse": {
+    "black_images": 0.0284863586188294,
+    "generic_instruction": 0.024401801673229785,
+    "zero_state": 0.21288815494626762
+  },
+  "perturbation_limitation": "Input sensitivity under out-of-distribution ablations is not proof of useful visual grounding."
+}

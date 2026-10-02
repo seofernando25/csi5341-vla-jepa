@@ -77,10 +77,10 @@ A subsequent processor audit identified a concrete input defect in this frozen G
 \FloatBarrier\section{Corrected-input recovery}
 A separate registered study corrects RGB scaling and adapts the last four SmolVLM decoder layers. It starts from the verified legacy 10k weights with fresh AdamW, batch eight, decoder/other learning rates of $10^{-5}/10^{-4}$, and a fixed 20k-update cosine schedule. Native data membership, image tiling, action/world architecture and losses remain unchanged. Checkpoint selection uses physical arm-command error on 200 fixed held-out frames; final robot trials remain reserved.
 
-At 2,000 additional updates, held-out arm RMSE was 0.244, compared with 0.283 at 500; gripper error changed from 13.6\% to 11.1\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
+At 5,500 additional updates, held-out arm RMSE was 0.210, compared with 0.283 at 500; gripper error changed from 13.6\% to 10.1\%. These ongoing, single-seed measurements do not demonstrate successful control or isolate the effect of each recovery intervention.
 
 
-The 2,000-update checkpoint achieved 1/10 development successes. This small diagnostic does not establish final performance retention.
+The 5,000-update checkpoint achieved 0/10 development successes. This small diagnostic does not establish final performance retention.
 
 \begin{figure}[ht]\centering\includegraphics[width=\linewidth]{figures/F8_recovery_progress.pdf}\caption{Registered RGB-recovery validation. Physical command errors use 1,303 valid actions from the same 200 held-out frames, excluding padding. The gray curve is median training loss per 100 updates. Recovery steps are additional to the legacy 10k checkpoint. These are offline diagnostics, not LIBERO success measurements.}\end{figure}
 

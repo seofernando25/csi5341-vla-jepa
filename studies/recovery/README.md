@@ -17,4 +17,4 @@ The [recovery recipe](../../evaluation/recovery_config.json) uses batch eight, f
 
 For failure diagnosis, `python -m evaluation.control_trace --help` records one development episode's commands, robot states and sparse camera frames through the unchanged evaluator. Raw traces stay in ignored runtime storage; they are not timing benchmarks or final trials.
 
-At 2k additional updates, recovery achieved **1/10 development successes**. The [paired task-1 trace](diagnostics/task1-control-case/) shows Qwen completing in 113 steps while RGB-2k fails at 280, with 1 versus 28 gripper-command transitions. This identifies a control symptom in one case; it does not establish the sole failure cause. Training continues to the registered 5k milestone.
+Recovery achieved **1/10 development successes at 2k and 0/10 at 5k**, despite improving held-out action error. The [paired task-1 trace](diagnostics/task1-control-case/) shows Qwen completing in 113 steps while RGB-2k fails at 280, with 1 versus 28 gripper-command transitions. This identifies a control symptom in one case; it does not establish the sole failure cause. Training continues to the registered 10k milestone.

@@ -1,0 +1,39 @@
+{
+  "purpose": "world_processor_scaling_diagnostic",
+  "checkpoint": "pinned V-JEPA2 encoder",
+  "processor_class": "VJEPA2VideoProcessor",
+  "input_range": [
+    0.0,
+    1.0
+  ],
+  "output_shape": [
+    1,
+    8,
+    3,
+    256,
+    256
+  ],
+  "black_channel_means": [
+    -2.1179044246673584,
+    -2.0357134342193604,
+    -1.8044451475143433
+  ],
+  "white_channel_means": [
+    2.248908758163452,
+    2.4285714626312256,
+    2.6399996280670166
+  ],
+  "channel_contrast": [
+    4.3668131828308105,
+    4.4642863273620605,
+    4.444443225860596
+  ],
+  "expected_channel_contrast": [
+    4.366812229156494,
+    4.464285373687744,
+    4.44444465637207
+  ],
+  "passed": true,
+  "inherited_model_source_sha256": "7b852884b408a7f3019fb8be0d0cff066f8affc27322bd2c8de65162d9bb89cd",
+  "limitations": "Processor-only CPU check of the actual inherited do_rescale=False call, not a world-model quality or robot-success test."
+}

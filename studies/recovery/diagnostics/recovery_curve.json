@@ -14,7 +14,18 @@
     },
     {
       "run_id": "20261002T013825115833Z-RGB-recovery-train",
-      "metrics_sha256": "8fd6e3ec03a3b8ba7eadb07de656c062a441e3ecdce74cc715dbfadae8ba9eeb",
+      "metrics_sha256": "e258f53d53a297d5c1e8323f229e50071969807fd7259935cb57f75b64b705fc",
+      "source_manifest": {
+        "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+        "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
+        "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+        "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+        "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "32e4eecaae16784c2f90fbf8f3a39985c3c11c463535a7ed441cd953e953512d"
+      }
+    },
+    {
+      "run_id": "20261002T023535929972Z-RGB-recovery-train",
+      "metrics_sha256": "1b7281646d862600164db4abbfe3ed85d22cbd35ca9d100fb58bd682bfac1590",
       "source_manifest": {
         "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
         "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c60702e2c77eee300867a418fa4ffeb469391bbb1eba748d6552270b4c9d7162",
@@ -24,7 +35,7 @@
       }
     }
   ],
-  "latest_training_step": 2375,
+  "latest_training_step": 5931,
   "validation": [
     {
       "step": 500,
@@ -57,6 +68,62 @@
       "gripper_error_percent": 11.051419800460476,
       "frames": 200,
       "valid_actions": 1303
+    },
+    {
+      "step": 2500,
+      "native_loss": 0.2700721734762192,
+      "arm_rmse": 0.2495703226360789,
+      "gripper_error_percent": 10.360706062931696,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 3000,
+      "native_loss": 0.2625515472888946,
+      "arm_rmse": 0.23547027339713253,
+      "gripper_error_percent": 11.28165771297007,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 3500,
+      "native_loss": 0.24671307623386382,
+      "arm_rmse": 0.2209063059582995,
+      "gripper_error_percent": 9.132770529547198,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 4000,
+      "native_loss": 0.2579935085773468,
+      "arm_rmse": 0.24226272529494736,
+      "gripper_error_percent": 7.904834996162702,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 4500,
+      "native_loss": 0.2498569232225418,
+      "arm_rmse": 0.23362174190967178,
+      "gripper_error_percent": 7.751343054489639,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 5000,
+      "native_loss": 0.24148937940597534,
+      "arm_rmse": 0.2165096018664881,
+      "gripper_error_percent": 9.056024558710668,
+      "frames": 200,
+      "valid_actions": 1303
+    },
+    {
+      "step": 5500,
+      "native_loss": 0.24037080347537995,
+      "arm_rmse": 0.2104729365041207,
+      "gripper_error_percent": 10.130468150422104,
+      "frames": 200,
+      "valid_actions": 1303
     }
   ],
   "development": [
@@ -67,6 +134,15 @@
       "run_id": "20261002T013631571548Z-RGB-n0008-2000-rollout",
       "episodes_csv_sha256": "e58ec9f6b84d6799370f92bc1c9948314f3e1a207fcee6857beeb0e527cc2b43",
       "successes": 1,
+      "episodes": 10
+    },
+    {
+      "stage": 5000,
+      "selected_step": 5000,
+      "checkpoint_sha256": "8ecc5de26d963abdab20e6712dbb33ef28450c79bcbac96072ffe761c42356d3",
+      "run_id": "20261002T023337492371Z-RGB-n0008-5000-rollout",
+      "episodes_csv_sha256": "46faf593f07bb3bbdc4f0b841739a018af17d56a6bb49b22da4f4d4e017e63e7",
+      "successes": 0,
       "episodes": 10
     }
   ],
