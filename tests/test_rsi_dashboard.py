@@ -163,3 +163,24 @@ def test_cloud_retry_does_not_reuse_interrupted_run_progress(tmp_path):
     result = dashboard.confirmation_live(tmp_path)
     assert result['arm'] == 'RSI-n0008-5090-r2'
     assert result.get('progress', {}).get('step', 0) != 5840
+
+
+def test_recovery_excludes_preflight_and_legacy_losses(tmp_path):
+    cloud = tmp_path/'outputs/recovery/cloud/remote-job.json'
+    cloud.parent.mkdir(parents=True)
+    cloud.write_text(json.dumps({'study':'recovery-r1', 'recipe_sha256':'registered',
+                                'status':'training', 'target_step':2000}))
+    base = tmp_path/'studies/recovery/training'
+    for label, purpose, recipe_hash, step in [('preflight','engineering_preflight','registered',14),
+                                              ('old','recovery_adaptation','other',900),
+                                              ('live','recovery_adaptation','registered',160)]:
+        run = base/label
+        run.mkdir(parents=True)
+        (run/'run.json').write_text(json.dumps({'study':'recovery-r1', 'recipe_sha256':recipe_hash,
+                                               'purpose':purpose}))
+        (run/'metrics.jsonl').write_text(json.dumps({'phase':'training','step':step,'loss':.25})+'\n')
+    result = dashboard.confirmation_live(tmp_path)
+    assert result['arm'] == 'RGB-n0008'
+    assert result['progress']['step'] == 160
+    assert result['progress']['total'] == 2000
+    assert len(result['progress']['curve']) == 1

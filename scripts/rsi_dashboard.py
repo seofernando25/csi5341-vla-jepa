@@ -136,7 +136,59 @@ def training_curve(path):
     return result
 
 
+def recovery_live(root):
+    """Show the amended recovery study separately from legacy confirmation."""
+    folder = root / 'outputs/recovery/cloud'
+    path = folder / 'remote-job.json'
+    job = read_record(path) if path.is_file() else {}
+    setup_path = folder / 'setup-status.json'
+    setup = read_record(setup_path) if setup_path.is_file() else {}
+    if not job and not setup:
+        return None
+    if not job:
+        return {'arm': 'RGB-n0008', 'stage': setup.get('phase', 'preparing').replace('_', ' '),
+                'status': 'running', 'cloud': True,
+                'progress': {'label': 'RGB-n0008', 'phase': 'recovery setup', 'step': 0,
+                             'total': None, 'curve': [], 'completed': False,
+                             'updated_at': setup_path.stat().st_mtime, 'cloud': True}}
+    points = {}
+    updated = path.stat().st_mtime
+    for record in sorted((root / 'studies/recovery/training').glob('*/run.json')):
+        data = read_record(record)
+        if (data.get('study') != job.get('study')
+                or data.get('recipe_sha256') != job.get('recipe_sha256')
+                or data.get('purpose') != 'recovery_adaptation'):
+            continue
+        metrics = record.parent / 'metrics.jsonl'
+        if not metrics.is_file():
+            continue
+        updated = max(updated, metrics.stat().st_mtime)
+        with metrics.open('rb') as handle:
+            handle.seek(max(0, metrics.stat().st_size - 8 * 1024**2))
+            for line in handle.read().splitlines():
+                try:
+                    row = json.loads(line)
+                except ValueError:
+                    continue
+                if row.get('phase') == 'training' and number(row.get('loss')) is not None:
+                    points[row['step']] = {'step': row['step'], **{k: row.get(k) for k in ['loss', 'action_loss', 'wm_loss']}}
+    curve = [points[k] for k in sorted(points)]
+    visible = curve[::max(1, len(curve)//300)]
+    if curve and (not visible or visible[-1] != curve[-1]):
+        visible.append(curve[-1])
+    done = job.get('status') in {'completed', 'failed'}
+    return {'arm': 'RGB-n0008', 'stage': 'RTX 5090 · ' + job.get('status', 'preparing'),
+            'status': job['status'] if done else 'running', 'cloud': True,
+            'progress': {'label': 'RGB-n0008', 'phase': 'recovery · ' + job.get('status', 'preparing'),
+                         'step': curve[-1]['step'] if curve else 0, 'total': job.get('target_step'),
+                         'curve': visible, 'completed': job.get('status') == 'completed',
+                         'updated_at': updated, 'cloud': True}}
+
+
 def confirmation_live(root):
+    recovery = recovery_live(root)
+    if recovery:
+        return recovery
     path = root / 'outputs/confirmation/n0008-20261001/status.json'
     cloud_path = root / 'outputs/cloud/remote-job.json'
     cloud = read_record(cloud_path) if cloud_path.is_file() else {}
