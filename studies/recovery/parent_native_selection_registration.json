@@ -1,0 +1,39 @@
+{
+  "purpose": "registered_passive_native_training_parent_selection_anchor",
+  "registered_at": "2026-10-02T13:33:04.869226+00:00",
+  "source_manifest": {
+    "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+    "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "c3981d6d358eb792421183ed5a69411236beff4cc26227912bfcd90e975c16b0",
+    "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+    "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+    "src/lerobot_policy_vla_jepa_smolvlm/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+    "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "17ed02776cb92af08f6f640ce6ca1842dfb033383dcf518ee4fc029f74dc40df"
+  },
+  "parent_checkpoint_sha256": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+  "recipe_sha256": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+  "validation_samples_sha256": "2e346770b60c8d25ba9f4c10714b337377e24df17657db5181d4d999260889e3",
+  "split_sha256": "f37cdf250e8307d98c836790829a8ee3bdb3890b63ecdeab14828411bc5ec129",
+  "batch_size": 8,
+  "validation_seed": 73000,
+  "action_validation_seed": 83000,
+  "modes": [
+    "parent_zero_query_native_all32"
+  ],
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "numerical": "Native FP32 buffers and trainable masters, BF16 autocast, deterministic algorithms and cudnn, matmulTF32 off. Exactly restored inherited weights; added queries zero only in the untrained case.",
+  "scope": "Forward-only fixed200-frame/1303-action validation on same local GPU. Preserve native losses, postprocessing, seeds and membership. No backward, optimizer, training, rollout, threshold/solver change, final trials or selection. Modelsource is the registered query snapshot; none-adaptation bypass for parent, zero residual for initializer, trained query500 as observed positive-update control.",
+  "limitations": "Forward-only fixed200-frame/1303-action parent validation on local3090 with full32 zero-query source6 and native-training numerical profile, especially TF32 enabled. Execute after both local branches finish, with no concurrent GPU compute. Compare all25 batch scores to historical TF32-disabled initializer; do not assume equality. Parent-relative selection is provisional until this matched anchor is measured; no training, rollout, architecture change or robot-success claim.",
+  "matmul_allow_tf32": true,
+  "parent_files": {
+    "config.json": "dd48717a03e3169ff0896c2ca1c17fdcb3df2d8bbdebf7ea11a65714831532d0",
+    "model.safetensors": "40d935e4eb34a66740bead8c6effd184f6faa8dcfda5b0e733b8f1d957355d0d",
+    "policy_postprocessor.json": "d1851b0969b0d0d8f28ad6c7ab8103500264da316d937740af0c96556fcd2a79",
+    "policy_postprocessor_step_2_unnormalizer_processor.safetensors": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7",
+    "policy_preprocessor.json": "b314596cfaba5382dfb8030ddf336020dea24777e79c20d1edfaa344d64251f4",
+    "policy_preprocessor_step_4_normalizer_processor.safetensors": "840a296891a8a316541b54a963aa5a883fc26693accd54e7cce549249d83eac7",
+    "recovery_registration.json": "f59a65ec2c827a25bb8c6b1274c866b4626a80ff38dea7e945a1a6ddea2bc756",
+    "train_config.json": "c6ae248033da30066e3b4914083aa5487d80735d3592decfc807f918c65e32f7"
+  },
+  "diagnostic_sha256": "615d7435b4a60b502ec4d1d79cd803e376b3e8d89401264fa205084d61a70a48",
+  "pair_registration_sha256": "3e12320ecb2f582bcd7c9d2762e5a94936161d5de69c46a2072b2abc4c42ea21"
+}

@@ -16,22 +16,33 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--architecture-source', type=Path, required=True)
     parser.add_argument('--parent', type=Path, required=True)
-    parser.add_argument('--query500', type=Path, required=True)
+    parser.add_argument('--query500', type=Path)
     parser.add_argument('--dataset-root', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--registration', type=Path,
+                        default=ROOT / 'studies/recovery/query_initial_validation_registration.json')
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError('Preserve earlier measurements')
-    registration_path = ROOT / 'studies/recovery/query_initial_validation_registration.json'
+    registration_path = args.registration
     registration = read_json(registration_path)
     source = args.architecture_source.resolve()
     manifest = {str(p.relative_to(source)): file_hash(p) for p in sorted((source / 'src').rglob('*.py'))}
     if manifest != registration['source_manifest']:
         raise ValueError('Use only the registered query source')
-    for checkpoint, key in ((args.parent, 'parent_checkpoint_sha256'),
-                            (args.query500, 'query500_checkpoint_sha256')):
+    checkpoints = [(args.parent, 'parent_checkpoint_sha256')]
+    if 'query500_native_all32' in registration['modes']:
+        if args.query500 is None:
+            parser.error('Registered query500 comparison requires its checkpoint')
+        checkpoints.append((args.query500, 'query500_checkpoint_sha256'))
+    for checkpoint, key in checkpoints:
         if file_hash(checkpoint / 'model.safetensors') != registration[key]:
             raise ValueError('Checkpoint differs from registration')
+    if registration.get('diagnostic_sha256') and file_hash(__file__) != registration['diagnostic_sha256']:
+        raise ValueError('Registered diagnostic changed')
+    for name, expected in registration.get('parent_files', {}).items():
+        if file_hash(args.parent / name) != expected:
+            raise ValueError('Parent config or processors differ')
     for name, key in [('validation_samples.json', 'validation_samples_sha256'),
                       ('training_split.json', 'split_sha256')]:
         if file_hash(ROOT / 'studies/evaluation' / name) != registration[key]:
@@ -43,7 +54,10 @@ def main():
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
-    torch.backends.cuda.matmul.allow_tf32 = False
+    matmul_tf32 = registration.get('matmul_allow_tf32', False)
+    if not isinstance(matmul_tf32, bool):
+        raise ValueError('Register TF32 as an explicit Boolean')
+    torch.backends.cuda.matmul.allow_tf32 = matmul_tf32
     if torch.cuda.get_device_name() != registration['gpu']:
         raise ValueError('Use the registered local GPU')
     sys.path.insert(0, str(source / 'src'))
@@ -62,6 +76,13 @@ def main():
     output = {'purpose': registration['purpose'], 'registration_sha256': file_hash(registration_path),
               'diagnostic_sha256': file_hash(__file__), 'source_manifest': manifest,
               'environment': environment(), 'status': 'running', 'cases': [],
+              'numerical_flags': {
+                  'deterministic_algorithms': torch.are_deterministic_algorithms_enabled(),
+                  'matmul_allow_tf32': torch.backends.cuda.matmul.allow_tf32,
+                  'cudnn_allow_tf32': torch.backends.cudnn.allow_tf32,
+                  'cudnn_benchmark': torch.backends.cudnn.benchmark,
+                  'cudnn_deterministic': torch.backends.cudnn.deterministic,
+              },
               'limitations': registration['limitations']}
     write_json(args.output, output)
     try:
