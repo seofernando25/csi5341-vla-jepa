@@ -69,6 +69,11 @@
       {
         "time": 0,
         "instruction": "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label."
+      },
+      {
+        "time": 0,
+        "instruction": "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        "handoff": true
       }
     ],
     "notes": "Look at these two clips. A person puts a jar in a box, and a robot puts a block in a bowl. We can see what happened in both cases. But the robot recording also tells us which commands made it happen. The human video doesn't.\n\nThat's the challenge. There are plenty of videos of people handling objects, but none of them tells this robot exactly how to move. The paper tries to use those videos to teach the robot about what changes in a scene, then connect that knowledge to its own controls.",
@@ -80,7 +85,7 @@
   },
   {
     "n": 3,
-    "speaker": "Noah",
+    "speaker": "Fernando",
     "budget": 76.16666666666667,
     "section": "Related work",
     "title": "Feature prediction is shared; the pipeline differs",
@@ -133,7 +138,7 @@
   },
   {
     "n": 4,
-    "speaker": "Noah",
+    "speaker": "Fernando",
     "budget": 46.9,
     "section": "Method 1 of 5 · Human video supervision",
     "title": "Predict a future state in feature space",
@@ -168,6 +173,11 @@
       {
         "time": 0,
         "instruction": "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label."
+      },
+      {
+        "time": 0,
+        "instruction": "After this chapter, hand over to Noah. This is a delivery note, not spoken text.",
+        "handoff": true
       }
     ],
     "notes": "Take the jar-and-box example. The useful prediction is the resulting state, rather than every detail of the future image.\n\nVLA-JEPA predicts the next state's embedding. Its latent action tokens condition that prediction, alongside encoded state history. We compare the output with features extracted from the actual future video by a frozen encoder.\n\nSo the tokens represent the transition, while the predicted embedding represents the future state. Neither is a robot command. The action head handles that separately.",
@@ -338,6 +348,11 @@
       {
         "time": 0,
         "instruction": "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label."
+      },
+      {
+        "time": 0,
+        "instruction": "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        "handoff": true
       }
     ],
     "notes": "The important point is who gets to see the future. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.\n\nWe only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.\n\nWhen the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
@@ -532,6 +547,11 @@
       {
         "time": 0,
         "instruction": "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label."
+      },
+      {
+        "time": 0,
+        "instruction": "After this chapter, hand over to Noah. This is a delivery note, not spoken text.",
+        "handoff": true
       }
     ],
     "notes": "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.\n\nThat's effectively a tie. The interesting question is whether the difference becomes clearer when the visual conditions change.",
@@ -544,7 +564,7 @@
   },
   {
     "n": 13,
-    "speaker": "Fernando",
+    "speaker": "Noah",
     "budget": 21.45,
     "section": "Paper results · Sun et al.",
     "title": "LIBERO-Plus: a larger gain under perturbations",
@@ -585,7 +605,7 @@
   },
   {
     "n": 14,
-    "speaker": "Fernando",
+    "speaker": "Noah",
     "budget": 18.75,
     "section": "Paper results · Sun et al.",
     "title": "Human video improves LIBERO-Plus robustness",
@@ -626,7 +646,7 @@
   },
   {
     "n": 15,
-    "speaker": "Fernando",
+    "speaker": "Noah",
     "budget": 17.983333333333334,
     "section": "Paper results · Sun et al.",
     "title": "Human video does not improve every benchmark",
@@ -666,7 +686,7 @@
     "estimatedSpeakingSeconds": 20.3
   },
   {
-    "speaker": "Fernando",
+    "speaker": "Noah",
     "budget": 27.25,
     "section": "Our project · Proposal and work so far",
     "title": "Our proposal: evaluate efficiency without assuming success",
@@ -708,6 +728,11 @@
       {
         "time": 0,
         "instruction": "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label."
+      },
+      {
+        "time": 0,
+        "instruction": "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        "handoff": true
       }
     ],
     "notes": "Our project asks whether we can reduce the cost of running this model while preserving task performance.\n\nWe'll compare the original pretrained model, a quantized inference variant, and a version with SmolVLM as the smaller vision-language backbone. We'll measure task success, latency and peak memory under consistent conditions.\n\nWe have the code, pretrained models and personal compute for inference and limited experiments. Full training from scratch is outside our scope. If time permits, Dream-RSI will help us search for further architecture changes.\n\nThat's the proposal; we're not presenting project performance results yet.",

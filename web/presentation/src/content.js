@@ -79,6 +79,12 @@ const DATA = [
         instruction:
           "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
       },
+      {
+        time: 0,
+        instruction:
+          "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        handoff: true,
+      },
     ],
     notes:
       "Look at these two clips. A person puts a jar in a box, and a robot puts a block in a bowl. We can see what happened in both cases. But the robot recording also tells us which commands made it happen. The human video doesn't.\n\nThat's the challenge. There are plenty of videos of people handling objects, but none of them tells this robot exactly how to move. The paper tries to use those videos to teach the robot about what changes in a scene, then connect that knowledge to its own controls.",
@@ -90,7 +96,7 @@ const DATA = [
   },
   {
     n: 3,
-    speaker: "Noah",
+    speaker: "Fernando",
     budget: 76.16666666666667,
     section: "Related work",
     title: "Feature prediction is shared; the pipeline differs",
@@ -151,7 +157,7 @@ const DATA = [
   },
   {
     n: 4,
-    speaker: "Noah",
+    speaker: "Fernando",
     budget: 46.9,
     section: "Method 1 of 5 · Human video supervision",
     title: "Predict a future state in feature space",
@@ -192,6 +198,12 @@ const DATA = [
         time: 0,
         instruction:
           "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+      },
+      {
+        time: 0,
+        instruction:
+          "After this chapter, hand over to Noah. This is a delivery note, not spoken text.",
+        handoff: true,
       },
     ],
     notes:
@@ -387,6 +399,12 @@ const DATA = [
         time: 0,
         instruction:
           "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+      },
+      {
+        time: 0,
+        instruction:
+          "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        handoff: true,
       },
     ],
     notes:
@@ -611,6 +629,12 @@ const DATA = [
         instruction:
           "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
       },
+      {
+        time: 0,
+        instruction:
+          "After this chapter, hand over to Noah. This is a delivery note, not spoken text.",
+        handoff: true,
+      },
     ],
     notes:
       "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.\n\nThat's effectively a tie. The interesting question is whether the difference becomes clearer when the visual conditions change.",
@@ -623,7 +647,7 @@ const DATA = [
   },
   {
     n: 13,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 21.45,
     section: "Paper results · Sun et al.",
     title: "LIBERO-Plus: a larger gain under perturbations",
@@ -670,7 +694,7 @@ const DATA = [
   },
   {
     n: 14,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 18.75,
     section: "Paper results · Sun et al.",
     title: "Human video improves LIBERO-Plus robustness",
@@ -717,7 +741,7 @@ const DATA = [
   },
   {
     n: 15,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 17.983333333333334,
     section: "Paper results · Sun et al.",
     title: "Human video does not improve every benchmark",
@@ -763,7 +787,7 @@ const DATA = [
     estimatedSpeakingSeconds: 20.3,
   },
   {
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 27.25,
     section: "Our project · Proposal and work so far",
     title: "Our proposal: evaluate efficiency without assuming success",
@@ -812,6 +836,12 @@ const DATA = [
         time: 0,
         instruction:
           "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+      },
+      {
+        time: 0,
+        instruction:
+          "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        handoff: true,
       },
     ],
     notes:

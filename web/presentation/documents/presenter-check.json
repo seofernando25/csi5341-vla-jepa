@@ -14,8 +14,8 @@
     "revision": "conversational-20261002",
     "audience": "Masters students in learning-based computer vision",
     "words": 1230,
-    "NoahWords": 596,
-    "FernandoWords": 634,
+    "NoahWords": 615,
+    "FernandoWords": 615,
     "estimatedSpeakingSecondsAt135Wpm": 563,
     "timingNote": "Estimate only, not a measured rehearsal. Allows approximately 37 seconds of visual holds within ten minutes.",
     "recordedNarrationMatches": false,
@@ -25,6 +25,51 @@
       "18 active chapters retain speaker assignments",
       "unexplained robot-model name list removed",
       "proposal remains planned work, optional architecture search explained"
+    ]
+  },
+  "speakerBalance": {
+    "basis": "Identical135wpm estimate plus authored paragraph pauses; actual delivery needs rehearsal.",
+    "speakers": {
+      "Noah": {
+        "words": 615,
+        "estimatedSeconds": 281.2
+      },
+      "Fernando": {
+        "words": 615,
+        "estimatedSeconds": 281.8
+      }
+    },
+    "alternatingBlocks": [
+      {
+        "firstChapter": 1,
+        "lastChapter": 2,
+        "speaker": "Noah"
+      },
+      {
+        "firstChapter": 3,
+        "lastChapter": 4,
+        "speaker": "Fernando"
+      },
+      {
+        "firstChapter": 5,
+        "lastChapter": 8,
+        "speaker": "Noah"
+      },
+      {
+        "firstChapter": 9,
+        "lastChapter": 12,
+        "speaker": "Fernando"
+      },
+      {
+        "firstChapter": 13,
+        "lastChapter": 16,
+        "speaker": "Noah"
+      },
+      {
+        "firstChapter": 17,
+        "lastChapter": 18,
+        "speaker": "Fernando"
+      }
     ]
   }
 }

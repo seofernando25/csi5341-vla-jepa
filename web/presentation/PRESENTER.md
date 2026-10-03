@@ -60,3 +60,7 @@ node web/presentation/tools/tests/viewer-sync.cjs
 ```
 
 The relay regression opens real HTTP/SSE connections to check initial/late snapshots, forward/back state, replay motion status, reconnection after missed navigation, invalid state rejection, controller ownership and expired-controller recovery. Clock regression covers all 18 chapters and 48 beats. Browser smoke checks cover navigation, viewer reload/reconnect, font size and manual notes. A real second-device rehearsal is still needed to establish that your Wi-Fi/firewall permits peer connections.
+
+## Speaking split
+
+The script alternates in six sections: Noah 1–2, Fernando 3–4, Noah 5–8, Fernando 9–12, Noah 13–16, Fernando 17–18. Each speaker has exactly 615 scripted words. At the same speaking pace, each has about 4 minutes 40 seconds of speech, including short paragraph breaths. The remaining time within ten minutes is for visual holds and handovers. This is a script-based estimate, not a measured rehearsal. The footer shows the assigned speaker, and delivery guidance indicates handovers.
