@@ -6,8 +6,22 @@
   };
   const backdrop = el("slide-backdrop");
   const toggleBackdrop = el("toggle-backdrop");
+  const preview = el("slide-preview");
+  const previewCanvas = preview.querySelector("canvas");
+  const previewContext = previewCanvas.getContext("2d", { alpha: false });
+  const slideFrame = backdrop.querySelector("iframe");
+  function mirrorSlide() {
+    if (!preview.hidden && !document.hidden) {
+      const source = slideFrame.contentDocument?.querySelector("canvas");
+      if (source?.width && source?.height)
+        previewContext.drawImage(source, 0, 0, previewCanvas.width, previewCanvas.height);
+    }
+    requestAnimationFrame(mirrorSlide);
+  }
+  requestAnimationFrame(mirrorSlide);
   backdrop.hidden = localStorage.getItem("presenter-hide-slide") === "true";
   function backdropLabel() {
+    preview.hidden = backdrop.hidden;
     toggleBackdrop.textContent = backdrop.hidden ? "Show slide" : "Hide slide";
     toggleBackdrop.setAttribute("aria-pressed", String(!backdrop.hidden));
   }
