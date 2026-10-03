@@ -68,7 +68,7 @@
       .join("\n\n");
     el("delivery").hidden = !data.deliveryCues?.length;
     el("delivery").open = false;
-    window.scrollTo({ top: 0, behavior: "instant" });
+    el("script-reader").scrollTop = 0;
   }
   const stream = new EventSource("relay/events");
   stream.onmessage = (event) => {

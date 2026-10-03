@@ -20,7 +20,7 @@ On a Mac that advertises a `.local` hostname, the relay also prints an mDNS alte
 
 The IP printed by the relay is its best routing estimate. If the computer has a VPN or multiple interfaces, use the address of its Wi-Fi interface instead (on a Mac, System Settings → Wi-Fi → Details → TCP/IP). For example, `http://192.168.1.25:8766/presenter.html`. Use the same port on both URLs if you change `--port`.
 
-Use the existing controls on the slide computer: Right/Space/click advances, Left/right-click goes back, Replay beat repeats, Chapters jumps, and N opens manual notes. Right during active motion still accelerates it. The notes screen has no slide navigation. Its text-size control (24–64 px) is remembered by that browser; Full screen enlarges the reading area. Scroll at your own pace. New chapters return to the top; cue changes preserve the script and reading position.
+Use the existing controls on the slide computer: Right/Space/click advances, Left/right-click goes back, Replay beat repeats, Chapters jumps, and N opens manual notes. Right during active motion still accelerates it. The notes screen has no slide navigation. Its text-size control (24–64 px) is remembered by that browser; Full screen enlarges the reading area. The chapter/cue header stays fixed. Only the script pane scrolls manually (wheel, trackpad, or focus it and use Up/Down/Page Down). New chapters return the script to the top; cue changes preserve its reading position. The surrounding page never scrolls.
 
 Notes map to **whole chapters**. The cue badge identifies the current animation beat and whether it is playing or holding; there is no word highlighting, timed auto-scroll or claimed word-level synchronization. Delivery guidance can be expanded separately.
 

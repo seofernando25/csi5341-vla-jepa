@@ -38,17 +38,24 @@
         Full chapter script · cue indicator only, no word tracking · scroll at
         your own pace
       </p>
-      <article id="speaking-notes" aria-label="Chapter speaking notes">
-        <p>
-          Start the local relay on the slide computer and open its printed
-          Slides URL. This screen follows chapter and cue changes automatically.
-        </p>
-      </article>
-      <details id="delivery">
-        <summary>Delivery guidance for this chapter</summary>
-        <p id="delivery-notes"></p>
-      </details>
-      <p id="last-state" class="scope"></p>
+      <section
+        id="script-reader"
+        tabindex="0"
+        aria-label="Scrollable chapter script"
+      >
+        <article id="speaking-notes" aria-label="Chapter speaking notes">
+          <p>
+            Start the local relay on the slide computer and open its printed
+            Slides URL. This screen follows chapter and cue changes
+            automatically.
+          </p>
+        </article>
+        <details id="delivery">
+          <summary>Delivery guidance for this chapter</summary>
+          <p id="delivery-notes"></p>
+        </details>
+      </section>
+      <p id="last-state" class="scope" role="status"></p>
     </main>
     <script src="src/content.js"></script>
     <script src="src/timing/cues.js"></script>
