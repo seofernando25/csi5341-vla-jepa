@@ -191,19 +191,6 @@ function jointMotion(c) {
   label(c, "Future-state alignment", 787, 262, 20, blue, true, "center");
   actionGlyph(c, 707, 340, 160, 55);
   label(c, "Robot action objective", 787, 417, 20, orange, true, "center");
-  const before = "Video → prediction. Robot data → control.";
-  const after = "New robot? Adapt its control interface.";
-  reelCardText(
-    c,
-    s < 24 ? before : after,
-    52,
-    478,
-    17,
-    ink,
-    true,
-    s < 24 ? 1 : clamp((s - 24) / TYPE_MOTION.reelSeconds),
-    s < 24 ? "" : before,
-  );
 }
 function quantMotion(c) {
   const s = sceneSeconds();
@@ -301,17 +288,6 @@ function limitsMotion(c) {
   }
   label(c, "8 A100 GPUs · paper training", 680, 314, 18, blue, true);
   label(c, "Training cost matters for accessibility", 680, 348, 13, muted);
-  emerge(c, s, 1.3, () =>
-    label(
-      c,
-      "Headline averages do not establish deployment reliability.",
-      52,
-      464,
-      25,
-      ink,
-      true,
-    ),
-  );
   label(
     c,
     "No reported confidence intervals on these headline comparisons.",

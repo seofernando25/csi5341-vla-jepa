@@ -53,7 +53,7 @@ class RelayTests(unittest.TestCase):
             snapshot = self.event(viewer)
             self.assertEqual(snapshot['state'], {'scene':9,'cue':4,'running':False})
             self.assertTrue(snapshot['controllerOnline'])
-        with self.publish(scene=3, cue=6): pass
+        with self.publish(scene=3, cue=3): pass
         with urlopen(self.url+'/relay/events', timeout=4) as viewer:
             self.assertEqual(self.event(viewer)['state']['scene'], 3)
 

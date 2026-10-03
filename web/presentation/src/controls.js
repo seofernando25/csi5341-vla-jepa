@@ -45,6 +45,7 @@ window.addEventListener("keydown", (e) => {
       presenter.cancel();
       animation = false;
       p = 1;
+      motion.chapterProgress = 1;
       motion.from = null;
       holdComparison(8);
       render();

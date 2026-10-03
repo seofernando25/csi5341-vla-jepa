@@ -37,14 +37,4 @@ function benchmarkMotion(c) {
       true,
     );
   });
-  stampText(
-    c,
-    a.claim,
-    52,
-    477,
-    27,
-    colour,
-    true,
-    clamp((sec - 0.15) / TYPE_MOTION.stampSeconds),
-  );
 }

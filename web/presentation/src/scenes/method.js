@@ -180,7 +180,7 @@ function methodMotion(c) {
     5: "The tokens describe an intended transition",
     6: "The predictor outputs the next state’s features",
     7: "The target stays fixed. The prediction learns.",
-    8: "The policy never receives its future target",
+    8: "Future frames are training targets",
   }[index];
   headerC(
     c,
@@ -190,7 +190,7 @@ function methodMotion(c) {
         5: "Policy representation",
         6: "World prediction",
         7: "Predictive alignment",
-        8: "The information boundary",
+        8: "What the model can see",
       }[index],
     title,
     "Paper §3.2",
@@ -271,14 +271,6 @@ function methodMotion(c) {
       segment(c, 625, 405, 580, 405, orange, 1.6, true);
       pill(c, "Compare", 538, 405, ink);
     });
-    label(
-      c,
-      "Like anticipating “jar inside box” — without drawing the next frame.",
-      52,
-      489,
-      18,
-      ink,
-    );
   } else if (index === 5) {
     label(c, "Current observation", now[0], now[1] - 16, 16, muted, true);
     pill(c, "Put the jar into the box", 198, 384);
@@ -309,16 +301,6 @@ function methodMotion(c) {
       true,
       clamp((s - 7) / TYPE_MOTION.stampSeconds),
       "center",
-    );
-
-    label(
-      c,
-      "These tokens condition both prediction and control.",
-      52,
-      468,
-      23,
-      ink,
-      true,
     );
   } else if (index === 6) {
     label(c, "Encoded state history", 65, 164, 17, ink, true);
@@ -355,7 +337,6 @@ function methodMotion(c) {
       clamp((s - 10) / TYPE_MOTION.stampSeconds),
       "center",
     );
-    label(c, "Predict features. No image decoder.", 52, 489, 20, ink, true);
   } else if (index === 7) {
     // Two independent lanes: each encoder precedes its own feature vector.
     block(c, 335, 238, "Predictor", "trainable");
@@ -422,10 +403,9 @@ function methodMotion(c) {
     c.globalAlpha = 1 - beat(s, 17, 0.8);
     pill(c, "Compare features", 691, 329, ink);
     c.restore();
-    label(c, "Only the prediction is updated.", 52, 489, 19, ink, true);
   } else {
     label(c, "Initial observation", 65, 165, 16, ink, true);
-    block(c, ...a.model, "Predictor", "causal history");
+    block(c, ...a.model, "Predictor", "observed history");
     featureRibbon(c, ...a.z, 130);
     label(c, "Policy → latent tokens", 485, 142, 16, blue, true, "center");
     link(c, 245, 234, 413, 268, blue, beat(s, 0.2));
@@ -444,14 +424,5 @@ function methodMotion(c) {
     label(c, "Training target only", 65, 395, 21, orange, true);
     link(c, 702, 396, 662, 396, orange, beat(s, 1.5));
     pill(c, "Compare only", 610, 396, orange);
-    label(
-      c,
-      "At deployment: observation + instruction → tokens → action head.",
-      52,
-      491,
-      18,
-      ink,
-      true,
-    );
   }
 }

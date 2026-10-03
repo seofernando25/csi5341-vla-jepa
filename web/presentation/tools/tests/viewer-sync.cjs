@@ -25,12 +25,12 @@ for(const [scene,cues] of Object.entries(specs)) for(let cue=0;cue<cues.length;c
     assert.equal(previous.cue,cue-1);assert.equal(previous.seconds,cues[cue-1].end);checks++;
   }
 }
-stream.onerror();const held={scene:3,cue:4,running:false,seconds:specs[3][4].end,progress:1,remaining:0,direction:0};
-stream.onmessage({data:JSON.stringify({state:held,controllerOnline:true,ageMs:0})});assert.equal(vm.runInContext('presenter.cursor',context),4);
+stream.onerror();const held={scene:3,cue:3,running:false,seconds:specs[3][3].end,progress:1,remaining:0,direction:0};
+stream.onmessage({data:JSON.stringify({state:held,controllerOnline:true,ageMs:0})});assert.equal(vm.runInContext('presenter.cursor',context),3);
 stream.onerror();stream.onmessage({data:JSON.stringify({state:held,controllerOnline:true,ageMs:0})});assert.equal(vm.runInContext('presenter.seconds',context),held.seconds);
 vm.runInContext(fs.readFileSync(path.join(root,'beat-controller.js'),'utf8').replace('const presenter = new CueClock();',''),context);
 vm.runInContext('advanceBeat(1);advanceBeat(-1);replayBeat();',context); // No audio/clock/navigation allowed for viewers.
-assert.equal(vm.runInContext('presenter.cursor',context),4);
+assert.equal(vm.runInContext('presenter.cursor',context),3);
 context.document.documentElement={dataset:{}};
 context.location.search='?view=backdrop';
 vm.runInContext(fs.readFileSync(path.join(root,'sync/viewer.js'),'utf8'),context);

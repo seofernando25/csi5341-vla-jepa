@@ -157,15 +157,6 @@ function flowMotion(c) {
       clamp((sec - steps[j][1]) / TYPE_MOTION.reelSeconds),
       j ? steps[j - 1][0] : "",
     );
-    label(
-      c,
-      "Conditioning: observation + instruction → policy tokens",
-      52,
-      480,
-      18,
-      blue,
-      true,
-    );
   } else {
     const u = beat(sec, 4, 23),
       t = smoothOut(u);
@@ -241,15 +232,6 @@ function flowMotion(c) {
       true,
       reveal,
       j ? texts[j - 1] : "",
-    );
-    label(
-      c,
-      "The model sees the task and generation time at every update.",
-      52,
-      480,
-      19,
-      blue,
-      true,
     );
   }
 }

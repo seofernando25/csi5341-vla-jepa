@@ -3,7 +3,7 @@ function relatedMotion(c) {
   headerC(
     c,
     "Related work · Why learn from video?",
-    "Same ambition. Different supervision.",
+    "How earlier methods learn from video",
     "OpenVLA · LAPA §3 · UniVLA §III · VLA-JEPA §3",
   );
   const rows = [
@@ -60,23 +60,4 @@ function relatedMotion(c) {
       8,
     );
   });
-  const steps = [
-    ["Robot demonstrations are costly.", 0],
-    ["Video provides changes, without motor-command labels.", 9],
-    ["An embedding target alone does not define the pipeline.", 36],
-    ["The key question: what does the policy see, and predict?", 55],
-  ];
-  let j = steps.findLastIndex((x) => sec >= x[1]);
-  const [text, start] = steps[Math.max(0, j)];
-  reelCardText(
-    c,
-    text,
-    52,
-    493,
-    20,
-    blue,
-    true,
-    clamp((sec - start) / TYPE_MOTION.reelSeconds),
-    j > 0 ? steps[j - 1][0] : "",
-  );
 }

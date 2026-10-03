@@ -341,25 +341,25 @@
     "speaker": "Noah",
     "budget": 44.96666666666667,
     "section": "Method 3 of 5 · Information flow",
-    "title": "The predictor sees history, while future states are targets",
+    "title": "Future frames are training targets",
     "purpose": "Resolve the subtle difference between target supervision and teacher-forced world-model history.",
     "chunks": [
       {
-        "text": "Future frames appear only on the target side during training. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.",
+        "text": "During training, the model has access to a recorded clip, so the actual future frames are available. But they go through a separate, frozen encoder to make a target. They never enter the policy or predictor as inputs.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
+        "focus": "Trace which inputs each branch receives.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
-        "text": "We only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.",
+        "text": "The policy gets the current image and instruction. The predictor gets the policy tokens and a history of observed states. It has to predict the future features from that information.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
+        "focus": "Trace which inputs each branch receives.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
-        "text": "When the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
+        "text": "At inference, the target branch isn't needed. The policy's tokens go to the action head, which generates robot controls. Fernando will explain how that head is trained.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
+        "focus": "Trace which inputs each branch receives.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
@@ -380,11 +380,11 @@
         "handoff": true
       }
     ],
-    "notes": "Future frames appear only on the target side during training. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.\n\nWe only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.\n\nWhen the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
+    "notes": "During training, the model has access to a recorded clip, so the actual future frames are available. But they go through a separate, frozen encoder to make a target. They never enter the policy or predictor as inputs.\n\nThe policy gets the current image and instruction. The predictor gets the policy tokens and a history of observed states. It has to predict the future features from that information.\n\nAt inference, the target branch isn't needed. The policy's tokens go to the action head, which generates robot controls. Fernando will explain how that head is trained.",
     "backup": false,
     "id": "chapter-8",
     "audioAsset": "narration-09.mp3",
-    "scriptRevision": "direct-spoken-style-20261002",
+    "scriptRevision": "clear-target-20261002",
     "narrationMatchesScript": false,
     "estimatedSpeakingSeconds": 43.3,
     "displayNumber": 7

@@ -17,13 +17,10 @@ const SCENE_CUES = {
     cue("Compare the available supervision", 6.09, 6.9),
   ],
   3: [
-    cue("Cost of control labels", 0, 0.8),
-    cue("Why use video?", 8.99, 9.6),
+    cue("Robot-labelled policy", 0, 0.8),
     cue("LAPA: pixel reconstruction", 15.99, 16.7),
     cue("UniVLA: feature reconstruction", 30.99, 31.7),
-    cue("A target is not a pipeline", 35.99, 36.6),
     cue("VLA-JEPA: predictive alignment", 44.99, 45.7),
-    cue("What does the policy see?", 54.99, 55.7),
   ],
   5: [
     cue("Represent the task", 0, 0.7),
@@ -56,18 +53,12 @@ const SCENE_CUES = {
     cue("Third learned update", 10.5, 16.3),
     cue("Generate the action chunk", 16.3, 27.8, 850),
   ],
-  11: [
-    cue("Two sources, two objectives", 0, 1.5, 750),
-    cue("Adapt the robot interface", 23.99, 24.7),
-  ],
+  11: [cue("Two sources, two objectives", 0, 1.5, 750)],
   12: [cue("Standard LIBERO comparison", 0, 1.5, 750)],
   13: [cue("LIBERO-Plus comparison", 0, 1.5, 750)],
   14: [cue("Human-video ablation", 0, 1.5, 750)],
   15: [cue("A benchmark counterexample", 0, 1.5, 750)],
-  17: [
-    cue("Deployment limitations", 0, 0.95),
-    cue("Interpret the evidence", 1.29, 1.9),
-  ],
+  17: [cue("Deployment limitations", 0, 0.95)],
   18: [
     cue("Predict states; learn control", 0, 0.8),
     cue("Strongest evidence", 1.39, 2),
