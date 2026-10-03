@@ -4,12 +4,12 @@
   const text = (id, value) => {
     if (el(id).textContent !== value) el(id).textContent = value;
   };
-  const backdrop = el("slide-backdrop");
-  const toggleBackdrop = el("toggle-backdrop");
+  const slideSource = el("slide-source");
+  const togglePreview = el("toggle-preview");
   const preview = el("slide-preview");
   const previewCanvas = preview.querySelector("canvas");
   const previewContext = previewCanvas.getContext("2d", { alpha: false });
-  const slideFrame = backdrop.querySelector("iframe");
+  const slideFrame = slideSource.querySelector("iframe");
   function mirrorSlide() {
     if (!preview.hidden && !document.hidden) {
       const source = slideFrame.contentDocument?.querySelector("canvas");
@@ -19,18 +19,17 @@
     requestAnimationFrame(mirrorSlide);
   }
   requestAnimationFrame(mirrorSlide);
-  backdrop.hidden = localStorage.getItem("presenter-hide-slide") === "true";
-  function backdropLabel() {
-    preview.hidden = backdrop.hidden;
-    toggleBackdrop.textContent = backdrop.hidden ? "Show slide" : "Hide slide";
-    toggleBackdrop.setAttribute("aria-pressed", String(!backdrop.hidden));
+  preview.hidden = localStorage.getItem("presenter-hide-slide") === "true";
+  function previewLabel() {
+    togglePreview.textContent = preview.hidden ? "Show preview" : "Hide preview";
+    togglePreview.setAttribute("aria-pressed", String(!preview.hidden));
   }
-  toggleBackdrop.onclick = () => {
-    backdrop.hidden = !backdrop.hidden;
-    localStorage.setItem("presenter-hide-slide", String(backdrop.hidden));
-    backdropLabel();
+  togglePreview.onclick = () => {
+    preview.hidden = !preview.hidden;
+    localStorage.setItem("presenter-hide-slide", String(preview.hidden));
+    previewLabel();
   };
-  backdropLabel();
+  previewLabel();
   const size = el("text-size");
   const stored = Number(localStorage.getItem("presenter-text-size"));
   if (stored >= 24 && stored <= 64) size.value = stored;

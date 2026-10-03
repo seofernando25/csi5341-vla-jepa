@@ -225,37 +225,18 @@ input:focus-visible {
   }
 }
 
-/* The reading line stays on white; the live slide emerges below it. */
-#slide-backdrop {
+/* One offscreen renderer supplies the live PiP; no slide behind the notes. */
+#slide-source {
   position: fixed;
-  inset: 0;
-  z-index: 0;
+  left: -10000px;
+  top: 0;
+  width: 640px;
+  height: 360px;
+  opacity: 0;
   pointer-events: none;
-  overflow: hidden;
 }
-#slide-backdrop iframe {
-  border: 0;
-  width: 100%;
-  height: 100%;
-  opacity: .36;
-}
-#slide-backdrop::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, #fff 0%, #fff 22%, rgba(255,255,255,.94) 35%, rgba(255,255,255,.66) 50%, rgba(255,255,255,.36) 74%, rgba(255,255,255,.2) 100%);
-}
-body > main, body > header, body > .cue-line, body > footer {
-  position: relative;
-  z-index: 1;
-}
-header, .cue-line {
-  background: #f8fafc;
-}
-article {
-  text-shadow: 0 1px 5px #fff, 0 0 12px #ffffffd9;
-}
-
+#slide-source iframe { border: 0; width: 100%; height: 100%; }
+:root { background: #fff; }
 #slide-preview {
   position: fixed;
   top: 12px;
