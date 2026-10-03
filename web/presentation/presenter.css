@@ -230,8 +230,8 @@ input:focus-visible {
   position: fixed;
   left: -10000px;
   top: 0;
-  width: 640px;
-  height: 360px;
+  width: 1280px;
+  height: 720px;
   opacity: 0;
   pointer-events: none;
 }
@@ -242,7 +242,7 @@ input:focus-visible {
   top: 12px;
   right: 4vw;
   z-index: 2;
-  width: clamp(150px, 18vw, 250px);
+  width: clamp(220px, 38vw, 720px);
   aspect-ratio: 16 / 9;
   border: 1px solid #dce4ea;
   border-radius: 8px;
@@ -252,9 +252,9 @@ input:focus-visible {
   pointer-events: none;
 }
 #slide-preview canvas { display: block; width: 100%; height: 100%; }
-#script-reader { padding-right: calc(clamp(150px, 18vw, 250px) + 28px); }
+#script-reader { padding-right: calc(clamp(220px, 38vw, 720px) + 28px); }
 body:has(#slide-preview[hidden]) #script-reader { padding-right: 16px; }
 @media(max-width:500px) {
-  #slide-preview { width: 120px; right: 12px; }
-  #script-reader { padding-right: 136px; }
+  #slide-preview { width: 44vw; right: 12px; }
+  #script-reader { padding-right: calc(44vw + 16px); }
 }
