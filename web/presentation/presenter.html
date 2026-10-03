@@ -7,17 +7,7 @@
     <link rel="stylesheet" href="presenter.css" />
   </head>
   <body>
-    <header>
-      <span id="chapter">Waiting for slides</span><span id="speaker"></span>
-      <h1 id="title">VLA–JEPA / Presenter</h1>
-      <span id="connection" role="status" data-state="waiting"
-        >Connecting to local relay…</span
-      >
-    </header>
     <main>
-      <div class="cue-line" aria-live="polite">
-        <span id="cue">No cue received yet</span><span id="motion"></span>
-      </div>
       <p class="screen-reader">
         Full chapter script. Automatic scrolling uses your chosen pace, not
         word-level synchronization.
@@ -42,18 +32,28 @@
       </section>
       <p id="last-state" role="status"></p>
     </main>
+    <header>
+      <span id="chapter">Waiting for slides</span><span id="speaker"></span>
+      <h1 id="title">VLA–JEPA / Presenter</h1>
+      <span id="connection" role="status" data-state="waiting"
+        >Connecting to local relay…</span
+      >
+    </header>
+      <div class="cue-line" aria-live="polite">
+        <span id="cue">No cue received yet</span><span id="motion"></span>
+      </div>
     <footer>
       <button id="scroll-play" aria-pressed="true">Pause scroll</button
       ><button id="scroll-top">Back to top</button>
-      <label for="scroll-speed">Speed</label
+      <label for="scroll-speed" id="speed-label">Global speed</label
       ><input
         id="scroll-speed"
         type="range"
         min="4"
         max="48"
         step="2"
-        value="14"
-      /><output id="speed-value" for="scroll-speed">14 px/s</output>
+        value="10"
+      /><output id="speed-value" for="scroll-speed">10 px/s</output>
       <span id="scroll-status" role="status">Waiting for slides</span>
       <div class="settings">
         <label for="text-size">Text size</label
@@ -71,6 +71,7 @@
     <script src="src/content.js"></script>
     <script src="src/timing/cues.js"></script>
     <script src="src/sync/auto-scroll.js"></script>
+    <script src="src/sync/speed-sync.js"></script>
     <script src="src/sync/presenter.js"></script>
   </body>
 </html>

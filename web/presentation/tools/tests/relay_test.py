@@ -87,6 +87,35 @@ class RelayTests(unittest.TestCase):
         self.assertEqual(e.exception.code,400)
         e.exception.close()
 
+    def test_shared_speed_broadcast_reconnect_and_navigation_isolation(self):
+        def speed(value):
+            body = json.dumps(value).encode()
+            return urlopen(Request(self.url+'/relay/settings', data=body), timeout=3)
+        with self.publish(scene=4, cue=2): pass
+        original = self.server.snapshot()
+        with urlopen(self.url+'/relay/events', timeout=4) as a, urlopen(self.url+'/relay/events', timeout=4) as b:
+            self.assertEqual(self.event(a)['settings']['scrollSpeed'], 10)
+            self.event(b)
+            with speed({'scrollSpeed': 30}) as r:
+                self.assertEqual(json.load(r)['settingsRevision'], 1)
+            self.assertEqual(self.event(a)['settings']['scrollSpeed'], 30)
+            self.assertEqual(self.event(b)['settings']['scrollSpeed'], 30)
+            with speed({'scrollSpeed': 8}): pass
+            self.assertEqual(self.event(a)['settings']['scrollSpeed'], 8)
+            self.assertEqual(self.event(b)['settings']['scrollSpeed'], 8)
+        with urlopen(self.url+'/relay/events', timeout=4) as late:
+            snapshot = self.event(late)
+            self.assertEqual(snapshot['settings'], {'scrollSpeed': 8})
+            self.assertEqual(snapshot['settingsRevision'], 2)
+            self.assertEqual(snapshot['state'], original['state'])
+            self.assertEqual(snapshot['revision'], original['revision'])
+            self.assertTrue(snapshot['controllerOnline'])
+        for invalid in [{'scrollSpeed': True}, {'scrollSpeed': 49}, {'scrollSpeed': 3}, {'scrollSpeed': 8.5}, {'scrollSpeed': 8, 'state': {}}, []]:
+            with self.assertRaises(HTTPError) as e: speed(invalid)
+            self.assertEqual(e.exception.code, 400)
+            e.exception.close()
+        self.assertEqual(self.server.settings['scrollSpeed'], 8)
+
     def test_read_only_validation_lease_and_offline(self):
         for kwargs, status in [({'key':'wrong'},403), ({'scene':1},400), ({'cue':99},400), ({'scene':True},400)]:
             with self.assertRaises(HTTPError) as e: self.publish(**kwargs)

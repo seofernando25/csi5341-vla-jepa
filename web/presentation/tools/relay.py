@@ -26,6 +26,8 @@ class Relay(ThreadingHTTPServer):
         super().__init__(address, Handler)
         self.token = token or secrets.token_urlsafe(24)
         self.condition = threading.Condition()
+        self.settings = {'scrollSpeed': 10}
+        self.settings_revision = 0
         self.state = None
         self.revision = 0
         self.sequence = -1
@@ -35,6 +37,7 @@ class Relay(ThreadingHTTPServer):
     def snapshot(self):
         # Call under condition lock.
         return {'state': self.state, 'revision': self.revision,
+                'settings': dict(self.settings), 'settingsRevision': self.settings_revision,
                 'controllerOnline': time.monotonic() - self.last_seen < 7,
                 'ageMs': max(0, (time.monotonic() - self.last_seen) * 1000) if self.state else 0}
 
@@ -107,6 +110,28 @@ class Handler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
+        if urlsplit(self.path).path == '/relay/settings':
+            # Any LAN screen may change reading pace, never slide navigation.
+            try:
+                length = int(self.headers.get('Content-Length', 0))
+                if not 0 < length <= 128:
+                    raise ValueError('Invalid body length')
+                data = json.loads(self.rfile.read(length))
+                value = data['scrollSpeed']
+                if set(data) != {'scrollSpeed'} or type(value) is not int or not 4 <= value <= 48:
+                    raise ValueError('Invalid scroll speed')
+            except (ValueError, KeyError, TypeError, json.JSONDecodeError):
+                self.close_connection = True
+                self.reply(400, {'error': 'Scroll speed must be an integer from 4 to 48 px/s'})
+                return
+            with self.server.condition:
+                if value != self.server.settings['scrollSpeed']:
+                    self.server.settings['scrollSpeed'] = value
+                    self.server.settings_revision += 1
+                payload = self.server.snapshot()
+                self.server.condition.notify_all()
+            self.reply(200, payload)
+            return
         if urlsplit(self.path).path != '/relay/state':
             self.reply(404, {'error': 'Unknown endpoint'})
             return

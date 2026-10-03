@@ -31,7 +31,7 @@ header {
   flex: none;
   min-height: 44px;
   padding: 8px 4vw;
-  border-bottom: 1px solid #dae3eb;
+  border-top: 1px solid #dae3eb;
   font-size: 12px;
 }
 #chapter,
@@ -75,7 +75,8 @@ main {
   align-items: center;
   flex: none;
   min-height: 24px;
-  margin-bottom: 8px;
+  margin: 0;
+  padding: 2px 4vw 6px;
   font-size: 12px;
   color: #0086be;
 }
