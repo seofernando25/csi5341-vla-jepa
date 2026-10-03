@@ -66,6 +66,27 @@ class RelayTests(unittest.TestCase):
         with urlopen(self.url+'/relay/state') as response:
             self.assertEqual(json.load(response)['state']['cue'], 4)
 
+    def test_controller_route_pairing_and_viewer_animation_snapshot(self):
+        with urlopen(self.url+'/') as response:
+            page = response.read().decode()
+            self.assertIn('name="presenter-relay"', page)
+            self.assertNotIn('presenter-controller-key',page)
+            self.assertNotIn('test-key',page)
+        with urlopen(self.url+'/?relay=control') as response:
+            self.assertIn('name="presenter-controller-key" content="test-key"',response.read().decode())
+        state = dict(scene=3,cue=1,running=True,direction=-1,seconds=9.6,progress=0.25,remaining=600)
+        body = json.dumps(dict(client='slides',sequence=1,state=state)).encode()
+        with urlopen(Request(self.url+'/relay/state',data=body,headers={'X-Presenter-Key':'test-key'})) as response:
+            snapshot=json.load(response)
+            self.assertEqual(snapshot['state'],state)
+            self.assertGreaterEqual(snapshot['ageMs'],0)
+        state['remaining']=float('nan')
+        body=json.dumps(dict(client='slides',sequence=2,state=state)).encode()
+        with self.assertRaises(HTTPError) as e:
+            urlopen(Request(self.url+'/relay/state',data=body,headers={'X-Presenter-Key':'test-key'}))
+        self.assertEqual(e.exception.code,400)
+        e.exception.close()
+
     def test_read_only_validation_lease_and_offline(self):
         for kwargs, status in [({'key':'wrong'},403), ({'scene':1},400), ({'cue':99},400), ({'scene':True},400)]:
             with self.assertRaises(HTTPError) as e: self.publish(**kwargs)

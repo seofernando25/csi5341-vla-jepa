@@ -3,13 +3,14 @@
 import argparse
 import hmac
 import json
+import math
 import secrets
 import socket
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 # Use the same chapter/cue definitions as the browser; no separately maintained map.
@@ -34,7 +35,8 @@ class Relay(ThreadingHTTPServer):
     def snapshot(self):
         # Call under condition lock.
         return {'state': self.state, 'revision': self.revision,
-                'controllerOnline': time.monotonic() - self.last_seen < 7}
+                'controllerOnline': time.monotonic() - self.last_seen < 7,
+                'ageMs': max(0, (time.monotonic() - self.last_seen) * 1000) if self.state else 0}
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -81,6 +83,17 @@ class Handler(SimpleHTTPRequestHandler):
             except (BrokenPipeError, ConnectionResetError, OSError):
                 pass
             return
+        if path in ('/', '/index.html'):
+            metadata = '<meta name="presenter-relay" content="local">'
+            if parse_qs(urlsplit(self.path).query).get('relay') == ['control']:
+                metadata += f'<meta name="presenter-controller-key" content="{self.server.token}">'
+            body = (ROOT / 'index.html').read_text().replace('<meta charset="UTF-8">', '<meta charset="UTF-8">' + metadata).encode()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if path == '/relay/state':
             with self.server.condition:
                 self.reply(200, self.server.snapshot())
@@ -115,7 +128,17 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ValueError('Invalid chapter or cue')
             if type(state['running']) is not bool or not isinstance(data['client'], str) or not 1 <= len(data['client']) <= 100:
                 raise ValueError('Invalid client or motion state')
-            state = {k: state[k] for k in ('scene', 'cue', 'running')}
+            clean = {k: state[k] for k in ('scene', 'cue', 'running')}
+            # Optional animation snapshot; old chapter/cue clients remain compatible.
+            if 'seconds' in state:
+                for name, lo, hi in [('seconds', 0, 600), ('progress', 0, 1), ('remaining', 0, 15000), ('direction', -1, 1)]:
+                    value = state[name]
+                    if type(value) not in (int, float) or not math.isfinite(value) or not lo <= value <= hi:
+                        raise ValueError('Invalid animation snapshot')
+                    clean[name] = value
+                if clean['direction'] not in (-1, 0, 1):
+                    raise ValueError('Invalid direction')
+            state = clean
         except (ValueError, KeyError, TypeError, json.JSONDecodeError):
             self.close_connection = True
             self.reply(400, {'error': 'Invalid presentation state'})
@@ -142,8 +165,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host', default='0.0.0.0')
     parser.add_argument('--port', default=8766, type=int)
+    parser.add_argument('--key', help=argparse.SUPPRESS)
     args = parser.parse_args()
-    server = Relay((args.host, args.port))
+    server = Relay((args.host, args.port), args.key)
     address = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         address.connect(('192.0.2.1', 80))  # Routing lookup only; sends no data.
@@ -152,7 +176,7 @@ def main():
         lan = '<slide-computer-LAN-IP>'
     finally:
         address.close()
-    print(f'Slides (this computer): http://localhost:{args.port}/?relay=control&key={server.token}', flush=True)
+    print(f'Slides (this computer): http://localhost:{args.port}/?relay=control', flush=True)
     print(f'Notes (second computer): http://{lan}:{args.port}/presenter.html', flush=True)
     local_name = socket.gethostname()
     if local_name.endswith('.local'):

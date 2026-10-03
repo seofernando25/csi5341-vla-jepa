@@ -54,6 +54,13 @@ window.addEventListener("keydown", (e) => {
       document.getElementById("notes").hidden = true;
     },
   };
+  if (
+    window.deckReadOnly &&
+    ["ArrowRight", "ArrowLeft", "Space", "Home", "End"].includes(e.code)
+  ) {
+    e.preventDefault();
+    return;
+  }
   if (actions[e.code]) {
     e.preventDefault();
     actions[e.code]();

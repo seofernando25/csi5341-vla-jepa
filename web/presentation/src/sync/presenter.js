@@ -28,6 +28,7 @@
     if (el("connection").textContent !== text)
       el("connection").textContent = text;
     el("connection").dataset.state = online ? "connected" : "waiting";
+    window.prompterScroll?.setConnected(online);
   }
   function update(payload) {
     lastMessage = Date.now();
@@ -69,6 +70,7 @@
     el("delivery").hidden = !data.deliveryCues?.length;
     el("delivery").open = false;
     el("script-reader").scrollTop = 0;
+    window.prompterScroll?.chapterChanged();
   }
   const stream = new EventSource("relay/events");
   stream.onmessage = (event) => {

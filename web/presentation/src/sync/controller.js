@@ -2,7 +2,9 @@
 (() => {
   const params = new URLSearchParams(location.search);
   if (params.get("relay") !== "control") return;
-  const key = params.get("key");
+  const key =
+    document.querySelector('meta[name="presenter-controller-key"]')?.content ||
+    params.get("key");
   // Keep the pairing key out of copied URLs/history after initial setup.
   if (key) {
     sessionStorage.setItem("presenter-key", key);
@@ -32,11 +34,29 @@
     busy = false,
     pending = false;
   function currentState() {
-    return { scene: index, cue: presenter.cursor, running: presenter.running };
+    const now = performance.now();
+    return {
+      scene: index,
+      cue: presenter.cursor,
+      running: presenter.running,
+      direction: presenter.run?.direction || 0,
+      seconds: presenter.seconds,
+      progress: presenter.progress,
+      remaining: presenter.run
+        ? Math.max(0, presenter.run.duration - (now - presenter.run.began))
+        : 0,
+    };
   }
   async function publish(force = false) {
     const state = currentState(),
-      serialized = JSON.stringify(state);
+      serialized = JSON.stringify([
+        state.scene,
+        state.cue,
+        state.running,
+        state.direction,
+        presenter.run?.began,
+        presenter.run?.duration,
+      ]);
     if (!force && serialized === lastSent) return;
     if (busy) {
       pending = true;

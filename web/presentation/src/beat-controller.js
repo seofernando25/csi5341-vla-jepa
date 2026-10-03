@@ -40,6 +40,7 @@ function resetPresenter(atEnd = false) {
   syncPresenterFrame();
 }
 function advanceBeat(direction = 1) {
+  if (window.deckReadOnly) return;
   audio.pause();
   const result =
     direction > 0
@@ -55,6 +56,7 @@ function advanceBeat(direction = 1) {
   }
 }
 function replayBeat() {
+  if (window.deckReadOnly) return;
   if (presenter.replay(performance.now()) === "beat") {
     syncPresenterMedia();
     syncPresenterFrame();
