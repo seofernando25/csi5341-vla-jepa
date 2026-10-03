@@ -89,27 +89,27 @@
     "purpose": "Explain the contribution relative to robot-supervised VLAs, latent-action learning, and JEPA.",
     "chunks": [
       {
-        "text": "The previous examples show the missing piece: human video shows what changes, but doesn't provide robot controls. Several earlier methods try to learn from that signal without recorded robot actions. LAPA and UniVLA are two examples.",
+        "text": "LAPA and UniVLA also try to learn from unlabelled human video. Their approach is to infer latent actions from frame pairs, then train a policy to predict them and adapt that policy to recorded robot controls.",
         "pause": 0.35,
-        "focus": "Introduce the shared problem before naming methods.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "LAPA learns latent actions from frame pairs by reconstructing the future image, then adapts the policy to robot controls. UniVLA follows a similar idea using DINO features instead of pixels.",
         "pause": 0.35,
-        "focus": "Introduce the shared problem before naming methods.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "VLA-JEPA also predicts features, so that alone isn't its contribution. The difference is where the prediction loss enters: tokens produced from the current observation and instruction predict future features, training the policy's representation alongside robot action supervision.",
         "pause": 0.35,
-        "focus": "Introduce the shared problem before naming methods.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "The next diagram shows this connection: one representation supports both future-state prediction and control. Fernando will walk through how those two branches are trained.",
         "pause": 0.35,
-        "focus": "Introduce the shared problem before naming methods.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
@@ -130,11 +130,11 @@
         "handoff": true
       }
     ],
-    "notes": "The previous examples show the missing piece: human video shows what changes, but doesn't provide robot controls. Several earlier methods try to learn from that signal without recorded robot actions. LAPA and UniVLA are two examples.\n\nLAPA learns latent actions from frame pairs by reconstructing the future image, then adapts the policy to robot controls. UniVLA follows a similar idea using DINO features instead of pixels.\n\nVLA-JEPA also predicts features, so that alone isn't its contribution. The difference is where the prediction loss enters: tokens produced from the current observation and instruction predict future features, training the policy's representation alongside robot action supervision.\n\nThe next diagram shows this connection: one representation supports both future-state prediction and control. Fernando will walk through how those two branches are trained.",
+    "notes": "LAPA and UniVLA also try to learn from unlabelled human video. Their approach is to infer latent actions from frame pairs, then train a policy to predict them and adapt that policy to recorded robot controls.\n\nLAPA learns latent actions from frame pairs by reconstructing the future image, then adapts the policy to robot controls. UniVLA follows a similar idea using DINO features instead of pixels.\n\nVLA-JEPA also predicts features, so that alone isn't its contribution. The difference is where the prediction loss enters: tokens produced from the current observation and instruction predict future features, training the policy's representation alongside robot action supervision.\n\nThe next diagram shows this connection: one representation supports both future-state prediction and control. Fernando will walk through how those two branches are trained.",
     "backup": false,
     "id": "chapter-3",
     "audioAsset": "narration-04.mp3",
-    "scriptRevision": "related-work-bridge-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
     "estimatedSpeakingSeconds": 57.8,
     "displayNumber": 3
@@ -299,19 +299,19 @@
       {
         "text": "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "Training updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
-        "text": "Notice where the gradient goes: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
+        "text": "The gradient updates the predictor: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
@@ -327,11 +327,11 @@
         "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
       }
     ],
-    "notes": "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.\n\nTraining updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.\n\nNotice where the gradient goes: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
+    "notes": "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.\n\nTraining updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.\n\nThe gradient updates the predictor: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
     "backup": false,
     "id": "chapter-7",
     "audioAsset": "narration-08.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
     "estimatedSpeakingSeconds": 39.3,
     "displayNumber": 6
@@ -345,21 +345,21 @@
     "purpose": "Resolve the subtle difference between target supervision and teacher-forced world-model history.",
     "chunks": [
       {
-        "text": "The important point is who gets to see the future. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.",
+        "text": "Future frames appear only on the target side during training. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "We only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "When the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
@@ -380,11 +380,11 @@
         "handoff": true
       }
     ],
-    "notes": "The important point is who gets to see the future. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.\n\nWe only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.\n\nWhen the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
+    "notes": "Future frames appear only on the target side during training. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.\n\nWe only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.\n\nWhen the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
     "backup": false,
     "id": "chapter-8",
     "audioAsset": "narration-09.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
     "estimatedSpeakingSeconds": 43.3,
     "displayNumber": 7
@@ -523,26 +523,26 @@
     "purpose": "Explain which loss applies to each data source and what remains frozen.",
     "chunks": [
       {
-        "text": "This gives us two sources of supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.",
+        "text": "Human video and robot demonstrations provide complementary supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "The paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "These clips illustrate the data sources. They do not demonstrate zero-shot transfer between arbitrary robots.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
     "source": "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper §§4.1–4.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
-    "wordCount": 75,
+    "wordCount": 76,
     "pauseSeconds": 1.05,
     "start": 392.7333333333333,
     "end": 440.01666666666665,
@@ -553,13 +553,13 @@
         "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
       }
     ],
-    "notes": "This gives us two sources of supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.\n\nThe paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.\n\nThese clips illustrate the data sources. They do not demonstrate zero-shot transfer between arbitrary robots.",
+    "notes": "Human video and robot demonstrations provide complementary supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.\n\nThe paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.\n\nThese clips illustrate the data sources. They do not demonstrate zero-shot transfer between arbitrary robots.",
     "backup": false,
     "id": "chapter-11",
     "audioAsset": "narration-12.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 34.4,
+    "estimatedSpeakingSeconds": 34.8,
     "displayNumber": 10
   },
   {
@@ -573,18 +573,18 @@
       {
         "text": "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
-        "text": "That's effectively a tie. The interesting question is whether the difference becomes clearer when the visual conditions change.",
+        "text": "That's effectively a tie. LIBERO-Plus evaluates these policies under changes to the camera, lighting and object layout.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
     "source": "Paper, Tables 1 and 3. Differences: 97.2−97.1=0.1 percentage points, 79.5−69.6=9.9 percentage points. Selected baseline is OpenVLA-OFT; this is not a claim of superiority to every model on every task. Paper reports 50 episodes per task on standard LIBERO and does not provide confidence intervals for these headline averages.",
-    "wordCount": 35,
+    "wordCount": 34,
     "pauseSeconds": 0.7,
     "start": 440.01666666666665,
     "end": 453.51666666666665,
@@ -595,13 +595,13 @@
         "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
       }
     ],
-    "notes": "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.\n\nThat's effectively a tie. The interesting question is whether the difference becomes clearer when the visual conditions change.",
+    "notes": "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.\n\nThat's effectively a tie. LIBERO-Plus evaluates these policies under changes to the camera, lighting and object layout.",
     "backup": false,
     "id": "chapter-12",
     "audioAsset": "narration-13.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 16.3,
+    "estimatedSpeakingSeconds": 15.8,
     "displayNumber": 11
   },
   {
@@ -854,19 +854,19 @@
       {
         "text": "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
         "text": "The strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       },
       {
-        "text": "So the paper supports a way to incorporate human video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
+        "text": "The paper supports a way to incorporate human manipulation video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
+        "focus": "State the technical relationship directly.",
         "voice": "Conversational delivery for graduate computer-vision students."
       }
     ],
@@ -882,11 +882,11 @@
         "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
       }
     ],
-    "notes": "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.\n\nThe strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.\n\nSo the paper supports a way to incorporate human video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
+    "notes": "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.\n\nThe strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.\n\nThe paper supports a way to incorporate human manipulation video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
     "backup": false,
     "id": "chapter-18",
     "audioAsset": "narration-19.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "direct-spoken-style-20261002",
     "narrationMatchesScript": false,
     "estimatedSpeakingSeconds": 38.4,
     "displayNumber": 16
