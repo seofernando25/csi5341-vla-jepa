@@ -9,5 +9,22 @@
     "Joint policy label fits and travelling dots removed",
     "JavaScript syntax"
   ],
-  "exports": "Existing movie and PDF exports predate this presenter-control refinement."
+  "exports": "Existing narration, movie and presenter-guide PDF predate the spoken-script rewrite. Manual website notes and teleprompter use the current script.",
+  "scriptReview": {
+    "revision": "conversational-20261002",
+    "audience": "Masters students in learning-based computer vision",
+    "words": 1230,
+    "NoahWords": 596,
+    "FernandoWords": 634,
+    "estimatedSpeakingSecondsAt135Wpm": 563,
+    "timingNote": "Estimate only, not a measured rehearsal. Allows approximately 37 seconds of visual holds within ten minutes.",
+    "recordedNarrationMatches": false,
+    "checks": [
+      "notes equal joined narration chunks",
+      "src/content.js DATA equals data.json",
+      "18 active chapters retain speaker assignments",
+      "unexplained robot-model name list removed",
+      "proposal remains planned work, optional architecture search explained"
+    ]
+  }
 }

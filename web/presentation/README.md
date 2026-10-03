@@ -33,7 +33,7 @@ Run `python3 web/presentation/tools/relay.py` from the repo root, open its print
 - `documents/`: audited slide PDFs, presenter guide and export validation report.
 - `assets/manifest.json`: byte sizes and SHA-256 hashes for included runtime assets.
 
-Text edits require matching narration updates. No credential files, voice generation keys, research weights, checkpoints, full datasets or scratch renders are included. Generated render output stays in ignored `build/`. The final full movie and duplicate embedded HTML remain outside Git; the source and audio here can rebuild the movie.
+The current spoken script is the conversational revision for a graduate computer-vision audience, shared by manual notes and the teleprompter. Existing synthetic narration and exported presenter PDF retain the previous wording; audio/video exports must regenerate narration before using this revision. No credential files, voice generation keys, research weights, checkpoints, full datasets or scratch renders are included. Generated render output stays in ignored `build/`. The final full movie and duplicate embedded HTML remain outside Git; the source and audio here can rebuild the movie.
 
 ## Provenance
 

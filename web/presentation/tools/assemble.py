@@ -3,6 +3,8 @@ from pathlib import Path
 import subprocess,json,shutil
 ROOT=Path(__file__).resolve().parents[1];BUILD=ROOT/'build';R=BUILD/'rendered';BUILD.mkdir(exist_ok=True)
 data=json.loads((ROOT/'data.json').read_text());main=[(i,s) for i,s in enumerate(data) if not s.get('hidden') and not s.get('backup')]
+if any(s.get('narrationMatchesScript') is False for _,s in main):
+ raise SystemExit('Narration predates the revised script. Regenerate narration and verify it against data.json before assembling the movie.')
 total=sum(s['budget'] for _,s in main)
 raw_movie=R/'main.h264'
 # Each authoring stream starts on a keyframe and includes its Annex-B headers.
