@@ -25,13 +25,6 @@ const SCENE_CUES = {
     cue("VLA-JEPA: predictive alignment", 44.99, 45.7),
     cue("What does the policy see?", 54.99, 55.7),
   ],
-  4: [
-    cue("Observation and instruction", 0, 1.4, 800),
-    cue("Observed transition", 6.99, 7.7),
-    cue("Predict future features", 16.99, 19, 650),
-    cue("Encode the future target", 26.99, 29, 650),
-    cue("Compare the features", 34.99, 36),
-  ],
   5: [
     cue("Represent the task", 0, 0.7),
     cue("Encode both inputs", 2.99, 4),
@@ -71,10 +64,6 @@ const SCENE_CUES = {
   13: [cue("LIBERO-Plus comparison", 0, 1.5, 750)],
   14: [cue("Human-video ablation", 0, 1.5, 750)],
   15: [cue("A benchmark counterexample", 0, 1.5, 750)],
-  16: [
-    cue("Proposed comparisons", 0, 0.95),
-    cue("What we will measure", 1.29, 1.9),
-  ],
   17: [
     cue("Deployment limitations", 0, 0.95),
     cue("Interpret the evidence", 1.29, 1.9),
@@ -82,7 +71,7 @@ const SCENE_CUES = {
   18: [
     cue("Predict states; learn control", 0, 0.8),
     cue("Strongest evidence", 1.39, 2),
-    cue("Our open question", 4.99, 5.8),
+    cue("Limits of the evidence", 4.99, 5.8),
   ],
 };
 const PRESENTATION_BEATS = Object.fromEntries(

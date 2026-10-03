@@ -98,7 +98,7 @@ function editorialCover(c) {
 }
 function editorialClosing(c) {
   let s = sceneSeconds();
-  label(c, "THE TAKEAWAY", 52, 51, 13, blue, true);
+  label(c, "SUN ET AL.’S CONTRIBUTION", 52, 51, 13, blue, true);
   stampText(
     c,
     "Predict states.",
@@ -126,8 +126,8 @@ function editorialClosing(c) {
   });
   emerge(c, s, 5, () => {
     segment(c, 52, 422, 908, 422, "#dbe6ee", 1);
-    label(c, "Our open question: lower resource cost", 52, 463, 21, ink);
-    label(c, "while keeping useful control?", 52, 494, 21, blue, true);
+    label(c, "Robustness improves in tested conditions.", 52, 463, 21, ink);
+    label(c, "Broader reliability remains unproven.", 52, 494, 21, blue, true);
   });
   label(
     c,
@@ -268,7 +268,7 @@ function limitsMotion(c) {
     c,
     "Critical analysis · Beyond headline averages",
     "Strong averages leave deployment questions open",
-    "Paper Table 3, §4.4 and Appendix B · Our single-GPU comparison is proposed",
+    "Paper Table 3, §4.4 and Appendix B",
   );
   label(c, "SENSOR NOISE", 52, 172, 13, muted, true);
   let t = beat(s, 0.2, 0.7);
@@ -300,7 +300,7 @@ function limitsMotion(c) {
     c.fill();
   }
   label(c, "8 A100 GPUs · paper training", 680, 314, 18, blue, true);
-  label(c, "Proposed study: single-GPU efficiency", 680, 348, 13, muted);
+  label(c, "Training cost matters for accessibility", 680, 348, 13, muted);
   emerge(c, s, 1.3, () =>
     label(
       c,

@@ -14,7 +14,7 @@ for (const i of mainScenes) {
 }
 window.updateTimeline = () => {
   document.getElementById("chapter-label").textContent =
-    "Chapter " + sceneNumber(index) + " / 18";
+    "Chapter " + sceneNumber(index) + " / " + visibleScenes.length;
   document.getElementById("clock-label").textContent =
     presenter.spec?.label || "";
   for (const b of document.querySelectorAll("[data-chapter]")) {

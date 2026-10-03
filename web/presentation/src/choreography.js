@@ -17,7 +17,7 @@ const CHOREOGRAPHY = {
   15: { length: 14, act: "THE COUNTEREXAMPLE" },
   16: { length: 24, act: "OUR PROPOSAL" },
   17: { length: 23, act: "THE LIMITS" },
-  18: { length: 15, act: "THE TAKEAWAY" },
+  18: { length: 15, act: "THE PAPER’S CONTRIBUTION" },
 };
 function motionLength(i = index) {
   return CHOREOGRAPHY[i]?.length || 8;

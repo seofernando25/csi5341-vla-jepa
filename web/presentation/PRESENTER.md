@@ -59,8 +59,10 @@ node web/presentation/tools/tests/auto-scroll.cjs
 node web/presentation/tools/tests/viewer-sync.cjs
 ```
 
-The relay regression opens real HTTP/SSE connections to check initial/late snapshots, forward/back state, replay motion status, reconnection after missed navigation, invalid state rejection, controller ownership and expired-controller recovery. Clock regression covers all 18 chapters and 48 beats. Browser smoke checks cover navigation, viewer reload/reconnect, font size and manual notes. A real second-device rehearsal is still needed to establish that your Wi-Fi/firewall permits peer connections.
+The relay regression opens real HTTP/SSE connections to check initial/late snapshots, forward/back state, replay motion status, reconnection after missed navigation, invalid state rejection, controller ownership and expired-controller recovery. Clock regression covers all 16 chapters and 41 beats. Browser smoke checks cover navigation, viewer reload/reconnect, font size and manual notes. A real second-device rehearsal is still needed to establish that your Wi-Fi/firewall permits peer connections.
 
 ## Speaking split
 
-The script alternates in six sections: Noah 1–2, Fernando 3–4, Noah 5–8, Fernando 9–12, Noah 13–16, Fernando 17–18. Each speaker has exactly 615 scripted words. At the same speaking pace, each has about 4 minutes 40 seconds of speech, including short paragraph breaths. The remaining time within ten minutes is for visual holds and handovers. This is a script-based estimate, not a measured rehearsal. The footer shows the assigned speaker, and delivery guidance indicates handovers.
+The script alternates in six sections: Noah 1–3, Fernando 4–5, Noah 6–7, Fernando 8–9, Noah 10–13, Fernando 14–16. Each speaker has exactly 646 scripted words. At 135 words per minute, the estimates including paragraph breaths are 294.9 seconds for Noah and 295.2 seconds for Fernando. This is a script-based estimate, not a measured rehearsal; rehearse visual holds and handovers against the ten-minute limit. The footer shows the assigned speaker, and delivery guidance indicates handovers.
+
+The main talk explains the paper: task (chapter 2), related work (3), method (4–10), results and critical analysis (11–15), and the authors' contribution and limitations (16). The project proposal and redundant future-state overview are archived outside navigation.

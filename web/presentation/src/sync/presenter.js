@@ -14,14 +14,22 @@
     if (!preview.hidden && !document.hidden) {
       const source = slideFrame.contentDocument?.querySelector("canvas");
       if (source?.width && source?.height)
-        previewContext.drawImage(source, 0, 0, previewCanvas.width, previewCanvas.height);
+        previewContext.drawImage(
+          source,
+          0,
+          0,
+          previewCanvas.width,
+          previewCanvas.height,
+        );
     }
     requestAnimationFrame(mirrorSlide);
   }
   requestAnimationFrame(mirrorSlide);
   preview.hidden = localStorage.getItem("presenter-hide-slide") === "true";
   function previewLabel() {
-    togglePreview.textContent = preview.hidden ? "Show preview" : "Hide preview";
+    togglePreview.textContent = preview.hidden
+      ? "Show preview"
+      : "Hide preview";
     togglePreview.setAttribute("aria-pressed", String(!preview.hidden));
   }
   togglePreview.onclick = () => {
@@ -65,13 +73,21 @@
       payload.controllerOnline,
     );
     const state = payload.state;
-    if (!state || !DATA[state.scene] || !SCENE_CUES[state.scene]?.[state.cue])
+    if (
+      !state ||
+      !DATA[state.scene] ||
+      DATA[state.scene].hidden ||
+      !SCENE_CUES[state.scene]?.[state.cue]
+    )
       return;
     received = true;
     const data = DATA[state.scene],
       cues = SCENE_CUES[state.scene];
-    const number = state.scene === 0 ? 1 : state.scene;
-    text("chapter", `Chapter ${number} / 18 · slide ${number}`);
+    const number = chapterNumber(state.scene);
+    text(
+      "chapter",
+      `Chapter ${number} / ${ACTIVE_CHAPTERS.length} · slide ${number}`,
+    );
     text("speaker", data.speaker);
     text("title", data.title);
     text(

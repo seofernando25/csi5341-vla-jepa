@@ -58,7 +58,7 @@ for (const [scene, beats] of Object.entries(specs)) {
   }
   assert.equal(clock.previous(now), "chapter");
 }
-assert.equal(Object.keys(specs).length, 18);
+assert.equal(Object.keys(specs).length, 16);
 const changes = { 2: [6.1], 3: [9, 36, 55], 9: [10, 20, 34], 11: [24] };
 for (const [scene, times] of Object.entries(changes)) {
   assert(specs[scene][0].end < times[0]);
@@ -81,7 +81,7 @@ assert.equal(
   3.2,
 );
 console.log(
-  `18 chapters; ${tested} beats tested forward, backward and replay; rapid input and held states checked.`,
+  `16 chapters; ${tested} beats tested forward, backward and replay; rapid input and held states checked.`,
 );
 
 // Returning to a chapter holds its last beat while the chapter bridge animates.

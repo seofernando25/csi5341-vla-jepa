@@ -8,16 +8,15 @@ const DATA = [
     purpose: "Introduce the central research question and the speakers.",
     chunks: [
       {
-        text: "Hi everyone, we're Noah and Fernando. We chose VLA-JEPA because we're interested in connecting computer vision to robot control. The paper asks whether human video can improve a robot policy without providing robot action labels. We'll go through the method, examine the evidence, and finish with our proposal for reducing its computational cost.",
+        text: "Hi everyone, we're Noah and Fernando. We're presenting VLA-JEPA by Sun and colleagues. The paper asks whether human video can improve a robot policy without providing robot action labels. Its method combines future-feature prediction with robot action supervision, and its strongest reported improvement is under visual changes.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Sun et al., VLA-JEPA, arXiv:2602.10098v1 (2026), abstract and introduction.",
-    wordCount: 53,
+    wordCount: 47,
     pauseSeconds: 0.35,
     start: 0,
     end: 18.933333333333334,
@@ -26,17 +25,18 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "Hi everyone, we're Noah and Fernando. We chose VLA-JEPA because we're interested in connecting computer vision to robot control. The paper asks whether human video can improve a robot policy without providing robot action labels. We'll go through the method, examine the evidence, and finish with our proposal for reducing its computational cost.",
+      "Hi everyone, we're Noah and Fernando. We're presenting VLA-JEPA by Sun and colleagues. The paper asks whether human video can improve a robot policy without providing robot action labels. Its method combines future-feature prediction with robot action supervision, and its strongest reported improvement is under visual changes.",
     backup: false,
     id: "chapter-1",
     audioAsset: "narration-01.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 23.9,
+    estimatedSpeakingSeconds: 21.2,
+    displayNumber: 1,
   },
   {
     hidden: true,
@@ -54,16 +54,14 @@ const DATA = [
       {
         text: "Look at these two clips. A person puts a jar in a box, and a robot puts a block in a bowl. We can see what happened in both cases. But the robot recording also tells us which commands made it happen. The human video doesn't.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "That's the challenge. There are plenty of videos of people handling objects, but none of them tells this robot exactly how to move. The paper tries to use those videos to teach the robot about what changes in a scene, then connect that knowledge to its own controls.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -77,26 +75,21 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
-      },
-      {
-        time: 0,
-        instruction:
-          "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
-        handoff: true,
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
       "Look at these two clips. A person puts a jar in a box, and a robot puts a block in a bowl. We can see what happened in both cases. But the robot recording also tells us which commands made it happen. The human video doesn't.\n\nThat's the challenge. There are plenty of videos of people handling objects, but none of them tells this robot exactly how to move. The paper tries to use those videos to teach the robot about what changes in a scene, then connect that knowledge to its own controls.",
     id: "chapter-2",
     audioAsset: "narration-03.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 42.5,
+    displayNumber: 2,
   },
   {
     n: 3,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 76.16666666666667,
     section: "Related work",
     title: "Feature prediction is shared; the pipeline differs",
@@ -106,30 +99,26 @@ const DATA = [
       {
         text: "Robot policies usually learn from demonstrations with recorded actions. Collecting that data is expensive, which motivates learning from human video as well.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "LAPA extracts a latent action code from a pair of frames by reconstructing the future image. The policy learns to predict that code, then is adapted to robot actions. UniVLA uses a related approach, but reconstructs DINO features rather than pixels.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "So feature prediction already exists in this literature. VLA-JEPA's distinction is the training pathway. Its action tokens come from the current observation and instruction. They condition a predictor of future features, with the actual future kept on the target side. The prediction loss therefore trains the policy's representation directly. Robot action supervision trains a separate control head.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "Let's follow that distinction through the model.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -143,7 +132,12 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
+      },
+      {
+        time: 0,
+        instruction: "After this chapter, hand over to Fernando.",
+        handoff: true,
       },
     ],
     notes:
@@ -151,9 +145,10 @@ const DATA = [
     backup: false,
     id: "chapter-3",
     audioAsset: "narration-04.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 57.8,
+    displayNumber: 3,
   },
   {
     n: 4,
@@ -214,10 +209,13 @@ const DATA = [
     scriptRevision: "conversational-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 35.3,
+    hidden: true,
+    retiredReason:
+      "Redundant future-state overview; explanation merged into predictor chapter.",
   },
   {
     n: 5,
-    speaker: "Noah",
+    speaker: "Fernando",
     budget: 22.666666666666668,
     section: "Method 2 of 5 · Architecture",
     title: "First, encode the observation and instruction",
@@ -227,16 +225,14 @@ const DATA = [
       {
         text: "First, Qwen, the pretrained vision-language backbone, processes the current image and instruction. It produces the latent action tokens.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "These tokens condition both the world predictor and the action head. Their meaning is learned through those objectives; they aren't discrete motor commands that we execute directly.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -250,7 +246,7 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
@@ -258,13 +254,14 @@ const DATA = [
     backup: false,
     id: "chapter-5",
     audioAsset: "narration-06.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 20.7,
+    displayNumber: 4,
   },
   {
     n: 6,
-    speaker: "Noah",
+    speaker: "Fernando",
     budget: 23.416666666666668,
     section: "Method 2 of 5 · Architecture",
     title: "Predict the next state’s embedding",
@@ -272,24 +269,28 @@ const DATA = [
       "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
     chunks: [
       {
-        text: "Those tokens go to the world predictor, along with a description of the scene so far. The predictor estimates the next scene's features.",
+        text: "The world predictor combines the policy's action tokens with encoded state history and predicts the next state's embedding. For the jar-and-box example, that's a representation of the resulting scene, rather than a reconstruction of every pixel.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
-        text: "There are two different things here: the tokens describe the transition, and the prediction describes the resulting state. Neither is an image. We don't decode the prediction back into pixels.",
+        text: "The action tokens and the predicted state are different objects. The tokens describe the transition requested by the instruction. The predictor uses those tokens to estimate its visual outcome. There's no image decoder in this branch, and the output isn't a set of robot commands.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "The future frames are withheld from this prediction path. They are encoded separately to build the training target, so the prediction pathway cannot read the answer from its input.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    wordCount: 53,
-    pauseSeconds: 0.7,
+    wordCount: 110,
+    pauseSeconds: 1.05,
     start: 197.2,
     end: 220.61666666666665,
     measuredSyntheticWithPauses: 23.416666666666668,
@@ -297,17 +298,23 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
+      },
+      {
+        time: 0,
+        instruction: "After this chapter, hand over to Noah.",
+        handoff: true,
       },
     ],
     notes:
-      "Those tokens go to the world predictor, along with a description of the scene so far. The predictor estimates the next scene's features.\n\nThere are two different things here: the tokens describe the transition, and the prediction describes the resulting state. Neither is an image. We don't decode the prediction back into pixels.",
+      "The world predictor combines the policy's action tokens with encoded state history and predicts the next state's embedding. For the jar-and-box example, that's a representation of the resulting scene, rather than a reconstruction of every pixel.\n\nThe action tokens and the predicted state are different objects. The tokens describe the transition requested by the instruction. The predictor uses those tokens to estimate its visual outcome. There's no image decoder in this branch, and the output isn't a set of robot commands.\n\nThe future frames are withheld from this prediction path. They are encoded separately to build the training target, so the prediction pathway cannot read the answer from its input.",
     backup: false,
     id: "chapter-6",
     audioAsset: "narration-07.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 24.3,
+    estimatedSpeakingSeconds: 49.9,
+    displayNumber: 5,
   },
   {
     n: 7,
@@ -321,22 +328,26 @@ const DATA = [
       {
         text: "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "Training updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "Notice where the gradient goes: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    wordCount: 52,
-    pauseSeconds: 0.7,
+    wordCount: 86,
+    pauseSeconds: 1.05,
     start: 220.61666666666665,
     end: 245.0333333333333,
     measuredSyntheticWithPauses: 24.416666666666668,
@@ -344,17 +355,18 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.\n\nTraining updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.",
+      "The frozen V-JEPA 2 video encoder gives us the target features from the actual future frames. The prediction loss measures the mismatch with that target.\n\nTraining updates the prediction pathway, including the vision-language backbone, while the target encoder stays fixed. Human video can therefore train the policy's representation without robot action labels.\n\nNotice where the gradient goes: the target remains fixed, while the trainable prediction path is corrected. The bars illustrate feature mismatch, not a physical trajectory or a literal visualization of the learned feature space.",
     backup: false,
     id: "chapter-7",
     audioAsset: "narration-08.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 23.8,
+    estimatedSpeakingSeconds: 39.3,
+    displayNumber: 6,
   },
   {
     n: 8,
@@ -368,23 +380,20 @@ const DATA = [
       {
         text: "The important point is who gets to see the future. The policy sees the current image and the instruction. The predictor also gets information about earlier states. It doesn't get the future frames it's supposed to predict.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "We only use those frames to make the target and check the prediction. That prevents the model from simply reading the answer from its input.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "When the robot is actually running, there's no future video to check against. We use the policy's tokens and an action head to generate commands. Fernando will explain how we train that part.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -398,12 +407,11 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
       {
         time: 0,
-        instruction:
-          "After this chapter, hand over to Fernando. This is a delivery note, not spoken text.",
+        instruction: "After this chapter, hand over to Fernando.",
         handoff: true,
       },
     ],
@@ -412,9 +420,10 @@ const DATA = [
     backup: false,
     id: "chapter-8",
     audioAsset: "narration-09.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 43.3,
+    displayNumber: 7,
   },
   {
     n: 9,
@@ -428,43 +437,44 @@ const DATA = [
       {
         text: "Thanks, Noah. The action head uses flow matching to generate a chunk of robot controls.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "Each panel here represents a complete control sequence, rather than a trajectory through physical space. On the right is a demonstrated action chunk. On the left is a Gaussian noise sample with the same dimensions.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "During training, we interpolate between them at a randomly sampled mixing time. The network receives that mixed sample, the mixing time and the policy tokens. It predicts the velocity from noise toward the demonstrated chunk.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "The orange arrow is the target velocity; the blue arrow is the prediction. We minimize their squared difference across examples and mixing times.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "The mixing time belongs to the generation process. It isn't the time at which the robot executes a command.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "For this straight interpolation, the target velocity is the difference between the demonstrated action chunk and the noise sample. Across many sampled pairs, the network learns a conditioned field, rather than copying the single arrow shown here.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Paper §3.3, Eqs. 7–8. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
-    wordCount: 127,
-    pauseSeconds: 1.75,
+    wordCount: 164,
+    pauseSeconds: 2.1,
     start: 290.0,
     end: 350.15,
     measuredSyntheticWithPauses: 60.15,
@@ -472,17 +482,18 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "Thanks, Noah. The action head uses flow matching to generate a chunk of robot controls.\n\nEach panel here represents a complete control sequence, rather than a trajectory through physical space. On the right is a demonstrated action chunk. On the left is a Gaussian noise sample with the same dimensions.\n\nDuring training, we interpolate between them at a randomly sampled mixing time. The network receives that mixed sample, the mixing time and the policy tokens. It predicts the velocity from noise toward the demonstrated chunk.\n\nThe orange arrow is the target velocity; the blue arrow is the prediction. We minimize their squared difference across examples and mixing times.\n\nThe mixing time belongs to the generation process. It isn't the time at which the robot executes a command.",
+      "Thanks, Noah. The action head uses flow matching to generate a chunk of robot controls.\n\nEach panel here represents a complete control sequence, rather than a trajectory through physical space. On the right is a demonstrated action chunk. On the left is a Gaussian noise sample with the same dimensions.\n\nDuring training, we interpolate between them at a randomly sampled mixing time. The network receives that mixed sample, the mixing time and the policy tokens. It predicts the velocity from noise toward the demonstrated chunk.\n\nThe orange arrow is the target velocity; the blue arrow is the prediction. We minimize their squared difference across examples and mixing times.\n\nThe mixing time belongs to the generation process. It isn't the time at which the robot executes a command.\n\nFor this straight interpolation, the target velocity is the difference between the demonstrated action chunk and the noise sample. Across many sampled pairs, the network learns a conditioned field, rather than copying the single arrow shown here.",
     backup: false,
     id: "chapter-9",
     audioAsset: "narration-10.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 58.2,
+    estimatedSpeakingSeconds: 75.0,
+    displayNumber: 8,
   },
   {
     n: 10,
@@ -496,29 +507,32 @@ const DATA = [
       {
         text: "At inference, we start from fresh noise, with no demonstrated action to mix in. The model predicts a velocity conditioned on the current observation and instruction.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "We take a small integration step, evaluate the velocity again, and repeat. That produces an action chunk for the controller. These four updates are a schematic illustration.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "Training supplies the target velocity through demonstrations. Inference follows the learned field. This action-generation process is separate from predicting future visual embeddings.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "The field is evaluated again after each step, so the generated path can change direction. Straight training interpolations don't imply that every inference trajectory is one straight line.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Paper §3.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
-    wordCount: 75,
-    pauseSeconds: 1.05,
+    wordCount: 103,
+    pauseSeconds: 1.4,
     start: 350.15,
     end: 392.7333333333333,
     measuredSyntheticWithPauses: 42.583333333333336,
@@ -526,21 +540,27 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
+      },
+      {
+        time: 0,
+        instruction: "After this chapter, hand over to Noah.",
+        handoff: true,
       },
     ],
     notes:
-      "At inference, we start from fresh noise, with no demonstrated action to mix in. The model predicts a velocity conditioned on the current observation and instruction.\n\nWe take a small integration step, evaluate the velocity again, and repeat. That produces an action chunk for the controller. These four updates are a schematic illustration.\n\nTraining supplies the target velocity through demonstrations. Inference follows the learned field. This action-generation process is separate from predicting future visual embeddings.",
+      "At inference, we start from fresh noise, with no demonstrated action to mix in. The model predicts a velocity conditioned on the current observation and instruction.\n\nWe take a small integration step, evaluate the velocity again, and repeat. That produces an action chunk for the controller. These four updates are a schematic illustration.\n\nTraining supplies the target velocity through demonstrations. Inference follows the learned field. This action-generation process is separate from predicting future visual embeddings.\n\nThe field is evaluated again after each step, so the generated path can change direction. Straight training interpolations don't imply that every inference trajectory is one straight line.",
     backup: false,
     id: "chapter-10",
     audioAsset: "narration-11.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 34.4,
+    estimatedSpeakingSeconds: 47.2,
+    displayNumber: 9,
   },
   {
     n: 11,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 47.28333333333333,
     section: "Method 5 of 5 · Joint optimization",
     title: "Visual supervision transfers; robot controls need an interface",
@@ -550,28 +570,25 @@ const DATA = [
       {
         text: "This gives us two sources of supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "The paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
-        text: "Our clips illustrate the data sources. They don't show zero-shot transfer between arbitrary robots.",
+        text: "These clips illustrate the data sources. They do not demonstrate zero-shot transfer between arbitrary robots.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Paper, equation 9, sections 3.3 and 4.1; SSv2 220K videos, DROID 76K trajectories. Equation 5 is presented as an embedding discrepancy without an explicit norm; this presentation does not invent an L1 or Smooth-L1 choice. Robot embodiments and post-training: Paper §§4.1–4.2 and Appendix B. Controls require compatible frame, units, gripper convention and timing; arbitrary zero-shot embodiment transfer is not established.",
-    wordCount: 74,
+    wordCount: 75,
     pauseSeconds: 1.05,
     start: 392.7333333333333,
     end: 440.01666666666665,
@@ -580,21 +597,22 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "This gives us two sources of supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.\n\nThe paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.\n\nOur clips illustrate the data sources. They don't show zero-shot transfer between arbitrary robots.",
+      "This gives us two sources of supervision. Human videos provide future visual targets. Robot demonstrations provide those targets plus action labels, so they also train the control head.\n\nThe paper evaluates several robot setups, with post-training for the target setups. Sharing visual supervision doesn't make the policy independent of the robot: action conventions and controller timing still have to match.\n\nThese clips illustrate the data sources. They do not demonstrate zero-shot transfer between arbitrary robots.",
     backup: false,
     id: "chapter-11",
     audioAsset: "narration-12.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 33.9,
+    estimatedSpeakingSeconds: 34.4,
+    displayNumber: 10,
   },
   {
     n: 12,
-    speaker: "Fernando",
+    speaker: "Noah",
     budget: 13.5,
     section: "Paper results · Sun et al.",
     title: "Standard LIBERO: a near tie",
@@ -604,16 +622,14 @@ const DATA = [
       {
         text: "On standard LIBERO, VLA-JEPA reaches 97.2 percent success. OpenVLA-OFT, the robot-policy baseline shown here, reaches 97.1 percent.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "That's effectively a tie. The interesting question is whether the difference becomes clearer when the visual conditions change.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -627,13 +643,7 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
-      },
-      {
-        time: 0,
-        instruction:
-          "After this chapter, hand over to Noah. This is a delivery note, not spoken text.",
-        handoff: true,
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
@@ -641,9 +651,10 @@ const DATA = [
     backup: false,
     id: "chapter-12",
     audioAsset: "narration-13.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 16.3,
+    displayNumber: 11,
   },
   {
     n: 13,
@@ -657,16 +668,14 @@ const DATA = [
       {
         text: "LIBERO-Plus changes the camera, lighting and object layout. Here, VLA-JEPA reaches 79.5 percent, versus 69.6 percent for OpenVLA-OFT.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "That's almost ten percentage points. This supports improved robustness to the changes tested here, rather than a general claim that the model has solved manipulation.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -680,7 +689,7 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
@@ -688,9 +697,10 @@ const DATA = [
     backup: false,
     id: "chapter-13",
     audioAsset: "narration-14.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 19.8,
+    displayNumber: 12,
   },
   {
     n: 14,
@@ -704,16 +714,14 @@ const DATA = [
       {
         text: "The authors also remove human video from training. On LIBERO-Plus, success drops from 79.5 to 62.9 percent.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "That's a 16.6-point difference within the same method. This comparison is more direct evidence for the contribution of human-video supervision than the comparison with a different policy.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -727,7 +735,12 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
+      },
+      {
+        time: 0,
+        instruction: "After this chapter, hand over to Fernando.",
+        handoff: true,
       },
     ],
     notes:
@@ -735,13 +748,14 @@ const DATA = [
     backup: false,
     id: "chapter-14",
     audioAsset: "narration-15.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 20.3,
+    displayNumber: 13,
   },
   {
     n: 15,
-    speaker: "Noah",
+    speaker: "Fernando",
     budget: 17.983333333333334,
     section: "Paper results · Sun et al.",
     title: "Human video does not improve every benchmark",
@@ -751,16 +765,14 @@ const DATA = [
       {
         text: "The benefit isn't consistent across benchmarks. In one task group in SimplerEnv, another simulation benchmark, human-video training lowers success from 78.4 to 65.2 percent.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
         text: "So the strongest evidence is for robustness on LIBERO-Plus. We shouldn't assume the same gain on every robot or task.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
@@ -774,7 +786,7 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
@@ -782,9 +794,10 @@ const DATA = [
     backup: false,
     id: "chapter-15",
     audioAsset: "narration-16.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 20.3,
+    displayNumber: 14,
   },
   {
     speaker: "Noah",
@@ -852,6 +865,8 @@ const DATA = [
     scriptRevision: "conversational-20261002",
     narrationMatchesScript: false,
     estimatedSpeakingSeconds: 42.3,
+    hidden: true,
+    retiredReason: "Project proposal removed from assessed paper presentation.",
   },
   {
     n: 17,
@@ -863,24 +878,28 @@ const DATA = [
       "Identify benchmark, statistical, semantic and hardware limits without inventing experiments.",
     chunks: [
       {
-        text: "The paper also has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.",
+        text: "The paper has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
-        text: "Training uses eight high-end GPUs. Our single-GPU experiments concern inference efficiency, not a claim that the original training is inexpensive. Those are different resource questions.",
+        text: "Training uses eight A100 GPUs. The reported success rates therefore need to be considered alongside the training resources, as well as the limitations of the evaluation.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "With ten trials per task, a single additional failure changes the measured success rate by ten percentage points. That makes the real-world evidence much less precise than the headline percentages suggest. The reported averages also lack confidence intervals, so small differences should be interpreted cautiously.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Sun et al., Table 3, §4.1, §4.4 and Appendix B. Ten trials per task describes the authors’ real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
-    wordCount: 51,
-    pauseSeconds: 0.7,
+    wordCount: 96,
+    pauseSeconds: 1.05,
     start: 538.95,
     end: 562.9166666666667,
     measuredSyntheticWithPauses: 23.966666666666665,
@@ -888,46 +907,51 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "The paper also has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.\n\nTraining uses eight high-end GPUs. Our single-GPU experiments concern inference efficiency, not a claim that the original training is inexpensive. Those are different resource questions.",
+      "The paper has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.\n\nTraining uses eight A100 GPUs. The reported success rates therefore need to be considered alongside the training resources, as well as the limitations of the evaluation.\n\nWith ten trials per task, a single additional failure changes the measured success rate by ten percentage points. That makes the real-world evidence much less precise than the headline percentages suggest. The reported averages also lack confidence intervals, so small differences should be interpreted cautiously.",
     backup: false,
     id: "chapter-17",
     audioAsset: "narration-18.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 23.4,
+    estimatedSpeakingSeconds: 43.7,
+    displayNumber: 15,
   },
   {
     n: 18,
     speaker: "Fernando",
     budget: 17.1,
     section: "Takeaway and discussion",
-    title: "Predictive supervision strengthens the policy",
+    title: "What VLA-JEPA contributes",
     purpose:
-      "Close with a defensible takeaway and one answerable discussion question.",
+      "Summarize Sun et al.'s contribution and the limits of the paper's evidence.",
     chunks: [
       {
-        text: "The central contribution is how future-feature prediction trains the policy alongside robot action supervision. The clearest empirical gain is robustness under the visual changes in LIBERO-Plus.",
+        text: "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
       {
-        text: "Our project asks whether we can retain that useful performance while reducing memory and inference cost. That's what we plan to evaluate. Thanks.",
+        text: "The strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.",
         pause: 0.35,
-        focus: "Explain one idea at a time.",
-        voice:
-          "Speak to classmates in a natural voice. Use short breaths between ideas; do not read names or numbers with an announcer cadence.",
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
+      },
+      {
+        text: "So the paper supports a way to incorporate human video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
+        pause: 0.35,
+        focus: "Explain the paper-specific distinction.",
+        voice: "Conversational delivery for graduate computer-vision students.",
       },
     ],
     source:
       "Paper, sections 3 and 4.5. Suggested discussion experiment: controlled appearance changes versus changed dynamics, under matched data and compute. This is our proposed test, not a result in the paper.",
-    wordCount: 49,
-    pauseSeconds: 0.7,
+    wordCount: 84,
+    pauseSeconds: 1.05,
     start: 562.9166666666667,
     end: 580.0166666666668,
     measuredSyntheticWithPauses: 17.1,
@@ -935,16 +959,21 @@ const DATA = [
       {
         time: 0,
         instruction:
-          "Speak naturally; take a short breath between paragraphs. Use the slide to point out the example rather than reading every label.",
+          "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual.",
       },
     ],
     notes:
-      "The central contribution is how future-feature prediction trains the policy alongside robot action supervision. The clearest empirical gain is robustness under the visual changes in LIBERO-Plus.\n\nOur project asks whether we can retain that useful performance while reducing memory and inference cost. That's what we plan to evaluate. Thanks.",
+      "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.\n\nThe strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.\n\nSo the paper supports a way to incorporate human video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
     backup: false,
     id: "chapter-18",
     audioAsset: "narration-19.mp3",
-    scriptRevision: "conversational-20261002",
+    scriptRevision: "paper-focus-20261002",
     narrationMatchesScript: false,
-    estimatedSpeakingSeconds: 22.5,
+    estimatedSpeakingSeconds: 38.4,
+    displayNumber: 16,
   },
 ];
+const ACTIVE_CHAPTERS = DATA.map((s, i) => i).filter((i) => !DATA[i].hidden);
+function chapterNumber(scene) {
+  return ACTIVE_CHAPTERS.indexOf(scene) + 1;
+}

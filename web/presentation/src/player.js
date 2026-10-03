@@ -1,7 +1,7 @@
 /* Scene selection and note hydration only. Input is owned by controls.js. */
-const visibleScenes = DATA.map((s, i) => i).filter((i) => !DATA[i].hidden);
+const visibleScenes = ACTIVE_CHAPTERS;
 function sceneNumber(i) {
-  return i === 0 ? 1 : i;
+  return chapterNumber(i);
 }
 function render() {
   if (window.updateTimeline) window.updateTimeline();

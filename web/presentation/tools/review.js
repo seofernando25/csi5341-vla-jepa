@@ -74,7 +74,7 @@ reviewButton.onclick = async () => {
           });
           now += spec.duration;
         }
-      reviewButton.textContent = `Audited chapter ${sceneNumber(i)} / 18`;
+      reviewButton.textContent = `Audited chapter ${sceneNumber(i)} / ${visibleScenes.length}`;
     }
     // Actual chapter changes in each direction; preserve headers, poses and benchmark values.
     for (const direction of [1, -1]) {

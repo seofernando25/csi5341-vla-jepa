@@ -1,5 +1,5 @@
 {
-  "mainChapters": 18,
+  "mainChapters": 16,
   "mode": "manual animation beats",
   "checks": [
     "Next and previous cue with narration paused",
@@ -11,65 +11,72 @@
   ],
   "exports": "Existing narration, movie and presenter-guide PDF predate the spoken-script rewrite. Manual website notes and teleprompter use the current script.",
   "scriptReview": {
-    "revision": "conversational-20261002",
+    "revision": "paper-focus-20261002",
     "audience": "Masters students in learning-based computer vision",
-    "words": 1230,
-    "NoahWords": 615,
-    "FernandoWords": 615,
-    "estimatedSpeakingSecondsAt135Wpm": 563,
-    "timingNote": "Estimate only, not a measured rehearsal. Allows approximately 37 seconds of visual holds within ten minutes.",
+    "words": 1292,
+    "NoahWords": 646,
+    "FernandoWords": 646,
+    "estimatedSpeakingSecondsAt135Wpm": 590.1,
+    "timingNote": "Script estimate only, not a measured rehearsal. Approximately ten minutes including short paragraph breaths; rehearse handovers and visual holds.",
     "recordedNarrationMatches": false,
     "checks": [
       "notes equal joined narration chunks",
       "src/content.js DATA equals data.json",
-      "18 active chapters retain speaker assignments",
-      "unexplained robot-model name list removed",
-      "proposal remains planned work, optional architecture search explained"
+      "16 active chapters retain interleaved speaker assignments",
+      "project proposal and redundant future-state overview removed",
+      "closing explicitly attributes contribution to Sun et al.; no SmolVLM or Dream-RSI in main talk"
     ]
   },
   "speakerBalance": {
     "basis": "Identical135wpm estimate plus authored paragraph pauses; actual delivery needs rehearsal.",
     "speakers": {
       "Noah": {
-        "words": 615,
-        "estimatedSeconds": 281.2
+        "words": 646,
+        "estimatedSeconds": 294.9
       },
       "Fernando": {
-        "words": 615,
-        "estimatedSeconds": 281.8
+        "words": 646,
+        "estimatedSeconds": 295.2
       }
     },
     "alternatingBlocks": [
       {
         "firstChapter": 1,
-        "lastChapter": 2,
+        "lastChapter": 3,
         "speaker": "Noah"
       },
       {
-        "firstChapter": 3,
-        "lastChapter": 4,
+        "firstChapter": 4,
+        "lastChapter": 5,
         "speaker": "Fernando"
       },
       {
-        "firstChapter": 5,
-        "lastChapter": 8,
+        "firstChapter": 6,
+        "lastChapter": 7,
         "speaker": "Noah"
       },
       {
-        "firstChapter": 9,
-        "lastChapter": 12,
+        "firstChapter": 8,
+        "lastChapter": 9,
         "speaker": "Fernando"
       },
       {
-        "firstChapter": 13,
+        "firstChapter": 10,
+        "lastChapter": 13,
+        "speaker": "Noah"
+      },
+      {
+        "firstChapter": 14,
         "lastChapter": 16,
-        "speaker": "Noah"
-      },
-      {
-        "firstChapter": 17,
-        "lastChapter": 18,
         "speaker": "Fernando"
       }
     ]
+  },
+  "rubricCoverage": {
+    "task": "2",
+    "relatedWork": "3",
+    "method": "4\u201310",
+    "resultsAndCriticalAnalysis": "11\u201315",
+    "paperContributionAndLimits": "16"
   }
 }

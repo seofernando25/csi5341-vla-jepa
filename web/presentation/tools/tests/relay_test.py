@@ -48,21 +48,21 @@ class RelayTests(unittest.TestCase):
             with self.publish(cue=0): pass
             self.assertEqual(self.event(viewer)['state']['cue'], 0)
         # Notes was disconnected during further navigation: latest snapshot, no replay queue.
-        with self.publish(scene=4, cue=4): pass
+        with self.publish(scene=9, cue=4): pass
         with urlopen(self.url+'/relay/events', timeout=4) as viewer:
             snapshot = self.event(viewer)
-            self.assertEqual(snapshot['state'], {'scene':4,'cue':4,'running':False})
+            self.assertEqual(snapshot['state'], {'scene':9,'cue':4,'running':False})
             self.assertTrue(snapshot['controllerOnline'])
         with self.publish(scene=3, cue=6): pass
         with urlopen(self.url+'/relay/events', timeout=4) as viewer:
             self.assertEqual(self.event(viewer)['state']['scene'], 3)
 
     def test_delayed_updates_cannot_rewind_reconnected_controller(self):
-        with self.publish(scene=4, cue=3, sequence=100): pass
+        with self.publish(scene=9, cue=3, sequence=100): pass
         with self.publish(scene=3, cue=0, sequence=99): pass
         with urlopen(self.url+'/relay/state') as response:
-            self.assertEqual(json.load(response)['state'], {'scene':4,'cue':3,'running':False})
-        with self.publish(scene=4, cue=4, sequence=101): pass
+            self.assertEqual(json.load(response)['state'], {'scene':9,'cue':3,'running':False})
+        with self.publish(scene=9, cue=4, sequence=101): pass
         with urlopen(self.url+'/relay/state') as response:
             self.assertEqual(json.load(response)['state']['cue'], 4)
 
@@ -91,7 +91,7 @@ class RelayTests(unittest.TestCase):
         def speed(value):
             body = json.dumps(value).encode()
             return urlopen(Request(self.url+'/relay/settings', data=body), timeout=3)
-        with self.publish(scene=4, cue=2): pass
+        with self.publish(scene=9, cue=2): pass
         original = self.server.snapshot()
         with urlopen(self.url+'/relay/events', timeout=4) as a, urlopen(self.url+'/relay/events', timeout=4) as b:
             self.assertEqual(self.event(a)['settings']['scrollSpeed'], 10)
@@ -117,7 +117,7 @@ class RelayTests(unittest.TestCase):
         self.assertEqual(self.server.settings['scrollSpeed'], 8)
 
     def test_read_only_validation_lease_and_offline(self):
-        for kwargs, status in [({'key':'wrong'},403), ({'scene':1},400), ({'cue':99},400), ({'scene':True},400)]:
+        for kwargs, status in [({'key':'wrong'},403), ({'scene':1},400), ({'scene':4},400), ({'scene':16},400), ({'cue':99},400), ({'scene':True},400)]:
             with self.assertRaises(HTTPError) as e: self.publish(**kwargs)
             self.assertEqual(e.exception.code, status)
             e.exception.close()

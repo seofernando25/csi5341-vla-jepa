@@ -152,7 +152,7 @@ function headerC(c, k, title, foot) {
   label(c, source, 52, 520, 10, muted);
   label(
     c,
-    `${String(sceneNumber(index)).padStart(2, "0")} / 18`,
+    `${String(sceneNumber(index)).padStart(2, "0")} / ${visibleScenes.length}`,
     908,
     520,
     11,
