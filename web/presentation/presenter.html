@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="presenter.css" />
   </head>
   <body>
+    <div id="slide-backdrop" aria-hidden="true">
+      <iframe src="./?view=backdrop" title="Synchronized slide backdrop" tabindex="-1"></iframe>
+    </div>
     <main>
       <p class="screen-reader">
         Full chapter script. Automatic scrolling uses your chosen pace, not
@@ -44,7 +47,7 @@
       </div>
     <footer>
       <button id="scroll-play" aria-pressed="true">Pause scroll</button
-      ><button id="scroll-top">Back to top</button>
+      ><button id="scroll-top">Back to top</button><button id="toggle-backdrop" aria-pressed="true">Hide slide</button>
       <label for="scroll-speed" id="speed-label">Global speed</label
       ><input
         id="scroll-speed"

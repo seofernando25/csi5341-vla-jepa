@@ -6,6 +6,8 @@
   )
     return;
   window.deckReadOnly = true;
+  if (new URLSearchParams(location.search).get("view") === "backdrop")
+    document.documentElement.dataset.view = "backdrop";
   for (const button of document.querySelectorAll(
     "#prev,#next,#animate,.slide-link,[data-chapter]",
   )) {

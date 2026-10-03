@@ -31,4 +31,9 @@ stream.onerror();stream.onmessage({data:JSON.stringify({state:held,controllerOnl
 vm.runInContext(fs.readFileSync(path.join(root,'beat-controller.js'),'utf8').replace('const presenter = new CueClock();',''),context);
 vm.runInContext('advanceBeat(1);advanceBeat(-1);replayBeat();',context); // No audio/clock/navigation allowed for viewers.
 assert.equal(vm.runInContext('presenter.cursor',context),4);
+context.document.documentElement={dataset:{}};
+context.location.search='?view=backdrop';
+vm.runInContext(fs.readFileSync(path.join(root,'sync/viewer.js'),'utf8'),context);
+assert.equal(context.document.documentElement.dataset.view,'backdrop');
+assert.equal(context.window.deckReadOnly,true);
 console.log(`${checks} viewer animation snapshots checked across all chapters, including reverse completion, age compensation, reconnect and read-only guards.`);

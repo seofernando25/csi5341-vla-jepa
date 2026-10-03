@@ -4,6 +4,19 @@
   const text = (id, value) => {
     if (el(id).textContent !== value) el(id).textContent = value;
   };
+  const backdrop = el("slide-backdrop");
+  const toggleBackdrop = el("toggle-backdrop");
+  backdrop.hidden = localStorage.getItem("presenter-hide-slide") === "true";
+  function backdropLabel() {
+    toggleBackdrop.textContent = backdrop.hidden ? "Show slide" : "Hide slide";
+    toggleBackdrop.setAttribute("aria-pressed", String(!backdrop.hidden));
+  }
+  toggleBackdrop.onclick = () => {
+    backdrop.hidden = !backdrop.hidden;
+    localStorage.setItem("presenter-hide-slide", String(backdrop.hidden));
+    backdropLabel();
+  };
+  backdropLabel();
   const size = el("text-size");
   const stored = Number(localStorage.getItem("presenter-text-size"));
   if (stored >= 24 && stored <= 64) size.value = stored;

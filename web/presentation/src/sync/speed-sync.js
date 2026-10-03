@@ -1,5 +1,6 @@
 /* Shared reading pace. All relay screens may edit it; navigation stays exclusive. */
 (() => {
+  if (new URLSearchParams(location.search).get("view") === "backdrop") return;
   const controls = document.getElementById("controls");
   let speed = document.getElementById("scroll-speed");
   if (!speed) {
