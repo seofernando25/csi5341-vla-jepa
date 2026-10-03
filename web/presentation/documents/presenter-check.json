@@ -12,13 +12,13 @@
   ],
   "exports": "Existing narration, movie and presenter-guide PDF predate the spoken-script rewrite. Manual website notes and teleprompter use the current script.",
   "scriptReview": {
-    "revision": "clear-target-20261002",
+    "revision": "fernando-concise-20261002",
     "audience": "Masters students in learning-based computer vision",
-    "words": 1292,
+    "words": 1084,
     "NoahWords": 646,
-    "FernandoWords": 646,
-    "estimatedSpeakingSecondsAt135Wpm": 590.0,
-    "timingNote": "Script estimate only, not a measured rehearsal. Approximately ten minutes including short paragraph breaths; rehearse handovers and visual holds.",
+    "FernandoWords": 438,
+    "estimatedSpeakingSecondsAt135Wpm": 496.8,
+    "timingNote": "Script estimate only, not a measured rehearsal. About8minutes17seconds of speech including paragraph breaths; remaining time up to10minutes can cover diagram explanations and handovers. Fernando notes intentionally shorter.",
     "recordedNarrationMatches": false,
     "checks": [
       "notes equal joined narration chunks",
@@ -27,19 +27,20 @@
       "project proposal and redundant future-state overview removed",
       "closing explicitly attributes contribution to Sun et al.; no SmolVLM or Dream-RSI in main talk",
       "related work introduces shared missing-label problem before method names; clich\u00e9d challenge transition removed",
-      "removed missing-piece, important-point and other formulaic signposting following requested online style review"
+      "removed missing-piece, important-point and other formulaic signposting following requested online style review",
+      "Fernando sections shortened; short sentences retain flow-matching objective and critical results"
     ]
   },
   "speakerBalance": {
-    "basis": "Identical135wpm estimate plus authored paragraph pauses; actual delivery needs rehearsal.",
+    "basis": "Script length at135wpm plus paragraph pauses. Fernando intentionally has shorter notes per latest request; actual delivery needs rehearsal.",
     "speakers": {
       "Noah": {
         "words": 646,
         "estimatedSeconds": 294.8
       },
       "Fernando": {
-        "words": 646,
-        "estimatedSeconds": 295.2
+        "words": 438,
+        "estimatedSeconds": 202.0
       }
     },
     "alternatingBlocks": [

@@ -63,6 +63,6 @@ The relay regression opens real HTTP/SSE connections to check initial/late snaps
 
 ## Speaking split
 
-The script alternates in six sections: Noah 1–3, Fernando 4–5, Noah 6–7, Fernando 8–9, Noah 10–13, Fernando 14–16. Each speaker has exactly 646 scripted words. At 135 words per minute, the estimates including paragraph breaths are 294.8 seconds for Noah and 295.2 seconds for Fernando. This is a script-based estimate, not a measured rehearsal; rehearse visual holds and handovers against the ten-minute limit. The footer shows the assigned speaker, and delivery guidance indicates handovers.
+The script alternates in six sections: Noah 1–3, Fernando 4–5, Noah 6–7, Fernando 8–9, Noah 10–13, Fernando 14–16. Noah has 646 scripted words; Fernando has 438, intentionally shorter per the latest request. At 135 words per minute, the estimates including paragraph breaths are 294.8 seconds for Noah and 202.0 seconds for Fernando. This is a script-based estimate, not a measured rehearsal; leave time for diagrams and handovers within the ten-minute limit. The footer shows the assigned speaker, and delivery guidance indicates handovers.
 
 The main talk explains the paper: task (chapter 2), related work (3), method (4–10), results and critical analysis (11–15), and the authors' contribution and limitations (16). The project proposal and redundant future-state overview are archived outside navigation.

@@ -202,20 +202,20 @@
     "purpose": "Introduce the first architecture path before revealing the predictor.",
     "chunks": [
       {
-        "text": "First, Qwen, the pretrained vision-language backbone, processes the current image and instruction. It produces the latent action tokens.",
+        "text": "Qwen processes the current image and instruction to produce latent action tokens.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "These tokens condition both the world predictor and the action head. Their meaning is learned through those objectives; they aren't discrete motor commands that we execute directly.",
+        "text": "The same tokens feed the world predictor and action head. They are learned representations, not commands sent directly to the robot.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 45,
+    "wordCount": 33,
     "pauseSeconds": 0.7,
     "start": 174.53333333333333,
     "end": 197.2,
@@ -223,16 +223,16 @@
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       }
     ],
-    "notes": "First, Qwen, the pretrained vision-language backbone, processes the current image and instruction. It produces the latent action tokens.\n\nThese tokens condition both the world predictor and the action head. Their meaning is learned through those objectives; they aren't discrete motor commands that we execute directly.",
+    "notes": "Qwen processes the current image and instruction to produce latent action tokens.\n\nThe same tokens feed the world predictor and action head. They are learned representations, not commands sent directly to the robot.",
     "backup": false,
     "id": "chapter-5",
     "audioAsset": "narration-06.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 20.7,
+    "estimatedSpeakingSeconds": 15.4,
     "displayNumber": 4
   },
   {
@@ -244,26 +244,26 @@
     "purpose": "Define state embeddings and latent actions, then give implementation detail without a dense architecture dump.",
     "chunks": [
       {
-        "text": "The world predictor combines the policy's action tokens with encoded state history and predicts the next state's embedding. For the jar-and-box example, that's a representation of the resulting scene, rather than a reconstruction of every pixel.",
+        "text": "The world predictor takes the action tokens and encoded state history. It predicts features of the next state.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The action tokens and the predicted state are different objects. The tokens describe the transition requested by the instruction. The predictor uses those tokens to estimate its visual outcome. There's no image decoder in this branch, and the output isn't a set of robot commands.",
+        "text": "In the jar example, those features describe the resulting scene. The model doesn't draw a new image or output robot commands here.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The future frames are withheld from this prediction path. They are encoded separately to build the training target, so the prediction pathway cannot read the answer from its input.",
+        "text": "The tokens describe the intended transition. The predicted features describe its visual outcome. Future frames are encoded separately to make a training target. They never enter the prediction path.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "VLA-JEPA, §3.2. Human frames: SSV2 validation example #174198. Diagram features are illustrative, not measured embeddings or explicit robot coordinates.",
-    "wordCount": 110,
+    "wordCount": 69,
     "pauseSeconds": 1.05,
     "start": 197.2,
     "end": 220.61666666666665,
@@ -271,7 +271,7 @@
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       },
       {
         "time": 0,
@@ -279,13 +279,13 @@
         "handoff": true
       }
     ],
-    "notes": "The world predictor combines the policy's action tokens with encoded state history and predicts the next state's embedding. For the jar-and-box example, that's a representation of the resulting scene, rather than a reconstruction of every pixel.\n\nThe action tokens and the predicted state are different objects. The tokens describe the transition requested by the instruction. The predictor uses those tokens to estimate its visual outcome. There's no image decoder in this branch, and the output isn't a set of robot commands.\n\nThe future frames are withheld from this prediction path. They are encoded separately to build the training target, so the prediction pathway cannot read the answer from its input.",
+    "notes": "The world predictor takes the action tokens and encoded state history. It predicts features of the next state.\n\nIn the jar example, those features describe the resulting scene. The model doesn't draw a new image or output robot commands here.\n\nThe tokens describe the intended transition. The predicted features describe its visual outcome. Future frames are encoded separately to make a training target. They never enter the prediction path.",
     "backup": false,
     "id": "chapter-6",
     "audioAsset": "narration-07.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 49.9,
+    "estimatedSpeakingSeconds": 31.7,
     "displayNumber": 5
   },
   {
@@ -398,61 +398,55 @@
     "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
     "chunks": [
       {
-        "text": "Thanks, Noah. The action head uses flow matching to generate a chunk of robot controls.",
+        "text": "Thanks, Noah. Flow matching trains the action head to generate a sequence of robot controls.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "Each panel here represents a complete control sequence, rather than a trajectory through physical space. On the right is a demonstrated action chunk. On the left is a Gaussian noise sample with the same dimensions.",
+        "text": "Each panel represents a whole control sequence. The right panel is a demonstration. The left is Gaussian noise of the same shape.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "During training, we interpolate between them at a randomly sampled mixing time. The network receives that mixed sample, the mixing time and the policy tokens. It predicts the velocity from noise toward the demonstrated chunk.",
+        "text": "Training mixes the noise and demonstration at a random mixing time. The network receives that mixture, the time and the policy tokens. It predicts a velocity toward the demonstrated controls.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The orange arrow is the target velocity; the blue arrow is the prediction. We minimize their squared difference across examples and mixing times.",
+        "text": "For this straight interpolation, the target velocity is the demonstration minus the noise. The loss is the squared difference between predicted and target velocities.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The mixing time belongs to the generation process. It isn't the time at which the robot executes a command.",
+        "text": "The network learns from many pairs and mixing times. Mixing time belongs to generation; it isn't physical robot time.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
-      },
-      {
-        "text": "For this straight interpolation, the target velocity is the difference between the demonstrated action chunk and the noise sample. Across many sampled pairs, the network learns a conditioned field, rather than copying the single arrow shown here.",
-        "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "Paper §3.3, Eqs. 7–8. Mixing time is generation time, not physical robot time. The target velocity is demonstration minus sampled noise; squared-error regression. Own 2D illustration inspired by Jia-Bin Huang and Julia Turc videos; not an empirical trajectory.",
-    "wordCount": 164,
-    "pauseSeconds": 2.1,
+    "wordCount": 110,
+    "pauseSeconds": 1.75,
     "start": 290.0,
     "end": 350.15,
     "measuredSyntheticWithPauses": 60.15,
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       }
     ],
-    "notes": "Thanks, Noah. The action head uses flow matching to generate a chunk of robot controls.\n\nEach panel here represents a complete control sequence, rather than a trajectory through physical space. On the right is a demonstrated action chunk. On the left is a Gaussian noise sample with the same dimensions.\n\nDuring training, we interpolate between them at a randomly sampled mixing time. The network receives that mixed sample, the mixing time and the policy tokens. It predicts the velocity from noise toward the demonstrated chunk.\n\nThe orange arrow is the target velocity; the blue arrow is the prediction. We minimize their squared difference across examples and mixing times.\n\nThe mixing time belongs to the generation process. It isn't the time at which the robot executes a command.\n\nFor this straight interpolation, the target velocity is the difference between the demonstrated action chunk and the noise sample. Across many sampled pairs, the network learns a conditioned field, rather than copying the single arrow shown here.",
+    "notes": "Thanks, Noah. Flow matching trains the action head to generate a sequence of robot controls.\n\nEach panel represents a whole control sequence. The right panel is a demonstration. The left is Gaussian noise of the same shape.\n\nTraining mixes the noise and demonstration at a random mixing time. The network receives that mixture, the time and the policy tokens. It predicts a velocity toward the demonstrated controls.\n\nFor this straight interpolation, the target velocity is the demonstration minus the noise. The loss is the squared difference between predicted and target velocities.\n\nThe network learns from many pairs and mixing times. Mixing time belongs to generation; it isn't physical robot time.",
     "backup": false,
     "id": "chapter-9",
     "audioAsset": "narration-10.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 75.0,
+    "estimatedSpeakingSeconds": 50.6,
     "displayNumber": 8
   },
   {
@@ -464,40 +458,34 @@
     "purpose": "Explain interpolation, velocity supervision, and inference as separate operations.",
     "chunks": [
       {
-        "text": "At inference, we start from fresh noise, with no demonstrated action to mix in. The model predicts a velocity conditioned on the current observation and instruction.",
+        "text": "At inference, the action head starts from fresh noise. There is no demonstration to mix in.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "We take a small integration step, evaluate the velocity again, and repeat. That produces an action chunk for the controller. These four updates are a schematic illustration.",
+        "text": "Conditioned on the policy tokens, it predicts a velocity, takes a small integration step, then predicts again. Repeating this produces a control sequence. The four updates shown here are illustrative.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "Training supplies the target velocity through demonstrations. Inference follows the learned field. This action-generation process is separate from predicting future visual embeddings.",
+        "text": "Because the velocity is evaluated after each step, the path can change direction. This generates robot controls; it is separate from the future-feature prediction branch.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
-      },
-      {
-        "text": "The field is evaluated again after each step, so the generated path can change direction. Straight training interpolations don't imply that every inference trajectory is one straight line.",
-        "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "Paper §3.3 and Appendix A: four denoising/integration steps, 7-dimensional actions, future action horizon 7. Own illustrative trajectory; sampler type is not asserted. Training and inference paths are different concepts.",
-    "wordCount": 103,
-    "pauseSeconds": 1.4,
+    "wordCount": 71,
+    "pauseSeconds": 1.05,
     "start": 350.15,
     "end": 392.7333333333333,
     "measuredSyntheticWithPauses": 42.583333333333336,
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       },
       {
         "time": 0,
@@ -505,13 +493,13 @@
         "handoff": true
       }
     ],
-    "notes": "At inference, we start from fresh noise, with no demonstrated action to mix in. The model predicts a velocity conditioned on the current observation and instruction.\n\nWe take a small integration step, evaluate the velocity again, and repeat. That produces an action chunk for the controller. These four updates are a schematic illustration.\n\nTraining supplies the target velocity through demonstrations. Inference follows the learned field. This action-generation process is separate from predicting future visual embeddings.\n\nThe field is evaluated again after each step, so the generated path can change direction. Straight training interpolations don't imply that every inference trajectory is one straight line.",
+    "notes": "At inference, the action head starts from fresh noise. There is no demonstration to mix in.\n\nConditioned on the policy tokens, it predicts a velocity, takes a small integration step, then predicts again. Repeating this produces a control sequence. The four updates shown here are illustrative.\n\nBecause the velocity is evaluated after each step, the path can change direction. This generates robot controls; it is separate from the future-feature prediction branch.",
     "backup": false,
     "id": "chapter-10",
     "audioAsset": "narration-11.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 47.2,
+    "estimatedSpeakingSeconds": 32.6,
     "displayNumber": 9
   },
   {
@@ -702,20 +690,20 @@
     "purpose": "Use controlled within-method ablation and a counterexample to temper the main claim.",
     "chunks": [
       {
-        "text": "The benefit isn't consistent across benchmarks. In one task group in SimplerEnv, another simulation benchmark, human-video training lowers success from 78.4 to 65.2 percent.",
+        "text": "Human video doesn't help on every benchmark. In one SimplerEnv task group, success falls from 78.4 to 65.2 percent.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "So the strongest evidence is for robustness on LIBERO-Plus. We shouldn't assume the same gain on every robot or task.",
+        "text": "The LIBERO-Plus gain therefore doesn't establish an improvement across all tasks or robot setups.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "Paper, Tables 1–3 and sections 4.4–4.5. Within-method ablation deltas with human video minus without: LIBERO-Plus +16.6 pp; LIBERO +1.1 pp; SimplerEnv Google −13.2 pp. Real-world repeated grasping is an author-reported qualitative observation, with a proposed attribution to human videos, not an isolated causal proof.",
-    "wordCount": 44,
+    "wordCount": 33,
     "pauseSeconds": 0.7,
     "start": 493.71666666666664,
     "end": 511.7,
@@ -723,16 +711,16 @@
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       }
     ],
-    "notes": "The benefit isn't consistent across benchmarks. In one task group in SimplerEnv, another simulation benchmark, human-video training lowers success from 78.4 to 65.2 percent.\n\nSo the strongest evidence is for robustness on LIBERO-Plus. We shouldn't assume the same gain on every robot or task.",
+    "notes": "Human video doesn't help on every benchmark. In one SimplerEnv task group, success falls from 78.4 to 65.2 percent.\n\nThe LIBERO-Plus gain therefore doesn't establish an improvement across all tasks or robot setups.",
     "backup": false,
     "id": "chapter-15",
     "audioAsset": "narration-16.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 20.3,
+    "estimatedSpeakingSeconds": 15.4,
     "displayNumber": 14
   },
   {
@@ -804,26 +792,26 @@
     "purpose": "Identify benchmark, statistical, semantic and hardware limits without inventing experiments.",
     "chunks": [
       {
-        "text": "The paper has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.",
+        "text": "VLA-JEPA performs worse in the sensor-noise comparison. The real-robot tests also use only ten trials per task, with some wrong-object selections.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "Training uses eight A100 GPUs. The reported success rates therefore need to be considered alongside the training resources, as well as the limitations of the evaluation.",
+        "text": "One extra failure changes a task's success rate by ten percentage points. No confidence intervals are reported for these headline comparisons, so small differences need caution.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "With ten trials per task, a single additional failure changes the measured success rate by ten percentage points. That makes the real-world evidence much less precise than the headline percentages suggest. The reported averages also lack confidence intervals, so small differences should be interpreted cautiously.",
+        "text": "Training also uses eight A100 GPUs. Strong benchmark scores don't establish low training cost or reliable deployment.",
         "pause": 0.35,
-        "focus": "Explain the paper-specific distinction.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "Sun et al., Table 3, §4.1, §4.4 and Appendix B. Ten trials per task describes the authors’ real-world study; eight A100 GPUs describes their training. Our single-GPU work is a proposed efficiency comparison, with no performance claims.",
-    "wordCount": 96,
+    "wordCount": 64,
     "pauseSeconds": 1.05,
     "start": 538.95,
     "end": 562.9166666666667,
@@ -831,16 +819,16 @@
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       }
     ],
-    "notes": "The paper has limits. Performance is weaker in the sensor-noise comparison, and the real-robot evaluation has only ten trials per task, including some wrong-object selections.\n\nTraining uses eight A100 GPUs. The reported success rates therefore need to be considered alongside the training resources, as well as the limitations of the evaluation.\n\nWith ten trials per task, a single additional failure changes the measured success rate by ten percentage points. That makes the real-world evidence much less precise than the headline percentages suggest. The reported averages also lack confidence intervals, so small differences should be interpreted cautiously.",
+    "notes": "VLA-JEPA performs worse in the sensor-noise comparison. The real-robot tests also use only ten trials per task, with some wrong-object selections.\n\nOne extra failure changes a task's success rate by ten percentage points. No confidence intervals are reported for these headline comparisons, so small differences need caution.\n\nTraining also uses eight A100 GPUs. Strong benchmark scores don't establish low training cost or reliable deployment.",
     "backup": false,
     "id": "chapter-17",
     "audioAsset": "narration-18.mp3",
-    "scriptRevision": "paper-focus-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 43.7,
+    "estimatedSpeakingSeconds": 29.5,
     "displayNumber": 15
   },
   {
@@ -852,26 +840,26 @@
     "purpose": "Summarize Sun et al.'s contribution and the limits of the paper's evidence.",
     "chunks": [
       {
-        "text": "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.",
+        "text": "Sun and colleagues combine future-feature prediction with robot action supervision to train the policy.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.",
+        "text": "LIBERO-Plus and the human-video ablation support improved robustness under the tested visual changes. Results on other tasks are less consistent.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       },
       {
-        "text": "The paper supports a way to incorporate human manipulation video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
+        "text": "The paper demonstrates how human video can help train a robot policy. Broader reliability across visual conditions and robot setups remains unproven. Thank you.",
         "pause": 0.35,
-        "focus": "State the technical relationship directly.",
-        "voice": "Conversational delivery for graduate computer-vision students."
+        "focus": "Deliver one idea per sentence; point to the relevant diagram.",
+        "voice": "Natural spoken explanation for graduate computer-vision students."
       }
     ],
     "source": "Paper, sections 3 and 4.5. Suggested discussion experiment: controlled appearance changes versus changed dynamics, under matched data and compute. This is our proposed test, not a result in the paper.",
-    "wordCount": 84,
+    "wordCount": 58,
     "pauseSeconds": 1.05,
     "start": 562.9166666666667,
     "end": 580.0166666666668,
@@ -879,16 +867,16 @@
     "deliveryCues": [
       {
         "time": 0,
-        "instruction": "Explain the paper, not our project. Use a short breath between paragraphs; point to the relevant visual."
+        "instruction": "Use short sentences and a brief breath between paragraphs. Follow the diagram; no need to rush."
       }
     ],
-    "notes": "Sun and colleagues' contribution is to train a robot policy with future-feature prediction alongside action supervision. Human video supplies the predictive objective, while robot demonstrations also teach the action head to generate controls.\n\nThe strongest evidence is the LIBERO-Plus result and human-video ablation. The weaker results on other tasks limit how broadly we can interpret that improvement.\n\nThe paper supports a way to incorporate human manipulation video into robot-policy training. It doesn't establish reliable performance across arbitrary visual conditions or robot setups. Thank you.",
+    "notes": "Sun and colleagues combine future-feature prediction with robot action supervision to train the policy.\n\nLIBERO-Plus and the human-video ablation support improved robustness under the tested visual changes. Results on other tasks are less consistent.\n\nThe paper demonstrates how human video can help train a robot policy. Broader reliability across visual conditions and robot setups remains unproven. Thank you.",
     "backup": false,
     "id": "chapter-18",
     "audioAsset": "narration-19.mp3",
-    "scriptRevision": "direct-spoken-style-20261002",
+    "scriptRevision": "fernando-concise-20261002",
     "narrationMatchesScript": false,
-    "estimatedSpeakingSeconds": 38.4,
+    "estimatedSpeakingSeconds": 26.8,
     "displayNumber": 16
   }
 ]
