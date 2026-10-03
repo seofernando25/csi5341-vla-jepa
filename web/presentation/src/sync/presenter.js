@@ -58,6 +58,20 @@
   let scene = null,
     received = false,
     lastMessage = 0;
+  function renderScript(notes) {
+    el("speaking-notes").replaceChildren();
+    for (const paragraph of notes.split(/\n\s*\n/)) {
+      const p = document.createElement("p");
+      ReadingAssist.render(p, paragraph);
+      el("speaking-notes").append(p);
+    }
+  }
+  ReadingAssist.bind(el("reading-aid"), () => {
+    const reader = el("script-reader");
+    const position = reader.scrollTop;
+    if (scene !== null) renderScript(DATA[scene].notes);
+    reader.scrollTop = position;
+  });
   function connection(text, online = false) {
     if (el("connection").textContent !== text)
       el("connection").textContent = text;
@@ -100,12 +114,7 @@
       : "Showing the last received chapter and cue. They may be out of date.";
     if (scene === state.scene) return; // A new cue must never jump the reader's script/scroll.
     scene = state.scene;
-    el("speaking-notes").replaceChildren();
-    for (const paragraph of data.notes.split(/\n\s*\n/)) {
-      const p = document.createElement("p");
-      p.textContent = paragraph;
-      el("speaking-notes").append(p);
-    }
+    renderScript(data.notes);
     el("delivery-notes").textContent = (data.deliveryCues || [])
       .map((c) => c.instruction)
       .join("\n\n");

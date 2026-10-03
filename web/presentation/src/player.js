@@ -26,7 +26,7 @@ function select(n, atEnd = false) {
     );
   document.getElementById("noteTitle").textContent =
     "Chapter " + sceneNumber(index) + " · " + DATA[index].speaker;
-  document.getElementById("script").textContent = DATA[index].notes;
+  ReadingAssist.render(document.getElementById("script"), DATA[index].notes);
   document.getElementById("delivery").textContent = (
     DATA[index].deliveryCues || []
   )
@@ -68,3 +68,7 @@ window.deck = {
   },
   data: DATA,
 };
+
+ReadingAssist.bind(document.getElementById("reading-aid"), () => {
+  ReadingAssist.render(document.getElementById("script"), DATA[index].notes);
+});

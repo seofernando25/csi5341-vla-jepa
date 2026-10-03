@@ -25,6 +25,8 @@ Use the existing controls on the slide computer: Right/Space/click advances, Lef
 
 A large live picture-in-picture (38% of the viewport width, up to 720 px) sits in the top-right corner beside the notes, on a plain white reading surface. It mirrors one offscreen slide renderer and follows the same relay chapter/cue state, including reconnects. **Hide preview / Show preview** in the bottom dock toggles it locally; this preference is remembered. The embedded renderer has no controls and cannot navigate.
 
+**Bold word starts** is enabled by default in the presenter and manual notes views. It emphasizes up to three opening letters per word. Toggle it in the footer (or manual notes panel); the choice is remembered locally. It does not change the script, narration or synchronization.
+
 Notes map to **whole chapters**. The cue badge identifies the current animation beat and whether it is playing or holding; automatic scrolling uses your selected pace, with no word highlighting or claimed word-level synchronization. Delivery guidance can be expanded separately.
 
 ## Connections and recovery

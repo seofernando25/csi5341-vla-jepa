@@ -8,3 +8,6 @@
 
 /* Embedded teleprompter backdrop has no navigation or overlays. */
 html[data-view="backdrop"] #controls,html[data-view="backdrop"] #menu,html[data-view="backdrop"] #slides,html[data-view="backdrop"] #timeline-shell,html[data-view="backdrop"] #welcome,html[data-view="backdrop"] #notes { display:none!important; }
+
+.reading-prefix { font-weight: 700; }
+#reading-aid[aria-pressed="true"] { border-color: #0086be; background: #eaf5fa; }

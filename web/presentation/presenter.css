@@ -258,3 +258,6 @@ body:has(#slide-preview[hidden]) #script-reader { padding-right: 16px; }
   #slide-preview { width: 44vw; right: 12px; }
   #script-reader { padding-right: calc(44vw + 16px); }
 }
+
+.reading-prefix { font-weight: 700; }
+#reading-aid[aria-pressed="true"] { border-color: #0086be; background: #eaf5fa; }
