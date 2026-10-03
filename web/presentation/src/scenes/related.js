@@ -17,7 +17,7 @@ function relatedMotion(c) {
     [
       "LAPA",
       "Future pixels",
-      "Learn video codes, then adapt them to control",
+      "Learn latent actions from video; adapt the policy",
       muted,
       16,
     ],
