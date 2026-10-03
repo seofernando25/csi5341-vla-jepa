@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VLA-JEPA · Presenter</title>
+    <link rel="stylesheet" href="presenter.css" />
+  </head>
+  <body>
+    <header>
+      <a href="./" class="brand">VLA–JEPA / Presenter</a>
+      <span id="connection" role="status" data-state="waiting"
+        >Connecting to local relay…</span
+      >
+      <div class="settings">
+        <label for="text-size">Text size</label
+        ><input
+          id="text-size"
+          type="range"
+          min="24"
+          max="64"
+          step="2"
+          value="36"
+        /><output id="size-value" for="text-size">36 px</output
+        ><button id="full">Full screen</button>
+      </div>
+    </header>
+    <main>
+      <div class="chapter-meta">
+        <span id="chapter">Waiting for slide computer</span
+        ><span id="speaker"></span>
+      </div>
+      <h1 id="title">Your speaking notes will appear here.</h1>
+      <div class="cue-line" aria-live="polite">
+        <span id="cue">No cue received yet</span><span id="motion"></span>
+      </div>
+      <p class="scope">
+        Full chapter script · cue indicator only, no word tracking · scroll at
+        your own pace
+      </p>
+      <article id="speaking-notes" aria-label="Chapter speaking notes">
+        <p>
+          Start the local relay on the slide computer and open its printed
+          Slides URL. This screen follows chapter and cue changes automatically.
+        </p>
+      </article>
+      <details id="delivery">
+        <summary>Delivery guidance for this chapter</summary>
+        <p id="delivery-notes"></p>
+      </details>
+      <p id="last-state" class="scope"></p>
+    </main>
+    <script src="src/content.js"></script>
+    <script src="src/timing/cues.js"></script>
+    <script src="src/sync/presenter.js"></script>
+  </body>
+</html>

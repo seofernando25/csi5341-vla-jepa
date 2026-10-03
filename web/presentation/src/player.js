@@ -5,6 +5,7 @@ function sceneNumber(i) {
 }
 function render() {
   if (window.updateTimeline) window.updateTimeline();
+  if (window.publishPresenterState) window.publishPresenterState();
 }
 function select(n, atEnd = false) {
   beginTransform(n);

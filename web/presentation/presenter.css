@@ -1,0 +1,158 @@
+@font-face {
+  font-family: Presenter;
+  src: url("assets/PlusJakartaSans.ttf");
+}
+:root {
+  --notes-size: 36px;
+  color-scheme: light;
+  font-family: Presenter, system-ui, sans-serif;
+  color: #162335;
+  background: #f8fafc;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 18px 4vw;
+  border-bottom: 1px solid #dae3eb;
+  background: rgba(248, 250, 252, 0.97);
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+.brand {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+#connection {
+  font-size: 14px;
+  border-radius: 20px;
+  padding: 7px 12px;
+  background: #fce9df;
+  color: #914519;
+}
+#connection[data-state="connected"] {
+  background: #dff3e9;
+  color: #246748;
+}
+.settings {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  font-size: 14px;
+}
+input {
+  width: 120px;
+  accent-color: #0086be;
+}
+button {
+  font: inherit;
+  border: 1px solid #cbd7e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #0086be;
+  outline-offset: 3px;
+}
+main {
+  max-width: 1240px;
+  margin: auto;
+  padding: 38px 5vw 20vh;
+}
+.chapter-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #0086be;
+  font-size: 17px;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(26px, 3.6vw, 46px);
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  margin: 18px 0 24px;
+}
+.cue-line {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-left: 4px solid #0086be;
+  padding: 10px 16px;
+  background: #eaf3f8;
+  border-radius: 0 8px 8px 0;
+  font-size: 19px;
+  font-weight: 650;
+}
+#motion {
+  font-size: 14px;
+  color: #63758a;
+  font-weight: 500;
+}
+.scope {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #63758a;
+  margin: 16px 0 28px;
+}
+article {
+  font-size: var(--notes-size);
+  line-height: 1.6;
+  letter-spacing: -0.012em;
+}
+article p {
+  margin: 0 0 1em;
+}
+details {
+  border-top: 1px solid #dae3eb;
+  margin-top: 36px;
+  padding-top: 22px;
+  font-size: 18px;
+  line-height: 1.6;
+}
+summary {
+  cursor: pointer;
+  color: #0086be;
+}
+#delivery-notes {
+  white-space: pre-line;
+}
+#last-state {
+  margin-top: 36px;
+}
+@media (max-width: 650px) {
+  header {
+    gap: 12px;
+  }
+  .settings {
+    margin-left: 0;
+    width: 100%;
+  }
+  main {
+    padding-top: 25px;
+  }
+  .chapter-meta {
+    font-size: 15px;
+  }
+  .brand {
+    font-size: 14px;
+  }
+}

@@ -14,6 +14,10 @@ Open http://localhost:8000/web/presentation/. No package installation, account o
 
 Click the stage, press Right or Space to play the next animation beat. Right-click or press Left to return to the previous beat; chapter navigation jumps directly to a section. Each beat plays and holds without audio. Replay beat repeats the current beat; N opens notes. Hover near the bottom for controls; use Full screen for presenting. Narration is retained as an export asset, with its browser controls removed. End is a hidden authoring shortcut for the final state.
 
+## Presenter on a second computer
+
+Run `python3 web/presentation/tools/relay.py` from the repo root, open its printed Slides URL on this computer and its Notes URL on the second computer. This local relay follows chapters/cues, reconnects automatically and provides adjustable large-text notes. N / Notes remains the manual fallback. See [setup, URLs and Wi-Fi troubleshooting](PRESENTER.md).
+
 ## Edit and rebuild
 
 - `src/content.js`: wording, presenter notes, sources and timing; keep `data.json` in sync.
@@ -45,7 +49,7 @@ Motion typography lives in `src/motion-type.js`: masked reel-card changes retain
 
 ## Transition review
 
-The source contains 21 JavaScript files, grouped by concern. All 48 beats across 18 chapters have explicit durations: ordinary transitions are 600 ms; deliberate footage and continuous demonstrations are longer. An advance plays one beat and holds. Right during a playing beat accelerates its remaining motion to at most 120 ms, preserving its current progress. No extra beats are queued. Previous reverses the current beat; at a chapter boundary it returns to the preceding chapter’s final state. Replay repeats only the current beat. Neither the clock nor navigation depends on narration.
+The source contains 23 JavaScript files, grouped by concern. All 48 beats across 18 chapters have explicit durations: ordinary transitions are 600 ms; deliberate footage and continuous demonstrations are longer. An advance plays one beat and holds. Right during a playing beat accelerates its remaining motion to at most 120 ms, preserving its current progress. No extra beats are queued. Previous reverses the current beat; at a chapter boundary it returns to the preceding chapter’s final state. Replay repeats only the current beat. Neither the clock nor navigation depends on narration.
 
 Run `node web/presentation/tools/tests/manual-cues.cjs` from the repository root. For visual review, run `python3 web/presentation/tools/serve.py`, open its localhost address with `?authoring=1`, open Notes and choose **Audit every transition**. It captures all forward/replay paths, within-chapter reversals, and chapter boundaries in both directions at five positions. Output stays in ignored `build/rendered/`. This deterministic sampled audit checks layouts and replay consistency; it does not measure sustained real-device frame rate.
 
