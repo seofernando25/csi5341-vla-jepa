@@ -1,0 +1,87 @@
+{
+  "verified_at": "2026-10-10T04:27:10.090228+00:00",
+  "candidate": "action-cka-layers-8",
+  "recipe_sha256": "6c23d1796973fa252111bbc375b8437daec95c060cfd0ea9b1ebc88884750f19",
+  "supplemental_selection_sha256": "9b13299b4eaf44b49f2ae6c03f2e1a239dc933749cf8a2006d3788e7ccfa84b9",
+  "development": {
+    "episodes": 100,
+    "successes": 80,
+    "success_fraction": 0.8,
+    "wilson95_fraction": [
+      0.7111708344068411,
+      0.8666330666689676
+    ],
+    "task_successes": {
+      "0": 3,
+      "1": 10,
+      "2": 10,
+      "3": 9,
+      "4": 10,
+      "5": 4,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "831d9c127d39994175185c2a6fb78837e51818653f6af503a32c373524b0e9de",
+    "record_sha256": "30fbfdaf643a2ec935980b6e9ddfda2d72b3616aca46882ff1760f8de833b1a3",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 79,
+        "both_failure": 17,
+        "gained_success": 1,
+        "lost_success": 3
+      },
+      "difference_pp": -2.0000000000000004,
+      "ci95_pp": [
+        -6.000000000000001,
+        1.9999999999999998
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "4097a75e454114c306163b9f5e96144ba71417cdc443aac544a8402eeb9d8e32",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen": {
+    "diagnostic_observations": 80,
+    "warmup": 10,
+    "mean_physical_arm_change_mse": 0.0006580369970833999,
+    "maximum_physical_arm_change_mse": 0.0014106647577136755,
+    "mean_gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.12890625,
+    "pipeline_median_ms": 62.86655150324805,
+    "pipeline_p95_ms": 64.63077960215742,
+    "peak_allocated_bytes": 5461982208,
+    "peak_reserved_bytes": 5563744256,
+    "predicted_actions": 7,
+    "executed_before_replanning": 7,
+    "registered_parameter_elements": 2696077959,
+    "represented_logical_parameter_elements": 2696077959,
+    "resident_tensor_storage_bytes": 5392156430,
+    "inference_core_logical_parameter_elements": 2212654343
+  },
+  "screen_record_sha256": "72aa6359c691362d7f22fcc96577e4498762176c3321849953d0fd13ed7698c3",
+  "default_ranking_comparison": {
+    "candidate": "action-layers-8",
+    "control_recipe_sha256": "b2c449a7252d77e197ded55e3e0a2bbe11633996a40add6c2f49c2b2930c41ff",
+    "control_record_sha256": "1c181662dc529424b42d70d04147038c03a4af6653549254b1800806e41c4bd4",
+    "control_episodes_sha256": "847e51137a102d55218e86bc9bd02931eaf4e2ab07bef40565f8bebd005f0093",
+    "paired": {
+      "transitions": {
+        "both_success": 74,
+        "both_failure": 17,
+        "gained_success": 6,
+        "lost_success": 3
+      },
+      "difference_pp": 3.0000000000000004,
+      "ci95_pp": [
+        -2.0000000000000004,
+        9.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state CKA action-depth comparison, without fine-tuning. Reserved success and steady benchmarks remain pending; size and deployed tensor agreement will be audited after the supplemental queue finishes."
+}

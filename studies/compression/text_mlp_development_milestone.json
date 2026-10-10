@@ -1,0 +1,251 @@
+{
+  "verified_at": "2026-10-10T02:56:26.695378+00:00",
+  "candidate": "text_mlp-channels-250",
+  "recipe_sha256": "480f7c67f117b593be61c9be66a71eeacc8a1a1e3e0bd85f4df5bfd0cc207385",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 79,
+    "success_fraction": 0.79,
+    "wilson95_fraction": [
+      0.7002003116591013,
+      0.858343459380847
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 8,
+      "5": 3,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "b05ed9d173a0ed3814abb1e6cdc45469fe7ed78b79d884bab252d078e2eec226",
+    "record_sha256": "6263eb8f037482d73ea8f1538a4126f4a7a75ffd059f4034265b0b4ebd7f7951",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 78,
+        "both_failure": 17,
+        "gained_success": 1,
+        "lost_success": 4
+      },
+      "difference_pp": -3.0000000000000004,
+      "ci95_pp": [
+        -6.999999999999999,
+        1.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "2cc1bfc8b8e96cd29daaccc031dff37d7cf12473c74e14a922835975e0a9bad3",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_channel_widths": [
+    {
+      "module": "text.layers.0.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "c9326ccc0aa574b5a70a2e57e21a6a2ebce2c7cd2e6fc8257e9584fa28f67935"
+    },
+    {
+      "module": "text.layers.1.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "0f80511c59ad69d492961ddf33051601d5827e53c1ce3275a8837147e63de2c8"
+    },
+    {
+      "module": "text.layers.2.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "d0301aa00ee099972c35aea511d8fec4516f38af25429d037e7c86392efb132b"
+    },
+    {
+      "module": "text.layers.3.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "8a9495d3110cd340d7e4b1b2e284b9803ed5a00fec7e373cb04dbeb58e206ddc"
+    },
+    {
+      "module": "text.layers.4.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "b4c3f0eb1299c6d761f490f79f2e0127f39b93dcc487e29c8371ab78977881cd"
+    },
+    {
+      "module": "text.layers.5.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "299fbe33b65034f49c319c6076b1415915ab7f11a771f708c0f7eb47febbe93f"
+    },
+    {
+      "module": "text.layers.6.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "9b012b3ec688521a31a9f87c824d4503b1b1b8d167d29e843b7f7be270fe41e6"
+    },
+    {
+      "module": "text.layers.7.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "1c2778753b5342df70dc88b90a5e3bde21a5028ce908a95e90d5ab160be9f062"
+    },
+    {
+      "module": "text.layers.8.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "5294dd4b4f19d4e475411e6fc9732f4559768564a2261bdf9e820cfb18b3bdd3"
+    },
+    {
+      "module": "text.layers.9.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "3674c6ec4a25480cad2bd4f7fa5e9474ccef36361cd11d611832780a0880dd1f"
+    },
+    {
+      "module": "text.layers.10.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "824d719376591ba0455de09abc49a550bf701372ae18f5716c2d5d32db5ed61b"
+    },
+    {
+      "module": "text.layers.11.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "8c7b19df0b5b4594107e83ab1a0bec388813a34cbf0741a1c2c5da5fa3747190"
+    },
+    {
+      "module": "text.layers.12.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "310ac487299312219c1739fd730e325fe4986d55a8f05faea6d19518092461da"
+    },
+    {
+      "module": "text.layers.13.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "254a12cbb44db6e9fd8f163e834121e69181aa40d6cb9d7921315a34cea724fc"
+    },
+    {
+      "module": "text.layers.14.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "04e770259ee1ee36c0b924bee52e950bea61eb4df5cc9e02a8a261e2fd7a2aaf"
+    },
+    {
+      "module": "text.layers.15.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "35277dabb1ce6bc9dcd06be211e229a7eabb600ae0904ca69f8956e6d267d247"
+    },
+    {
+      "module": "text.layers.16.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "dee37b74ec5c14a10994ede18c3ba390065e93f125ac3f691849864d78e8b300"
+    },
+    {
+      "module": "text.layers.17.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "1aca2f6368d1ae8352b46e4b158a1929eff2e6ea1bc4debdfbc887217b805c48"
+    },
+    {
+      "module": "text.layers.18.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "b032474885e591f579c44eef55b76fa3dca9974c46cb66d066a96ce4dcdebd04"
+    },
+    {
+      "module": "text.layers.19.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "4352be5b04f296da57b16ceddf6b38c2b83d5aeff359438404785647da7d609f"
+    },
+    {
+      "module": "text.layers.20.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "bab7b91fd00444f20fc8e24e885b5dfc1a6c7a9c09de75f9e8d6b1e7f814b28c"
+    },
+    {
+      "module": "text.layers.21.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "2f98ee79acc2714eecd08c86b63789a96df89723d48dc774a638b011476cba4a"
+    },
+    {
+      "module": "text.layers.22.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "ad5d681025247a0c61a11166a92a312e6ececee46968bb43ec5681ff32b65299"
+    },
+    {
+      "module": "text.layers.23.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "9628ad60f3a95ff2de97ec9326f5d0a1c2dbfa5114bcb929b38df7c393c583cc"
+    },
+    {
+      "module": "text.layers.24.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "fa81cad14164568f5b76b913d1a5c61df0df11f6da9669867c9b649cc3c47cf3"
+    },
+    {
+      "module": "text.layers.25.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "c713aa2c6a267a79b2dfa00d319298f441db7a702fcc6279bf4b70e4bc6f11c0"
+    },
+    {
+      "module": "text.layers.26.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "22e34f8f488dbb6b6122a8821d26701a9fe0f3a2c26a21430bd9e18730ba31ae"
+    },
+    {
+      "module": "text.layers.27.mlp.down_proj",
+      "original_width": 6144,
+      "kept_width": 4608,
+      "indices_sha256": "073fee5a6d82c9167c475e3fabb7b091a6aebdd6f5db5b1f6d836c5e9fc1a5e1"
+    }
+  ],
+  "screen_record_sha256": "4958098b54eee2c215ede3a3bbedcd05a7bf5b74f29ad4510f6397c8bbbfa2eb",
+  "screen": {
+    "peak_allocated_bytes": 5074803712,
+    "peak_reserved_bytes": 5630853120,
+    "resident_tensor_storage_bytes": 5003794190,
+    "pipeline_median_ms": 75.04089549911441,
+    "inference_core_logical_parameter_elements": 2018473223
+  },
+  "screen_metrics_not_recorded": [],
+  "joint_deployment_counterpart": {
+    "candidate": "deploy-nf4-text-channel-boundaries-restricted",
+    "recipe_sha256": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+    "record_sha256": "0e03f358af7d54a2a4daf016f4c170167828c88729d6ee2f614aa618053ac035",
+    "episodes_sha256": "34173a24d0a0e138ada82ba3934193cfea3ef827c9b57341b4ff18c309ca214c",
+    "retained_language_channels_verified_identical": true,
+    "paired_vs_standalone": {
+      "transitions": {
+        "both_success": 78,
+        "both_failure": 21,
+        "gained_success": 0,
+        "lost_success": 1
+      },
+      "difference_pp": -1.0,
+      "ci95_pp": [
+        -3.0,
+        0.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "screen_peak_allocated_reduction_fraction": 0.8058337165494688,
+    "interpretation": "Joint deployment also removes world-model residency, compacts vocabulary and quantizes language/vision/merger/action linears to NF4; this measures that bundle and does not isolate any one added change."
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone language-MLP channel-pruning comparison; all episode records validated. Physically retains 75% of each selected MLP width. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

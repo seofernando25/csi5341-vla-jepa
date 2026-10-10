@@ -1,0 +1,12 @@
+{
+  "id": "action-bnb8-dtypeguard",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 8
+    }
+  ],
+  "replaces_runtime_failure": "action-bnb8"
+}

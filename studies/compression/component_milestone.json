@@ -1,0 +1,169 @@
+{
+  "recorded_at": "2026-10-09T19:50:52.037422+00:00",
+  "milestone": "All 21 major component domains have completed preliminary matched rollouts",
+  "phase": "smoke: ten trials, one development state per task",
+  "counts": {
+    "screen/completed": 67,
+    "smoke/completed": 35,
+    "screen/failed": 2,
+    "smoke/running": 1
+  },
+  "coverage": {
+    "language MLP": {
+      "registered": 42,
+      "screened": 18,
+      "rollout_tested": 10,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "language attention": {
+      "registered": 38,
+      "screened": 16,
+      "rollout_tested": 7,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "language heads": {
+      "registered": 3,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "language depth": {
+      "registered": 12,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "vision MLP": {
+      "registered": 36,
+      "screened": 11,
+      "rollout_tested": 6,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "vision attention": {
+      "registered": 32,
+      "screened": 10,
+      "rollout_tested": 5,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "vision heads": {
+      "registered": 4,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "vision depth": {
+      "registered": 12,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "main/DeepStack mergers": {
+      "registered": 18,
+      "screened": 7,
+      "rollout_tested": 6,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "embeddings": {
+      "registered": 13,
+      "screened": 5,
+      "rollout_tested": 5,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "conditioning tokens": {
+      "registered": 4,
+      "screened": 2,
+      "rollout_tested": 2,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "visual tokens": {
+      "registered": 6,
+      "screened": 2,
+      "rollout_tested": 2,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action MLP": {
+      "registered": 42,
+      "screened": 12,
+      "rollout_tested": 4,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action attention": {
+      "registered": 24,
+      "screened": 10,
+      "rollout_tested": 4,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action heads": {
+      "registered": 4,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action depth": {
+      "registered": 11,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action interfaces": {
+      "registered": 24,
+      "screened": 10,
+      "rollout_tested": 4,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "solver steps": {
+      "registered": 3,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "generated action horizon": {
+      "registered": 3,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "replanning horizon": {
+      "registered": 3,
+      "screened": 1,
+      "rollout_tested": 1,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "world-model residency": {
+      "registered": 15,
+      "screened": 7,
+      "rollout_tested": 7,
+      "development_100": 0,
+      "confirmed_500": 0
+    }
+  },
+  "interpretation": "Breadth milestone only. No 100-trial development or 500-trial confirmation claim. Finite-output screens do not establish task performance.",
+  "latest_component": {
+    "candidate": "visual-tokens-magnitude-50",
+    "successes": 8,
+    "trials": 10,
+    "observed_resets": 10,
+    "record_sha256": "d24eb4a1afc783583262f1afb11e55a6128223e517d30a7e477bfc831ae97864",
+    "episodes_sha256": "b840666e9325f2052e85227a76d9698c7b4d3c2ba5591fa0706d78606c94417c"
+  }
+}

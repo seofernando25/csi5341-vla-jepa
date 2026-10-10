@@ -1,0 +1,12 @@
+{
+  "id": "action-cka-layers-8",
+  "family": "CKA structural depth pruning",
+  "changes": [
+    {
+      "method": "layers",
+      "scope": "action",
+      "count": 8,
+      "criterion": "cka"
+    }
+  ]
+}

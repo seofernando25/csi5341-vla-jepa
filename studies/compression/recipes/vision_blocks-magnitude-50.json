@@ -1,0 +1,11 @@
+{
+  "id": "vision_blocks-magnitude-50",
+  "family": "weight_sparsity",
+  "changes": [
+    {
+      "method": "magnitude",
+      "scope": "vision_blocks",
+      "fraction": 0.5
+    }
+  ]
+}

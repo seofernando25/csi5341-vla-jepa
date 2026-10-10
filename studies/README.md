@@ -4,6 +4,8 @@ The [evaluation plan and delivery tracker](EVALUATION_PLAN.md) records the agree
 
 The main comparison is pretrained VLA-JEPA, its quantized inference variant, and VLA-JEPA with SmolVLM2-500M-Video-Instruct. Dream-RSI is optional after those comparisons work.
 
+Completed October 10 study: [VLA-JEPA-LIBERO: Maximum Compression at ≥90% Success](compression/README.md). All 21 major domains have task evidence; the smallest confirmed deployment scores 93.4% on 500 reserved trials with 838.5 MB packed weights and 83.2% lower peak CUDA allocation. It preserves the earlier comparison and RSI protocols; measured latency and coverage limits are recorded in the report.
+
 Next experiment direction: [replace Qwen with SmolVLM while retaining LIBERO-trained VLA-JEPA components](SMOLVLM_LIBERO_PROPOSAL.md), then adapt and evaluate the conditioning interface. Proposal only; no experiment is scheduled.
 
 - Keep LIBERO suite, task set, episode count, seeds, action horizon, outer camera preparation, and hardware matched. Record checkpoint/code revisions and backbone-native image/token processing differences.

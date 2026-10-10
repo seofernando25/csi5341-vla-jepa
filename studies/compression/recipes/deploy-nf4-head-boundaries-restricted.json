@@ -1,0 +1,47 @@
+{
+  "id": "deploy-nf4-head-boundaries-restricted",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "compact_embedding"
+    },
+    {
+      "method": "heads",
+      "scope": "action_attention",
+      "fraction": 0.75
+    },
+    {
+      "method": "heads",
+      "scope": "text_attention",
+      "fraction": 0.25
+    },
+    {
+      "method": "heads",
+      "scope": "vision_attention",
+      "fraction": 0.5
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 4
+    }
+  ]
+}

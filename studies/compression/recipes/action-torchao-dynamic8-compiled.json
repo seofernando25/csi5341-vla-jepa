@@ -1,0 +1,15 @@
+{
+  "id": "action-torchao-dynamic8-compiled",
+  "family": "compiled TorchAO W8A8",
+  "changes": [
+    {
+      "method": "torchao",
+      "scope": "action",
+      "bits": 8
+    },
+    {
+      "method": "compile_linears",
+      "scope": "action"
+    }
+  ]
+}

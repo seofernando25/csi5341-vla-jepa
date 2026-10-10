@@ -1,0 +1,220 @@
+{
+  "pre_confirmation_review_sha256": "387c4d0632406ab2924da456b57d01eb3afd4f6064d44a76654700877e6f4d72",
+  "final_selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "figure_sha256": {
+    "png": "cbea0c2d5e15b64b9610eb665e158ca28659a81baa00fd756f88616c562dc946",
+    "pdf": "7a22d82e792ab2dc4106e696e5844b5c2afcfa8f7034c3093cc07abd8f82b916"
+  },
+  "structural_interval_evidence": [
+    {
+      "candidate": "action_mlp-channels-750",
+      "episodes_sha256": "40bc273cefd538b37a4fcdfae7150f8d809aea303d6caa3d7532af96ccbb6380",
+      "record_sha256": "2c104e695880c3e001a4a419885811f8217a06181fa37c20068d0d96939d336c",
+      "paired": {
+        "transitions": {
+          "both_success": 80,
+          "both_failure": 18,
+          "gained_success": 0,
+          "lost_success": 2
+        },
+        "difference_pp": -2.0,
+        "ci95_pp": [
+          -5.0,
+          0.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "merger-channels-750",
+      "episodes_sha256": "e3d40e257cce2f860b59b1fc25d93446ff49b11b996b4282331f903d6e1901ae",
+      "record_sha256": "5d9ce07536b7f43c3e6b1687ba6515bcb9af9af35d7990c567089f9e2ffedec1",
+      "paired": {
+        "transitions": {
+          "both_success": 75,
+          "both_failure": 17,
+          "gained_success": 1,
+          "lost_success": 7
+        },
+        "difference_pp": -6.0,
+        "ci95_pp": [
+          -11.000000000000002,
+          -1.0000000000000004
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "text_mlp-channels-250",
+      "episodes_sha256": "b05ed9d173a0ed3814abb1e6cdc45469fe7ed78b79d884bab252d078e2eec226",
+      "record_sha256": "6263eb8f037482d73ea8f1538a4126f4a7a75ffd059f4034265b0b4ebd7f7951",
+      "paired": {
+        "transitions": {
+          "both_success": 78,
+          "both_failure": 17,
+          "gained_success": 1,
+          "lost_success": 4
+        },
+        "difference_pp": -3.0000000000000004,
+        "ci95_pp": [
+          -6.999999999999999,
+          1.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "vision_mlp-channels-500",
+      "episodes_sha256": "d29a273c2ce4e3895da9899622b86bf66cbdfa62086a50af0344294fd72dc1a8",
+      "record_sha256": "af9bf1387562caac2be586a80b6c3854cc840503b0bc360015ddaf40399c1536",
+      "paired": {
+        "transitions": {
+          "both_success": 80,
+          "both_failure": 15,
+          "gained_success": 3,
+          "lost_success": 2
+        },
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -3.0000000000000004,
+          5.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "action_attention-heads-750",
+      "episodes_sha256": "098ad42a73ec483d25b0f5173517e8957e10acb8c628922061c55a20896ed6b4",
+      "record_sha256": "d90ece6a521ab7c316085a248e08610f6a513cae66ce13b3b6025e05e84a1a1f",
+      "paired": {
+        "transitions": {
+          "both_success": 69,
+          "both_failure": 18,
+          "gained_success": 0,
+          "lost_success": 13
+        },
+        "difference_pp": -13.0,
+        "ci95_pp": [
+          -18.000000000000004,
+          -7.999999999999999
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "text-heads-250",
+      "episodes_sha256": "1daebe1640a30d74d5e82422dde0dc7f787c7bca03d633c7f1480a449393b956",
+      "record_sha256": "74b21d777cf95657ae401320fb2d09cd22c925bb3cba74fbcff5db0c896e1edb",
+      "paired": {
+        "transitions": {
+          "both_success": 79,
+          "both_failure": 14,
+          "gained_success": 4,
+          "lost_success": 3
+        },
+        "difference_pp": 0.9999999999999999,
+        "ci95_pp": [
+          -4.0,
+          6.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "vision_attention-heads-500",
+      "episodes_sha256": "81309faaf421a8bfb0acaeb7a4ef55b8cc52571039cf9ccef7be0dfd230f343c",
+      "record_sha256": "c3356fb2fc9cbedc952ecdff96a44162bc4213f5d75aeb53614f4daf26bc49fd",
+      "paired": {
+        "transitions": {
+          "both_success": 80,
+          "both_failure": 16,
+          "gained_success": 2,
+          "lost_success": 2
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": [
+          -4.0,
+          4.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "action-layers-8",
+      "episodes_sha256": "847e51137a102d55218e86bc9bd02931eaf4e2ab07bef40565f8bebd005f0093",
+      "record_sha256": "1c181662dc529424b42d70d04147038c03a4af6653549254b1800806e41c4bd4",
+      "paired": {
+        "transitions": {
+          "both_success": 74,
+          "both_failure": 15,
+          "gained_success": 3,
+          "lost_success": 8
+        },
+        "difference_pp": -5.0,
+        "ci95_pp": [
+          -11.000000000000002,
+          1.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "action-cka-layers-8",
+      "episodes_sha256": "831d9c127d39994175185c2a6fb78837e51818653f6af503a32c373524b0e9de",
+      "record_sha256": "30fbfdaf643a2ec935980b6e9ddfda2d72b3616aca46882ff1760f8de833b1a3",
+      "paired": {
+        "transitions": {
+          "both_success": 79,
+          "both_failure": 17,
+          "gained_success": 1,
+          "lost_success": 3
+        },
+        "difference_pp": -2.0000000000000004,
+        "ci95_pp": [
+          -6.000000000000001,
+          1.9999999999999998
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "text-cka-layers-4",
+      "episodes_sha256": "15041407ec6ddd606acb7efa53223ecc79b19c71178cace7dca82c131f9022b0",
+      "record_sha256": "e4d2c6b2d214bb668d1e4e16556bf23b823b1903d238428f925f923b93a74977",
+      "paired": {
+        "transitions": {
+          "both_success": 76,
+          "both_failure": 14,
+          "gained_success": 4,
+          "lost_success": 6
+        },
+        "difference_pp": -2.0,
+        "ci95_pp": [
+          -8.0,
+          4.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    {
+      "candidate": "vision-layers-12",
+      "episodes_sha256": "420f7c58a42668d296ca5ed7705f602f65ffd65b3e271672d62bc5d1516527e5",
+      "record_sha256": "a57e2b9da37212bc5a30593b4c46b70fe861687fb236376a374c79544c225e84",
+      "paired": {
+        "transitions": {
+          "both_success": 76,
+          "both_failure": 14,
+          "gained_success": 4,
+          "lost_success": 6
+        },
+        "difference_pp": -1.9999999999999998,
+        "ci95_pp": [
+          -7.999999999999999,
+          4.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    }
+  ],
+  "interpretation": "Development evidence only. Actual packed archive sizes and matched task success; preliminary screen metrics and final outcomes are not substituted. No global optimum inferred."
+}

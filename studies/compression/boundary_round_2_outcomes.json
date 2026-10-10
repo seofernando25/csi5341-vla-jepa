@@ -1,0 +1,119 @@
+{
+  "verified_at": "2026-10-09T23:57:03.778758+00:00",
+  "selection_manifest_sha256": "522b18c1d734dcb3f7cb59e069d04acd6bd7ead03a6a7ede7875489840eeeb3f",
+  "baseline_record_sha256": "bad9379913f006848564d8613fa948871bc2e5a316d1aa3e12e566e64d75f10e",
+  "minimum_preliminary_successes": 7,
+  "completed_candidates": 6,
+  "candidates": {
+    "text_mlp-channels-250": {
+      "successes": 7,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "320ca40493400257abf179f3cd4f75ea8cfde7da320b14a8fda093b512fba372",
+      "episodes_sha256": "2107137dd57febd904af2f8018954544607912a094862292f0b230aba734cfc5",
+      "clears_preliminary_cutoff": true
+    },
+    "action-cka-layers-12": {
+      "successes": 5,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 5,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 3
+        },
+        "difference_pp": -30.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "fdf2150cb6ae7e18e1d39ebe49d3f9a31c9cb89f89bfc86c692da4f60cd9e6eb",
+      "episodes_sha256": "0e2819eff24bef44d60311a4b40159a3a80e23bc24894c8f38246ea8f9d011ca",
+      "clears_preliminary_cutoff": false
+    },
+    "text-cka-layers-4": {
+      "successes": 7,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "c1ba83b3303c1d274cead8adee0c68a32395ad2801997e5ccb53f0a43938a24a",
+      "episodes_sha256": "06535bd6f5dd62c798e3024d69dd58715a9efeddddb4ac18f340b0c30d84b891",
+      "clears_preliminary_cutoff": true
+    },
+    "text-layers-4": {
+      "successes": 7,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "a57c16480a64c4ec8e9c64d98e5ac62c0fb06e850e7514314202508dfd71ac7e",
+      "episodes_sha256": "658466008d115cf2cb627faccbd7aebe5b913d3263bb69b9141c13a2bb21a624",
+      "clears_preliminary_cutoff": true
+    },
+    "vision-cka-layers-12": {
+      "successes": 3,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 3,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 5
+        },
+        "difference_pp": -50.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "cea5f9b9f17a9f2c9ee60cf3f64a9a833c948f10feed59d3a0050e324f77e170",
+      "episodes_sha256": "e57fc0796e3b93514e43f67ffdf14a36da1c205897a68e2b5197d6dbdc04b201",
+      "clears_preliminary_cutoff": false
+    },
+    "vision-layers-12": {
+      "successes": 7,
+      "episodes": 10,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "9060c1ade4e4594bd9ca60caf3286798bea54bd5c52615f57d901044354ea6aa",
+      "episodes_sha256": "75448e33f978f0c9c481c42846b9e62d61122a8ad62a87563aedd13114ef98f3",
+      "clears_preliminary_cutoff": true
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state preliminary rollouts; no final-success or global-optimum claim"
+}

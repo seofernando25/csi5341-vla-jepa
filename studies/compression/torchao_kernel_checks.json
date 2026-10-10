@@ -1,0 +1,145 @@
+{
+  "algorithm": "torchao0.18 TinyGEMM asymmetric group128 int4",
+  "comparison": "packed CUDA output versus upstream affine dequantization + BF16 dense Linear",
+  "seed": 17,
+  "tolerance_relative_rms": 0.015,
+  "checks": [
+    {
+      "weight_shape": [
+        512,
+        2048
+      ],
+      "input_rows": 1,
+      "relative_rms_vs_official_dequantization": 0.0033862802665680647,
+      "logical_parameters": 1049088,
+      "storage": {
+        "registered_parameter_elements": 1049088,
+        "represented_logical_parameter_elements": 1049088,
+        "resident_tensor_storage_bytes": 558080
+      }
+    },
+    {
+      "weight_shape": [
+        512,
+        2048
+      ],
+      "input_rows": 7,
+      "relative_rms_vs_official_dequantization": 0.0033474541269242764,
+      "logical_parameters": 1049088,
+      "storage": {
+        "registered_parameter_elements": 1049088,
+        "represented_logical_parameter_elements": 1049088,
+        "resident_tensor_storage_bytes": 558080
+      }
+    },
+    {
+      "weight_shape": [
+        512,
+        2048
+      ],
+      "input_rows": 128,
+      "relative_rms_vs_official_dequantization": 0.0033257254399359226,
+      "logical_parameters": 1049088,
+      "storage": {
+        "registered_parameter_elements": 1049088,
+        "represented_logical_parameter_elements": 1049088,
+        "resident_tensor_storage_bytes": 558080
+      }
+    },
+    {
+      "weight_shape": [
+        1152,
+        1152
+      ],
+      "input_rows": 1,
+      "relative_rms_vs_official_dequantization": 0.003407930489629507,
+      "logical_parameters": 1328256,
+      "storage": {
+        "registered_parameter_elements": 1328256,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 1255680
+      }
+    },
+    {
+      "weight_shape": [
+        1152,
+        1152
+      ],
+      "input_rows": 7,
+      "relative_rms_vs_official_dequantization": 0.003362449584528804,
+      "logical_parameters": 1328256,
+      "storage": {
+        "registered_parameter_elements": 1328256,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 1255680
+      }
+    },
+    {
+      "weight_shape": [
+        1152,
+        1152
+      ],
+      "input_rows": 128,
+      "relative_rms_vs_official_dequantization": 0.003285082755610347,
+      "logical_parameters": 1328256,
+      "storage": {
+        "registered_parameter_elements": 1328256,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 1255680
+      }
+    },
+    {
+      "weight_shape": [
+        2048,
+        6144
+      ],
+      "input_rows": 1,
+      "relative_rms_vs_official_dequantization": 0.0036633231211453676,
+      "logical_parameters": 12584960,
+      "storage": {
+        "registered_parameter_elements": 12584960,
+        "represented_logical_parameter_elements": 12584960,
+        "resident_tensor_storage_bytes": 6688768
+      }
+    },
+    {
+      "weight_shape": [
+        2048,
+        6144
+      ],
+      "input_rows": 7,
+      "relative_rms_vs_official_dequantization": 0.0036134826950728893,
+      "logical_parameters": 12584960,
+      "storage": {
+        "registered_parameter_elements": 12584960,
+        "represented_logical_parameter_elements": 12584960,
+        "resident_tensor_storage_bytes": 6688768
+      }
+    },
+    {
+      "weight_shape": [
+        2048,
+        6144
+      ],
+      "input_rows": 128,
+      "relative_rms_vs_official_dequantization": 0.0036298856139183044,
+      "logical_parameters": 12584960,
+      "storage": {
+        "registered_parameter_elements": 12584960,
+        "represented_logical_parameter_elements": 12584960,
+        "resident_tensor_storage_bytes": 6688768
+      }
+    }
+  ],
+  "checked_at": "2026-10-09T20:04:21.452367+00:00",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "dtype": "bfloat16",
+  "compute_capability": [
+    8,
+    6
+  ],
+  "source_sha256": {
+    "outputs/compression/vendor_packages/torchao/quantization/quantize_/workflows/int4/int4_tile_packed_to_4d_tensor.py": "ae5a931f783f4d4a5698c5d0addcf75573fa04283f3020f43ae60eba7b1aa65b",
+    "outputs/compression/vendor_packages/torchao/quantization/quant_primitives.py": "482af2204e52c17760c9b5fcc0195c7820c537697efef672508b92cf0b2fdf59"
+  }
+}

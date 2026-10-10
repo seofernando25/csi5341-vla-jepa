@@ -1,0 +1,642 @@
+[
+  {
+    "bank_index": 14,
+    "task_id": 1,
+    "latency_ms": 91.63969599831034,
+    "physical_arm_change_mse": 0.00015579647151753306,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0458984375
+  },
+  {
+    "bank_index": 15,
+    "task_id": 1,
+    "latency_ms": 90.19942499799072,
+    "physical_arm_change_mse": 0.00011962479038629681,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03125
+  },
+  {
+    "bank_index": 16,
+    "task_id": 1,
+    "latency_ms": 91.47330000268994,
+    "physical_arm_change_mse": 9.329907334176823e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03759765625
+  },
+  {
+    "bank_index": 17,
+    "task_id": 1,
+    "latency_ms": 91.1437200011278,
+    "physical_arm_change_mse": 4.5191303797764704e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.02734375
+  },
+  {
+    "bank_index": 18,
+    "task_id": 1,
+    "latency_ms": 89.08585300014238,
+    "physical_arm_change_mse": 9.16170101845637e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.037109375
+  },
+  {
+    "bank_index": 19,
+    "task_id": 1,
+    "latency_ms": 90.78353099903325,
+    "physical_arm_change_mse": 8.94790719030425e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0400390625
+  },
+  {
+    "bank_index": 22,
+    "task_id": 2,
+    "latency_ms": 89.93412700147019,
+    "physical_arm_change_mse": 9.523962944513187e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03119659423828125
+  },
+  {
+    "bank_index": 23,
+    "task_id": 2,
+    "latency_ms": 90.37815000192495,
+    "physical_arm_change_mse": 5.215872806729749e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.02587890625
+  },
+  {
+    "bank_index": 24,
+    "task_id": 2,
+    "latency_ms": 90.28867699817056,
+    "physical_arm_change_mse": 0.00012335929204709828,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04296875
+  },
+  {
+    "bank_index": 25,
+    "task_id": 2,
+    "latency_ms": 90.34703799989074,
+    "physical_arm_change_mse": 9.388523176312447e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0244140625
+  },
+  {
+    "bank_index": 26,
+    "task_id": 2,
+    "latency_ms": 90.59602500201436,
+    "physical_arm_change_mse": 0.00011126284516649321,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.02978515625
+  },
+  {
+    "bank_index": 27,
+    "task_id": 2,
+    "latency_ms": 92.05897699939669,
+    "physical_arm_change_mse": 9.517007856629789e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03204345703125
+  },
+  {
+    "bank_index": 28,
+    "task_id": 2,
+    "latency_ms": 91.58881300027133,
+    "physical_arm_change_mse": 0.0001422828936483711,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.037109375
+  },
+  {
+    "bank_index": 29,
+    "task_id": 2,
+    "latency_ms": 91.07660799782025,
+    "physical_arm_change_mse": 8.005754352780059e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03125
+  },
+  {
+    "bank_index": 32,
+    "task_id": 3,
+    "latency_ms": 90.83341099903919,
+    "physical_arm_change_mse": 0.00021692558948416263,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0498046875
+  },
+  {
+    "bank_index": 33,
+    "task_id": 3,
+    "latency_ms": 90.77840000099968,
+    "physical_arm_change_mse": 0.0001996721839532256,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.056640625
+  },
+  {
+    "bank_index": 34,
+    "task_id": 3,
+    "latency_ms": 90.53447300175321,
+    "physical_arm_change_mse": 0.0001957094791578129,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.039306640625
+  },
+  {
+    "bank_index": 35,
+    "task_id": 3,
+    "latency_ms": 91.41755800010287,
+    "physical_arm_change_mse": 8.970897761173546e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.033203125
+  },
+  {
+    "bank_index": 36,
+    "task_id": 3,
+    "latency_ms": 90.88749199872836,
+    "physical_arm_change_mse": 0.00014815472241025418,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03515625
+  },
+  {
+    "bank_index": 37,
+    "task_id": 3,
+    "latency_ms": 91.04700700117974,
+    "physical_arm_change_mse": 0.0003378843830432743,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0703125
+  },
+  {
+    "bank_index": 38,
+    "task_id": 3,
+    "latency_ms": 90.78321899869479,
+    "physical_arm_change_mse": 0.00039574148831889033,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.095703125
+  },
+  {
+    "bank_index": 39,
+    "task_id": 3,
+    "latency_ms": 91.22193199800677,
+    "physical_arm_change_mse": 0.00013009921531192958,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0322265625
+  },
+  {
+    "bank_index": 42,
+    "task_id": 4,
+    "latency_ms": 91.98734299934586,
+    "physical_arm_change_mse": 0.0004087562847416848,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.052734375
+  },
+  {
+    "bank_index": 43,
+    "task_id": 4,
+    "latency_ms": 88.85785399979795,
+    "physical_arm_change_mse": 0.0003198339545633644,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0537109375
+  },
+  {
+    "bank_index": 44,
+    "task_id": 4,
+    "latency_ms": 90.86317099718144,
+    "physical_arm_change_mse": 0.00025736246607266366,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05078125
+  },
+  {
+    "bank_index": 45,
+    "task_id": 4,
+    "latency_ms": 89.95151500130305,
+    "physical_arm_change_mse": 0.00044130897731520236,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.071533203125
+  },
+  {
+    "bank_index": 46,
+    "task_id": 4,
+    "latency_ms": 89.70222800053307,
+    "physical_arm_change_mse": 0.00021106470376253128,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0478515625
+  },
+  {
+    "bank_index": 47,
+    "task_id": 4,
+    "latency_ms": 90.6308240009821,
+    "physical_arm_change_mse": 0.0002587342169135809,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05322265625
+  },
+  {
+    "bank_index": 48,
+    "task_id": 4,
+    "latency_ms": 89.36642900152947,
+    "physical_arm_change_mse": 0.0005590770742855966,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.07763671875
+  },
+  {
+    "bank_index": 49,
+    "task_id": 4,
+    "latency_ms": 90.21489199949428,
+    "physical_arm_change_mse": 0.0005872446345165372,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0704345703125
+  },
+  {
+    "bank_index": 52,
+    "task_id": 5,
+    "latency_ms": 89.44472100120038,
+    "physical_arm_change_mse": 0.00012431723007466644,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03515625
+  },
+  {
+    "bank_index": 53,
+    "task_id": 5,
+    "latency_ms": 90.86795000257553,
+    "physical_arm_change_mse": 0.000290056224912405,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0537109375
+  },
+  {
+    "bank_index": 54,
+    "task_id": 5,
+    "latency_ms": 90.11255899895332,
+    "physical_arm_change_mse": 0.0001632199710002169,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04150390625
+  },
+  {
+    "bank_index": 55,
+    "task_id": 5,
+    "latency_ms": 98.82304400161956,
+    "physical_arm_change_mse": 0.00013480146299116313,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0400390625
+  },
+  {
+    "bank_index": 56,
+    "task_id": 5,
+    "latency_ms": 92.48343500075862,
+    "physical_arm_change_mse": 6.455412949435413e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0234375
+  },
+  {
+    "bank_index": 57,
+    "task_id": 5,
+    "latency_ms": 89.59100299762213,
+    "physical_arm_change_mse": 0.00011775793245760724,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03515625
+  },
+  {
+    "bank_index": 58,
+    "task_id": 5,
+    "latency_ms": 92.10060400073417,
+    "physical_arm_change_mse": 0.00022446403454523534,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0546875
+  },
+  {
+    "bank_index": 59,
+    "task_id": 5,
+    "latency_ms": 89.93002300121589,
+    "physical_arm_change_mse": 0.0002153908571926877,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.050537109375
+  },
+  {
+    "bank_index": 62,
+    "task_id": 6,
+    "latency_ms": 90.3249839975615,
+    "physical_arm_change_mse": 0.00042481240234337747,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.11328125
+  },
+  {
+    "bank_index": 63,
+    "task_id": 6,
+    "latency_ms": 89.72220699797617,
+    "physical_arm_change_mse": 6.733984628226608e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03271484375
+  },
+  {
+    "bank_index": 64,
+    "task_id": 6,
+    "latency_ms": 89.80882000105339,
+    "physical_arm_change_mse": 0.0003558666503522545,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.09375
+  },
+  {
+    "bank_index": 65,
+    "task_id": 6,
+    "latency_ms": 90.8672099976684,
+    "physical_arm_change_mse": 5.3089141147211194e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.030029296875
+  },
+  {
+    "bank_index": 66,
+    "task_id": 6,
+    "latency_ms": 89.7877490024257,
+    "physical_arm_change_mse": 0.00017382758960593492,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05224609375
+  },
+  {
+    "bank_index": 67,
+    "task_id": 6,
+    "latency_ms": 91.59308999733184,
+    "physical_arm_change_mse": 0.0002240186877315864,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0625
+  },
+  {
+    "bank_index": 68,
+    "task_id": 6,
+    "latency_ms": 90.45107800193364,
+    "physical_arm_change_mse": 0.00031317907269112766,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0625
+  },
+  {
+    "bank_index": 69,
+    "task_id": 6,
+    "latency_ms": 91.03049300028943,
+    "physical_arm_change_mse": 0.00017207865312229842,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0546875
+  },
+  {
+    "bank_index": 72,
+    "task_id": 7,
+    "latency_ms": 90.11303800070891,
+    "physical_arm_change_mse": 0.00015120391617529094,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04296875
+  },
+  {
+    "bank_index": 73,
+    "task_id": 7,
+    "latency_ms": 89.58609200271894,
+    "physical_arm_change_mse": 0.00010589112935122102,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0322265625
+  },
+  {
+    "bank_index": 74,
+    "task_id": 7,
+    "latency_ms": 91.15253599884454,
+    "physical_arm_change_mse": 0.00017261134053114802,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0546875
+  },
+  {
+    "bank_index": 75,
+    "task_id": 7,
+    "latency_ms": 90.35071399921435,
+    "physical_arm_change_mse": 0.00011334047303535044,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.037109375
+  },
+  {
+    "bank_index": 76,
+    "task_id": 7,
+    "latency_ms": 91.49277600226924,
+    "physical_arm_change_mse": 0.00027182087069377303,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0533447265625
+  },
+  {
+    "bank_index": 77,
+    "task_id": 7,
+    "latency_ms": 90.70014399912907,
+    "physical_arm_change_mse": 0.00012250295549165457,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04150390625
+  },
+  {
+    "bank_index": 78,
+    "task_id": 7,
+    "latency_ms": 90.60327100087306,
+    "physical_arm_change_mse": 0.00019037863239645958,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.039916977286338806
+  },
+  {
+    "bank_index": 79,
+    "task_id": 7,
+    "latency_ms": 91.31313000034424,
+    "physical_arm_change_mse": 0.00014476984506472945,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05224609375
+  },
+  {
+    "bank_index": 82,
+    "task_id": 8,
+    "latency_ms": 90.33885300232214,
+    "physical_arm_change_mse": 0.00020163568842690438,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04345703125
+  },
+  {
+    "bank_index": 83,
+    "task_id": 8,
+    "latency_ms": 92.0803020017047,
+    "physical_arm_change_mse": 0.0001934385218191892,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0400390625
+  },
+  {
+    "bank_index": 84,
+    "task_id": 8,
+    "latency_ms": 90.618739999627,
+    "physical_arm_change_mse": 0.0001702192093944177,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05633544921875
+  },
+  {
+    "bank_index": 85,
+    "task_id": 8,
+    "latency_ms": 91.76496199870599,
+    "physical_arm_change_mse": 0.00011860310041811317,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.030517578125
+  },
+  {
+    "bank_index": 86,
+    "task_id": 8,
+    "latency_ms": 90.70862299995497,
+    "physical_arm_change_mse": 0.00012424832675606012,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03515625
+  },
+  {
+    "bank_index": 87,
+    "task_id": 8,
+    "latency_ms": 90.55030799936503,
+    "physical_arm_change_mse": 0.00022339748102240264,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05859375
+  },
+  {
+    "bank_index": 88,
+    "task_id": 8,
+    "latency_ms": 91.9606780007598,
+    "physical_arm_change_mse": 0.00012100812455173582,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0391845703125
+  },
+  {
+    "bank_index": 89,
+    "task_id": 8,
+    "latency_ms": 90.16526699997485,
+    "physical_arm_change_mse": 9.466091432841495e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03125
+  },
+  {
+    "bank_index": 92,
+    "task_id": 9,
+    "latency_ms": 92.16422399913426,
+    "physical_arm_change_mse": 0.0003940715978387743,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04248046875
+  },
+  {
+    "bank_index": 93,
+    "task_id": 9,
+    "latency_ms": 90.48624600109179,
+    "physical_arm_change_mse": 0.00014196189295034856,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0433349609375
+  },
+  {
+    "bank_index": 94,
+    "task_id": 9,
+    "latency_ms": 91.64503900319687,
+    "physical_arm_change_mse": 0.0001817427109926939,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.03564453125
+  },
+  {
+    "bank_index": 95,
+    "task_id": 9,
+    "latency_ms": 91.14561499882257,
+    "physical_arm_change_mse": 0.00010886375821428373,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.037109375
+  },
+  {
+    "bank_index": 96,
+    "task_id": 9,
+    "latency_ms": 90.88369800156215,
+    "physical_arm_change_mse": 0.00028728999313898385,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.048828125
+  },
+  {
+    "bank_index": 97,
+    "task_id": 9,
+    "latency_ms": 91.11188300084905,
+    "physical_arm_change_mse": 0.0002989400236401707,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0458984375
+  },
+  {
+    "bank_index": 98,
+    "task_id": 9,
+    "latency_ms": 90.11263499996858,
+    "physical_arm_change_mse": 0.0003257929638493806,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0546875
+  },
+  {
+    "bank_index": 99,
+    "task_id": 9,
+    "latency_ms": 90.36870199997793,
+    "physical_arm_change_mse": 0.0002536561223678291,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0498046875
+  },
+  {
+    "bank_index": 2,
+    "task_id": 0,
+    "latency_ms": 89.667512998858,
+    "physical_arm_change_mse": 0.00018424390873406082,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.052734375
+  },
+  {
+    "bank_index": 3,
+    "task_id": 0,
+    "latency_ms": 90.00825199836981,
+    "physical_arm_change_mse": 0.00022004637867212296,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.064727783203125
+  },
+  {
+    "bank_index": 4,
+    "task_id": 0,
+    "latency_ms": 90.98382900265278,
+    "physical_arm_change_mse": 0.00024541348102502525,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0546875
+  },
+  {
+    "bank_index": 5,
+    "task_id": 0,
+    "latency_ms": 89.77885599961155,
+    "physical_arm_change_mse": 0.00033126663765870035,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.046875
+  },
+  {
+    "bank_index": 6,
+    "task_id": 0,
+    "latency_ms": 91.61912700074026,
+    "physical_arm_change_mse": 0.0003966302901972085,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.064453125
+  },
+  {
+    "bank_index": 7,
+    "task_id": 0,
+    "latency_ms": 90.04891299991868,
+    "physical_arm_change_mse": 0.00021091612870804965,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.04052734375
+  },
+  {
+    "bank_index": 8,
+    "task_id": 0,
+    "latency_ms": 91.11061200019321,
+    "physical_arm_change_mse": 0.0002350453578401357,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.046875
+  },
+  {
+    "bank_index": 9,
+    "task_id": 0,
+    "latency_ms": 90.63468900058069,
+    "physical_arm_change_mse": 0.00023837281332816929,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.044921875
+  },
+  {
+    "bank_index": 12,
+    "task_id": 1,
+    "latency_ms": 89.99871099877055,
+    "physical_arm_change_mse": 9.385343582835048e-05,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.0419921875
+  },
+  {
+    "bank_index": 13,
+    "task_id": 1,
+    "latency_ms": 90.88971500023035,
+    "physical_arm_change_mse": 0.00020550093904603273,
+    "gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.05810546875
+  }
+]

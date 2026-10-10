@@ -1,0 +1,235 @@
+{
+  "verified_at": "2026-10-10T00:04:14.466437+00:00",
+  "change": "Full-vocabulary INT8 embedding replaced with 53 BF16 rows; each pair preserves its other quantization settings",
+  "pairs": {
+    "deploy-hqq2-vision-action-restricted": {
+      "control": "deploy-hqq2-vision-action",
+      "candidates": {
+        "deploy-hqq2-vision-action": {
+          "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f",
+          "screen_record_sha256": "4a9926e95f48c939e88421007239c4dc782ab87c8cf86f2bd4cb9b00c6545d0d",
+          "smoke": {
+            "episodes": 10,
+            "successes": 8,
+            "success_fraction": 0.8,
+            "wilson95_fraction": [
+              0.49016247153664183,
+              0.9433178485456247
+            ],
+            "task_successes": {
+              "0": 0,
+              "1": 1,
+              "2": 1,
+              "3": 1,
+              "4": 1,
+              "5": 1,
+              "6": 1,
+              "7": 1,
+              "8": 0,
+              "9": 1
+            },
+            "episodes_sha256": "c49a470b72d62e870ca318d699fb335bb41b69319622138ae142e34e87f4b267",
+            "record_sha256": "8d051fef9bc2ac1d9ac2e2e67e036db1a9a4fadb72771f636ea635d4f9026712",
+            "paired_vs_B16": {
+              "transitions": {
+                "both_success": 8,
+                "both_failure": 2,
+                "gained_success": 0,
+                "lost_success": 0
+              },
+              "difference_pp": 0.0,
+              "ci95_pp": null,
+              "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+            }
+          },
+          "screen": {
+            "peak_allocated_bytes": 1376828416,
+            "peak_reserved_bytes": 2497708032,
+            "resident_tensor_storage_bytes": 1288371466,
+            "pipeline_median_ms": 146.68336050090147,
+            "pipeline_p95_ms": 151.38955710008304,
+            "inference_core_logical_parameter_elements": 2282714375
+          }
+        },
+        "deploy-hqq2-vision-action-restricted": {
+          "recipe_sha256": "5fa94a9fd2e5f606c9c18aaba913568eec76f1f36d25b469c0c3e6ab060460dc",
+          "screen_record_sha256": "b9ed39fa2c8d157b6dfcf0fc3b1860d28c13ff865d571d4a04ea86c198f205fd",
+          "smoke": {
+            "episodes": 10,
+            "successes": 8,
+            "success_fraction": 0.8,
+            "wilson95_fraction": [
+              0.49016247153664183,
+              0.9433178485456247
+            ],
+            "task_successes": {
+              "0": 0,
+              "1": 1,
+              "2": 1,
+              "3": 1,
+              "4": 1,
+              "5": 1,
+              "6": 1,
+              "7": 1,
+              "8": 0,
+              "9": 1
+            },
+            "episodes_sha256": "eea667416f99a8676198ce040afc92a82bcd8940005ce650825d71f99d4e1eee",
+            "record_sha256": "d0a74b6c15273b75b06646605b850c40378c518c29f2583b1ad603a61d700cf4",
+            "paired_vs_B16": {
+              "transitions": {
+                "both_success": 8,
+                "both_failure": 2,
+                "gained_success": 0,
+                "lost_success": 0
+              },
+              "difference_pp": 0.0,
+              "ci95_pp": null,
+              "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+            }
+          },
+          "screen": {
+            "peak_allocated_bytes": 1065881088,
+            "peak_reserved_bytes": 1285554176,
+            "resident_tensor_storage_bytes": 977424050,
+            "pipeline_median_ms": 143.69350550259696,
+            "pipeline_p95_ms": 147.94932209952094,
+            "inference_core_logical_parameter_elements": 1971657991
+          }
+        }
+      },
+      "paired_vs_counterpart": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      }
+    },
+    "deploy-hqq3-text-hqq2-restricted": {
+      "control": "deploy-hqq3-text-hqq2",
+      "candidates": {
+        "deploy-hqq3-text-hqq2": {
+          "recipe_sha256": "8277050f59416179008ca641fb7bc367f9acb17c030360289453e8e37f33c461",
+          "screen_record_sha256": "a5ad6db76931227abdb4c7228ca7728603e1890b1f5ebab55b1f0edf7dfd8c6f",
+          "smoke": {
+            "episodes": 10,
+            "successes": 7,
+            "success_fraction": 0.7,
+            "wilson95_fraction": [
+              0.39677814746114537,
+              0.8922087325936989
+            ],
+            "task_successes": {
+              "0": 0,
+              "1": 1,
+              "2": 1,
+              "3": 1,
+              "4": 0,
+              "5": 1,
+              "6": 1,
+              "7": 1,
+              "8": 0,
+              "9": 1
+            },
+            "episodes_sha256": "910355485e7421eae6389c55802e4d8a2ca911ed88cd621932113e675681691d",
+            "record_sha256": "0f0fdeccc31559c2304c45acb38faf638e2b2d72bc6bbebd50bf0b7d2a76ce20",
+            "paired_vs_B16": {
+              "transitions": {
+                "both_success": 7,
+                "both_failure": 2,
+                "gained_success": 0,
+                "lost_success": 1
+              },
+              "difference_pp": -10.0,
+              "ci95_pp": null,
+              "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+            }
+          },
+          "screen": {
+            "peak_allocated_bytes": 1402428416,
+            "peak_reserved_bytes": 1904214016,
+            "resident_tensor_storage_bytes": 1265793274,
+            "pipeline_median_ms": 188.71169999874837,
+            "pipeline_p95_ms": 206.82918909988075,
+            "inference_core_logical_parameter_elements": 2282714375
+          }
+        },
+        "deploy-hqq3-text-hqq2-restricted": {
+          "recipe_sha256": "bbcd1856047907515d005fe1af8c5764dfa151e684d6a91f7159c8dcdb63db9e",
+          "screen_record_sha256": "cbaa4ae1ec4e8115e7f22e011c8674035fb9e0f18a735541fa7417ff1f593564",
+          "smoke": {
+            "episodes": 10,
+            "successes": 7,
+            "success_fraction": 0.7,
+            "wilson95_fraction": [
+              0.39677814746114537,
+              0.8922087325936989
+            ],
+            "task_successes": {
+              "0": 0,
+              "1": 1,
+              "2": 1,
+              "3": 1,
+              "4": 0,
+              "5": 1,
+              "6": 1,
+              "7": 1,
+              "8": 0,
+              "9": 1
+            },
+            "episodes_sha256": "13a760b362f1b32931b92320cf910471fd1797f88ec05a36f93348cb56a53168",
+            "record_sha256": "07325f5ce4a6a23741173c9c3a63855fab90c3102659d030758197aaa61f0dde",
+            "paired_vs_B16": {
+              "transitions": {
+                "both_success": 7,
+                "both_failure": 2,
+                "gained_success": 0,
+                "lost_success": 1
+              },
+              "difference_pp": -10.0,
+              "ci95_pp": null,
+              "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+            }
+          },
+          "screen": {
+            "peak_allocated_bytes": 1111666176,
+            "peak_reserved_bytes": 1350565888,
+            "resident_tensor_storage_bytes": 954845858,
+            "pipeline_median_ms": 191.78933199873427,
+            "pipeline_p95_ms": 195.31877870249446,
+            "inference_core_logical_parameter_elements": 1971657991
+          }
+        }
+      },
+      "paired_vs_counterpart": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 3,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      }
+    }
+  },
+  "paired_HQQ3_vs_NF4_restricted": {
+    "transitions": {
+      "both_success": 7,
+      "both_failure": 2,
+      "gained_success": 0,
+      "lost_success": 1
+    },
+    "difference_pp": -10.0,
+    "ci95_pp": null,
+    "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state preliminary task results and 80-observation screens; restricted vocabulary rejects unseen token IDs; packed archive sizes, reserved confirmation and steady inference benchmarks remain pending"
+}

@@ -1,0 +1,76 @@
+{
+  "verified_at": "2026-10-10T01:28:24.496956+00:00",
+  "control": "deploy-nf4-text-channel-boundaries-restricted",
+  "candidate": "deploy-nf4-channel-boundaries-restricted",
+  "added_changes": [
+    {
+      "method": "channels",
+      "scope": "action_mlp",
+      "fraction": 0.75
+    },
+    {
+      "method": "channels",
+      "scope": "merger",
+      "fraction": 0.75
+    },
+    {
+      "method": "channels",
+      "scope": "vision_mlp",
+      "fraction": 0.5
+    }
+  ],
+  "shared_language_channel_selection_verified": {
+    "modules": 28,
+    "identical_indices_sha256": true
+  },
+  "recipe_sha256": {
+    "deploy-nf4-text-channel-boundaries-restricted": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+    "deploy-nf4-channel-boundaries-restricted": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd"
+  },
+  "development_record_sha256": {
+    "deploy-nf4-text-channel-boundaries-restricted": "0e03f358af7d54a2a4daf016f4c170167828c88729d6ee2f614aa618053ac035",
+    "deploy-nf4-channel-boundaries-restricted": "4c5a988d0c2db3e86bddfd7a9ddc0c2b76a691c6c3d7f9efdf33fb30f206b80f"
+  },
+  "development_episodes_sha256": {
+    "deploy-nf4-text-channel-boundaries-restricted": "34173a24d0a0e138ada82ba3934193cfea3ef827c9b57341b4ff18c309ca214c",
+    "deploy-nf4-channel-boundaries-restricted": "39f73df4c58505542570ec2d658af2937642727980aaee39aee7281a9bf18602"
+  },
+  "successes": {
+    "deploy-nf4-text-channel-boundaries-restricted": 78,
+    "deploy-nf4-channel-boundaries-restricted": 70
+  },
+  "paired_development": {
+    "transitions": {
+      "both_success": 67,
+      "both_failure": 19,
+      "gained_success": 3,
+      "lost_success": 11
+    },
+    "difference_pp": -8.0,
+    "ci95_pp": [
+      -15.0,
+      -1.9999999999999998
+    ],
+    "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+  },
+  "screen": {
+    "deploy-nf4-text-channel-boundaries-restricted": {
+      "peak_allocated_bytes": 985355776,
+      "peak_reserved_bytes": 2636120064,
+      "resident_tensor_storage_bytes": 890024690,
+      "pipeline_median_ms": 138.71393199951854,
+      "inference_core_logical_parameter_elements": 1707416839
+    },
+    "deploy-nf4-channel-boundaries-restricted": {
+      "peak_allocated_bytes": 870110720,
+      "peak_reserved_bytes": 2462056448,
+      "resident_tensor_storage_bytes": 769742066,
+      "pipeline_median_ms": 140.9941934980452,
+      "inference_core_logical_parameter_elements": 1474534663
+    }
+  },
+  "screen_peak_allocated_reduction_fraction": 0.1169578124033851,
+  "resident_storage_reduction_fraction": 0.13514526658805381,
+  "final_outcomes_used": false,
+  "interpretation": "Matched 100-state comparison of the additional vision, merger and action channel reductions together; shared language-pruned channel indices, other recipe changes and rollout controls agree. This comparison does not isolate the contribution of any one additional root. Screen inference metrics remain separate from actual archive size and final steady benchmarks."
+}

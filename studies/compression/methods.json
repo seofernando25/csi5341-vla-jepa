@@ -1,0 +1,174 @@
+{
+  "upstream": {
+    "gptq": {
+      "repository": "https://github.com/IST-DASLab/gptq",
+      "revision": "2d65066eeb06a5c9ff5184d8cebdf33662c67faf",
+      "files": {
+        "gptq.py": "bb47468cc2c788577562751de414d76eeb9968ff1c6098e21153557ef3d154c7",
+        "quant.py": "211528568b962b868d20fc58b55200b615f41ebd9f36b4d2d7e4a196a095ea5a"
+      },
+      "license": "Apache-2.0"
+    },
+    "sparsegpt": {
+      "repository": "https://github.com/IST-DASLab/sparsegpt",
+      "revision": "147d2159dc4f3e9f73e47b32c04d7b3708f44436",
+      "files": {
+        "sparsegpt.py": "cca2ec0a006f963bc7750ebec8e2320aa2728fb242924cc3f2d5d23fb98530a7",
+        "quant.py": "c925dfeba1d4772bc50081a65bccd8dc73338860852d83a7daa80f501c4f7990"
+      },
+      "license": "Apache-2.0"
+    },
+    "quantvla": {
+      "repository": "https://github.com/AIoT-MLSys-Lab/QuantVLA",
+      "revision": "9e435e56aac4e743526557e5d9ba6e4fddd6ccca",
+      "files": {
+        "gr00t/atm/dit_atm.py": "108fc38d5488befe6ec6f482faad9d8acf69624c608fee455be5c962c33fd1fe",
+        "tools/calibrate_atm_dit.py": "9adc5e8a3cbc674403fcff4b1ccb987dbb4502edfa3d54b3e9cacdf760ea12ab"
+      },
+      "license": "Apache-2.0",
+      "adaptation": "upstream Diffusers processor, ATM/OHB formulas, accepted BF16 teacher and NF4 quantizer; not full GR00T DuQuant/W4A8 reproduction"
+    },
+    "hqq": {
+      "repository": "https://github.com/dropbox/hqq",
+      "revision": "d88a488ec8aa2d58362ef2038a52bca862db2e74",
+      "files": {
+        "hqq/__init__.py": "b2eebcec57abb392d39128becbe0ab0d8aa658ce3fd6397b1606ae046e3cea3e",
+        "hqq/backends/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/backends/bitblas.py": "cb890343ea654d78bcd00ac23483c6a614c7c8661f0a0f87a42b9e9ea3edd996",
+        "hqq/backends/gemlite.py": "b05496b0c4d4835775fa19899eca0b8a1380d641997225918cf5b37781d637bf",
+        "hqq/backends/marlin.py": "6391dcece38057d8806cba9a114615bbb639ca62e4d3ba099bcd6cb20224d932",
+        "hqq/backends/torchao.py": "3d3da731fe17d1e6400f4b855a7e217d8bcb7a17891bbcbf8ad481fc90d2bd2b",
+        "hqq/core/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/core/bitpack.py": "19499f1c72e5f2422e7c90d83ab370e006bbbbad0ede3020b7e356688d99fca8",
+        "hqq/core/optimize.py": "c3cadc3332d0c0ae172f347cb244ccc126ebae861160ad0dcab8e76dd4915a64",
+        "hqq/core/peft.py": "ee363f464c3f04003d8e126c511d8c1107e37ecd42e154eeb9d5fca5109a8944",
+        "hqq/core/quantize.py": "a76a054ba4382d9552f563c468296771cddf53dcd9f4ce6655f94fe18e653daa",
+        "hqq/core/utils.py": "808316e4337f6a6305b97844c729a5b70a072052ae5c1c69b793834a143fdf60",
+        "hqq/engine/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/engine/base.py": "6f332f98bb44dbb3b5d8013b08184fca2147ad5bf0c7bcfc4abc6fc685cd2b40",
+        "hqq/engine/hf.py": "b720b3424ee3aeda2f8ac69c822a605f4037ad0cb605a2bf2acea50ce7bc2fcc",
+        "hqq/engine/timm.py": "b3f17bf84532c430cda597d11885e48333df27c729290682249332e6edc97d58",
+        "hqq/kernels/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/kernels/setup_cuda.py": "25d768804f00fa5d330322309acdf0b6a6ee2e55233d6b852f2828f375007b25",
+        "hqq/kernels/setup_torch.py": "dd3213ae17208ae7e269eae48eefbb4e360c538a7b6a83f10996bc04acf14ebc",
+        "hqq/models/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/models/base.py": "4823d53d2992a0eada577cc8bc5c58202eca33d15b792ec50dc03ab63fdf7dc6",
+        "hqq/models/hf/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/models/hf/base.py": "d4b92a44bb0f3ef89c9a17cf058e84e1421482f44fd65ff654dbb51b0d32e844",
+        "hqq/models/hf/llama.py": "f6ad3b5a65264bb7bedb55e91dd4a0b4362d5efda8e464f1d9f59d52fcb9254c",
+        "hqq/models/hf/mistral.py": "d4e280e68cc4ae19e8e7796551dfd44e022a8665d595e4ce0a7aaf332639feff",
+        "hqq/models/hf/mixtral.py": "7a0286e3cf289b97d8d5a822dbcb7ab232db9eabd9c98fd492b6f7a5e1f59bc8",
+        "hqq/models/hf/phi.py": "925baa1586ed96de9afdf04abee8cf41b607ce3d02fc2828555229f73f16ee79",
+        "hqq/models/hf/phi_opt.py": "a6f24403cbd0bab180eb0f1c5c7302a5f8be4cabf8e24286e832ccb1c92ed6d4",
+        "hqq/utils/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hqq/utils/aria.py": "83041c530dcdd8624881234aaa20a20950965b5acad244b67abe13a527c4174a",
+        "hqq/utils/generation_hf.py": "5f1648228e28787b6b2670a39c8d315f76ac308201b45bf2bee638ef71d113ef",
+        "hqq/utils/patching.py": "7df6fc91664722fb7811b2f6d26bddf7bd028bc058d6165a9c5a2be981e26412",
+        "hqq/utils/vllm.py": "d1c260498bf8df35c12f7798538ec49a612e764737338a1f5cd1cee2d414ec67"
+      },
+      "license": "Apache-2.0"
+    },
+    "gemlite": {
+      "repository": "https://github.com/dropbox/gemlite",
+      "revision": "f649e80e3014bc7ca8195573683c2c440f3bd94e",
+      "files": {
+        "gemlite/__init__.py": "dceca7413e8e50e16e817cf6ba3643979b2eb8f76b746a5dc3a45cc03b317568",
+        "gemlite/bitpack.py": "2042461b3c93f81f3b51d365f05c1a73e1ddc4f50e082cb834f384cbee8a303a",
+        "gemlite/core.py": "b36b78be00724ce19b8c0f06fdbfa7e391b22c5408cab24239647fb1f10ce544",
+        "gemlite/dtypes.py": "b3587a1b22691f9f16b88a84377f531f757d00dd67e6ff6b93dbed1349efd167",
+        "gemlite/helper.py": "48cba3b6c866a46c4d20800234bc63d89e897294eadafbed7e67e6ebea6f56cd",
+        "gemlite/quant_utils.py": "1ccf7f57dfeb86e411eb2ace753f2c94791611dbf5dcbc7ae63710d432c964c5",
+        "gemlite/triton_kernels/__init__.py": "5970f3b3b36a5fb35d71199c7cd0e8a3b6646ce5f7649b100f51dbd92b35710f",
+        "gemlite/triton_kernels/config.py": "acee1dfe34b82a400215365338030e905fca27971c7a137137992869d18bf2bc",
+        "gemlite/triton_kernels/experimental/A16W3_gemm.py": "8f628d5525f794f784fbf617838a21475a5173b231ef5922d4b6be3b2f57e773",
+        "gemlite/triton_kernels/experimental/A16W5_gemm.py": "3f872d3fa821a05cb84706ffb9e97e73255b461f5a8c2f6f61ccc48bae7a0631",
+        "gemlite/triton_kernels/gemm_kernels.py": "363b39af888bf499fa0494414030881fa0b9e64de7ddded6a1d70b5476da4fc7",
+        "gemlite/triton_kernels/gemm_splitK_kernels.py": "c4abe5849bab8922e9c403de424075592012e1ee2d954f4f8863459f02b7a038",
+        "gemlite/triton_kernels/gemm_splitK_persistent_kernels.py": "6acfa4eb21f9e6ab00d5d4ef5c43ff9a28059d971afc10c6508acaade4f77715",
+        "gemlite/triton_kernels/gemv_kernels.py": "32d9802d93990aabdad9a9589f7c35f0b68ee29603f553081cc3e6137a3511d3",
+        "gemlite/triton_kernels/gemv_revsplitK_kernels.py": "ae1379bdc387a713ee44b5a5bc30b8be345db1c57aa2fc92e9d6ac64a8980055",
+        "gemlite/triton_kernels/gemv_splitK_kernels.py": "315d0fdb3b8b376ca224d48ba82f31f65b94123bafd567216361f78c702980b5",
+        "gemlite/triton_kernels/utils.py": "e4b767dc6923a8f23af0f01568d52e64d2f0e6bfc78dbe4b40046020f1ce965d",
+        "gemlite/vllm/__init__.py": "4220e3f18229da0d30fd3d7a7b90e945ddbb1844ebe63dcacc06d22af010e7f8",
+        "gemlite/vllm/backend.py": "847919cc94688f1d7e0ac3c3d206ff325fa761a43d2a0f1d568792c0bff093b6",
+        "gemlite/vllm/common.py": "27974b87d9bee6e0df90e950ce7ef2944d0bbe09a7e7fc9b12395d49758bcf08",
+        "gemlite/vllm/examples/chat_once.py": "fd844e6d1075f41b5806254b8f311361e6a04475cabf7c8b914a880402b07bde",
+        "gemlite/vllm/gguf_loader.py": "83daeb8698cd7b5ba6caebe3d194a3f9f4b54023bd0d9348427a6c82ebc269c6",
+        "gemlite/vllm/onthefly.py": "79e594cd3e6942538700fb540c67eeb572725f74b5fb353908e67fe6c2b7f317",
+        "gemlite/vllm/schemes.py": "c32fb87b4a195542fdcf613545bd0745c6a09f6d76ac21fad8029922020a5312"
+      },
+      "license": "Apache-2.0"
+    }
+  },
+  "torchao": {
+    "version": "0.18.0",
+    "installation": "isolated runtime target, no changes to pinned baseline dependencies",
+    "backend_comparisons": {
+      "original": "eager quantized Linear dispatch; preserve all original outcomes",
+      "addition": "Scoped Linear-only torch.compile (Inductor, default mode, fullgraph=True, dynamic=True); matching BF16 controls per scope. Remaining policy operations are eager. Compiler failures are not silently converted to eager execution.",
+      "upstream_source": "https://github.com/pytorch/ao/blob/main/torchao/quantization/quant_api.py",
+      "pinned_quant_api_sha256": "8b8edff06bd6ff92c9f5a907e824867931a220c111ff1718cfc8e59a8e8ea3be",
+      "documentation": "https://docs.pytorch.org/ao/stable/workflows/inference.html",
+      "matching_bf16_inductor_flags": [
+        "coordinate_descent_tuning",
+        "coordinate_descent_check_all_directions",
+        "force_fuse_int_mm_with_mul",
+        "fx_graph_cache",
+        "triton.unique_kernel_names"
+      ],
+      "pinned_inductor_setter_source_sha256": "bfbf17b9f2914878359e36a12865bcf2e868e73cf64bb1f49ee6e4e9146c9dbe",
+      "triton_route": {
+        "mode": "max-autotune-no-cudagraphs",
+        "max_autotune_gemm_backends": "TRITON",
+        "fullgraph": true,
+        "dynamic": true,
+        "original_weight_and_input_shapes_preserved": true,
+        "silent_eager_fallback": false,
+        "purpose": "Test native Inductor Triton GEMM for small action matrix rows and widths after the default cuBLAS route failed",
+        "failed_default_screen_sha256": "3640596f246212e659cb4d5e1055e26d1fe3fad0f4301667bead1e4f2380209c",
+        "pinned_inductor_mm_source_sha256": "df7b122313ebb7f07b3a8fcd09e9ad6975c29173257fbbd1e4605b22461148ad",
+        "pinned_torchao_intmm_source_sha256": "fec0f8d0e6164c303fbf4aafd3e0121ba3cdb6c48263d9d2b042365382cd637a",
+        "gpu_validation": "Both action Triton recipes completed finite CUDA screens and matched ten-state smoke trials; both scored 8/10 on B16 successful states; development and final benchmarks remain separate",
+        "screen_record_sha256": {
+          "action-bf16-compiled-triton": "8eee079276317d3ee4fe6c9d24e230ca81c589b1a16c43fc92cb50dae6ceb05b",
+          "action-torchao-dynamic8-compiled-triton": "71caa1a42d12d0ff8fd956c39fc375e2637825507e9a03e2d554bcc1c21d4227"
+        },
+        "smoke_record_sha256": {
+          "action-bf16-compiled-triton": "dce5f446835d704bae8164a72c27d2028d810423d5810a3a8407677f1b4ad57e",
+          "action-torchao-dynamic8-compiled-triton": "5a543a5238446079b80257f656972de4cee06fc68eb2bc1939b60e4ea2bea27f"
+        }
+      }
+    }
+  },
+  "awq_diagonal": {
+    "label": "AWQ-inspired adaptation",
+    "difference": "activation-energy diagonal reconstruction per Linear, not original block-output search"
+  },
+  "visual_tokens": {
+    "label": "per-camera magnitude/uniform compaction",
+    "difference": "preserves MRoPE positions and DeepStack feature membership; no claim of full QUOTA reproduction"
+  },
+  "availability_and_scope": {
+    "checked_at": "2026-10-09T19:48:53.793998+00:00",
+    "EcoVLA": {
+      "source": "https://github.com/Echo-hyt/Ecovla",
+      "observation": "Official repository contains only README; authors state implementation is being prepared for release.",
+      "tested_original_implementation": false
+    },
+    "QUOTA": {
+      "source": "https://arxiv.org/abs/2604.17320",
+      "observation": "Abstract states code will be released. Our per-camera magnitude/uniform token compaction is a separate control, not QUOTA.",
+      "tested_original_implementation": false
+    },
+    "CLP_VLA": {
+      "source": "https://arxiv.org/abs/2606.20246",
+      "observation": "Reported pipeline includes downstream fine-tuning. Our CKA ranking/pruning tests are post-training without fine-tuning.",
+      "tested_original_implementation": false
+    },
+    "CHASE_VLA": {
+      "source": "https://arxiv.org/html/2610.02666v1",
+      "observation": "Paper targets chunk-conditioned W4A4 action-expert activation scaling. It is not implemented or claimed as a tested method in this matrix.",
+      "tested_original_implementation": false
+    }
+  }
+}

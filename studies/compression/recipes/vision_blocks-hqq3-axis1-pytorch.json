@@ -1,0 +1,14 @@
+{
+  "id": "vision_blocks-hqq3-axis1-pytorch",
+  "family": "HQQ packed post-training quantization",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "vision_blocks",
+      "bits": 3,
+      "axis": 1,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

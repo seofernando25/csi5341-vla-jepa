@@ -1,0 +1,252 @@
+{
+  "verified_at": "2026-10-10T03:34:02.605325+00:00",
+  "candidate": "vision_attention-heads-500",
+  "recipe_sha256": "a8e7bbbbed0cbe8cae5d09eb1adfe92fd84628a788a9118343ac6e972a5f2aee",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 82,
+    "success_fraction": 0.82,
+    "wilson95_fraction": [
+      0.7333264161369926,
+      0.8829977450105364
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 6,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "81309faaf421a8bfb0acaeb7a4ef55b8cc52571039cf9ccef7be0dfd230f343c",
+    "record_sha256": "c3356fb2fc9cbedc952ecdff96a44162bc4213f5d75aeb53614f4daf26bc49fd",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 80,
+        "both_failure": 16,
+        "gained_success": 2,
+        "lost_success": 2
+      },
+      "difference_pp": 0.0,
+      "ci95_pp": [
+        -4.0,
+        4.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "b24f65409a4fb0dd3499eb7caef27a623cb685bd7fad6a776124448a14228027",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_attention_heads": [
+    {
+      "method": "heads",
+      "module": "vision.blocks.0.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "18e5b133aa41fde68314fedbeee4c43d59de50848a7e4ed5b8d700f3e8ef14e2"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.1.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "534c6aa9e62a056438a677b4ca135e356296bb85164553459294d3e5928e586a"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.2.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "0b57f3425150b520d6570762d939f8508b9d0c40895ec8dca31b34faded37a7a"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.3.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "0caa4ee8c45dfcbf7fbf20c7f658a8315c169ba115eafe075835311626ea6d63"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.4.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "5a90781a2ee0c4978cc482ab2cbf6af84b8737b593692ffde3f3012034811342"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.5.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "bcf71084a3961c8c9191ea46a7f59ab656027565757ae838c57a6b31554986d2"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.6.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "509baa059808f03cf7d444f1511b9c2312fb186712643ce998f200006c33f469"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.7.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "956f9e345f38e0f21587c50ec4e5c9de4e115a0f2ec832e46fea9fb58617d046"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.8.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "40f4be96bde4352e0b1dcef342e589c4d7222050f9ab4073d122648f33a1fd15"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.9.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "dc65d338ddfa8d8df343c56ee3d18e6fe19414148afee772ed2795f40b12c85c"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.10.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "95ab0e68c1fc3f9641f5d0eea742003eec851cc7a4b2bc64c2acb3572d55fc3a"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.11.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "21b35eb8b2be0698b1cf4b72ef474c5815b29ea031a0f4a7db99701146ce1109"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.12.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "fac6b03f019472370d042331943a3b3f34d132e3de4ab29c076c4648b4852024"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.13.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "40756e5fa41cc5bc6ae8efa9bbe3cf2d0c9b6689ae4dd052ae75c475e620a2ed"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.14.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "792325e6d0e6fdafbdc10f50ca011b603fad5ee1ecdbb9da6e1dd0ba83fc2464"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.15.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "4f5018126dfebd43faaa0e787cd6efcf7a550c2bdf4756efc0f9049adf6fdbcb"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.16.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "f8348a3d1150d4643d41dcc98cf5abb4aef298a3ecb90b56d4e6e8fbae3dc3d8"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.17.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "2a5404f49d96943690730aeda3dc3e25d35ee586d413d3497515c6afea83f5e0"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.18.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "86b905876861322ca6b787d10a8273ebb5ae24b8ba9342d7fc5a9002dd31bcd2"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.19.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "58469f71457490f9a5bd077fabf71054deaa6d64609ff2147ef1abbd2e9d0879"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.20.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "1114ccfed8bf2df7901793cee44c604fbe52a5504749f121134ae6c8e1f3a7b7"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.21.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "32c539064844826f40b8ae3b5c219a00ad1246e22ab177a2930472b3533bbade"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.22.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "d7cf17cebb6ed5a047c9b11e939ef9297a50d841f2d543ffa368c695849f66ea"
+    },
+    {
+      "method": "heads",
+      "module": "vision.blocks.23.attn.proj",
+      "original_heads": 16,
+      "kept_heads": 8,
+      "head_dim": 64,
+      "kept_indices_sha256": "451e80fcf65c4e8d1455bb4c43907ac736c6c74cb7b1b6e81cde4bc5c62c1cfd"
+    }
+  ],
+  "screen_record_sha256": "edbfda8898bce349b26103655c4274ec4c096a1842b145777179bff0c600cb13",
+  "screen": {
+    "peak_allocated_bytes": 5519076352,
+    "peak_reserved_bytes": 5645533184,
+    "resident_tensor_storage_bytes": 5431539470,
+    "pipeline_median_ms": 75.48199499979091,
+    "inference_core_logical_parameter_elements": 2232345863
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone vision-head pruning comparison; all episode records validated. Physically retains 8 of 16 heads in each of 24 blocks, preserving head dimension 64. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

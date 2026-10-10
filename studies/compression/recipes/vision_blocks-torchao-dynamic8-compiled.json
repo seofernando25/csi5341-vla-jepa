@@ -1,0 +1,15 @@
+{
+  "id": "vision_blocks-torchao-dynamic8-compiled",
+  "family": "compiled TorchAO W8A8",
+  "changes": [
+    {
+      "method": "torchao",
+      "scope": "vision_blocks",
+      "bits": 8
+    },
+    {
+      "method": "compile_linears",
+      "scope": "vision_blocks"
+    }
+  ]
+}

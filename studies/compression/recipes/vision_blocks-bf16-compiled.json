@@ -1,0 +1,10 @@
+{
+  "id": "vision_blocks-bf16-compiled",
+  "family": "BF16 Linear compilation control",
+  "changes": [
+    {
+      "method": "compile_linears",
+      "scope": "vision_blocks"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "verified_at": "2026-10-10T02:47:33.278935+00:00",
+  "candidate": "merger-channels-750",
+  "recipe_sha256": "ffd9df98d638a00fba254864251e6c90bbc398b505ed4870fb6a8c3695f26012",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 76,
+    "success_fraction": 0.76,
+    "wilson95_fraction": [
+      0.6676766365018553,
+      0.8330867444305122
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 9,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 0,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "e3d40e257cce2f860b59b1fc25d93446ff49b11b996b4282331f903d6e1901ae",
+    "record_sha256": "5d9ce07536b7f43c3e6b1687ba6515bcb9af9af35d7990c567089f9e2ffedec1",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 75,
+        "both_failure": 17,
+        "gained_success": 1,
+        "lost_success": 7
+      },
+      "difference_pp": -6.0,
+      "ci95_pp": [
+        -11.000000000000002,
+        -1.0000000000000004
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "4b5a6450e197460a6fa41dbc7cfb3361b70db4a213c6d350f07de63cf47078e3",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": false,
+  "actual_channel_widths": [
+    {
+      "module": "vision.merger.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 1024,
+      "indices_sha256": "7e2b9224d01e6c47339dc8f88bb2397fcbe43e4ad22ed7f259927a8906375a6b"
+    },
+    {
+      "module": "vision.deepstack_merger_list.0.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 1024,
+      "indices_sha256": "c3104015b9d63f82d7f4478affbfff8422a26d8ac77c4b2564a44c1d6b0bfcf6"
+    },
+    {
+      "module": "vision.deepstack_merger_list.1.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 1024,
+      "indices_sha256": "9355535bbf4746e7c47d76b6d8472903c0c252e0cc3d7e395fc404495ece978d"
+    },
+    {
+      "module": "vision.deepstack_merger_list.2.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 1024,
+      "indices_sha256": "62cba759a01b3199d601c2cfee85b22a71779cd6bbdf6d4825b50d6bb185de70"
+    }
+  ],
+  "screen_record_sha256": "ad323add3874f0512e6d63ecdc657365ad823bdd6c62eaa5dd4803164f4292a5",
+  "screen": {
+    "peak_allocated_bytes": 5453433856,
+    "peak_reserved_bytes": 5502926848,
+    "resident_tensor_storage_bytes": 5381256974,
+    "pipeline_median_ms": 76.14701250167855,
+    "inference_core_logical_parameter_elements": 2207204615
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone merger channel-pruning comparison; all episode records validated. Physically retains 25% of each selected merger width. Other weights remain BF16 and world models remain resident. Misses the observed relative development gate and is ineligible for reserved confirmation under this protocol. Early screen fields that were not recorded remain null; archive size remains scheduled and steady benchmarks are unmeasured."
+}

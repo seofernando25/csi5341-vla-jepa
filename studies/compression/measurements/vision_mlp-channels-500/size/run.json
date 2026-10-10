@@ -1,0 +1,505 @@
+{
+  "candidate": {
+    "id": "vision_mlp-channels-500",
+    "family": "structural_channels",
+    "changes": [
+      {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      }
+    ]
+  },
+  "phase": "size",
+  "status": "completed",
+  "recipe_sha256": "9a3a19e340597d0ee1eb72e0788b5bb1bbe919f626f7c48be00eb804bcf9c46c",
+  "environment": {
+    "recorded_at": "2026-10-10T04:14:14.358173+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "9a45c2edceeeb836ca3735e63f1b6d5db9d9c4c4",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/action_audit.py": "e7fad3877a794f1d77e59d3b97c2cc1cefee4f45f8f677a2a1d176a346b47365",
+      "evaluation/analysis.py": "01c31aa43fd10d94f5a2dc741dd1f6221606b20e152e5fe9d2ac0433e8527065",
+      "evaluation/buffer_precision_audit.py": "5f4167e95d33beecea91c05b8f80819687e3291f99c90148276b2a8f9cafa29a",
+      "evaluation/cloud_analysis.py": "70cd0951468d4a7e9e7779fafe61f3daa37a60968214d03008b9f1baa8196150",
+      "evaluation/common.py": "cda56f8ff6d04c79c007d1310208bf7e1db59eb2713dc7b7aeeb386e0bcc5374",
+      "evaluation/compression/__init__.py": "b0c9a61903059a6f94617917b65221e854eb6ec042557f2cf008d8d8a7da9d42",
+      "evaluation/compression/advanced.py": "268c7a8e1555175266e33b94974a4ec03548e340ba9a89974283f97646443561",
+      "evaluation/compression/analysis.py": "92bf2b01c47c2073bfc47cdf89c56beb64da2ef81f5f15e49899cf625e454a4d",
+      "evaluation/compression/artifacts.py": "f49ac1d0487f7cd55a03e582e7efeebb25d9385f3f6f2d919ce04d115a60f460",
+      "evaluation/compression/attention_matching.py": "9156ad2dd59509e8f61b96888ca1a8dd8e7028329b993cff2eb0270015511991",
+      "evaluation/compression/boundaries.py": "4dc8b695d956815f8d1d4ca7292f67c8666a24d80575afdde6373af17093dbf0",
+      "evaluation/compression/cka.py": "0bf32c6279ffecf8b2421295012bba603be0c1df71e72dfd36fa5167f1ab4d32",
+      "evaluation/compression/compiled.py": "3ddfef27bd433e7041d634190d42a52737a98d3ca9dedbb97d8fce0218e16af4",
+      "evaluation/compression/confirmation.py": "898674c6c4c7302adff905bf4789aa89271aa72aebc9b75b843786dafb68c9af",
+      "evaluation/compression/lowbit.py": "ac2cfee3634c21e3b4ebc498c0b2dc242582c57f7fe091e3be11ed4f4eb1cd50",
+      "evaluation/compression/mission.py": "395bc6e2bc8d3672ee9514c8fb55b565580e4822e37f3a31901482a0ddda83b0",
+      "evaluation/compression/protocol.py": "a0c6595349cafef905e892fc16340590e409f85df892f31a48eed5333d928d00",
+      "evaluation/compression/queue.py": "cb6630eb322cf93c2ec88a42894f1ee9a36ab3ef949e390648f34e60108fedf2",
+      "evaluation/compression/refinements.py": "5698ac1d9582728ccc839381ba97320f3ac78bbf33625f59e766a84ea288e884",
+      "evaluation/compression/study.py": "00d02b87e1e76ca6b6b655e67c8162897ba5527aa308b0c9162bfdecfd8a46e0",
+      "evaluation/compression/tokens.py": "afe2167557d157d5466c92a2378489e480458b3c82d57463a1fc319ec4ee3a84",
+      "evaluation/compression/transforms.py": "799d15bfddf179438b6df6f4b8f8e9803ff59338a2ee25e9e21465561fd897ef",
+      "evaluation/control_trace.py": "b6e92e4319a74014ef9c1468e2910cfe191179850edb02f19bba83b8884cafea",
+      "evaluation/control_trace_analysis.py": "dbeaaa0863138ce6aed4c756a61722b604598f30b039c90dea057cb9ebc242f2",
+      "evaluation/core_benchmark.py": "d5299f81f1dd89473951a0c398e37f49a368e4f893420361a90cd9e0f395e9b7",
+      "evaluation/data_coverage.py": "049748c5f5c9da9b93b1caefd56fb7c5af667f31a1777f5958370f7c6d5aad8e",
+      "evaluation/deployment_precision_audit.py": "c9c97856399b319c2462097878c1f406f569becad5788601dc17e568036a6002",
+      "evaluation/endpoint_task_analysis.py": "bdfca5bff01b75f1b497617f594e34d0ca0199da7e68bf0d9ca695cb964c8cab",
+      "evaluation/expanded_development.py": "95176072b4331a57101acef9c2b9209839c0ef3f27a55d39af73df1ca3430446",
+      "evaluation/expanded_development_analysis.py": "a983e6b40f7adb3a72235d02efc403c4e352a883ed014a68c7a92d283f94d787",
+      "evaluation/figures.py": "6269e7c09f0c9af03eebe2d8225328e957d6322d20ce7c4d4ecfffd23b647baa",
+      "evaluation/gradient_alignment.py": "a354b03c7b956fc9fa6426f45d73664fbe7123f9b5411efa4faaa9c9ef146ef1",
+      "evaluation/gradient_audit.py": "5a9efc72850d63878f64ac0a1da7bedcf4a37f91c6f2ab57e4fa7dc40da4cbb8",
+      "evaluation/gripper_calibration.py": "6db499b5ba6d972d5ecec4e8b75520d38fc9e05643cbec73fd754fdeb75c622e",
+      "evaluation/hardware.py": "5af8ac76c4902fc74aae5836d90b1c321b165d487f42fa8210613d746ccb1370",
+      "evaluation/inference_precision_eval.py": "366c4410301f1af63e1ae30553458be71cb8d4cdb619933d27c118a3f0aede39",
+      "evaluation/libero_setup.py": "f05f3a5afa4b9155e87191f914ccc066f9dc763ee9057014cdfaec347085882a",
+      "evaluation/local_lr_high_config.json": "f8765ee55e5ab89c6320544eee330166ac9e08c749edb78573be96a344f0dfaf",
+      "evaluation/local_lr_low_config.json": "887922702bbc3eb5a33ad6198b6f868b64d370f6bf10c4d83a8bf0e2afb9dca3",
+      "evaluation/local_lr_pair_analysis.py": "c29bb886fa3cdc5d20826e47ba2297c7c223ae7978d7a4f085e8fe74fd641210",
+      "evaluation/models.py": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluation/overfit_probe.py": "b03422a621e6370a80df287207cab04a138ff78072c2e07189e802995ff3e331",
+      "evaluation/paired_development_analysis.py": "1ae25738b4c8b5cf5eab8b2b02faea27847361531db7467b8ee3395a3a2f2533",
+      "evaluation/portability.py": "3d45b534598d3033a1d57e391ebce8a6f741917190a1ff59b2641f423f282080",
+      "evaluation/prepare.py": "a9df0c9a4046916d1e67a9a01f5f8c69804ba1f854517cffa1a7d3b661c84b07",
+      "evaluation/processor_warning_audit.py": "61bc7397ffcd246189d92f9ec6a4ee20f26f92605da7ac0d42742c85a9b8e4a2",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+      "evaluation/query_checkpoint_gradient_audit.py": "e8e2d15e25e51265e3bc2a7ea2062b6decbe940f79ebda7c8f7a2035d10a66f7",
+      "evaluation/query_full_decoder_preflight_config.json": "fb61f9db38a2c66bbddab96174ab7aa540faceb94b939154d0635ba84a2c65d7",
+      "evaluation/query_initial_validation.py": "615d7435b4a60b502ec4d1d79cd803e376b3e8d89401264fa205084d61a70a48",
+      "evaluation/query_initial_validation_analysis.py": "db9efd9146cbd0cf1404d1f66256aab62f4f5d919c9d368d79cd74eaf07f6777",
+      "evaluation/query_local_accumulation_gate.json": "132e223e6d0721e0f84f0b1fb2b279eb50d26d8c13c28c38d490f863ec1350df",
+      "evaluation/query_milestone.py": "b2739036e7e38170d8a7d1837412765cce01f192d2e3024aa419f57ffed4331d",
+      "evaluation/query_preflight_audit.py": "58e68e20f019255226742a60c1e8236136e184db92e4ce6d55a7bcc062ed88a2",
+      "evaluation/query_preflight_config.json": "eb391bd889b77f73466c2478c43ce8111659405868fac648b710eed4e04aaa24",
+      "evaluation/query_recovery_config.json": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+      "evaluation/query_registration.py": "358963fe11375f66ae76a11c3fa312c83fd2bda53db97e3d94c1ea8788ccbd2c",
+      "evaluation/query_resume_comparison.py": "952075b37412fc89e9be45a0983fc41e92c6b406d2e70d922545ef20199cd10e",
+      "evaluation/query_rng_preflight_config.json": "c625c3fc4e7ecf28a8e171bfef460b2a251d6f97ec551d3394b678880b7e9db2",
+      "evaluation/query_source.py": "58b77367c86d889417dfa82a23a9f4396c596f10c41a26afbbe41951a8518a75",
+      "evaluation/query_source_check.py": "2fc61d26df139a7e0721545d53d9929ad152b4efbee74be7abb2f96f5a407025",
+      "evaluation/query_token_audit.py": "7818b88deee0536dae52116afa1f09c0267c0e896b0fb382b9379974c45eacde",
+      "evaluation/qwen_query_reference.py": "98fff82f2f7add5c97741ac4747915d31f4c7c1e2019014688157f6e7f03f010",
+      "evaluation/recovery_analysis.py": "841b8ce0cfcc8d29f38d0fe77ae219aae8c0760e12b0c5ea5dc3bda52bebbbab",
+      "evaluation/recovery_config.json": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+      "evaluation/recovery_progress.py": "bbfb2c33dfe0922b7ab6f9b00805a1236a5488a06ca07af5afefe6f87e3af95f",
+      "evaluation/recovery_source.py": "0e409bbafb5db9a9058f92fc5acd4b4aa55edbfbec79df759eef86cc1bdce40d",
+      "evaluation/recovery_train.py": "e2918dd5d2a5b5c7127747f4b4076f78cb96dbcd646776e732dbe7a26969b93a",
+      "evaluation/report.py": "9f88df45eec8005df5ce462d68d0727abbf71accbb5525e100df5aea2ebec02b",
+      "evaluation/reproducibility.py": "4b8cce7f02e8cfa78aba56031ea30a2398759974b698e2c2cdc4cc10f6a226bb",
+      "evaluation/run.py": "ae1584e5e94accc5fc5e6a8ca13033e5eaef316ae37807e03f08b4dabec15a22",
+      "evaluation/select_checkpoint.py": "5ad26dcf35daa48fd59da01ec5f5338ae298b0b4b63210d7b29d137899a424ff",
+      "evaluation/smoke.py": "49ffc5918e945f04babaf76adcf99270527f13a827aee8bf6c170adea400b91b",
+      "evaluation/smolvla.py": "3504dd1d7ff978445b9ce0b0da47b7e4b88ad8c5b1f8fb03b5c2ff7023173ab5",
+      "evaluation/smolvla_quick.py": "62614a5b6ed38d5d3335927f8f2e606ca55083a40ef739db28c92b6ced5b89f2",
+      "evaluation/smolvla_sources.json": "9663e5a1964e02429fa016285d01c98f0bab339137076012e05b9961122296d6",
+      "evaluation/smolvla_spatial.py": "8d9ced4d8ed499fbd1399a04c9700266f87113bc073ba440db9979d339312a60",
+      "evaluation/sources.json": "9d8d2f948d374b616054cc4b5c0c4aadea2dfd5d1a850209f56a494e39a3b4fd",
+      "evaluation/stochasticity_analysis.py": "5e469b5fce0ec2a693f3ab06df80dcb26b1dfb93edfe5d3c3d1c7ee08937fae4",
+      "evaluation/stochasticity_audit.py": "b8ca1c42842221c4278aac7431f51847fda9633f6ef095fa0f78480ad09b804e",
+      "evaluation/train.py": "14663cce50dc4ea8681a5db51b1b48e78fb46f4aaae0617707dd8a530ea14ab6",
+      "evaluation/training_analysis.py": "ef7a878804002b4cc0525188c7153ac3258a13e1ed144c6143add862849358ca",
+      "evaluation/training_config.json": "7ebac50df79cb82f75bd68285095c387ad81bf5a4f24b029ab49f2e1faf0c6e5",
+      "pyproject.toml": "c4e38080d8aa6fc3e8fd875efb86dc0cb4fc3395c8d2917d024a1ce771c37738",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "87636b8e80a8e3f2109f2d61bf8712058df335579f776d51e2b867851a22394f",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "4eba3838498e7f0e05ac5bf82dfe505c0c4c71cfc581e954fbfd54ef67c95cc5",
+      "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "cuda_compute_verified": true,
+    "driver": "580.178.04"
+  },
+  "original_protocol": {
+    "campaign": "csi5341-smolvlm-efficiency",
+    "status": "pilot",
+    "suite": "libero_spatial",
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "seed": 1000,
+    "final_initial_states": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49
+    ],
+    "final_seed_offset": 10000,
+    "observation_height": 256,
+    "observation_width": 256,
+    "batch_size": 1,
+    "dtype": "bfloat16",
+    "world_model": "loaded identically; no future observations during inference",
+    "quantization_scope": "Qwen language decoder nn.Linear modules only; vision tower, embeddings, final norm, lm_head, action head and world model are not quantized",
+    "Q8": {
+      "method": "LLM.int8",
+      "threshold": 6.0,
+      "has_fp16_weights": false
+    },
+    "Q4": {
+      "method": "NF4",
+      "compute_dtype": "bfloat16",
+      "double_quantization": true
+    },
+    "timing": {
+      "warmup": 20,
+      "predictions": 500,
+      "repetitions": 3
+    },
+    "training": {
+      "pilot_steps": 500,
+      "checkpoints": [
+        1500,
+        5000,
+        10000
+      ],
+      "validation_fraction": 0.1,
+      "seed": 42
+    },
+    "target": {
+      "memory_reduction_fraction": 0.25,
+      "maximum_success_drop_pp": 5.0
+    },
+    "initial_states_manifest": "studies/evaluation/initial_states.json",
+    "development_states": "10 original non-pruned state vectors per task, disjoint from all official final states",
+    "final_states": "50 official pruned states per task"
+  },
+  "states_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "calibration_sha256": "dc922b59fb6ab9d09aa639f32b5e1abe48d249adca38be7a0abf2b9000bf13f3",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "interpretation": "New post-training compression study; action agreement is not task success.",
+  "final_registration": null,
+  "model": {
+    "variant": "B16",
+    "status": "published_trained_policy",
+    "logical_parameters": 2766137991,
+    "quantized_modules": [],
+    "parameter_dtypes": {
+      "torch.bfloat16": 1612
+    },
+    "chunk_size": 7,
+    "n_action_steps": 7,
+    "num_inference_timesteps": 4,
+    "world_model_loaded": true,
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "checkpoint_compatibility": {
+      "missing_keys": [],
+      "ignored_keys": [
+        "model.qwen.model.model.language_model.embed_tokens.weight",
+        "model.video_predictor.extrinsics_encoder.bias",
+        "model.video_predictor.extrinsics_encoder.weight",
+        "model.video_predictor.state_encoder.bias",
+        "model.video_predictor.state_encoder.weight"
+      ],
+      "tied_embedding_equality_verified": true,
+      "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+    },
+    "buffer_precision": "legacy",
+    "preserved_rotary_buffers": {},
+    "Q8_internal_activation_cast": null
+  },
+  "transformations": [
+    {
+      "method": "channels",
+      "module": "vision.blocks.0.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "9d592395f909fec92997a368c3ff229b250dd700109baf3f33f7046825477ba6"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.1.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d1534313183956d5604cfe6b9fce97204159ceec29e77496396adb118a826523"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.2.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "117f99c67909c6ab981098540d9c942c4501ad2d5eacc991086fd0ded7067e96"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.3.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "db15a4b8cc0cc11ca620bb01266bfb3c655d1bbfaebf0fcfaecf12411c1e1eb6"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.4.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "a08b41ff2a353e6c6ac16ec12a9d8954e7c035c8ef4d08bb727f89d8496af626"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.5.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d481b2c14c11a06f4341ae6f196a8d7de38b1d1b4d6b05e8b97ff09fdc754aec"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.6.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "73789b2d24842fb94326f054b8ff8b0c0a3a50345a89f90357143dfa7aa90d46"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.7.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "9ae5ffff91d3fd98c2526ec20e7292eaff60d8675f2f1c31dbbe6d7adc15047e"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.8.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4f7de5aa8d6954e840e4f0a61c4844d15532c23388aa456a83dc0dcf7ae819e3"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.9.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "53e0ed46b9745aff62207534276d66dbcb10162b3d85851200f48aef31053f65"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.10.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "1d4b78d8b9d51d9be5577589668427f03fdefa2979cff7ce6fcb2a529e27d771"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.11.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "be6c2b4df8d661560478bf6b088cb0b98d17280aed51b1e9de3cc708186ce8b4"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.12.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "90be836261e9720a3261e2416f3d0742615e63a0cc32b004de22d85e4afe2ab7"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.13.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "b1bdd92d688edc7d43b01bddc5f71684a3d4acc75f7046e9a2255a770924d584"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.14.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d52cbab0fb743eb7e835a2c085f4858434e2dd0daf6c21d2bc84924f70a4a5e8"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.15.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "31ee25bcad929ff9c9b721d3a31ee473365740e4a746aaf07206357effeab261"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.16.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "da25c55ea5bb6752a76334f9583f31c070ff654b2d1921a54c8b08fce4652765"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.17.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4a473317f6fa7d98d445e0fc537167b9c6245f069798467e632a0c6af71e57aa"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.18.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "495b2c058265ccf5fac7b52093ad7bd91288eb059d4e245a6442f7266c33bd62"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.19.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4cfe968d6793d0626a8eea0217fd516608cae2f88896126f0bb33013c4484a3f"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.20.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "72a6a2e642d5b57649aebedcfd01e78ba86d2f744dcceb37233b712a54c68845"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.21.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "de2f1e58ba39b1a5387f0da8eb629f2d020cfb70a8a95b2ba0c103fc77cd4550"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.22.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "145609dbc278c53072706913e93f2ac9fa7e211018c0f502656d6f11915b5cc7"
+    },
+    {
+      "method": "channels",
+      "module": "vision.blocks.23.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "14cff14082d6c5e5006d648bf6a58df85a4492e91a8bbee93cb444171f0e9fc9"
+    }
+  ],
+  "deployed_architecture": {
+    "predicted_actions": 7,
+    "executed_before_replanning": 7,
+    "denoising_steps": 4,
+    "world_encoder_resident": true,
+    "world_predictor_resident": true,
+    "embodied_conditioning_tokens": 32,
+    "latent_prompt_tokens": 24,
+    "parameters_require_grad": false
+  },
+  "deployed_tensor_fingerprint": {
+    "sha256": "215365f333af808606e08607cd8bf9647c55f9298ab8ffe64f8c939bc7dfe12f",
+    "tensor_count": 1612,
+    "tensor_bytes": 5330851086,
+    "algorithm": "SHA256 sorted tensor names/dtypes/shapes/bytes, alias mapping, subclass layouts and calibrated QuantVLA output multipliers; remaining semantics protected by recipe/source hashes"
+  },
+  "summary": {
+    "registered_parameter_elements": 2665425543,
+    "represented_logical_parameter_elements": 2665425543,
+    "resident_tensor_storage_bytes": 5330851598,
+    "inference_core_logical_parameter_elements": 2182001927,
+    "serialized_weights": {
+      "bytes": 5331066582,
+      "sha256": "c3bdce62752b02e61adf66740bb071603b2710b6bd746674764feaac87a80334",
+      "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+      "artifact": "outputs/compression/serialized/vision_mlp-channels-500/size/packed.safetensors",
+      "direct_HF_checkpoint": false,
+      "runtime_archive_removed_after_evidence_export": true
+    }
+  },
+  "wall_seconds": 26.00231740000163
+}
