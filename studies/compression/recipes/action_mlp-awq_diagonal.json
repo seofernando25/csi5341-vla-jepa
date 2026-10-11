@@ -1,0 +1,12 @@
+{
+  "id": "action_mlp-awq_diagonal",
+  "family": "calibrated_quantization",
+  "changes": [
+    {
+      "method": "awq_diagonal",
+      "scope": "action_mlp",
+      "bits": 4,
+      "fraction": 0.5
+    }
+  ]
+}

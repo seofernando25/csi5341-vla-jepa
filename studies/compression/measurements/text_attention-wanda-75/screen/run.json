@@ -1,0 +1,1117 @@
+{
+  "candidate": {
+    "id": "text_attention-wanda-75",
+    "family": "weight_sparsity",
+    "changes": [
+      {
+        "method": "wanda",
+        "scope": "text_attention",
+        "fraction": 0.75
+      }
+    ]
+  },
+  "phase": "screen",
+  "status": "completed",
+  "recipe_sha256": "86685291db1d0681a2155617f97eba2ead0c4b044d3e983cd53705eb43bc62c3",
+  "environment": {
+    "recorded_at": "2026-10-09T21:28:32.508636+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "9a45c2edceeeb836ca3735e63f1b6d5db9d9c4c4",
+    "source_manifest": {
+      "evaluation/__init__.py": "a266587136825339038b06212cacf3f289d1150392d903a3066e6113eb9874f3",
+      "evaluation/action_audit.py": "e7fad3877a794f1d77e59d3b97c2cc1cefee4f45f8f677a2a1d176a346b47365",
+      "evaluation/analysis.py": "01c31aa43fd10d94f5a2dc741dd1f6221606b20e152e5fe9d2ac0433e8527065",
+      "evaluation/buffer_precision_audit.py": "5f4167e95d33beecea91c05b8f80819687e3291f99c90148276b2a8f9cafa29a",
+      "evaluation/cloud_analysis.py": "70cd0951468d4a7e9e7779fafe61f3daa37a60968214d03008b9f1baa8196150",
+      "evaluation/common.py": "cda56f8ff6d04c79c007d1310208bf7e1db59eb2713dc7b7aeeb386e0bcc5374",
+      "evaluation/compression/__init__.py": "b0c9a61903059a6f94617917b65221e854eb6ec042557f2cf008d8d8a7da9d42",
+      "evaluation/compression/advanced.py": "268c7a8e1555175266e33b94974a4ec03548e340ba9a89974283f97646443561",
+      "evaluation/compression/analysis.py": "92bf2b01c47c2073bfc47cdf89c56beb64da2ef81f5f15e49899cf625e454a4d",
+      "evaluation/compression/artifacts.py": "f49ac1d0487f7cd55a03e582e7efeebb25d9385f3f6f2d919ce04d115a60f460",
+      "evaluation/compression/attention_matching.py": "9156ad2dd59509e8f61b96888ca1a8dd8e7028329b993cff2eb0270015511991",
+      "evaluation/compression/boundaries.py": "acc0a9ba70fce470ea8fb91674be485deaa3dc406eefc9cd3c586120d3b9683f",
+      "evaluation/compression/cka.py": "0bf32c6279ffecf8b2421295012bba603be0c1df71e72dfd36fa5167f1ab4d32",
+      "evaluation/compression/confirmation.py": "898674c6c4c7302adff905bf4789aa89271aa72aebc9b75b843786dafb68c9af",
+      "evaluation/compression/lowbit.py": "ac2cfee3634c21e3b4ebc498c0b2dc242582c57f7fe091e3be11ed4f4eb1cd50",
+      "evaluation/compression/mission.py": "395bc6e2bc8d3672ee9514c8fb55b565580e4822e37f3a31901482a0ddda83b0",
+      "evaluation/compression/protocol.py": "0c624cb55ba166dab28146f915eae28b006df3a0b7bbaf5e82ef25fea3086c7f",
+      "evaluation/compression/queue.py": "cb6630eb322cf93c2ec88a42894f1ee9a36ab3ef949e390648f34e60108fedf2",
+      "evaluation/compression/study.py": "c82da86c3ea95b87812c93984abd576d63bca3253c693646033752757a2c733c",
+      "evaluation/compression/tokens.py": "afe2167557d157d5466c92a2378489e480458b3c82d57463a1fc319ec4ee3a84",
+      "evaluation/compression/transforms.py": "1a2f8abc36e03083082ce1947f783a4fcead675e745972f43124286dd9c36061",
+      "evaluation/control_trace.py": "b6e92e4319a74014ef9c1468e2910cfe191179850edb02f19bba83b8884cafea",
+      "evaluation/control_trace_analysis.py": "dbeaaa0863138ce6aed4c756a61722b604598f30b039c90dea057cb9ebc242f2",
+      "evaluation/core_benchmark.py": "d5299f81f1dd89473951a0c398e37f49a368e4f893420361a90cd9e0f395e9b7",
+      "evaluation/data_coverage.py": "049748c5f5c9da9b93b1caefd56fb7c5af667f31a1777f5958370f7c6d5aad8e",
+      "evaluation/deployment_precision_audit.py": "c9c97856399b319c2462097878c1f406f569becad5788601dc17e568036a6002",
+      "evaluation/endpoint_task_analysis.py": "bdfca5bff01b75f1b497617f594e34d0ca0199da7e68bf0d9ca695cb964c8cab",
+      "evaluation/expanded_development.py": "95176072b4331a57101acef9c2b9209839c0ef3f27a55d39af73df1ca3430446",
+      "evaluation/expanded_development_analysis.py": "a983e6b40f7adb3a72235d02efc403c4e352a883ed014a68c7a92d283f94d787",
+      "evaluation/figures.py": "6269e7c09f0c9af03eebe2d8225328e957d6322d20ce7c4d4ecfffd23b647baa",
+      "evaluation/gradient_alignment.py": "a354b03c7b956fc9fa6426f45d73664fbe7123f9b5411efa4faaa9c9ef146ef1",
+      "evaluation/gradient_audit.py": "5a9efc72850d63878f64ac0a1da7bedcf4a37f91c6f2ab57e4fa7dc40da4cbb8",
+      "evaluation/gripper_calibration.py": "6db499b5ba6d972d5ecec4e8b75520d38fc9e05643cbec73fd754fdeb75c622e",
+      "evaluation/hardware.py": "5af8ac76c4902fc74aae5836d90b1c321b165d487f42fa8210613d746ccb1370",
+      "evaluation/inference_precision_eval.py": "366c4410301f1af63e1ae30553458be71cb8d4cdb619933d27c118a3f0aede39",
+      "evaluation/libero_setup.py": "f05f3a5afa4b9155e87191f914ccc066f9dc763ee9057014cdfaec347085882a",
+      "evaluation/local_lr_high_config.json": "f8765ee55e5ab89c6320544eee330166ac9e08c749edb78573be96a344f0dfaf",
+      "evaluation/local_lr_low_config.json": "887922702bbc3eb5a33ad6198b6f868b64d370f6bf10c4d83a8bf0e2afb9dca3",
+      "evaluation/local_lr_pair_analysis.py": "c29bb886fa3cdc5d20826e47ba2297c7c223ae7978d7a4f085e8fe74fd641210",
+      "evaluation/models.py": "83a7f8f9c049786ee005f141880aaed3112a188f0290dd0f67184cb4e80bcc73",
+      "evaluation/overfit_probe.py": "b03422a621e6370a80df287207cab04a138ff78072c2e07189e802995ff3e331",
+      "evaluation/paired_development_analysis.py": "1ae25738b4c8b5cf5eab8b2b02faea27847361531db7467b8ee3395a3a2f2533",
+      "evaluation/portability.py": "3d45b534598d3033a1d57e391ebce8a6f741917190a1ff59b2641f423f282080",
+      "evaluation/prepare.py": "a9df0c9a4046916d1e67a9a01f5f8c69804ba1f854517cffa1a7d3b661c84b07",
+      "evaluation/processor_warning_audit.py": "61bc7397ffcd246189d92f9ec6a4ee20f26f92605da7ac0d42742c85a9b8e4a2",
+      "evaluation/protocol.json": "16d3ac4b9dd509b1b42f236c580fcf59717006000c25cd524db56e7d7c670fb7",
+      "evaluation/query_adapter.py": "c13d52072493393578edc3dc120dedce4426b16f382bf67c9a713bcd71631042",
+      "evaluation/query_checkpoint_gradient_audit.py": "e8e2d15e25e51265e3bc2a7ea2062b6decbe940f79ebda7c8f7a2035d10a66f7",
+      "evaluation/query_full_decoder_preflight_config.json": "fb61f9db38a2c66bbddab96174ab7aa540faceb94b939154d0635ba84a2c65d7",
+      "evaluation/query_initial_validation.py": "615d7435b4a60b502ec4d1d79cd803e376b3e8d89401264fa205084d61a70a48",
+      "evaluation/query_initial_validation_analysis.py": "db9efd9146cbd0cf1404d1f66256aab62f4f5d919c9d368d79cd74eaf07f6777",
+      "evaluation/query_local_accumulation_gate.json": "132e223e6d0721e0f84f0b1fb2b279eb50d26d8c13c28c38d490f863ec1350df",
+      "evaluation/query_milestone.py": "b2739036e7e38170d8a7d1837412765cce01f192d2e3024aa419f57ffed4331d",
+      "evaluation/query_preflight_audit.py": "58e68e20f019255226742a60c1e8236136e184db92e4ce6d55a7bcc062ed88a2",
+      "evaluation/query_preflight_config.json": "eb391bd889b77f73466c2478c43ce8111659405868fac648b710eed4e04aaa24",
+      "evaluation/query_recovery_config.json": "f8098e199671fae31255ff2acb8b519f65347bdc6b0ae8badcc56264a3fdb610",
+      "evaluation/query_registration.py": "358963fe11375f66ae76a11c3fa312c83fd2bda53db97e3d94c1ea8788ccbd2c",
+      "evaluation/query_resume_comparison.py": "952075b37412fc89e9be45a0983fc41e92c6b406d2e70d922545ef20199cd10e",
+      "evaluation/query_rng_preflight_config.json": "c625c3fc4e7ecf28a8e171bfef460b2a251d6f97ec551d3394b678880b7e9db2",
+      "evaluation/query_source.py": "58b77367c86d889417dfa82a23a9f4396c596f10c41a26afbbe41951a8518a75",
+      "evaluation/query_source_check.py": "2fc61d26df139a7e0721545d53d9929ad152b4efbee74be7abb2f96f5a407025",
+      "evaluation/query_token_audit.py": "7818b88deee0536dae52116afa1f09c0267c0e896b0fb382b9379974c45eacde",
+      "evaluation/qwen_query_reference.py": "98fff82f2f7add5c97741ac4747915d31f4c7c1e2019014688157f6e7f03f010",
+      "evaluation/recovery_analysis.py": "841b8ce0cfcc8d29f38d0fe77ae219aae8c0760e12b0c5ea5dc3bda52bebbbab",
+      "evaluation/recovery_config.json": "0e8cf976a3f532dee0f8aa3bf209d664fbda6d5226d429f7e527941776f84074",
+      "evaluation/recovery_progress.py": "bbfb2c33dfe0922b7ab6f9b00805a1236a5488a06ca07af5afefe6f87e3af95f",
+      "evaluation/recovery_source.py": "0e409bbafb5db9a9058f92fc5acd4b4aa55edbfbec79df759eef86cc1bdce40d",
+      "evaluation/recovery_train.py": "e2918dd5d2a5b5c7127747f4b4076f78cb96dbcd646776e732dbe7a26969b93a",
+      "evaluation/report.py": "9f88df45eec8005df5ce462d68d0727abbf71accbb5525e100df5aea2ebec02b",
+      "evaluation/reproducibility.py": "4b8cce7f02e8cfa78aba56031ea30a2398759974b698e2c2cdc4cc10f6a226bb",
+      "evaluation/run.py": "ae1584e5e94accc5fc5e6a8ca13033e5eaef316ae37807e03f08b4dabec15a22",
+      "evaluation/select_checkpoint.py": "5ad26dcf35daa48fd59da01ec5f5338ae298b0b4b63210d7b29d137899a424ff",
+      "evaluation/smoke.py": "49ffc5918e945f04babaf76adcf99270527f13a827aee8bf6c170adea400b91b",
+      "evaluation/smolvla.py": "3504dd1d7ff978445b9ce0b0da47b7e4b88ad8c5b1f8fb03b5c2ff7023173ab5",
+      "evaluation/smolvla_quick.py": "62614a5b6ed38d5d3335927f8f2e606ca55083a40ef739db28c92b6ced5b89f2",
+      "evaluation/smolvla_sources.json": "9663e5a1964e02429fa016285d01c98f0bab339137076012e05b9961122296d6",
+      "evaluation/smolvla_spatial.py": "8d9ced4d8ed499fbd1399a04c9700266f87113bc073ba440db9979d339312a60",
+      "evaluation/sources.json": "9d8d2f948d374b616054cc4b5c0c4aadea2dfd5d1a850209f56a494e39a3b4fd",
+      "evaluation/stochasticity_analysis.py": "5e469b5fce0ec2a693f3ab06df80dcb26b1dfb93edfe5d3c3d1c7ee08937fae4",
+      "evaluation/stochasticity_audit.py": "b8ca1c42842221c4278aac7431f51847fda9633f6ef095fa0f78480ad09b804e",
+      "evaluation/train.py": "14663cce50dc4ea8681a5db51b1b48e78fb46f4aaae0617707dd8a530ea14ab6",
+      "evaluation/training_analysis.py": "ef7a878804002b4cc0525188c7153ac3258a13e1ed144c6143add862849358ca",
+      "evaluation/training_config.json": "7ebac50df79cb82f75bd68285095c387ad81bf5a4f24b029ab49f2e1faf0c6e5",
+      "pyproject.toml": "c4e38080d8aa6fc3e8fd875efb86dc0cb4fc3395c8d2917d024a1ce771c37738",
+      "src/lerobot_policy_vla_jepa_smolvlm/__init__.py": "ec39655d08423367881f40fcd1c9486c120542e28460f67f6cf9af93bfdb6687",
+      "src/lerobot_policy_vla_jepa_smolvlm/configuration_vla_jepa_smolvlm.py": "87636b8e80a8e3f2109f2d61bf8712058df335579f776d51e2b867851a22394f",
+      "src/lerobot_policy_vla_jepa_smolvlm/modeling_vla_jepa_smolvlm.py": "e1824f88469ccd01ec95264b0fc4ea37c06475c790612c18e6917098b84e4bc8",
+      "src/lerobot_policy_vla_jepa_smolvlm/processor_vla_jepa_smolvlm.py": "083664244a07432d76b5deff2558513e00c723754670f2190be967e1fafbc98b",
+      "src/lerobot_policy_vla_jepa_smolvlm/smolvlm_interface.py": "4eba3838498e7f0e05ac5bf82dfe505c0c4c71cfc581e954fbfd54ef67c95cc5",
+      "uv.lock": "c39c92048c48a21a62b9a6c8ed6a263f8c5274536eabbb847e5faafb7f4651aa"
+    },
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25288507392,
+    "cuda_compute_verified": true,
+    "driver": "580.178.04"
+  },
+  "original_protocol": {
+    "campaign": "csi5341-smolvlm-efficiency",
+    "status": "pilot",
+    "suite": "libero_spatial",
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "seed": 1000,
+    "final_initial_states": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49
+    ],
+    "final_seed_offset": 10000,
+    "observation_height": 256,
+    "observation_width": 256,
+    "batch_size": 1,
+    "dtype": "bfloat16",
+    "world_model": "loaded identically; no future observations during inference",
+    "quantization_scope": "Qwen language decoder nn.Linear modules only; vision tower, embeddings, final norm, lm_head, action head and world model are not quantized",
+    "Q8": {
+      "method": "LLM.int8",
+      "threshold": 6.0,
+      "has_fp16_weights": false
+    },
+    "Q4": {
+      "method": "NF4",
+      "compute_dtype": "bfloat16",
+      "double_quantization": true
+    },
+    "timing": {
+      "warmup": 20,
+      "predictions": 500,
+      "repetitions": 3
+    },
+    "training": {
+      "pilot_steps": 500,
+      "checkpoints": [
+        1500,
+        5000,
+        10000
+      ],
+      "validation_fraction": 0.1,
+      "seed": 42
+    },
+    "target": {
+      "memory_reduction_fraction": 0.25,
+      "maximum_success_drop_pp": 5.0
+    },
+    "initial_states_manifest": "studies/evaluation/initial_states.json",
+    "development_states": "10 original non-pruned state vectors per task, disjoint from all official final states",
+    "final_states": "50 official pruned states per task"
+  },
+  "states_sha256": "19f15d5cbb44b4852aee708eba18231e18cd338616285390d6fe79fee1802d1e",
+  "calibration_sha256": "dc922b59fb6ab9d09aa639f32b5e1abe48d249adca38be7a0abf2b9000bf13f3",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "interpretation": "New post-training compression study; action agreement is not task success.",
+  "final_registration": null,
+  "model": {
+    "variant": "B16",
+    "status": "published_trained_policy",
+    "logical_parameters": 2766137991,
+    "quantized_modules": [],
+    "parameter_dtypes": {
+      "torch.bfloat16": 1612
+    },
+    "chunk_size": 7,
+    "n_action_steps": 7,
+    "num_inference_timesteps": 4,
+    "world_model_loaded": true,
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "checkpoint_compatibility": {
+      "missing_keys": [],
+      "ignored_keys": [
+        "model.qwen.model.model.language_model.embed_tokens.weight",
+        "model.video_predictor.extrinsics_encoder.bias",
+        "model.video_predictor.extrinsics_encoder.weight",
+        "model.video_predictor.state_encoder.bias",
+        "model.video_predictor.state_encoder.weight"
+      ],
+      "tied_embedding_equality_verified": true,
+      "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+    },
+    "buffer_precision": "legacy",
+    "preserved_rotary_buffers": {},
+    "Q8_internal_activation_cast": null
+  },
+  "transformations": [
+    {
+      "method": "wanda",
+      "module": "text.layers.0.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "a2c8d77efd12151b522b9f227c6d87da0c5081e2e46d540e3f6241650484243e",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.0.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "0fa367a7a4e75d61acfa659ebaa95202f77342dbafdbe34813e7252d8ee146a5",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.0.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "8f7ae6e05b010ea93b32f582960b2abab0fc4a6ecde63d65e3a8a6bbc275a2d4",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.0.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "3852f4b2a308bdd49b66d1a4d4fdbd3698aca0feda88c6f7fc540c7ae93e40b1",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.1.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "8dd2d20619b9290a7199b3658853f68ac1120889a0e0c876c003cc6e08f04e2f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.1.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "860a0f4d426d26d7c1cce7079007469b003b47847c4686b0e0c2f4ec37111b73",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.1.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "a4589a9bb433a2589ae92f4520caf7d30c96ec80ab09a6219cbe0c778b058e88",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.1.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "7d9060dfdaa7cf67f4e4242c5f53aece6bed35019451dec2e0689e7dc2603f9f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.2.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ca1d5a2066ce7ce0750533649d9b39af75f15353dd3783c20f9bb3a8f732c2f9",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.2.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "02698158bc6a8cc4c4a9fae9f44fb2f89ef7f5351c693d27d829d17ede0adb38",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.2.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "30292fac6d9398286fc5e86f4f1bb712a72d220d1ca128b850bfc2cbfad65076",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.2.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "40ed5fc74e8746742de005add3250485982ed67577d21474a0c24d6194e2952a",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.3.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "699b1a1ca948e51a033442cd649dad0161c3a6f53caf536bdebad38f62409f8c",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.3.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "5d92500cf8c21ad4eb4ef65802391db8dd7c788258d75689cdf929661530d12f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.3.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "783081f01ad124ad83aea076916d5e8c3b48a86f7c1b75d5fec688bc81e6fcdf",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.3.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "22715ca7595c419e607695ac4f3f9bd149066caedd169f6d864cfc30c965aac5",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.4.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "16b4f22d0c3d043c04ec4f98301f0032a852c6b13a73817f3be1258308643fd4",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.4.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "6763c731fbdfce6d385b134817afc7d1f1ea96745a5e6b0e015adab119cbc15a",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.4.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "48621c6f7e9eed1c9214751eb8c29aae6ff53ccafcc21eb61c7178c191b550d0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.4.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "410a77c8b96f26aacc5dad3e7a77d00a5f46ca75bdb0bf0869cc555a4c4b8fdb",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.5.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "d7e9e93f854d2e647466b6b3f0b57456cdc16ae3adbd509b8d8f3887f0c8e1e4",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.5.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "0b1d03587247ac80301d4217058aab1100155c7e1fe72ced3580316cd992f941",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.5.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "9be5e3748af789646d85ae7f56ece46cb286d0c07080c9100274108d113ff8b9",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.5.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "d2d3872d01dab1d11696554d0e763c1570696b8017ff2a66403db37d4912e410",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.6.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "be8ab475807ff3e9b82179bbd1d5d8686281d1a80b3998fef7a3bf1cd17ccafc",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.6.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "7b0c49cde98a918bd3250625bfea58fee1d707c0343e599bfbd0329b5dc97363",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.6.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "14434b7445525d943919fcacee8529a9663222fc604407be67a3bba62da7972f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.6.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "19354c37c59b6c1c52bfbbe560a5e4ac45e1564b48a55407309098589521a333",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.7.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ca7d4017b701f9b46deb0c9f88c02791d50b37e74fc4811f1123b4219ec91ee6",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.7.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "3cd741d035a44d8f68710bf1d109b9bba20861bac6a7ed2a942411727bf4528b",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.7.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "95870b2140cd644097abfa06dff5811d833b874894e829dae984b85758269c12",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.7.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "80752bd98c169de903451d9cae08fff4558405747c5a35bcaa26ee6dc6a7d86f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.8.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "4f216cd1d0fec871275a14bc4150337e47b99b5f5de4071538a4d29407e501cc",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.8.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "edea269e970845480e7b51c4cd5c9c866d9d0cd328d295a631baeb29f5358622",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.8.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "74a3d0145422a90cb3da9d2fe2b516f2905f778e21f1fa3ce130808eaed3bc7b",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.8.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "f185fbcaa56f2bf7eba5018114d3dadebc35cdabb7e114b1972faea42bc69a19",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.9.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "05a4b10189d551c9b5b0095497ae36b5ed574939fe043f913e705f53352bbafe",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.9.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "c2083b0ba9580370592e83c47fbf21c563ed850e3c78dfd6c539479c7788544a",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.9.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "cf34fabe4490569bb6a0d70678a00d1cc29e3b9953983c292eeb32ad48757318",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.9.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "72652c73baefec93deac38c757aa3126ac951dd07687c796038f8d53e1d578b5",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.10.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "da770373552c76c755f7e09383d744cd51822894716be9f3f13865510011fcdb",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.10.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "70608ae2fa4594ab72a6004a122c7e2cad44e9fb340ccc2a86677ed5c82edd6e",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.10.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "bbebbf3834df8cc3c6d3640c36748cf5bcc11496d8c8a8885701a3092f3013ec",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.10.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "fb87598b2acf26de18a2d02cd8a3e566505f36499277530a7fc6ed8712c3491c",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.11.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "c5948fd8a841478c5ceb9e01db292bf7832935a9c4af7dfd29f2c67af6e16642",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.11.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "5158bbd2f90431485c4781051f3289fee23a68f43c05a4277d4b7e519650e2d7",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.11.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "0ee524445117bab9ae3583ab69adae7a786e8bf646573712f01e748f1bda8285",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.11.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "e043f319380f0b05fdcd1c3fdef2407b568df6295e2afed3ce2bba07d5d9c006",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.12.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "9d5399d265751df622d303acc8c196baedb1adbec914a38ae749b158ca0595d7",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.12.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "ec95b429c3c19623964318ae0fe6c8924182b3f5ffe94bbfe4b9b884a80aadd6",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.12.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "e950907632f28b279798986a51fa695feff2a2e97e2ff1aa506ec6e5ed7cbd11",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.12.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "9723d212433e139650c72b9aca151fe131332bbd844f95e995895324e5c38ad8",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.13.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "b7692a7421888b2f50289c9ce4dd984da62b618d2b66457b6981eec57adc5dbc",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.13.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "a26c3f2a34bc0ab75dd515edae8d68f80320cf54867b7fc02af8a0c3dc772bd1",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.13.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "66d41db58f79078d1ed907fb018e7724303c0134ec6c2ee799becb42236d9de3",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.13.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "353b46de34b764e498506d242d71a70da9a770545f598221867c751f8d0bcc4c",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.14.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "e841cb7a96972c2a37523a85e258684776e02f73fb9aab755549e38444bc6b88",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.14.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "cacc870388ecc0b97a8729a64e4204ddcd056ed6e97f967fb1564a081e3b16a6",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.14.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "86f13f6cff68e1870dbd2ebe370866f860f46ce5f3b26b069984e7b29e460398",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.14.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "72950dc9c7fa11948d2e08447afe5a23828f757dd5009ca372c353bd0fba6aa5",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.15.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "b756a7eb4228c396361b60fce775574b6bf4241eec909023bc732359f8036944",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.15.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "a5c3fc3622e55b6fb93a72ba8400496a93bace63cdcdeb35b7344753e34fb81a",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.15.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "9e61e5e154d642a623f5e19a08f755b00a9891efdfdd6c1bdb52ecc7caeb75b2",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.15.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "09c7391f0352751343b29f966a3550192308172d364cf397b0da9684443f0241",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.16.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ec353cd64ec0b324cc05e89f12d2921565a9337caca5aba4b98556378e74c022",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.16.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "4fdcdf04630eb9a0d9d4877b80196b0e794917461a60bcbef5219909c8fbc4ba",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.16.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "d91b82e013670f423c5c503ddc78fdc047bb2a4ef690fb639ba388e7258182db",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.16.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "2d572101f5e079cefea3b94bf4c6642c818246c145be5793932be7f78e2b839e",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.17.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "b2aab2d7d0c1e995d3c382f8b8f36f4bac91277ddc88ff88aa1ac1615346f320",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.17.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "4f6d3466484b4946c7b8e0bdca38f4901e4006858b63a92eef5c659da04c95fd",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.17.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "6d81f2374a6b1f1f50cb2c2be6c045167dbc32e1c1b0d2364425fa6341a35bad",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.17.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ae973c996fcd51aaa9994d86c7040129e01793168a2b542c5609bffc0ee45bb0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.18.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "24b01ba0d46fdaa0a7f55ab9536f319086a67683d2ea02b4de088d2b8f8fc789",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.18.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "8fc54e57bcd8edf58b128a163c4234556ce86f41fd0da4f76d3a94b066950a28",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.18.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "4cd30ae6d83abbee222b4b2f4bb09dafdd17e0461d2a88a86528d5f2e3141b96",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.18.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "1def46f3163474fff860c13789bc44cbbbded13aaa1bd61f32b29734429c3236",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.19.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "7b8172aed5975a780b510f6b3f36c46261918f0798382e7faf469124f443fc76",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.19.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "6ef1323f5402720af17e6a43939029bbad29dca47145ad46891a7c25d486579f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.19.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "9ee426fa37ab086b51a91139086f8559a826698cbf551f889451d7fe875db490",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.19.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "72e826e32a10a56c232b36d3228207e10c1bfacd640b70d4fedafd8ee2aae9bf",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.20.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ea5757d0ee2f8af92ffa9375b52631e812e62c0591d5e8ad847d4f731d0a218d",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.20.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "13a4cb8024c878384d55e8a75eddb0ed5b52bb5a5ab317fe6228534e526e9bc0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.20.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "ce9d3c667ba13c6b2c36d21b9699a2d1a9250de8ea3ed0adc0e58144d00b404f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.20.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "c8309f863e5d4f7e256c031f85261cb6c51e74a1828870f168fc130043b7a33d",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.21.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "fa377076b32548638bef5aeb33dca9b15f48162b76a5761dc40b7e4abb9717dc",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.21.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "aaedf4b07d6768fbbd60ec51fa5405cedee7fa6cf5b52bd54578368d4cffd4f9",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.21.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "ab0f29630e245c7707026b45598d9fd85c0db521ff22c71e1705acdd8b23b4ca",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.21.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "3de9f201db002b7cd729fe4eaaaed51c076540122b4460bb5e2f6a10dfa22fe7",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.22.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "3620f5dae130e04347c28bf389216acd350874a87af31fd4fd5cdac121532736",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.22.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "1acd1f86eb25247637dd2191a14bdb24d1cfead902b92adef0b6dbe2c04ff063",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.22.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "8ecf352ad9f924e16024882eb88878522d242e0c79fcdd750ecc4faa77bae209",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.22.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "41c5803628cc7dcc0fd9565460917a09d19b7bd5de13b3b61098be669c91a3ff",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.23.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "e391afd675280431c7985e4e372034e12bcecbb06cb8ba1452f90a648c253879",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.23.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "80fa62c5eab2fd162faf344f2c5f40fb0eb7a6cf49c99aed2f0f2b7277ef4689",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.23.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "f7f5332133f123fc5dd9283fb6080b4db85a6588970df1a0d51558a3c5806e6f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.23.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "ffb89361b5c766323c0df1bf6b3a68576afa2537fb63bd54e25e2a4e6d66a167",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.24.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "693c8cdccbdd4c4291dfcc2da6c050b65cbd5e57a0858d597344f7c785b3c207",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.24.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "756352f134c4516744b60135aa91146516197a8def8f5a2941586cdfb58de3bb",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.24.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "dd5867e0bf519a7a2e2e272313e7a8a3feaf11ce1ab01343af06423487ebe596",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.24.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "f99040e0df01735fab7840e4c3ad8f83e3d1c7c292aa3c80dc842d3f785cbcb4",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.25.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "27437cf9d05602c8fa3eb8b40dd83feb0074321fc4f550c4b33b508d5b997d75",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.25.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "555299b789d387d31d82278ad447f60ac2092235ee88a206ea9754ffa7046944",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.25.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "9ba08cb0f1fbc578f54178ffe251b8f6bb74d0aa8accb47b63a621d77032b6b0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.25.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "12f157d948368479ec35d9422d697a5d35cdf0eb39943e5c30a245e490243edf",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.26.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "97e79cc9295af3227ae337a8203e555189f904fd37ee546288e3f4464fbd01ce",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.26.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "74e295eec46a401e49acca86c557d352e5fb774dff4300d37bf88b504028a409",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.26.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "4bcac16a72e70d869ce6317b6e663b68582340f38ca75509fa430d33d61d32c0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.26.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "02846cb9dabdaee8728290642b71441b2f929e5e0bb8faf6ce22b9ae8c03b429",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.27.self_attn.q_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "20c7c7c8993da482048330f0a5cfb4d332b7749713f11c92f5292d4e6a752744",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.27.self_attn.k_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "28607a9ad16ef73d86163cbdec2dd1d6beb6b2a34a0b08f6e1eae52207365ec0",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.27.self_attn.v_proj",
+      "removed_weights": 1572864,
+      "mask_sha256": "801ae0cff8dcc5b7cc3a2b220dc848d6a6f0d321e1a041b104bf9354a090877f",
+      "sparse_kernel": false
+    },
+    {
+      "method": "wanda",
+      "module": "text.layers.27.self_attn.o_proj",
+      "removed_weights": 3145728,
+      "mask_sha256": "85a16e02d988471c713b144c46d6b3ad8ab36ef688d44b31a2223481e70606d6",
+      "sparse_kernel": false
+    }
+  ],
+  "deployed_architecture": {
+    "predicted_actions": 7,
+    "executed_before_replanning": 7,
+    "denoising_steps": 4,
+    "world_encoder_resident": true,
+    "world_predictor_resident": true,
+    "embodied_conditioning_tokens": 32,
+    "latent_prompt_tokens": 24,
+    "parameters_require_grad": false
+  },
+  "summary": {
+    "diagnostic_observations": 80,
+    "warmup": 10,
+    "mean_physical_arm_change_mse": 0.01253700301167555,
+    "maximum_physical_arm_change_mse": 0.026271412149071693,
+    "mean_gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.4921875,
+    "pipeline_median_ms": 76.75648200165597,
+    "pipeline_p95_ms": 81.60492124898155,
+    "peak_allocated_bytes": 5605133312,
+    "peak_reserved_bytes": 5641338880,
+    "predicted_actions": 7,
+    "executed_before_replanning": 7,
+    "registered_parameter_elements": 2766137991,
+    "represented_logical_parameter_elements": 2766137991,
+    "resident_tensor_storage_bytes": 5532276494,
+    "inference_core_logical_parameter_elements": 2282714375
+  },
+  "wall_seconds": 16.407483582999703
+}

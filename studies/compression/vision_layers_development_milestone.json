@@ -1,0 +1,102 @@
+{
+  "verified_at": "2026-10-10T04:00:07.106048+00:00",
+  "candidate": "vision-layers-12",
+  "recipe_sha256": "b0b94db3038e09deb8ce71dbd7c75aa13e906f42fe35238ce07a56918e7d8990",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 80,
+    "success_fraction": 0.8,
+    "wilson95_fraction": [
+      0.7111708344068411,
+      0.8666330666689676
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 2,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "420f7c58a42668d296ca5ed7705f602f65ffd65b3e271672d62bc5d1516527e5",
+    "record_sha256": "a57e2b9da37212bc5a30593b4c46b70fe861687fb236376a374c79544c225e84",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 76,
+        "both_failure": 14,
+        "gained_success": 4,
+        "lost_success": 6
+      },
+      "difference_pp": -1.9999999999999998,
+      "ci95_pp": [
+        -7.999999999999999,
+        4.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "d0200e0f4ebe2d34cd386077acb770240e81d04419bdd4258a933e8d179bbc5b",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_removed_layers": [
+    {
+      "method": "layers",
+      "scope": "vision",
+      "removed_indices": [
+        16,
+        17,
+        12,
+        13,
+        19,
+        18,
+        15,
+        20,
+        14,
+        21,
+        22,
+        3
+      ],
+      "criterion": "mean relative residual energy on calibration states"
+    }
+  ],
+  "screen_record_sha256": "e4ce16a84fd575d85ebf46c700d5071bc3e566fa68e584dfa67217e0f65b997d",
+  "screen": {
+    "peak_allocated_bytes": 5302414336,
+    "peak_reserved_bytes": 5395972096,
+    "resident_tensor_storage_bytes": 5229967118,
+    "pipeline_median_ms": 69.5032315015851,
+    "inference_core_logical_parameter_elements": 2131559687
+  },
+  "screen_metrics_not_recorded": [],
+  "joint_depth_counterpart": {
+    "candidate": "deploy-nf4-depth-boundaries-restricted",
+    "recipe_sha256": "0d46d5aae5a12c30a1b55611eb908a19dc515f674ae23dbca5794f89c8abe625",
+    "record_sha256": "12e7394e2ec27aea34d574c3c1289262275ec9bc4d351fa18add545cb1a1b046",
+    "episodes_sha256": "5e050ef384c319cdb3a5ff8f0ff2056b21006edc368f12c3e22e389c63b8a8b9",
+    "removed_vision_layers_verified_identical": true,
+    "paired_vs_standalone": {
+      "transitions": {
+        "both_success": 60,
+        "both_failure": 15,
+        "gained_success": 5,
+        "lost_success": 20
+      },
+      "difference_pp": -15.0,
+      "ci95_pp": [
+        -22.000000000000004,
+        -7.999999999999999
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "screen_peak_allocated_reduction_fraction": 0.8294881616735279,
+    "interpretation": "Joint deployment additionally removes language/action layers and world-model residency, compacts vocabulary and quantizes linears to NF4. This measures that bundle and does not isolate any one added change."
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone vision-depth comparison; all episode records validated. Physically removes twelve of twenty-four vision blocks using mean relative residual energy on frozen calibration states; CKA ranking is separate. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

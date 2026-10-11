@@ -1,0 +1,65 @@
+{
+  "verified_at": "2026-10-10T06:23:24.601022+00:00",
+  "candidate": "deploy-nf4-vision-text-channels-restricted",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "recipe_sha256": "5a2ee98e2c765394525f5c1b92a628d0bbc7a59893ade09161ebee0a532b16ef",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "deployed_tensor_sha256": "703fc8d8cb3c6933c409578535f445df5ee68919b7addab1763068d2f5e5f427",
+  "final": {
+    "episodes": 500,
+    "successes": 467,
+    "success_fraction": 0.934,
+    "wilson95_fraction": [
+      0.9087605988391466,
+      0.9526214736402262
+    ],
+    "task_successes": {
+      "0": 50,
+      "1": 49,
+      "2": 50,
+      "3": 50,
+      "4": 45,
+      "5": 29,
+      "6": 49,
+      "7": 50,
+      "8": 46,
+      "9": 49
+    },
+    "episodes_sha256": "022452d75aab1c770d72340ecf7beb85d8d26ff6e98772186689f544b35234f2",
+    "record_sha256": "dde2f052b378cea567bb919951f4f1ca0d2582c5d22488792a5af041c2bb83f1",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 462,
+        "both_failure": 20,
+        "gained_success": 5,
+        "lost_success": 13
+      },
+      "difference_pp": -1.6,
+      "ci95_pp": [
+        -3.2000000000000006,
+        0.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "meets_90_percent_observed_success": true
+  },
+  "size": {
+    "registered_parameter_elements": 806073479,
+    "represented_logical_parameter_elements": 1606704391,
+    "resident_tensor_storage_bytes": 837997298,
+    "inference_core_logical_parameter_elements": 1606704391,
+    "serialized_weights": {
+      "bytes": 838493279,
+      "sha256": "dfc8821ea446ea9057e41e1fd00fd35c8bcbff6dca32562fc3ff406b552c4e5b",
+      "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+      "artifact": "outputs/compression/serialized/deploy-nf4-vision-text-channels-restricted/size/packed.safetensors",
+      "direct_HF_checkpoint": false,
+      "runtime_archive_removed_after_evidence_export": true
+    }
+  },
+  "size_record_sha256": "a81c19b483d92e2bf35d76f9c6a14f1c5f4376c51d6847674bcb24b592467b37",
+  "packed_archive_reduction_fraction": 0.8484420116444326,
+  "state_membership_validated": true,
+  "final_size_tensor_fingerprints_match": true,
+  "interpretation": "Smallest frozen confirmation candidate clears the observed 450/500 target. Actual packed weights and reserved episodes are validated. Other selected policies and steady inference memory/latency measurements remain pending; screen measurements are not substituted."
+}

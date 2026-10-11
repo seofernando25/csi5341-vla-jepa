@@ -1,0 +1,11 @@
+{
+  "id": "text_mlp-magnitude-25",
+  "family": "weight_sparsity",
+  "changes": [
+    {
+      "method": "magnitude",
+      "scope": "text_mlp",
+      "fraction": 0.25
+    }
+  ]
+}

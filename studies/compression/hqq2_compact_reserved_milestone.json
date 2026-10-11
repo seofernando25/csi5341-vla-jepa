@@ -1,0 +1,65 @@
+{
+  "verified_at": "2026-10-10T07:05:05.113763+00:00",
+  "candidate": "deploy-hqq2-vision-action-restricted",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "recipe_sha256": "5fa94a9fd2e5f606c9c18aaba913568eec76f1f36d25b469c0c3e6ab060460dc",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "deployed_tensor_sha256": "97e768ff497378831d0b9cab0b9f1dc86b8d1d62451db57a18a1ac75e62b243b",
+  "final": {
+    "episodes": 500,
+    "successes": 490,
+    "success_fraction": 0.98,
+    "wilson95_fraction": [
+      0.9635798167531208,
+      0.9891008164037892
+    ],
+    "task_successes": {
+      "0": 50,
+      "1": 50,
+      "2": 49,
+      "3": 50,
+      "4": 45,
+      "5": 48,
+      "6": 50,
+      "7": 49,
+      "8": 49,
+      "9": 50
+    },
+    "episodes_sha256": "57c57b6ca11ee00b0ce7d1343535d61b151dd0669617e3b795ee81ee95f2d964",
+    "record_sha256": "a36e87803f90f99889eb64ab84c99656a97ef61afeb04799d63e97b4ab69ab57",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 468,
+        "both_failure": 3,
+        "gained_success": 22,
+        "lost_success": 7
+      },
+      "difference_pp": 3.0,
+      "ci95_pp": [
+        1.2,
+        5.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "meets_90_percent_observed_success": true
+  },
+  "size": {
+    "registered_parameter_elements": 809268359,
+    "represented_logical_parameter_elements": 1971657991,
+    "resident_tensor_storage_bytes": 977424050,
+    "inference_core_logical_parameter_elements": 1971657991,
+    "serialized_weights": {
+      "bytes": 977829582,
+      "sha256": "4979656b1570b556d7660c5c22cf1df15dd07b0513500431751d1be5ed3ee46d",
+      "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+      "artifact": "outputs/compression/serialized/deploy-hqq2-vision-action-restricted/size/packed.safetensors",
+      "direct_HF_checkpoint": false,
+      "runtime_archive_removed_after_evidence_export": true
+    }
+  },
+  "size_record_sha256": "6ea6e2da32a5b9c437225c0785cb6bee0a7081c96a23e59c811f1bfb1f3eae4a",
+  "packed_archive_reduction_fraction": 0.8232569203426073,
+  "state_membership_validated": true,
+  "final_size_tensor_fingerprints_match": true,
+  "interpretation": "Compact mixed NF4/HQQ2 deployment clears the observed 450/500 target on the frozen matched reserved cohort. Restricted vocabulary retains 53 BF16 rows and rejects unseen token IDs. Full-vocabulary confirmation and steady benchmarks remain pending; no further recipe tuning follows reserved outcomes."
+}

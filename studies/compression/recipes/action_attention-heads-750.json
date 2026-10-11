@@ -1,0 +1,11 @@
+{
+  "id": "action_attention-heads-750",
+  "family": "structural attention head pruning",
+  "changes": [
+    {
+      "method": "heads",
+      "scope": "action_attention",
+      "fraction": 0.75
+    }
+  ]
+}

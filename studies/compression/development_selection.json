@@ -1,0 +1,4774 @@
+{
+  "candidates": [
+    "B16",
+    "deploy-nf4-channel-boundaries-restricted",
+    "deploy-nf4-depth-boundaries-restricted",
+    "deploy-nf4-text-channel-boundaries-restricted",
+    "deploy-nf4-structural-mild-restricted",
+    "deploy-hqq2-vision-action-restricted",
+    "deploy-hqq3-text-hqq2-restricted",
+    "deploy-nf4-all-restricted",
+    "deploy-nf4-structural",
+    "deploy-nf4-text-bf16-embedding",
+    "action_mlp-channels-750",
+    "merger-channels-750",
+    "text_mlp-channels-250",
+    "vision_mlp-channels-500",
+    "action_attention-heads-750",
+    "text-heads-250",
+    "vision_attention-heads-500",
+    "action-layers-8",
+    "text-cka-layers-4",
+    "vision-layers-12",
+    "deploy-hqq2-vision-action"
+  ],
+  "minimum_smoke_successes": 7,
+  "baseline_smoke": {
+    "episodes": 10,
+    "successes": 8,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "development",
+    "task_macro_success": 0.8
+  },
+  "eligible_evidence": {
+    "text-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.668459703410008e-05,
+        "maximum_physical_arm_change_mse": 4.278677442925982e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0244140625,
+        "pipeline_median_ms": 148.8128434993996,
+        "pipeline_p95_ms": 151.78427885002748,
+        "peak_allocated_bytes": 4299867648,
+        "peak_reserved_bytes": 4812963840,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 4122990350
+      }
+    },
+    "text-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00020033387309013052,
+        "maximum_physical_arm_change_mse": 0.0005949286860413849,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1171875,
+        "pipeline_median_ms": 92.6634945008118,
+        "pipeline_p95_ms": 113.48488805078887,
+        "peak_allocated_bytes": 3537678336,
+        "peak_reserved_bytes": 3600809984,
+        "registered_parameter_elements": 2061494919,
+        "resident_tensor_storage_bytes": 3440925470
+      }
+    },
+    "text_mlp-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.4023854311062678e-05,
+        "maximum_physical_arm_change_mse": 3.1165851396508515e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01953125,
+        "pipeline_median_ms": 110.24692649971257,
+        "pipeline_p95_ms": 112.70312149945312,
+        "peak_allocated_bytes": 4650814976,
+        "peak_reserved_bytes": 5100273664,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 4475311886
+      }
+    },
+    "text_mlp-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.2133052588487774e-05,
+        "maximum_physical_arm_change_mse": 0.00019261211855337024,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0859375,
+        "pipeline_median_ms": 82.60799550043885,
+        "pipeline_p95_ms": 84.03092159996959,
+        "peak_allocated_bytes": 4060864512,
+        "peak_reserved_bytes": 4158652416,
+        "registered_parameter_elements": 2237655687,
+        "resident_tensor_storage_bytes": 3963694430
+      }
+    },
+    "text_attention-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 6.225974203744045e-06,
+        "maximum_physical_arm_change_mse": 2.7666295864037238e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.02734375,
+        "pipeline_median_ms": 123.82238649934152,
+        "pipeline_p95_ms": 126.98210955049944,
+        "peak_allocated_bytes": 5282669056,
+        "peak_reserved_bytes": 5333057536,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5179954958
+      }
+    },
+    "text_attention-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00013192781709676639,
+        "maximum_physical_arm_change_mse": 0.00035221484722569585,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.06982421875,
+        "pipeline_median_ms": 85.12845000041125,
+        "pipeline_p95_ms": 87.12838905030367,
+        "peak_allocated_bytes": 5084520448,
+        "peak_reserved_bytes": 5140119552,
+        "registered_parameter_elements": 2589977223,
+        "resident_tensor_storage_bytes": 5009507534
+      }
+    },
+    "vision_blocks-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.922666755177943e-06,
+        "maximum_physical_arm_change_mse": 4.2823659896384925e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0234375,
+        "pipeline_median_ms": 111.67730750003102,
+        "pipeline_p95_ms": 114.68731875011144,
+        "peak_allocated_bytes": 5323773440,
+        "peak_reserved_bytes": 5486149632,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5230630670
+      }
+    },
+    "vision_blocks-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.605706846334215e-05,
+        "maximum_physical_arm_change_mse": 0.00039930042112246156,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.06494140625,
+        "pipeline_median_ms": 83.91193499937799,
+        "pipeline_p95_ms": 85.94707320071393,
+        "peak_allocated_bytes": 5169570304,
+        "peak_reserved_bytes": 5307891712,
+        "registered_parameter_elements": 2615143047,
+        "resident_tensor_storage_bytes": 5084188814
+      }
+    },
+    "merger-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.55965643063405e-06,
+        "maximum_physical_arm_change_mse": 6.453760761360172e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0107421875,
+        "pipeline_median_ms": 79.78278749942547,
+        "pipeline_p95_ms": 81.96928160059542,
+        "peak_allocated_bytes": 5504606720,
+        "peak_reserved_bytes": 5540675584,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5431645966
+      }
+    },
+    "merger-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.29771797914691e-06,
+        "maximum_physical_arm_change_mse": 1.8907818230218254e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0234375,
+        "pipeline_median_ms": 77.5208749992089,
+        "pipeline_p95_ms": 79.19045195067156,
+        "peak_allocated_bytes": 5460345856,
+        "peak_reserved_bytes": 5517606912,
+        "registered_parameter_elements": 2715806343,
+        "resident_tensor_storage_bytes": 5382887726
+      }
+    },
+    "action_mlp-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 6.644105980058157e-07,
+        "maximum_physical_arm_change_mse": 2.5981300950661534e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.009765625,
+        "pipeline_median_ms": 125.46632399971713,
+        "pipeline_p95_ms": 129.21589300121923,
+        "peak_allocated_bytes": 5528791040,
+        "peak_reserved_bytes": 5704253440,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5456877326
+      }
+    },
+    "action_mlp-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.9090507396745126e-06,
+        "maximum_physical_arm_change_mse": 6.814742391725304e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01171875,
+        "pipeline_median_ms": 86.97478900012356,
+        "pipeline_p95_ms": 89.02148534953085,
+        "peak_allocated_bytes": 5494583296,
+        "peak_reserved_bytes": 5664407552,
+        "registered_parameter_elements": 2728389255,
+        "resident_tensor_storage_bytes": 5420263310
+      }
+    },
+    "action_attention-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 3.6359775052119404e-06,
+        "maximum_physical_arm_change_mse": 9.963596312445588e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01171875,
+        "pipeline_median_ms": 164.378434500577,
+        "pipeline_p95_ms": 169.18891154955418,
+        "peak_allocated_bytes": 5548369920,
+        "peak_reserved_bytes": 5674893312,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5479083278
+      }
+    },
+    "action_attention-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 3.7921977622090706e-06,
+        "maximum_physical_arm_change_mse": 7.623675628565252e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.015625,
+        "pipeline_median_ms": 100.52502250073303,
+        "pipeline_p95_ms": 102.98637680025422,
+        "peak_allocated_bytes": 5520019456,
+        "peak_reserved_bytes": 5649727488,
+        "registered_parameter_elements": 2739399303,
+        "resident_tensor_storage_bytes": 5452978958
+      }
+    },
+    "action_interfaces-bnb8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.134417739962373e-06,
+        "maximum_physical_arm_change_mse": 1.3029952242504805e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.015625,
+        "pipeline_median_ms": 88.73120299995207,
+        "pipeline_p95_ms": 91.48449980093574,
+        "peak_allocated_bytes": 5598940160,
+        "peak_reserved_bytes": 5639241728,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5525947960
+      }
+    },
+    "action_interfaces-bnb4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.59693160691677e-05,
+        "maximum_physical_arm_change_mse": 0.0002076221426250413,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0615234375,
+        "pipeline_median_ms": 78.48503300010634,
+        "pipeline_p95_ms": 80.75830370044059,
+        "peak_allocated_bytes": 5595025920,
+        "peak_reserved_bytes": 5645533184,
+        "registered_parameter_elements": 2762949127,
+        "resident_tensor_storage_bytes": 5522823130
+      }
+    },
+    "vision_blocks-magnitude-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0030159454443491997,
+        "maximum_physical_arm_change_mse": 0.009537814185023308,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.330810546875,
+        "pipeline_median_ms": 77.11173650022829,
+        "pipeline_p95_ms": 78.53629654946417,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "action-magnitude-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.001348682295429171,
+        "maximum_physical_arm_change_mse": 0.0032962169498205185,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.18359375,
+        "pipeline_median_ms": 76.98181000068871,
+        "pipeline_p95_ms": 79.37496810045559,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "text_mlp-wanda-25": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 3.281897543274681e-05,
+        "maximum_physical_arm_change_mse": 0.000132452929392457,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.064453125,
+        "pipeline_median_ms": 77.58190299955459,
+        "pipeline_p95_ms": 79.81150765162965,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "vision_blocks-wanda-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0014677366772957612,
+        "maximum_physical_arm_change_mse": 0.004436270333826542,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.2646484375,
+        "pipeline_median_ms": 77.06201049950323,
+        "pipeline_p95_ms": 79.21203105051973,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "action-wanda-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00662062649789732,
+        "maximum_physical_arm_change_mse": 0.016081977635622025,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.52734375,
+        "pipeline_median_ms": 76.92307399884157,
+        "pipeline_p95_ms": 82.45789365028031,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "action_mlp-wanda-2of4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.855307150952285e-05,
+        "maximum_physical_arm_change_mse": 0.00016683612193446606,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0625,
+        "pipeline_median_ms": 76.45302950004407,
+        "pipeline_p95_ms": 78.6550097491272,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text_mlp-channels-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00012292711217014584,
+        "maximum_physical_arm_change_mse": 0.0005373383755795658,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1162109375,
+        "pipeline_median_ms": 77.07430399932491,
+        "pipeline_p95_ms": 79.47200349863124,
+        "peak_allocated_bytes": 5341023232,
+        "peak_reserved_bytes": 5630853120,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2634017415,
+        "resident_tensor_storage_bytes": 5268035342
+      }
+    },
+    "text_mlp-channels-250": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0005422488393378444,
+        "maximum_physical_arm_change_mse": 0.00252479687333107,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.24609375,
+        "pipeline_median_ms": 75.04089549911441,
+        "pipeline_p95_ms": 76.4073299978918,
+        "peak_allocated_bytes": 5074803712,
+        "peak_reserved_bytes": 5630853120,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2501896839,
+        "represented_logical_parameter_elements": 2501896839,
+        "resident_tensor_storage_bytes": 5003794190,
+        "inference_core_logical_parameter_elements": 2018473223
+      }
+    },
+    "vision_mlp-channels-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.0073193023174553e-05,
+        "maximum_physical_arm_change_mse": 4.94422965857666e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.025390625,
+        "pipeline_median_ms": 75.9507320017292,
+        "pipeline_p95_ms": 78.06566364924947,
+        "peak_allocated_bytes": 5575986176,
+        "peak_reserved_bytes": 5639241728,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2740959879,
+        "represented_logical_parameter_elements": 2740959879,
+        "resident_tensor_storage_bytes": 5481920270,
+        "inference_core_logical_parameter_elements": 2257536263
+      }
+    },
+    "vision_mlp-channels-500": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0006878399703964533,
+        "maximum_physical_arm_change_mse": 0.0026583299040794373,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1865234375,
+        "pipeline_median_ms": 74.91866250165913,
+        "pipeline_p95_ms": 76.54909814718849,
+        "peak_allocated_bytes": 5404216320,
+        "peak_reserved_bytes": 5605687296,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2665425543,
+        "represented_logical_parameter_elements": 2665425543,
+        "resident_tensor_storage_bytes": 5330851598,
+        "inference_core_logical_parameter_elements": 2182001927
+      }
+    },
+    "merger-channels-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.833411580155826e-06,
+        "maximum_physical_arm_change_mse": 3.533338167471811e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01953125,
+        "pipeline_median_ms": 76.6977865005174,
+        "pipeline_p95_ms": 78.65747859832481,
+        "peak_allocated_bytes": 5580332032,
+        "peak_reserved_bytes": 5651824640,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2753553031,
+        "represented_logical_parameter_elements": 2753553031,
+        "resident_tensor_storage_bytes": 5507106574,
+        "inference_core_logical_parameter_elements": 2270129415
+      }
+    },
+    "action_mlp-channels-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 4.823015873789415e-07,
+        "maximum_physical_arm_change_mse": 2.0428055904631037e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.008544921875,
+        "pipeline_median_ms": 76.43796050069795,
+        "pipeline_p95_ms": 78.7335681501645,
+        "peak_allocated_bytes": 5601569792,
+        "peak_reserved_bytes": 5647630336,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2756694663,
+        "represented_logical_parameter_elements": 2756694663,
+        "resident_tensor_storage_bytes": 5513389838,
+        "inference_core_logical_parameter_elements": 2273271047
+      }
+    },
+    "text-layers-1": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 4.921242541513493e-05,
+        "maximum_physical_arm_change_mse": 0.00013016376760788262,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0517578125,
+        "pipeline_median_ms": 76.79488750181918,
+        "pipeline_p95_ms": 83.46538925252389,
+        "peak_allocated_bytes": 5504141312,
+        "peak_reserved_bytes": 5549064192,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2715801991,
+        "represented_logical_parameter_elements": 2715801991,
+        "resident_tensor_storage_bytes": 5431604494,
+        "inference_core_logical_parameter_elements": 2232378375
+      }
+    },
+    "text-layers-4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0045118156172975436,
+        "maximum_physical_arm_change_mse": 0.021688971668481827,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.486328125,
+        "pipeline_median_ms": 73.82053600122163,
+        "pipeline_p95_ms": 76.36048084950744,
+        "peak_allocated_bytes": 5198453760,
+        "peak_reserved_bytes": 5251268608,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2564793991,
+        "represented_logical_parameter_elements": 2564793991,
+        "resident_tensor_storage_bytes": 5129588494,
+        "inference_core_logical_parameter_elements": 2081370375
+      }
+    },
+    "vision-layers-1": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 6.160409425319813e-05,
+        "maximum_physical_arm_change_mse": 0.00031509395921602845,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0546875,
+        "pipeline_median_ms": 75.3925770004571,
+        "pipeline_p95_ms": 78.03309564988012,
+        "peak_allocated_bytes": 5579531264,
+        "peak_reserved_bytes": 5620367360,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2753541767,
+        "represented_logical_parameter_elements": 2753541767,
+        "resident_tensor_storage_bytes": 5507084046,
+        "inference_core_logical_parameter_elements": 2270118151
+      }
+    },
+    "action-layers-1": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 4.2253929120761316e-05,
+        "maximum_physical_arm_change_mse": 8.293586870422587e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.03125,
+        "pipeline_median_ms": 74.6217659998365,
+        "pipeline_p95_ms": 76.26465934736189,
+        "peak_allocated_bytes": 5586749952,
+        "peak_reserved_bytes": 5620367360,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2757872007,
+        "represented_logical_parameter_elements": 2757872007,
+        "resident_tensor_storage_bytes": 5515744526,
+        "inference_core_logical_parameter_elements": 2274448391
+      }
+    },
+    "text-heads-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0012808672479877714,
+        "maximum_physical_arm_change_mse": 0.002518291585147381,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.17578125,
+        "pipeline_median_ms": 76.66058700124267,
+        "pipeline_p95_ms": 78.57591165175108,
+        "peak_allocated_bytes": 5527977472,
+        "peak_reserved_bytes": 5653921792,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2722097799,
+        "represented_logical_parameter_elements": 2722097799,
+        "resident_tensor_storage_bytes": 5444196110,
+        "inference_core_logical_parameter_elements": 2238674183
+      }
+    },
+    "text-heads-250": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.006684288005635608,
+        "maximum_physical_arm_change_mse": 0.013081418350338936,
+        "mean_gripper_disagreement": 0.001785714365541935,
+        "maximum_normalized_action_difference": 0.5546875,
+        "pipeline_median_ms": 76.88830249935563,
+        "pipeline_p95_ms": 79.00868959895888,
+        "peak_allocated_bytes": 5441522688,
+        "peak_reserved_bytes": 5528092672,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2678057607,
+        "represented_logical_parameter_elements": 2678057607,
+        "resident_tensor_storage_bytes": 5356115726,
+        "inference_core_logical_parameter_elements": 2194633991
+      }
+    },
+    "int8_embedding": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.60014664377195e-06,
+        "maximum_physical_arm_change_mse": 7.535152235504938e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01171875,
+        "pipeline_median_ms": 76.59762699950079,
+        "pipeline_p95_ms": 79.21389014918532,
+        "peak_allocated_bytes": 5293371904,
+        "peak_reserved_bytes": 6228541440,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2454973063,
+        "resident_tensor_storage_bytes": 5221719310
+      }
+    },
+    "compact_embedding": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 76.93384850063012,
+        "pipeline_p95_ms": 79.29556860053708,
+        "peak_allocated_bytes": 4983104512,
+        "peak_reserved_bytes": 5018484736,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2455081607,
+        "resident_tensor_storage_bytes": 4910771894
+      }
+    },
+    "world_remove": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 74.9662990001525,
+        "pipeline_p95_ms": 77.34696705101669,
+        "peak_allocated_bytes": 4635775488,
+        "peak_reserved_bytes": 4666163200,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 4565429262
+      }
+    },
+    "conditioning-24": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00018242018281853234,
+        "maximum_physical_arm_change_mse": 0.0006050414522178471,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08984375,
+        "pipeline_median_ms": 76.69738900040102,
+        "pipeline_p95_ms": 78.71370000011666,
+        "peak_allocated_bytes": 5604080640,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "conditioning-16": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0057003041903954,
+        "maximum_physical_arm_change_mse": 0.011490587145090103,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.427734375,
+        "pipeline_median_ms": 76.27290699747391,
+        "pipeline_p95_ms": 77.44897504999244,
+        "peak_allocated_bytes": 5603027968,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "latent-prompt-remove": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.000548207007432211,
+        "maximum_physical_arm_change_mse": 0.0014302858617156744,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.296875,
+        "pipeline_median_ms": 75.97646850081219,
+        "pipeline_p95_ms": 77.84289014962269,
+        "peak_allocated_bytes": 5601974784,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "solver-3": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 6.15522768896426e-06,
+        "maximum_physical_arm_change_mse": 1.9568215066101402e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.017578125,
+        "pipeline_median_ms": 69.67025300036767,
+        "pipeline_p95_ms": 75.91837265154027,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "solver-2": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.759482218834819e-05,
+        "maximum_physical_arm_change_mse": 9.258968202630058e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.04296875,
+        "pipeline_median_ms": 61.39138000071398,
+        "pipeline_p95_ms": 63.38137114926212,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "solver-1": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0001453288281481946,
+        "maximum_physical_arm_change_mse": 0.000601152831222862,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0869140625,
+        "pipeline_median_ms": 53.708444500443875,
+        "pipeline_p95_ms": 55.86907749911916,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action-bnb8-dtypeguard": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.660758234351306e-06,
+        "maximum_physical_arm_change_mse": 1.6319367205142044e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0185546875,
+        "pipeline_median_ms": 237.92861100082519,
+        "pipeline_p95_ms": 245.8316530477532,
+        "peak_allocated_bytes": 5455732736,
+        "peak_reserved_bytes": 5490343936,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5378825272,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action-bnb4-dtypeguard": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.621522427143645e-05,
+        "maximum_physical_arm_change_mse": 0.0001990536111406982,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0595703125,
+        "pipeline_median_ms": 115.67870400085667,
+        "pipeline_p95_ms": 118.10268260032899,
+        "peak_allocated_bytes": 5370105856,
+        "peak_reserved_bytes": 5410652160,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2689024519,
+        "resident_tensor_storage_bytes": 5303517850
+      }
+    },
+    "vision_blocks-torchao": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.20592920206309e-05,
+        "maximum_physical_arm_change_mse": 0.0002945191226899624,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0703125,
+        "pipeline_median_ms": 91.86647549904592,
+        "pipeline_p95_ms": 93.9564206992145,
+        "peak_allocated_bytes": 5174799872,
+        "peak_reserved_bytes": 5362417664,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5088728846,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-torchao": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 3.1074245899986864e-06,
+        "maximum_physical_arm_change_mse": 8.533300388080534e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.015625,
+        "pipeline_median_ms": 82.94880150060635,
+        "pipeline_p95_ms": 84.78348664739315,
+        "peak_allocated_bytes": 5504060416,
+        "peak_reserved_bytes": 5624561664,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5428074254,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text-gptq": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00021007736845604085,
+        "maximum_physical_arm_change_mse": 0.0006122457562014461,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.087890625,
+        "pipeline_median_ms": 101.90376149876101,
+        "pipeline_p95_ms": 104.946438747902,
+        "peak_allocated_bytes": 3536661504,
+        "peak_reserved_bytes": 4259315712,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1356851847,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 3462387470,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-gptq": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.1237532859809107e-05,
+        "maximum_physical_arm_change_mse": 9.629678243072703e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.025878936052322388,
+        "pipeline_median_ms": 88.79700600118667,
+        "pipeline_p95_ms": 91.6868689999319,
+        "peak_allocated_bytes": 5172734976,
+        "peak_reserved_bytes": 5708447744,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5088728846,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-gptq": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.68543914081232e-07,
+        "maximum_physical_arm_change_mse": 1.3647090781887528e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0087890625,
+        "pipeline_median_ms": 78.66447600008541,
+        "pipeline_p95_ms": 83.37241600083871,
+        "peak_allocated_bytes": 5507722240,
+        "peak_reserved_bytes": 5664407552,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "resident_tensor_storage_bytes": 5428074254
+      }
+    },
+    "vision_blocks-sparsegpt": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00014376952938164323,
+        "maximum_physical_arm_change_mse": 0.0006858262931928039,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08203125,
+        "pipeline_median_ms": 76.59666899962758,
+        "pipeline_p95_ms": 78.9095370515497,
+        "peak_allocated_bytes": 5605370880,
+        "peak_reserved_bytes": 5662310400,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-sparsegpt": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 6.329512016733929e-07,
+        "maximum_physical_arm_change_mse": 1.9825090475933393e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.009765625,
+        "pipeline_median_ms": 77.11331200152927,
+        "pipeline_p95_ms": 79.13352054965799,
+        "peak_allocated_bytes": 5604592640,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text_mlp-awq_diagonal": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.630401810776675e-05,
+        "maximum_physical_arm_change_mse": 0.00025613020989112556,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.060546875,
+        "pipeline_median_ms": 96.81501800150727,
+        "pipeline_p95_ms": 99.84883389879542,
+        "peak_allocated_bytes": 4052880384,
+        "peak_reserved_bytes": 4095737856,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1709173383,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 3980433166,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text_attention-awq_diagonal": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.935650660328974e-05,
+        "maximum_physical_arm_change_mse": 0.0002491890045348555,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0888671875,
+        "pipeline_median_ms": 82.13403700028721,
+        "pipeline_p95_ms": 84.51271139801975,
+        "peak_allocated_bytes": 5087964160,
+        "peak_reserved_bytes": 5158993920,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2413816455,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5015262990,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-awq_diagonal": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 9.59650569498649e-07,
+        "maximum_physical_arm_change_mse": 2.850812961696647e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.010498046875,
+        "pipeline_median_ms": 79.35861549958645,
+        "pipeline_p95_ms": 81.63466049973067,
+        "peak_allocated_bytes": 5511392256,
+        "peak_reserved_bytes": 5714739200,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5428197134,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "visual-tokens-magnitude-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0009216201569415717,
+        "maximum_physical_arm_change_mse": 0.017305241897702217,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.55126953125,
+        "pipeline_median_ms": 75.8305975004987,
+        "pipeline_p95_ms": 77.8454186007366,
+        "peak_allocated_bytes": 5596359680,
+        "peak_reserved_bytes": 5630853120,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "visual-tokens-uniform-50": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0005351893799343088,
+        "maximum_physical_arm_change_mse": 0.001764282351359725,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.15380859375,
+        "pipeline_median_ms": 75.68942499983677,
+        "pipeline_p95_ms": 77.19635100020241,
+        "peak_allocated_bytes": 5596359680,
+        "peak_reserved_bytes": 5630853120,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "visual-tokens-uniform-75": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00364544021031179,
+        "maximum_physical_arm_change_mse": 0.015130877494812012,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3955078125,
+        "pipeline_median_ms": 78.44760649823002,
+        "pipeline_p95_ms": 80.38742625012674,
+        "peak_allocated_bytes": 5590436352,
+        "peak_reserved_bytes": 5626658816,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision-layers-8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0023203362068670687,
+        "maximum_physical_arm_change_mse": 0.008261269889771938,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3310546875,
+        "pipeline_median_ms": 71.82515700151271,
+        "pipeline_p95_ms": 73.45439554883342,
+        "peak_allocated_bytes": 5403962368,
+        "peak_reserved_bytes": 5521801216,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2665368199,
+        "represented_logical_parameter_elements": 2665368199,
+        "resident_tensor_storage_bytes": 5330736910,
+        "inference_core_logical_parameter_elements": 2181944583
+      }
+    },
+    "vision-layers-12": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00495415125915315,
+        "maximum_physical_arm_change_mse": 0.021544137969613075,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.52197265625,
+        "pipeline_median_ms": 69.5032315015851,
+        "pipeline_p95_ms": 71.23660859833763,
+        "peak_allocated_bytes": 5302414336,
+        "peak_reserved_bytes": 5395972096,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2614983303,
+        "represented_logical_parameter_elements": 2614983303,
+        "resident_tensor_storage_bytes": 5229967118,
+        "inference_core_logical_parameter_elements": 2131559687
+      }
+    },
+    "action-layers-8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0068145462835673245,
+        "maximum_physical_arm_change_mse": 0.011035734787583351,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.267333984375,
+        "pipeline_median_ms": 63.129268999546184,
+        "pipeline_p95_ms": 65.13516599970899,
+        "peak_allocated_bytes": 5461974016,
+        "peak_reserved_bytes": 5563744256,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2696077959,
+        "represented_logical_parameter_elements": 2696077959,
+        "resident_tensor_storage_bytes": 5392156430,
+        "inference_core_logical_parameter_elements": 2212654343
+      }
+    },
+    "merger-channels-750": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0009177519516015309,
+        "maximum_physical_arm_change_mse": 0.0055605401284992695,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.244140625,
+        "pipeline_median_ms": 76.14701250167855,
+        "pipeline_p95_ms": 78.57982854930015,
+        "peak_allocated_bytes": 5453433856,
+        "peak_reserved_bytes": 5502926848,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690628231,
+        "represented_logical_parameter_elements": 2690628231,
+        "resident_tensor_storage_bytes": 5381256974,
+        "inference_core_logical_parameter_elements": 2207204615
+      }
+    },
+    "action_mlp-channels-750": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 4.226574098993296e-05,
+        "maximum_physical_arm_change_mse": 8.076155791059136e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0390625,
+        "pipeline_median_ms": 76.75929250035551,
+        "pipeline_p95_ms": 79.06094404843316,
+        "peak_allocated_bytes": 5492845568,
+        "peak_reserved_bytes": 5620367360,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2709478023,
+        "represented_logical_parameter_elements": 2709478023,
+        "resident_tensor_storage_bytes": 5418956558,
+        "inference_core_logical_parameter_elements": 2226054407
+      }
+    },
+    "text_attention-wanda-2of4-packed": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0024061829586571547,
+        "maximum_physical_arm_change_mse": 0.004727161955088377,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.271484375,
+        "pipeline_median_ms": 126.47930550156161,
+        "pipeline_p95_ms": 130.28911979999975,
+        "peak_allocated_bytes": 5309349376,
+        "peak_reserved_bytes": 5389680640,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5223995150,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-wanda-2of4-packed": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.006182138061558362,
+        "maximum_physical_arm_change_mse": 0.01862724870443344,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.4627685546875,
+        "pipeline_median_ms": 115.26204400070128,
+        "pipeline_p95_ms": 116.60786690299574,
+        "peak_allocated_bytes": 5360684032,
+        "peak_reserved_bytes": 5479858176,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5268035342,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-wanda-2of4-packed": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.87881984908745e-05,
+        "maximum_physical_arm_change_mse": 0.00017480668611824512,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.06640625,
+        "pipeline_median_ms": 125.2853674996004,
+        "pipeline_p95_ms": 128.03542144920357,
+        "peak_allocated_bytes": 5538409472,
+        "peak_reserved_bytes": 5620367360,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5466216206,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-sparsegpt-2of4-packed": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0003722943939862944,
+        "maximum_physical_arm_change_mse": 0.0017957189120352268,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.15234375,
+        "pipeline_median_ms": 121.3803664995794,
+        "pipeline_p95_ms": 122.73764204874169,
+        "peak_allocated_bytes": 5365009408,
+        "peak_reserved_bytes": 5431623680,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5268035342,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-sparsegpt-2of4-packed": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 9.132455637939075e-07,
+        "maximum_physical_arm_change_mse": 2.160146095775417e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0087890625,
+        "pipeline_median_ms": 133.01754350140982,
+        "pipeline_p95_ms": 135.12764395181875,
+        "peak_allocated_bytes": 5539548160,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5466216206,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text-cka-layers-2": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0004124103817048308,
+        "maximum_physical_arm_change_mse": 0.0028311521746218204,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1826171875,
+        "pipeline_median_ms": 75.16942649999692,
+        "pipeline_p95_ms": 77.49951349833282,
+        "peak_allocated_bytes": 5402240000,
+        "peak_reserved_bytes": 5446303744,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2665465991,
+        "represented_logical_parameter_elements": 2665465991,
+        "resident_tensor_storage_bytes": 5330932494,
+        "inference_core_logical_parameter_elements": 2182042375
+      }
+    },
+    "text-cka-layers-4": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0045118156172975436,
+        "maximum_physical_arm_change_mse": 0.021688971668481827,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.486328125,
+        "pipeline_median_ms": 73.80533999821637,
+        "pipeline_p95_ms": 76.01828155002295,
+        "peak_allocated_bytes": 5198453760,
+        "peak_reserved_bytes": 5251268608,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2564793991,
+        "represented_logical_parameter_elements": 2564793991,
+        "resident_tensor_storage_bytes": 5129588494,
+        "inference_core_logical_parameter_elements": 2081370375
+      }
+    },
+    "vision-cka-layers-2": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00010256140842557215,
+        "maximum_physical_arm_change_mse": 0.00034607696579769254,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0673828125,
+        "pipeline_median_ms": 75.73195899931306,
+        "pipeline_p95_ms": 77.86607960151741,
+        "peak_allocated_bytes": 5554331136,
+        "peak_reserved_bytes": 5605687296,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2740945543,
+        "represented_logical_parameter_elements": 2740945543,
+        "resident_tensor_storage_bytes": 5481891598,
+        "inference_core_logical_parameter_elements": 2257521927
+      }
+    },
+    "vision-cka-layers-8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0019830334837024565,
+        "maximum_physical_arm_change_mse": 0.007388104218989611,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.2568359375,
+        "pipeline_median_ms": 72.3231765005039,
+        "pipeline_p95_ms": 82.37200855019182,
+        "peak_allocated_bytes": 5403176448,
+        "peak_reserved_bytes": 5521801216,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2665368199,
+        "represented_logical_parameter_elements": 2665368199,
+        "resident_tensor_storage_bytes": 5330736910,
+        "inference_core_logical_parameter_elements": 2181944583
+      }
+    },
+    "action-cka-layers-2": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.806875171856518e-05,
+        "maximum_physical_arm_change_mse": 9.43572013056837e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.033203125,
+        "pipeline_median_ms": 73.25027150181995,
+        "pipeline_p95_ms": 75.49201885103685,
+        "peak_allocated_bytes": 5570217984,
+        "peak_reserved_bytes": 5605687296,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2749606023,
+        "represented_logical_parameter_elements": 2749606023,
+        "resident_tensor_storage_bytes": 5499212558,
+        "inference_core_logical_parameter_elements": 2266182407
+      }
+    },
+    "action-cka-layers-8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0006580369970833999,
+        "maximum_physical_arm_change_mse": 0.0014106647577136755,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.12890625,
+        "pipeline_median_ms": 62.86655150324805,
+        "pipeline_p95_ms": 64.63077960215742,
+        "peak_allocated_bytes": 5461982208,
+        "peak_reserved_bytes": 5563744256,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2696077959,
+        "represented_logical_parameter_elements": 2696077959,
+        "resident_tensor_storage_bytes": 5392156430,
+        "inference_core_logical_parameter_elements": 2212654343
+      }
+    },
+    "text-torchao-dynamic8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00010199319556249974,
+        "maximum_physical_arm_change_mse": 0.00025826203636825085,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.070556640625,
+        "pipeline_median_ms": 264.2184410015034,
+        "pipeline_p95_ms": 266.27436054695863,
+        "peak_allocated_bytes": 4211770368,
+        "peak_reserved_bytes": 4276092928,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 4125857550,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-torchao-dynamic8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.568973260025815e-06,
+        "maximum_physical_arm_change_mse": 3.667070996016264e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0234375,
+        "pipeline_median_ms": 167.1510109990777,
+        "pipeline_p95_ms": 168.99346555037482,
+        "peak_allocated_bytes": 5315374080,
+        "peak_reserved_bytes": 5542772736,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5231392526,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action-torchao-dynamic8": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.1718766893409338e-05,
+        "maximum_physical_arm_change_mse": 2.298340950801503e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.01781296730041504,
+        "pipeline_median_ms": 942.8125725007703,
+        "pipeline_p95_ms": 949.4793954007037,
+        "peak_allocated_bytes": 5457672704,
+        "peak_reserved_bytes": 5580521472,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5378771505,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "quantvla-processor-control": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 76.88912399953551,
+        "pipeline_p95_ms": 79.56111484945723,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "action-nf4-ohb": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.621522427143645e-05,
+        "maximum_physical_arm_change_mse": 0.0001990536111406982,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0595703125,
+        "pipeline_median_ms": 114.65181200219376,
+        "pipeline_p95_ms": 116.45300090112869,
+        "peak_allocated_bytes": 5369827328,
+        "peak_reserved_bytes": 5410652160,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2689024519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5303517850,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action-nf4-atm-ohb": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 7.581726904390962e-05,
+        "maximum_physical_arm_change_mse": 0.00020134384976699948,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0595703125,
+        "pipeline_median_ms": 116.57959150034003,
+        "pipeline_p95_ms": 118.56472820036288,
+        "peak_allocated_bytes": 5369835520,
+        "peak_reserved_bytes": 5410652160,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2689024519,
+        "resident_tensor_storage_bytes": 5303518618
+      }
+    },
+    "action_horizon-5": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002701482232805574,
+        "maximum_physical_arm_change_mse": 0.00642465241253376,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.337890625,
+        "pipeline_median_ms": 76.6675459981343,
+        "pipeline_p95_ms": 79.22048820109922,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 5,
+        "executed_before_replanning": 5,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_horizon-3": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.013306822758750059,
+        "maximum_physical_arm_change_mse": 0.033394403755664825,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.60595703125,
+        "pipeline_median_ms": 77.13104549929994,
+        "pipeline_p95_ms": 79.55252500032657,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 3,
+        "executed_before_replanning": 3,
+        "registered_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494
+      }
+    },
+    "action_horizon-1": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.008058542612707243,
+        "maximum_physical_arm_change_mse": 0.03000691719353199,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.369140625,
+        "pipeline_median_ms": 76.1403225005779,
+        "pipeline_p95_ms": 77.3606219492649,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 1,
+        "executed_before_replanning": 1,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "replanning-5": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 76.26266399893211,
+        "pipeline_p95_ms": 78.22254999937286,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 5,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "replanning-3": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 76.45469150156714,
+        "pipeline_p95_ms": 78.21660155022983,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 3,
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_attention-heads-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.166708748262863e-05,
+        "maximum_physical_arm_change_mse": 0.0006736424402333796,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.087890625,
+        "pipeline_median_ms": 76.6006890025892,
+        "pipeline_p95_ms": 78.50732065107877,
+        "peak_allocated_bytes": 5601303552,
+        "peak_reserved_bytes": 5656018944,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2753545863,
+        "represented_logical_parameter_elements": 2753545863,
+        "resident_tensor_storage_bytes": 5507092238,
+        "inference_core_logical_parameter_elements": 2270122247
+      }
+    },
+    "vision_attention-heads-500": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0030043080259019917,
+        "maximum_physical_arm_change_mse": 0.01108185201883316,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3515625,
+        "pipeline_median_ms": 75.48199499979091,
+        "pipeline_p95_ms": 78.17954335168906,
+        "peak_allocated_bytes": 5519076352,
+        "peak_reserved_bytes": 5645533184,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2715769479,
+        "represented_logical_parameter_elements": 2715769479,
+        "resident_tensor_storage_bytes": 5431539470,
+        "inference_core_logical_parameter_elements": 2232345863
+      }
+    },
+    "action_attention-heads-125": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00013733286264141497,
+        "maximum_physical_arm_change_mse": 0.0005637049325741827,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.091796875,
+        "pipeline_median_ms": 76.78747499812744,
+        "pipeline_p95_ms": 79.00777455015486,
+        "peak_allocated_bytes": 5585079296,
+        "peak_reserved_bytes": 5670699008,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2757218951,
+        "represented_logical_parameter_elements": 2757218951,
+        "resident_tensor_storage_bytes": 5514438414,
+        "inference_core_logical_parameter_elements": 2273795335
+      }
+    },
+    "action_attention-heads-750": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.013652779080439359,
+        "maximum_physical_arm_change_mse": 0.02523919753730297,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.640625,
+        "pipeline_median_ms": 78.27848500164691,
+        "pipeline_p95_ms": 80.18026979807473,
+        "peak_allocated_bytes": 5518969856,
+        "peak_reserved_bytes": 5651824640,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2726002311,
+        "represented_logical_parameter_elements": 2726002311,
+        "resident_tensor_storage_bytes": 5452005134,
+        "inference_core_logical_parameter_elements": 2242578695
+      }
+    },
+    "deploy-nf4-text": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0002017226895532076,
+        "maximum_physical_arm_change_mse": 0.0005872446345165372,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.11328125,
+        "pipeline_median_ms": 90.66741649985488,
+        "pipeline_p95_ms": 92.08131710165617,
+        "peak_allocated_bytes": 2257624064,
+        "peak_reserved_bytes": 3193962496,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1266906375,
+        "resident_tensor_storage_bytes": 2163521054
+      }
+    },
+    "deploy-nf4-text-vision": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00012686410752849042,
+        "maximum_physical_arm_change_mse": 0.0003039624134544283,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08984375,
+        "pipeline_median_ms": 98.19045449876285,
+        "pipeline_p95_ms": 99.85401274916512,
+        "peak_allocated_bytes": 1676643840,
+        "peak_reserved_bytes": 2678063104,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1065579783,
+        "resident_tensor_storage_bytes": 1566044606
+      }
+    },
+    "deploy-nf4-all": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00019514420464474824,
+        "maximum_physical_arm_change_mse": 0.0004083850944880396,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08203125,
+        "pipeline_median_ms": 135.11447349992523,
+        "pipeline_p95_ms": 136.670053349917,
+        "peak_allocated_bytes": 1440197632,
+        "peak_reserved_bytes": 2455764992,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 988466311,
+        "resident_tensor_storage_bytes": 1337285962
+      }
+    },
+    "deploy-nf4-all-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00019750322408071952,
+        "maximum_physical_arm_change_mse": 0.0004422963538672775,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.078125,
+        "pipeline_median_ms": 137.25975149827718,
+        "pipeline_p95_ms": 139.1491224498168,
+        "peak_allocated_bytes": 1129250304,
+        "peak_reserved_bytes": 1243611136,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 988574855,
+        "represented_logical_parameter_elements": 1971657991,
+        "resident_tensor_storage_bytes": 1026338546,
+        "inference_core_logical_parameter_elements": 1971657991
+      }
+    },
+    "deploy-nf4-structural": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0004387047520140186,
+        "maximum_physical_arm_change_mse": 0.0013302296865731478,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.119140625,
+        "pipeline_median_ms": 128.51792000037676,
+        "pipeline_p95_ms": 130.2165844999763,
+        "peak_allocated_bytes": 1369522176,
+        "peak_reserved_bytes": 3512729600,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 866359815,
+        "represented_logical_parameter_elements": 2038547079,
+        "resident_tensor_storage_bytes": 1211240114,
+        "inference_core_logical_parameter_elements": 2038547079
+      }
+    },
+    "deploy-nf4-all-atm-ohb": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00019466863523120992,
+        "maximum_physical_arm_change_mse": 0.00040334268123842776,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08203125,
+        "pipeline_median_ms": 138.37240599968936,
+        "pipeline_p95_ms": 139.9190391994125,
+        "peak_allocated_bytes": 1442302976,
+        "peak_reserved_bytes": 2462056448,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 988466311,
+        "represented_logical_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 1337286730,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "deploy-nf4-text-bf16-embedding": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00020033387309013052,
+        "maximum_physical_arm_change_mse": 0.0005949286860413849,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1171875,
+        "pipeline_median_ms": 90.59204699951806,
+        "pipeline_p95_ms": 92.62443149746105,
+        "peak_allocated_bytes": 2568705536,
+        "peak_reserved_bytes": 2631925760,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1578071303,
+        "resident_tensor_storage_bytes": 2474078238
+      }
+    },
+    "deploy-nf4-text-vision-bf16-embedding": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00012942598764311696,
+        "maximum_physical_arm_change_mse": 0.0003075459972023964,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.08984375,
+        "pipeline_median_ms": 98.29340149917698,
+        "pipeline_p95_ms": 99.9191285991401,
+        "peak_allocated_bytes": 1987725312,
+        "peak_reserved_bytes": 2088763392,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1376744711,
+        "resident_tensor_storage_bytes": 1876601790
+      }
+    },
+    "deploy-nf4-all-bf16-embedding": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00019750322408071952,
+        "maximum_physical_arm_change_mse": 0.0004422963538672775,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.078125,
+        "pipeline_median_ms": 136.22362200112548,
+        "pipeline_p95_ms": 137.88685484996677,
+        "peak_allocated_bytes": 1751279104,
+        "peak_reserved_bytes": 1866465280,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1299631239,
+        "resident_tensor_storage_bytes": 1647843146
+      }
+    },
+    "text-hqq3-axis0-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0007835585180146154,
+        "maximum_physical_arm_change_mse": 0.0026130839250981808,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.15625,
+        "pipeline_median_ms": 137.26215299902833,
+        "pipeline_p95_ms": 141.52945165260462,
+        "peak_allocated_bytes": 3583601664,
+        "peak_reserved_bytes": 3690987520,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 1356851847,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 3418347278,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq4-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.8275374177155754e-05,
+        "maximum_physical_arm_change_mse": 0.0002042509731836617,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.05438232421875,
+        "pipeline_median_ms": 86.48097750119632,
+        "pipeline_p95_ms": 87.77621160243143,
+        "peak_allocated_bytes": 5183983104,
+        "peak_reserved_bytes": 5324668928,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5098166030,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq3-axis0-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0004407459643516631,
+        "maximum_physical_arm_change_mse": 0.0016508953412994742,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1552734375,
+        "pipeline_median_ms": 94.64164600103686,
+        "pipeline_p95_ms": 96.67083599870239,
+        "peak_allocated_bytes": 5156326400,
+        "peak_reserved_bytes": 5320474624,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5079291662,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq3-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00023696277891076533,
+        "maximum_physical_arm_change_mse": 0.0009360903059132397,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.12890625,
+        "pipeline_median_ms": 96.06009699928109,
+        "pipeline_p95_ms": 104.94094460082124,
+        "peak_allocated_bytes": 5146562048,
+        "peak_reserved_bytes": 5305794560,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5067980558,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq2-axis0-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.003143649527191883,
+        "maximum_physical_arm_change_mse": 0.009804783388972282,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.35565185546875,
+        "pipeline_median_ms": 87.51303600001847,
+        "pipeline_p95_ms": 92.08073395093379,
+        "peak_allocated_bytes": 5095115776,
+        "peak_reserved_bytes": 5240782848,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5022668558,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq2-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.006398941837687744,
+        "maximum_physical_arm_change_mse": 0.018095802515745163,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.484375,
+        "pipeline_median_ms": 88.53727850146242,
+        "pipeline_p95_ms": 89.97871609863068,
+        "peak_allocated_bytes": 5095115776,
+        "peak_reserved_bytes": 5240782848,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2464148103,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5022668558,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-hqq2-axis1-gemlite": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.006414501320250565,
+        "maximum_physical_arm_change_mse": 0.01824822463095188,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.48828125,
+        "pipeline_median_ms": 87.7589164992969,
+        "pipeline_p95_ms": 95.92342305040802,
+        "peak_allocated_bytes": 5327156224,
+        "peak_reserved_bytes": 5509218304,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2492461095,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5022674318,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq4-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.732508355535628e-07,
+        "maximum_physical_arm_change_mse": 3.0186631647666218e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.00830078125,
+        "pipeline_median_ms": 87.73209399987536,
+        "pipeline_p95_ms": 90.75276980147464,
+        "peak_allocated_bytes": 5500783616,
+        "peak_reserved_bytes": 5693767680,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5423748878,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq3-axis0-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.740101701130925e-06,
+        "maximum_physical_arm_change_mse": 3.98655902245082e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0087890625,
+        "pipeline_median_ms": 104.94416899928183,
+        "pipeline_p95_ms": 113.32694024804368,
+        "peak_allocated_bytes": 5490682880,
+        "peak_reserved_bytes": 5660213248,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5419030286,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq3-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.4561021323800106e-06,
+        "maximum_physical_arm_change_mse": 4.1636426431068685e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.013671875,
+        "pipeline_median_ms": 105.0764129995514,
+        "pipeline_p95_ms": 106.5488821001054,
+        "peak_allocated_bytes": 5487864832,
+        "peak_reserved_bytes": 5658116096,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5416204046,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq2-axis0-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.50477617859724e-06,
+        "maximum_physical_arm_change_mse": 3.125183502561413e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.02734375,
+        "pipeline_median_ms": 90.62455400089675,
+        "pipeline_p95_ms": 92.42478749783913,
+        "peak_allocated_bytes": 5476527104,
+        "peak_reserved_bytes": 5645533184,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5404874510,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq2-axis1-pytorch": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.5536939631365385e-05,
+        "maximum_physical_arm_change_mse": 5.424180199042894e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.10546875,
+        "pipeline_median_ms": 92.17061550043582,
+        "pipeline_p95_ms": 93.51621760179114,
+        "peak_allocated_bytes": 5476527104,
+        "peak_reserved_bytes": 5645533184,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2690640519,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5404874510,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action_mlp-hqq2-axis1-gemlite": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 2.5472036077189843e-05,
+        "maximum_physical_arm_change_mse": 5.43344285688363e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.1015625,
+        "pipeline_median_ms": 96.80719649986713,
+        "pipeline_p95_ms": 99.58069424901623,
+        "peak_allocated_bytes": 5700079616,
+        "peak_reserved_bytes": 5918162944,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 2697718887,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5404876430,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "deploy-hqq2-vision-action": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002635461715181009,
+        "maximum_physical_arm_change_mse": 0.009869307279586792,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.33123779296875,
+        "pipeline_median_ms": 146.68336050090147,
+        "pipeline_p95_ms": 151.38955710008304,
+        "peak_allocated_bytes": 1376828416,
+        "peak_reserved_bytes": 2497708032,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 809159815,
+        "represented_logical_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 1288371466,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "deploy-hqq3-text-hqq2": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002678687879597419,
+        "maximum_physical_arm_change_mse": 0.009594212286174297,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3681640625,
+        "pipeline_median_ms": 188.71169999874837,
+        "pipeline_p95_ms": 206.82918909988075,
+        "peak_allocated_bytes": 1402428416,
+        "peak_reserved_bytes": 1904214016,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 104516743,
+        "represented_logical_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 1265793274,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "deploy-nf4-structural-mild-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0004415359981067013,
+        "maximum_physical_arm_change_mse": 0.0012768442975357175,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.125,
+        "pipeline_median_ms": 131.21031499758828,
+        "pipeline_p95_ms": 132.94818754693551,
+        "peak_allocated_bytes": 1056044544,
+        "peak_reserved_bytes": 2367684608,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 866468359,
+        "represented_logical_parameter_elements": 1727490695,
+        "resident_tensor_storage_bytes": 900292698,
+        "inference_core_logical_parameter_elements": 1727490695
+      }
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002640155241897446,
+        "maximum_physical_arm_change_mse": 0.009800827130675316,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3359375,
+        "pipeline_median_ms": 143.69350550259696,
+        "pipeline_p95_ms": 147.94932209952094,
+        "peak_allocated_bytes": 1065881088,
+        "peak_reserved_bytes": 1285554176,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 809268359,
+        "represented_logical_parameter_elements": 1971657991,
+        "resident_tensor_storage_bytes": 977424050,
+        "inference_core_logical_parameter_elements": 1971657991
+      }
+    },
+    "deploy-hqq3-text-hqq2-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002674930353532545,
+        "maximum_physical_arm_change_mse": 0.009753910824656487,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.3662109375,
+        "pipeline_median_ms": 191.78933199873427,
+        "pipeline_p95_ms": 195.31877870249446,
+        "peak_allocated_bytes": 1111666176,
+        "peak_reserved_bytes": 1350565888,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 104625287,
+        "represented_logical_parameter_elements": 1971657991,
+        "resident_tensor_storage_bytes": 954845858,
+        "inference_core_logical_parameter_elements": 1971657991
+      }
+    },
+    "action-bf16-compiled": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 112.68987899893546,
+        "pipeline_p95_ms": 115.04447360021004,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 16.700428630996612,
+          "peak_allocated_bytes": 5605126144,
+          "peak_reserved_bytes": 5641338880,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text-bf16-compiled": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 89.36520049974206,
+        "pipeline_p95_ms": 94.01373295004305,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 10.165785682002024,
+          "peak_allocated_bytes": 5605126144,
+          "peak_reserved_bytes": 5641338880,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "text-torchao-dynamic8-compiled": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 9.250694495221978e-05,
+        "maximum_physical_arm_change_mse": 0.00023876193154137582,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0615234375,
+        "pipeline_median_ms": 104.88810050082975,
+        "pipeline_p95_ms": 106.43471805633453,
+        "peak_allocated_bytes": 4201320448,
+        "peak_reserved_bytes": 4261412864,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 21.121057101001497,
+          "peak_allocated_bytes": 4201583104,
+          "peak_reserved_bytes": 4261412864,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 4125857550,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-bf16-compiled": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0,
+        "maximum_physical_arm_change_mse": 0.0,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0,
+        "pipeline_median_ms": 83.42411850389908,
+        "pipeline_p95_ms": 85.17085869607399,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 9.754210163999232,
+          "peak_allocated_bytes": 5605126144,
+          "peak_reserved_bytes": 5641338880,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "vision_blocks-torchao-dynamic8-compiled": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 8.702830398021888e-06,
+        "maximum_physical_arm_change_mse": 4.8610527301207185e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.029296875,
+        "pipeline_median_ms": 90.49948900064919,
+        "pipeline_p95_ms": 92.91274104580225,
+        "peak_allocated_bytes": 5316561920,
+        "peak_reserved_bytes": 5542772736,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 22.208725555996352,
+          "peak_allocated_bytes": 5316554752,
+          "peak_reserved_bytes": 5542772736,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5231392526,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "deploy-nf4-text-channel-boundaries-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.00063779188440094,
+        "maximum_physical_arm_change_mse": 0.0019161271629855037,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.19140625,
+        "pipeline_median_ms": 138.71393199951854,
+        "pipeline_p95_ms": 140.1394458982395,
+        "peak_allocated_bytes": 985355776,
+        "peak_reserved_bytes": 2636120064,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 856454279,
+        "represented_logical_parameter_elements": 1707416839,
+        "resident_tensor_storage_bytes": 890024690,
+        "inference_core_logical_parameter_elements": 1707416839
+      }
+    },
+    "deploy-nf4-channel-boundaries-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.002359812457871158,
+        "maximum_physical_arm_change_mse": 0.007914799265563488,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.2666015625,
+        "pipeline_median_ms": 140.9941934980452,
+        "pipeline_p95_ms": 144.52192879653012,
+        "peak_allocated_bytes": 870110720,
+        "peak_reserved_bytes": 2462056448,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 739964039,
+        "represented_logical_parameter_elements": 1474534663,
+        "resident_tensor_storage_bytes": 769742066,
+        "inference_core_logical_parameter_elements": 1474534663
+      }
+    },
+    "deploy-nf4-depth-boundaries-restricted": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.7
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.023765554503188468,
+        "maximum_physical_arm_change_mse": 0.08907300978899002,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.88818359375,
+        "pipeline_median_ms": 90.33312150131678,
+        "pipeline_p95_ms": 92.22329710319173,
+        "peak_allocated_bytes": 904124416,
+        "peak_reserved_bytes": 1126170624,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 777173127,
+        "represented_logical_parameter_elements": 1549099271,
+        "resident_tensor_storage_bytes": 807846178,
+        "inference_core_logical_parameter_elements": 1549099271
+      }
+    },
+    "action-bf16-compiled-triton": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 5.105261644544612e-07,
+        "maximum_physical_arm_change_mse": 1.315113877353724e-06,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.0078125,
+        "pipeline_median_ms": 105.76906799906283,
+        "pipeline_p95_ms": 107.10493070000666,
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 26.85361508299684,
+          "peak_allocated_bytes": 5605126144,
+          "peak_reserved_bytes": 5641338880,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "action-torchao-dynamic8-compiled-triton": {
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "task_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "phase": "development",
+        "task_macro_success": 0.8
+      },
+      "screen": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 1.0636639353833744e-05,
+        "maximum_physical_arm_change_mse": 2.3101281840354204e-05,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.02125716209411621,
+        "pipeline_median_ms": 132.93939149662037,
+        "pipeline_p95_ms": 136.64042165328283,
+        "peak_allocated_bytes": 5457672704,
+        "peak_reserved_bytes": 5580521472,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_diagnostic_rows": false,
+          "wall_seconds": 48.076781763003964,
+          "peak_allocated_bytes": 5457665536,
+          "peak_reserved_bytes": 5580521472,
+          "purpose": "Compile bank input shapes before warmed screen measurements"
+        },
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5378771505,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    }
+  },
+  "execution_plan_sha256": "b733b88780c158067cb1cf326df3dd2f47f876c57e38fd9a4bd2d0756b63c60e",
+  "final_outcomes_used": false
+}

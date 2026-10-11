@@ -1,0 +1,116 @@
+{
+  "verified_at": "2026-10-09T23:59:25.847173+00:00",
+  "control": "deploy-nf4-structural",
+  "candidate": "deploy-nf4-structural-mild-restricted",
+  "change": "Replace full-vocabulary INT8 embedding with 53 BF16 embedding rows; all pruning and other quantization settings fixed",
+  "deployment_scope": "Restricted LIBERO-Spatial vocabulary; unseen token IDs rejected",
+  "candidates": {
+    "deploy-nf4-structural": {
+      "recipe_sha256": "136d292a69b0f6573f06de7e25b5d704a6250eb506166cc66a9b097355ba1858",
+      "screen_record_sha256": "751bd4d8ca039aba5c056d60545232863410c9ea4f49986c2c5d8ea9575edae4",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "ace3e75b8db7d0d21d44a7f4dd3743862a26f6e9209509d2ae91ddaca7d501c7",
+        "record_sha256": "27ba6b2ebc35f7da8da1bc663a9ef31ef158a4800385e0758043fdf2265a3aee",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 1369522176,
+        "peak_reserved_bytes": 3512729600,
+        "resident_tensor_storage_bytes": 1211240114,
+        "pipeline_median_ms": 128.51792000037676,
+        "pipeline_p95_ms": 130.2165844999763,
+        "inference_core_logical_parameter_elements": 2038547079
+      }
+    },
+    "deploy-nf4-structural-mild-restricted": {
+      "recipe_sha256": "2b16c7286b2676d95b19dfe5452d8aa18170d9fef044d95230bd104294613522",
+      "screen_record_sha256": "779f547e62e2f10c6641547625243fc6d93c66a3edf7597effd64ae8132e1385",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "ab471661acf7e7030ca8c734ace642d9c994117530af297ccf3048b25f20608e",
+        "record_sha256": "eec5bdc828d4e1087702771d9418e223b27f5ebc6063954c34b47f1cc97ef076",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 1056044544,
+        "peak_reserved_bytes": 2367684608,
+        "resident_tensor_storage_bytes": 900292698,
+        "pipeline_median_ms": 131.21031499758828,
+        "pipeline_p95_ms": 132.94818754693551,
+        "inference_core_logical_parameter_elements": 1727490695
+      }
+    }
+  },
+  "paired_vs_counterpart": {
+    "transitions": {
+      "both_success": 7,
+      "both_failure": 3,
+      "gained_success": 0,
+      "lost_success": 0
+    },
+    "difference_pp": 0.0,
+    "ci95_pp": null,
+    "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+  },
+  "screen_peak_allocated_delta_bytes": -313477632,
+  "screen_peak_allocated_reduction_fraction": 0.22889562322793666,
+  "final_outcomes_used": false,
+  "interpretation": "Matched preliminary ten-state comparison and 80-observation screen; reserved success, packed archive size and steady benchmarks remain pending"
+}

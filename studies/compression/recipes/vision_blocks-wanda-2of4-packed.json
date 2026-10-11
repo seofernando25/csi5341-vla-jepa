@@ -1,0 +1,13 @@
+{
+  "id": "vision_blocks-wanda-2of4-packed",
+  "family": "packed structured sparsity",
+  "changes": [
+    {
+      "method": "wanda",
+      "scope": "vision_blocks",
+      "fraction": 0.5,
+      "pattern": "2:4",
+      "sparse_kernel": true
+    }
+  ]
+}

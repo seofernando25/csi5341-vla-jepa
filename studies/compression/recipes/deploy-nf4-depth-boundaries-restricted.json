@@ -1,0 +1,49 @@
+{
+  "id": "deploy-nf4-depth-boundaries-restricted",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "compact_embedding"
+    },
+    {
+      "method": "layers",
+      "scope": "action",
+      "count": 8,
+      "criterion": "cka"
+    },
+    {
+      "method": "layers",
+      "scope": "text",
+      "count": 4,
+      "criterion": "cka"
+    },
+    {
+      "method": "layers",
+      "scope": "vision",
+      "count": 12
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 4
+    }
+  ]
+}

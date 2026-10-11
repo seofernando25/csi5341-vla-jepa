@@ -1,0 +1,11 @@
+{
+  "id": "vision_mlp-channels-750",
+  "family": "structural_channels",
+  "changes": [
+    {
+      "method": "channels",
+      "scope": "vision_mlp",
+      "fraction": 0.75
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "text_attention-magnitude-50",
+  "family": "weight_sparsity",
+  "changes": [
+    {
+      "method": "magnitude",
+      "scope": "text_attention",
+      "fraction": 0.5
+    }
+  ]
+}

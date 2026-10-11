@@ -1,0 +1,17 @@
+{
+  "id": "deploy-nf4-text",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "int8_embedding"
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    }
+  ]
+}

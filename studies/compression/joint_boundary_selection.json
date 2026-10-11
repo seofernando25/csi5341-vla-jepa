@@ -1,0 +1,154 @@
+{
+  "at": "2026-10-09T23:56:30.668315+00:00",
+  "candidates": [
+    "deploy-nf4-text-channel-boundaries-restricted",
+    "deploy-nf4-channel-boundaries-restricted",
+    "deploy-nf4-head-boundaries-restricted",
+    "deploy-nf4-depth-boundaries-restricted"
+  ],
+  "recipe_sha256": {
+    "deploy-nf4-text-channel-boundaries-restricted": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+    "deploy-nf4-channel-boundaries-restricted": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd",
+    "deploy-nf4-head-boundaries-restricted": "ad6f2c1e249759142d6ed81d2df3095a38720c125dce1b020b9bb60106459cbc",
+    "deploy-nf4-depth-boundaries-restricted": "0d46d5aae5a12c30a1b55611eb908a19dc515f674ae23dbca5794f89c8abe625"
+  },
+  "component_sources": {
+    "deploy-nf4-text-channel-boundaries-restricted": [
+      "text_mlp-channels-250"
+    ],
+    "deploy-nf4-channel-boundaries-restricted": [
+      "text_mlp-channels-250",
+      "vision_mlp-channels-500",
+      "merger-channels-750",
+      "action_mlp-channels-750"
+    ],
+    "deploy-nf4-head-boundaries-restricted": [
+      "text-heads-250",
+      "vision_attention-heads-500",
+      "action_attention-heads-750"
+    ],
+    "deploy-nf4-depth-boundaries-restricted": [
+      "text-cka-layers-4",
+      "vision-layers-12",
+      "action-cka-layers-8"
+    ]
+  },
+  "component_evidence": {
+    "text_mlp-channels-250": {
+      "change": {
+        "method": "channels",
+        "scope": "text_mlp",
+        "fraction": 0.25
+      },
+      "successes": 7,
+      "screen_record_sha256": "4958098b54eee2c215ede3a3bbedcd05a7bf5b74f29ad4510f6397c8bbbfa2eb",
+      "smoke_record_sha256": "320ca40493400257abf179f3cd4f75ea8cfde7da320b14a8fda093b512fba372",
+      "episodes_sha256": "2107137dd57febd904af2f8018954544607912a094862292f0b230aba734cfc5"
+    },
+    "vision_mlp-channels-500": {
+      "change": {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      },
+      "successes": 8,
+      "screen_record_sha256": "74862dcaa21c08074a09405a64792ce7a056eae5e166ab3b9f7a7ed2a84d949a",
+      "smoke_record_sha256": "e6a7aa6b12ffe48ab7d31e7366ce2bc8f920cb700d1279c6c2787cae94e4300c",
+      "episodes_sha256": "4dccc745f7ca474735b936d393f144cca22dd232be0fd09c6beadb1f146a93b9"
+    },
+    "merger-channels-750": {
+      "change": {
+        "method": "channels",
+        "scope": "merger",
+        "fraction": 0.75
+      },
+      "successes": 7,
+      "screen_record_sha256": "ad323add3874f0512e6d63ecdc657365ad823bdd6c62eaa5dd4803164f4292a5",
+      "smoke_record_sha256": "87645ccefaccccf52dbc37c3891a86662a0b6c00b50b9a222dcf6d2d9b04aba0",
+      "episodes_sha256": "a4cf269d00e3896388013bdcaa99cbb840a455b70a4bcd9a9e6e30b0117b482f"
+    },
+    "action_mlp-channels-750": {
+      "change": {
+        "method": "channels",
+        "scope": "action_mlp",
+        "fraction": 0.75
+      },
+      "successes": 7,
+      "screen_record_sha256": "463fff64d2f0c965e5079a0b9b63febd3e58dac316263ea0851b05068fbf9e36",
+      "smoke_record_sha256": "72323733472e0d7ef47a4461ef2c79740a322eceab338c84929ab3878aaf9e91",
+      "episodes_sha256": "ae587a061f2d56bb7339721ff0cade678f663c2547ef8cead288e41ea4267c2d"
+    },
+    "text-cka-layers-4": {
+      "change": {
+        "method": "layers",
+        "scope": "text",
+        "count": 4,
+        "criterion": "cka"
+      },
+      "successes": 7,
+      "screen_record_sha256": "d016d266772c31b0aefc5abe284c74522cbb98c81b21b1562d1d9db1a6acda5b",
+      "smoke_record_sha256": "c1ba83b3303c1d274cead8adee0c68a32395ad2801997e5ccb53f0a43938a24a",
+      "episodes_sha256": "06535bd6f5dd62c798e3024d69dd58715a9efeddddb4ac18f340b0c30d84b891"
+    },
+    "vision-layers-12": {
+      "change": {
+        "method": "layers",
+        "scope": "vision",
+        "count": 12
+      },
+      "successes": 7,
+      "screen_record_sha256": "e4ce16a84fd575d85ebf46c700d5071bc3e566fa68e584dfa67217e0f65b997d",
+      "smoke_record_sha256": "9060c1ade4e4594bd9ca60caf3286798bea54bd5c52615f57d901044354ea6aa",
+      "episodes_sha256": "75448e33f978f0c9c481c42846b9e62d61122a8ad62a87563aedd13114ef98f3"
+    },
+    "action-cka-layers-8": {
+      "change": {
+        "method": "layers",
+        "scope": "action",
+        "count": 8,
+        "criterion": "cka"
+      },
+      "successes": 8,
+      "screen_record_sha256": "72aa6359c691362d7f22fcc96577e4498762176c3321849953d0fd13ed7698c3",
+      "smoke_record_sha256": "bdff3c711a76a056b17960e21c9acd7e0cb0cbeabab3d43af17b3856853a80ad",
+      "episodes_sha256": "ef494d84ee8adb0f78a0a5b1ae60cfe95165e10285b459f0d4af9c3d212ac5bc"
+    },
+    "text-heads-250": {
+      "change": {
+        "method": "heads",
+        "scope": "text_attention",
+        "fraction": 0.25
+      },
+      "successes": 7,
+      "screen_record_sha256": "720bae389e8632eabd5961d9908d9428a6d38387123e5bc5dc89bf2e323bd102",
+      "smoke_record_sha256": "f39e4175c8bcb02cd1a6adfdc488449a7e169ca8ec24507ecee4745fda36601e",
+      "episodes_sha256": "d31bbca77839cffac170ad382b6cfb9de2778306ff47c92561d4bedae5a5a38d"
+    },
+    "vision_attention-heads-500": {
+      "change": {
+        "method": "heads",
+        "scope": "vision_attention",
+        "fraction": 0.5
+      },
+      "successes": 8,
+      "screen_record_sha256": "edbfda8898bce349b26103655c4274ec4c096a1842b145777179bff0c600cb13",
+      "smoke_record_sha256": "2317acddc0184c5dd3fdca2e855c2ba6006ec1e6eaa3c4b0b2770fa3b6cd4b53",
+      "episodes_sha256": "044234f495e60fe88fe6b0e8df62d4f88c46669a67c711bb26d26e53354fa11f"
+    },
+    "action_attention-heads-750": {
+      "change": {
+        "method": "heads",
+        "scope": "action_attention",
+        "fraction": 0.75
+      },
+      "successes": 7,
+      "screen_record_sha256": "727e0443b8c7d1fc1bf6b45fcbfebe9f1529ac0d03190e89f1e3daebcdcfcdc9",
+      "smoke_record_sha256": "8b0783e5fff65b6373a4c102ec7019ce95626529dad67cfdeb944277734ade4c",
+      "episodes_sha256": "b42e23e142d209762632d89b6379c0ae7dabcb327821fa905fae05de81c9bce3"
+    }
+  },
+  "minimum_smoke_successes": 7,
+  "execution_plan_sha256": "84896abed29492ce792181c94d622fd4ac2e6c1193c8faa6ecf3727a7d81651b",
+  "final_outcomes_used": false,
+  "interpretation": "Strongest passing component settings; joint success must be measured, not inferred from isolated outcomes"
+}

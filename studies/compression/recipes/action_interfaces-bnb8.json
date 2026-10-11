@@ -1,0 +1,11 @@
+{
+  "id": "action_interfaces-bnb8",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "action_interfaces",
+      "bits": 8
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "merger-bnb4",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    }
+  ]
+}

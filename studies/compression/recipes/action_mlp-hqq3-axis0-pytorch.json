@@ -1,0 +1,14 @@
+{
+  "id": "action_mlp-hqq3-axis0-pytorch",
+  "family": "HQQ packed post-training quantization",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "action_mlp",
+      "bits": 3,
+      "axis": 0,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "verified_at": "2026-10-10T02:29:07.972200+00:00",
+  "candidate": "deploy-nf4-text-bf16-embedding",
+  "recipe_sha256": "948f1094abea719af1a0a5e4eab03875d235abe07fc518115042ccfe1cf5d5d7",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 81,
+    "success_fraction": 0.81,
+    "wilson95_fraction": [
+      0.7222115462093562,
+      0.8748524849023126
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 8,
+      "3": 10,
+      "4": 10,
+      "5": 5,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "f6f807675578a11c19e4af9c4b3eefc6691a1b68907fb2a2d0bc45424083851a",
+    "record_sha256": "c643e6e70406919647d64506ed2cd554a247fab216796e03bed8cc5c330e8b68",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 79,
+        "both_failure": 16,
+        "gained_success": 2,
+        "lost_success": 3
+      },
+      "difference_pp": -1.0,
+      "ci95_pp": [
+        -5.0,
+        3.0000000000000004
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "6d308cb86d67c4e9eb52bd3f11af7fcc805941511aadc4452f564d82d981056f",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen_record_sha256": "3aeac4f00c4e4565261920c5fcbf7de8b85edbff642ff805357d03b46d336a91",
+  "screen": {
+    "peak_allocated_bytes": 2568705536,
+    "peak_reserved_bytes": 2631925760,
+    "resident_tensor_storage_bytes": 2474078238,
+    "pipeline_median_ms": 90.59204699951806,
+    "inference_core_logical_parameter_elements": null
+  },
+  "screen_metrics_not_recorded": [
+    "inference_core_logical_parameter_elements"
+  ],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state conservative NF4-language development comparison; all episode records validated. Full-vocabulary embeddings, vision and action remain BF16; unused world models are removed. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual packed archive size and development/size fingerprint agreement remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

@@ -1,0 +1,479 @@
+{
+  "verified_at": "2026-10-10T00:26:05.653077+00:00",
+  "control": "B16",
+  "candidates": {
+    "B16": {
+      "changes": [],
+      "recipe_sha256": "83bc8412d194fdb78deb6bfa5ef864efb570440c5f73cef6b1672cfe4c4e107d",
+      "screen_record_sha256": "f3f7616eff69746486c02f923e63bc551b43c4b9c860098295f483b4c665ccfa",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "0eca0b2f134a1ed832dc1c2127ec37f975ece82779a6c4368cd7689b19e64138",
+        "record_sha256": "bad9379913f006848564d8613fa948871bc2e5a316d1aa3e12e566e64d75f10e",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 74.12366100106738,
+        "pipeline_p95_ms": 76.21309400065002,
+        "inference_core_logical_parameter_elements": null
+      }
+    },
+    "conditioning-24": {
+      "changes": [
+        {
+          "method": "conditioning_tokens",
+          "count": 24
+        }
+      ],
+      "recipe_sha256": "b56458c2f2f29a0ab737a6ac4ea75de779fe2d10340bd2b1f837c282e10746a1",
+      "screen_record_sha256": "9a9774cf78960d9d96e93568188becc82ededdf77110cfac11ba6b83637e02b7",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "3bb473b7b4a404e981fe519814aa4c13c5876032d5778f63982e9c428ceee245",
+        "record_sha256": "b5326f79d34f61f7d825f9727fa714617d9028e53106c6ba38c59d6e4c06881d",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5604080640,
+        "peak_reserved_bytes": 5641338880,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 76.69738900040102,
+        "pipeline_p95_ms": 78.71370000011666,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "conditioning-16": {
+      "changes": [
+        {
+          "method": "conditioning_tokens",
+          "count": 16
+        }
+      ],
+      "recipe_sha256": "2ee899384098e84316324e07b5c621e39356fab24d10cfaea58edc588a6a49df",
+      "screen_record_sha256": "7020d26cbbb9141680d0af18c88162cccc1e6e1c9aa8777eb3ec3f3fe4bd44ff",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "fe01328a51515548d9931e6fbb3d29dcca58b281f068a11f0f5e54f94223141f",
+        "record_sha256": "b1644347cade52b0599052369b23090aa8840bac4c8a608a783ef04a4ffeb321",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5603027968,
+        "peak_reserved_bytes": 5641338880,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 76.27290699747391,
+        "pipeline_p95_ms": 77.44897504999244,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "conditioning-8": {
+      "changes": [
+        {
+          "method": "conditioning_tokens",
+          "count": 8
+        }
+      ],
+      "recipe_sha256": "8be6d167ce448ef8b7d7e167e16f0fe5613371c335ea6eaa2e94ff54653b4742",
+      "screen_record_sha256": "4d4a1cfe5571593d6319355af6c25021c1324a64d35afe388564d039cee5b00b",
+      "smoke": {
+        "episodes": 10,
+        "successes": 0,
+        "success_fraction": 0.0,
+        "wilson95_fraction": [
+          0.0,
+          0.2775327998628892
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "episodes_sha256": "08e7b56de43b75eef6767c42e6c709b87b137cbe09df67ad9b968cb9c1f85fd6",
+        "record_sha256": "40fb743842a1be7bd1f9ae96c566ff556f4412796b5fe52f4d9dec5ac3c496e0",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 0,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 8
+          },
+          "difference_pp": -80.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5601974784,
+        "peak_reserved_bytes": 5641338880,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 75.91779999893333,
+        "pipeline_p95_ms": 77.78912169851537,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "latent-prompt-remove": {
+      "changes": [
+        {
+          "method": "conditioning_tokens",
+          "scope": "latent"
+        }
+      ],
+      "recipe_sha256": "fca487e05d59cba922a8c45e9b0f46af8e3d93fdb12b02940153d216eb38f9ee",
+      "screen_record_sha256": "cd7154411151b777b3785219d4e1a0ef39c083d5e07a8e7fe3e30263e6b9d5ab",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "6feaacf662b9edd677742258c45b7cf7c0345d5185cbb137035af0431cfb42dc",
+        "record_sha256": "e957b17d29fbefbe767281c7088982c7692709442f851aff02e033351ea99dbb",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5601974784,
+        "peak_reserved_bytes": 5641338880,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 75.97646850081219,
+        "pipeline_p95_ms": 77.84289014962269,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "visual-tokens-magnitude-50": {
+      "changes": [
+        {
+          "method": "visual_tokens",
+          "fraction": 0.5,
+          "criterion": "magnitude"
+        }
+      ],
+      "recipe_sha256": "8a7cfd13265a3006e2cd7ef4e3870bab3c3fabfac87d8a2d6c8d9523d08b92be",
+      "screen_record_sha256": "3166249488aa28b11140b8689854d4cd596e9f6348d8ac85590a66b50f65ff18",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "b840666e9325f2052e85227a76d9698c7b4d3c2ba5591fa0706d78606c94417c",
+        "record_sha256": "d24eb4a1afc783583262f1afb11e55a6128223e517d30a7e477bfc831ae97864",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5596359680,
+        "peak_reserved_bytes": 5630853120,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 75.8305975004987,
+        "pipeline_p95_ms": 77.8454186007366,
+        "inference_core_logical_parameter_elements": null
+      }
+    },
+    "visual-tokens-magnitude-75": {
+      "changes": [
+        {
+          "method": "visual_tokens",
+          "fraction": 0.75,
+          "criterion": "magnitude"
+        }
+      ],
+      "recipe_sha256": "08bf4d2a10bf691c92b3e7e899cab21b37f34c41ed326e1506650cb5b2a4b438",
+      "screen_record_sha256": "07e6d7897e8cbfd541762d99dd4a1862e270c1f5db80053c94705296f20d160f",
+      "smoke": {
+        "episodes": 10,
+        "successes": 6,
+        "success_fraction": 0.6,
+        "wilson95_fraction": [
+          0.31267376973365824,
+          0.8318196702937638
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 0,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "aa788a988ff537da9894659074a0bb6ac138a637c0e34e392c62a716e2c1e1d9",
+        "record_sha256": "6c6d824a66083427b09ffe7c0e7e09a6ddd8f5f491600c1409fc9558ffb4bff3",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 6,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 2
+          },
+          "difference_pp": -20.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5590436352,
+        "peak_reserved_bytes": 5626658816,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 79.18809500006319,
+        "pipeline_p95_ms": 81.34699824986455,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    },
+    "visual-tokens-uniform-50": {
+      "changes": [
+        {
+          "method": "visual_tokens",
+          "fraction": 0.5,
+          "criterion": "uniform"
+        }
+      ],
+      "recipe_sha256": "35c4c40b3f4402cfae3fb1f2b1414fd725c3f4eddb2abe294f799152a64d0bea",
+      "screen_record_sha256": "2c93863d9ed604de0812e172a6ad68da3535bedd0c240d91e1ae657472943895",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "ecdc0954e2042fc8c83363f2d9fef0199a2ccbdeec3ef65c3b2c5255f5063ca4",
+        "record_sha256": "ea69e95385c5520de7ce2cc2f26c84dc194e0d6ef006d79a096cebb92e1db89e",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5596359680,
+        "peak_reserved_bytes": 5630853120,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 75.68942499983677,
+        "pipeline_p95_ms": 77.19635100020241,
+        "inference_core_logical_parameter_elements": null
+      }
+    },
+    "visual-tokens-uniform-75": {
+      "changes": [
+        {
+          "method": "visual_tokens",
+          "fraction": 0.75,
+          "criterion": "uniform"
+        }
+      ],
+      "recipe_sha256": "0c16e6dd161b1a11f56703e62a38a76187dd4ebd8dd804e7117aedda14ef5e9e",
+      "screen_record_sha256": "8ce399954b0448e8b4b1dad122d57429e93b3afb99f51a80e55adb7706188e41",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 0,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "3f4f52e3b7caf74385829f11411cb159f3e8b46f298fed3441c44898bca50e3d",
+        "record_sha256": "143def162c1381908885767aff4b2d08607a20194ceaff65c985f23542f7e451",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5590436352,
+        "peak_reserved_bytes": 5626658816,
+        "resident_tensor_storage_bytes": 5532276494,
+        "pipeline_median_ms": 78.44760649823002,
+        "pipeline_p95_ms": 80.38742625012674,
+        "inference_core_logical_parameter_elements": 2282714375
+      }
+    }
+  },
+  "source_sha256": {
+    "evaluation/compression/tokens.py": "afe2167557d157d5466c92a2378489e480458b3c82d57463a1fc319ec4ee3a84",
+    "evaluation/compression/transforms.py": "799d15bfddf179438b6df6f4b8f8e9803ff59338a2ee25e9e21465561fd897ef"
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state preliminary sequence ablations and 80-observation screens. Conditioning changes prompt-token occurrences; latent removal clears the replacement prompt. Visual tokens are compacted at the decoder input after full vision encoding, with original multimodal positions preserved. These transforms preserve weights; neither has claimed weight-storage savings or reserved confirmation."
+}

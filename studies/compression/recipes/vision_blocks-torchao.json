@@ -1,0 +1,12 @@
+{
+  "id": "vision_blocks-torchao",
+  "family": "calibrated_quantization",
+  "changes": [
+    {
+      "method": "torchao",
+      "scope": "vision_blocks",
+      "bits": 4,
+      "fraction": 0.5
+    }
+  ]
+}

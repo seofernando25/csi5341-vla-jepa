@@ -1,0 +1,14 @@
+{
+  "id": "text-hqq4-axis1-gemlite",
+  "family": "HQQ packed post-training quantization",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "text",
+      "bits": 4,
+      "axis": 1,
+      "group_size": 64,
+      "backend": "gemlite"
+    }
+  ]
+}

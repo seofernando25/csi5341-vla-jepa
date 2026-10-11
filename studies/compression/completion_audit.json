@@ -1,0 +1,247 @@
+{
+  "verified_at": "2026-10-10T08:27:34.127098+00:00",
+  "goal_requirements": {
+    "released_LIBERO_trained_checkpoint": {
+      "status": "proved",
+      "evidence": "final_selection.json; final run records; checkpoint compatibility and pinned revision verified"
+    },
+    "quantization_and_pruning_across_most_major_components": {
+      "status": "proved",
+      "evidence": "coverage.json; 21/21 domains with matched rollouts; method coverage below; availability/adaptation limits in methods.json and README"
+    },
+    "matched_development_and_reserved_confirmation": {
+      "status": "proved",
+      "evidence": "final_benchmark_milestone.json; 1630 smoke, 2400 development and 2000 reserved episode records validated; selection precedes all final records"
+    },
+    "smallest_confirmed_configuration_at_least_90_percent": {
+      "status": "proved",
+      "candidate": "deploy-nf4-vision-text-channels-restricted",
+      "successes": 467,
+      "trials": 500,
+      "packed_bytes": 838493279,
+      "scope": "Smallest registered configuration confirmed, not a global optimum"
+    },
+    "actual_peak_inference_memory_latency_and_size": {
+      "status": "proved",
+      "evidence": "final_benchmark_milestone.json; 12000 raw measurements, six peak-memory repetitions/model, actual serialized files and sidecar evidence"
+    },
+    "earlier_memory_and_success_loss_targets": {
+      "status": "proved",
+      "evidence": "All three compressed policies exceed 25% allocated-memory reduction and remain within 5 percentage points of B16"
+    },
+    "report_best_configurations_and_measured_limits": {
+      "status": "proved",
+      "evidence": "README.md; final and development figures inspected; measured failure brackets and coverage levels explicit"
+    },
+    "preserve_original_studies_SmolVLM_and_RSI": {
+      "status": "proved",
+      "evidence": "Protected scientific paths have no Git diff; original tracked evidence differs only in owned README and preexisting user PDFs; no runtime lifecycle or training commands launched"
+    },
+    "compact_evidence_and_validation": {
+      "status": "proved",
+      "evidence": "Raw CSV/JSON and provenance retained; no weights/videos in study directory; 59-test/lint receipt applies to 17 unchanged source files"
+    },
+    "execution_complete": {
+      "status": "proved",
+      "evidence": "Controller completion journal; process handles absent; no compute GPU job active"
+    }
+  },
+  "all_requirements_proved": true,
+  "method_coverage": {
+    "bnb": {
+      "registered": 44,
+      "screen_completed": 42,
+      "smoke_completed": 42,
+      "screen_failed": 2,
+      "development_completed": 12,
+      "size_completed": 12,
+      "final_completed": 3,
+      "benchmark_completed": 3
+    },
+    "magnitude": {
+      "registered": 8,
+      "screen_completed": 8,
+      "smoke_completed": 4
+    },
+    "wanda": {
+      "registered": 18,
+      "screen_completed": 18,
+      "smoke_completed": 10
+    },
+    "channels": {
+      "registered": 25,
+      "screen_completed": 25,
+      "smoke_completed": 20,
+      "development_completed": 9,
+      "size_completed": 9,
+      "final_completed": 1,
+      "benchmark_completed": 1
+    },
+    "layers": {
+      "registered": 33,
+      "screen_completed": 33,
+      "smoke_completed": 24,
+      "development_completed": 7,
+      "size_completed": 7
+    },
+    "heads": {
+      "registered": 14,
+      "screen_completed": 14,
+      "smoke_completed": 11,
+      "development_completed": 3,
+      "size_completed": 3
+    },
+    "int8_embedding": {
+      "registered": 9,
+      "screen_completed": 9,
+      "smoke_completed": 9,
+      "development_completed": 3,
+      "size_completed": 3,
+      "final_completed": 1,
+      "benchmark_completed": 1
+    },
+    "compact_embedding": {
+      "registered": 15,
+      "screen_completed": 15,
+      "smoke_completed": 15,
+      "development_completed": 8,
+      "size_completed": 8,
+      "final_completed": 2,
+      "benchmark_completed": 2
+    },
+    "world_remove": {
+      "registered": 26,
+      "screen_completed": 26,
+      "smoke_completed": 26,
+      "development_completed": 12,
+      "size_completed": 12,
+      "final_completed": 3,
+      "benchmark_completed": 3
+    },
+    "conditioning_tokens": {
+      "registered": 4,
+      "screen_completed": 4,
+      "smoke_completed": 4
+    },
+    "solver_steps": {
+      "registered": 3,
+      "screen_completed": 3,
+      "smoke_completed": 3
+    },
+    "torchao": {
+      "registered": 11,
+      "screen_completed": 10,
+      "smoke_completed": 10,
+      "screen_failed": 1
+    },
+    "gptq": {
+      "registered": 3,
+      "screen_completed": 3,
+      "smoke_completed": 3
+    },
+    "sparsegpt": {
+      "registered": 6,
+      "screen_completed": 6,
+      "smoke_completed": 6
+    },
+    "awq_diagonal": {
+      "registered": 3,
+      "screen_completed": 3,
+      "smoke_completed": 3
+    },
+    "visual_tokens": {
+      "registered": 6,
+      "screen_completed": 6,
+      "smoke_completed": 4
+    },
+    "attention_matching": {
+      "registered": 5,
+      "screen_completed": 5,
+      "smoke_completed": 4
+    },
+    "action_horizon": {
+      "registered": 3,
+      "screen_completed": 3,
+      "smoke_completed": 3
+    },
+    "replanning": {
+      "registered": 3,
+      "screen_completed": 3,
+      "smoke_completed": 3
+    },
+    "hqq": {
+      "registered": 28,
+      "screen_completed": 28,
+      "smoke_completed": 25,
+      "development_completed": 4,
+      "size_completed": 4,
+      "final_completed": 2,
+      "benchmark_completed": 2
+    },
+    "compile_linears": {
+      "registered": 8,
+      "screen_completed": 7,
+      "smoke_completed": 7,
+      "screen_failed": 1
+    }
+  },
+  "best_observed_success": "deploy-hqq2-vision-action-restricted",
+  "lowest_allocator_reserved_peak": "deploy-hqq2-vision-action-restricted",
+  "protected_scientific_paths_changed": [],
+  "preexisting_original_document_changes": [
+    "studies/evaluation/README.md",
+    "studies/evaluation/report/figures/F6_cloud.pdf",
+    "studies/evaluation/report/figures/architecture.pdf"
+  ],
+  "packaging_sidecars": {
+    "B16": {
+      "layout_bytes": 192,
+      "layout_sha256": "ba8a4bec44fbc6a7873782c8d9da5b17becefb4afc1fe4a1494c0aa5a1078ffa",
+      "recipe_bytes": 59,
+      "recipe_sha256": "83bc8412d194fdb78deb6bfa5ef864efb570440c5f73cef6b1672cfe4c4e107d"
+    },
+    "deploy-nf4-vision-text-channels-restricted": {
+      "layout_bytes": 90,
+      "layout_sha256": "b528b4d491dc4fe44626fb94c2a07722022f84702f7c83537c0110188a5b8864",
+      "recipe_bytes": 698,
+      "recipe_sha256": "5a2ee98e2c765394525f5c1b92a628d0bbc7a59893ade09161ebee0a532b16ef"
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "layout_bytes": 90,
+      "layout_sha256": "b528b4d491dc4fe44626fb94c2a07722022f84702f7c83537c0110188a5b8864",
+      "recipe_bytes": 826,
+      "recipe_sha256": "5fa94a9fd2e5f606c9c18aaba913568eec76f1f36d25b469c0c3e6ab060460dc"
+    },
+    "deploy-hqq2-vision-action": {
+      "layout_bytes": 90,
+      "layout_sha256": "b528b4d491dc4fe44626fb94c2a07722022f84702f7c83537c0110188a5b8864",
+      "recipe_bytes": 812,
+      "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f"
+    }
+  },
+  "evidence_sha256": {
+    "README.md": "20cd596e8300ea7b883fce5d58185c436a83f8cda8432a8a3e4ab04bff88c91b",
+    "final_selection.json": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+    "final_benchmark_milestone.json": "434a32862617bf6e4324cf64b8e26d4fd18071e240d77966be52ee54cc0d2bd4",
+    "reserved_confirmation_milestone.json": "cc54a14422a1ea27e1c6163d171bb3f2140c436e71f2d7468977680400c0a733",
+    "pre_confirmation_review.json": "387c4d0632406ab2924da456b57d01eb3afd4f6064d44a76654700877e6f4d72",
+    "validation.json": "5196955ce9bb555051dcc3269555ef4e5c2f7543837e5c43cf0766b8d89082ad",
+    "coverage.json": "3f4e5f049345f740df672e4364cbaec0752566f61ad09c8a1ae0e8ef646ad4f0",
+    "results.json": "3d19fddaedc6ef44e509a20d31ce1ec3ca8b0f4270ed2057577abd8696210e8b",
+    "summary.csv": "046508c98ea33e4a38244994feb248585dfb32132e932ecd35f4a248f83136f1",
+    "methods.json": "57f51a385a0f46721c8a39919d8f43ba109edb8e069df810176a6e434805dc11",
+    "final_figure_evidence_v2.json": "84778677ad84734bea348922560c913955598f68c6012f2f8c00480c911de8a0",
+    "development_figure_evidence_v2.json": "9ca6eefd3f09788e89e169cd5e1440054dc321b683a8ebb66bf9ec28765af163",
+    "hqq2_full_vocabulary_reserved_milestone.json": "46647efeb3ed3ffa4a2163e918a3aa655bae96e1e3ebcb47fb7566fbe8057dc3",
+    "hqq2_compact_reserved_milestone.json": "d1858d2de7b13967d5bb5d1f577ac6f39b1faf591d3fb7ad57493a4c7b3bbd5a",
+    "nf4_channel_reserved_milestone.json": "e7a1c6e0f778272234b23a51675d7c579ef62f3284fb59da9811108905408b09"
+  },
+  "limitations": [
+    "Restricted vocabulary is task-suite-specific; full vocabulary changes embedding precision as well as coverage",
+    "No new task suite, hardware replication or initialization-rewinding test",
+    "Some components have ten-trial evidence only; selected recipes have 500-trial confirmation",
+    "AWQ/QuantVLA/CKA are scoped adaptations; EcoVLA/QUOTA/CHASE are not full reproductions",
+    "Warm CUDA allocated/reserved memory excludes loading/PTQ peaks and is not whole-process NVML memory",
+    "Actual packed tensor archive requires pinned checkpoint/recipe reconstruction, not direct HF loading"
+  ]
+}
