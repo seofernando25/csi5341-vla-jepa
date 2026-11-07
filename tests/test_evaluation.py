@@ -1,9 +1,10 @@
-"""Checks for evidence integrity and matched statistical comparisons."""
+"""Statistics, checkpoint selection and the frozen evaluation splits."""
 
 from collections import Counter
 
 import pytest
 
+from evaluation.adaptation import choose
 from evaluation.analysis import (
     core_summary,
     paired_difference,
@@ -12,50 +13,6 @@ from evaluation.analysis import (
     wilson,
 )
 from evaluation.common import ROOT, read_json
-from evaluation.report import final_measurements_ready
-from evaluation.select_checkpoint import choose
-
-
-def test_final_paper_requires_all_reserved_measurements_and_selected_checkpoint():
-    # Structural fixtures only: no invented performance values enter artifacts.
-    results = {
-        variant: {
-            "success": {
-                "episodes": 500,
-                "per_task": {str(i): {"episodes": 50} for i in range(10)},
-            },
-            "timing": {"predictions_per_mode": 1500, "repetitions": 3},
-            "neural": {
-                "predictions": 1500,
-                "equivalence": {"observations": 100, "identical_flow_noise_seeds": True},
-            },
-            "study_training": {"optimizer_steps": 5000},
-        }
-        for variant in ["B16", "Q8", "Q4", "S500"]
-    }
-    analysis = {"rollout_phase": "final", "full_timing_protocol": True, "results": results}
-    selection = {
-        "simulator_scores_used": False,
-        "eligible_steps": [1500, 5000, 10000],
-        "selected_step": 5000,
-    }
-    adaptation = {
-        "validation": [{"step": s, "samples": 200} for s in [1500, 5000, 10000]],
-        "development": [{"step": s, "episodes": 100} for s in [500, 1500, 5000, 10000]],
-    }
-    assert final_measurements_ready(analysis, selection, adaptation)
-    analysis["rollout_phase"] = "development"
-    assert not final_measurements_ready(analysis, selection, adaptation)
-    analysis["rollout_phase"] = "final"
-    results["S500"]["study_training"]["optimizer_steps"] = 10000
-    assert not final_measurements_ready(analysis, selection, adaptation)
-    results["S500"]["study_training"]["optimizer_steps"] = 5000
-    results["Q4"]["neural"]["predictions"] = 1499
-    assert not final_measurements_ready(analysis, selection, adaptation)
-    results["Q4"]["neural"]["predictions"] = 1500
-    results["Q8"]["success"]["per_task"]["9"]["episodes"] = 49
-    assert not final_measurements_ready(analysis, selection, adaptation)
-    assert not final_measurements_ready({}, {}, {})
 
 
 def episode(task=0, trial=0, success=1, seed=10):

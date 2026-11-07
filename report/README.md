@@ -4,7 +4,7 @@ IEEE two-column, ≤5 pages ([main.pdf](main.pdf)). Every figure and quoted numb
 from committed evidence under `studies/`.
 
 ```bash
-uv run --no-sync python report/figures.py   # figures/*.pdf and data/numbers.json
+uv run --no-sync python -m report.figures   # figures/*.pdf and data/numbers.json
 cd report && latexmk -pdf main.tex
 ```
 

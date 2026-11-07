@@ -9,7 +9,7 @@ import numpy as np
 import torch
 import yaml
 
-from evaluation.common import ROOT, file_hash, write_json
+from evaluation.common import ROOT, write_json
 
 
 def configure():
@@ -62,9 +62,7 @@ def manifest():
                 "name": task.name,
                 "instruction": task.language,
                 "final_file": str(final_path.relative_to(root)),
-                "final_file_sha256": file_hash(final_path),
                 "development_file": str(original_path.relative_to(root)),
-                "development_file_sha256": file_hash(original_path),
                 "development_indices": development,
                 "development_hashes": [state_hash(original[i]) for i in development],
                 "final_indices": list(range(50)),

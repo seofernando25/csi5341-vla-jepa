@@ -1,8 +1,7 @@
-"""Provenance helpers shared by the evaluation and report commands."""
+"""JSON I/O and run-environment metadata shared by evaluation commands."""
 
 from __future__ import annotations
 
-import hashlib
 import importlib.metadata
 import json
 import os
@@ -26,19 +25,10 @@ def write_json(path, value):
     os.replace(temporary, path)
 
 
-def file_hash(path):
-    h = hashlib.sha256()
-    with Path(path).open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def source_manifest():
-    files = [ROOT / name for name in ["pyproject.toml", "uv.lock"]]
-    for folder in ["evaluation", "src"]:
-        files += [p for p in (ROOT / folder).rglob("*") if p.suffix in {".py", ".json"}]
-    return {str(p.relative_to(ROOT)): file_hash(p) for p in sorted(files)}
+def episode_seed(protocol, task_id, trial, phase):
+    """Simulator seed of one episode; final trials are offset from development trials."""
+    offset = protocol["final_seed_offset"] if phase == "final" else 0
+    return protocol["seed"] + task_id * 1000 + trial + offset
 
 
 def environment():
@@ -62,8 +52,11 @@ def environment():
             packages[name] = None
     try:
         git = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
-            capture_output=True, check=False,
+            ["git", "rev-parse", "HEAD"],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
         )
         revision = git.stdout.strip() if git.returncode == 0 else None
     except FileNotFoundError:
@@ -74,7 +67,6 @@ def environment():
         "platform": platform.system(),
         "packages": packages,
         "git_revision": revision,
-        "source_manifest": source_manifest(),
         "cuda_available": torch.cuda.is_available(),
         "torch_cuda": torch.version.cuda,
     }

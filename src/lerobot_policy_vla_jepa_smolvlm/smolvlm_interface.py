@@ -138,10 +138,9 @@ class SmolVLMInterface(nn.Module):
         ]
         inputs = self.processor(
             text=prompts,
-            images=[[
-                image.detach().to(self.model.device)
-                for image in sample
-            ] for sample in images],
+            images=[
+                [image.detach().to(self.model.device) for image in sample] for sample in images
+            ],
             padding=True,
             return_tensors="pt",
             # Structured image kwargs suppress flat image kwargs in Transformers.

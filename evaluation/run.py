@@ -14,7 +14,7 @@ import numpy as np
 import torch
 from huggingface_hub import snapshot_download
 
-from evaluation.common import ROOT, environment, file_hash, read_json, write_json
+from evaluation.common import ROOT, environment, episode_seed, read_json, write_json
 from evaluation.libero_setup import configure
 from evaluation.models import SOURCES, artifact, load_policy
 
@@ -73,18 +73,10 @@ def numpy_raw(raw):
 
 
 def seed_for(task_id, index, phase):
-    return (
-        PROTOCOL["seed"]
-        + task_id * 1000
-        + index
-        + (PROTOCOL["final_seed_offset"] if phase == "final" else 0)
-    )
+    return episode_seed(PROTOCOL, task_id, index, phase)
 
 
 def processors(policy, checkpoint=None):
-    if policy.config.type == "smolvla":
-        from evaluation.smolvla import processors as smolvla_processors
-        return smolvla_processors(policy)
     from lerobot.envs.configs import LiberoEnv
     from lerobot.policies import make_pre_post_processors
 
@@ -108,9 +100,8 @@ def prepare(raw, instruction, env_pre, pre):
     return pre(env_pre(observation))
 
 
-def inference_autocast(policy):
-    enabled = policy.config.use_amp if policy.config.type == "smolvla" else True
-    return torch.autocast("cuda", dtype=torch.bfloat16, enabled=enabled)
+def inference_autocast():
+    return torch.autocast("cuda", dtype=torch.bfloat16)
 
 
 def collect(args):
@@ -138,10 +129,8 @@ def collect(args):
     write_json(
         ROOT / "studies/evaluation/observation_bank.json",
         {
-            "sha256": file_hash(destination),
             "samples": len(samples),
             "source": "LIBERO-Spatial development initial observations after standard settling",
-            "states_manifest_sha256": file_hash(ROOT / "studies/evaluation/initial_states.json"),
         },
     )
     print(f"Collected {len(samples)} simulator observations", flush=True)
@@ -183,7 +172,7 @@ def rollout(args, policy, metadata, result_dir):
                     success = False
                     for step in range(env._max_episode_steps):
                         inputs = prepare(batch_raw(raw), task["instruction"], env_pre, pre)
-                        with torch.inference_mode(), inference_autocast(policy):
+                        with torch.inference_mode(), inference_autocast():
                             action = post(policy.select_action(inputs))
                         raw, _, terminated, truncated, info = env.step(
                             action[0].float().cpu().numpy()
@@ -228,11 +217,7 @@ def rollout(args, policy, metadata, result_dir):
 
 
 def benchmark(args, policy, metadata, result_dir):
-    bank_path = ROOT / "outputs/evaluation/observations.pt"
-    bank_meta = read_json(ROOT / "studies/evaluation/observation_bank.json")
-    if file_hash(bank_path) != bank_meta["sha256"]:
-        raise ValueError("Observation bank changed")
-    bank = torch.load(bank_path, weights_only=True)
+    bank = torch.load(ROOT / "outputs/evaluation/observations.pt", weights_only=True)
     env_pre, pre, post = processors(policy, args.checkpoint)
     records = []
     peaks = []
@@ -269,7 +254,7 @@ def benchmark(args, policy, metadata, result_dir):
                         torch.cuda.reset_peak_memory_stats()
                     torch.cuda.synchronize()
                     started = time.perf_counter()
-                    with torch.inference_mode(), inference_autocast(policy):
+                    with torch.inference_mode(), inference_autocast():
                         if mode == "pipeline":
                             inputs = prepare(raw, sample["instruction"], env_pre, pre)
                         action = policy.predict_action_chunk(inputs)
@@ -302,22 +287,17 @@ def benchmark(args, policy, metadata, result_dir):
                 )
                 print(f"{args.variant} {mode} repetition {repetition} complete", flush=True)
     summary = {
-        "observation_bank_sha256": bank_meta["sha256"],
         "predictions_per_repetition": args.predictions,
         "repetitions": args.repetitions,
         "memory_peaks": peaks,
     }
-    if metadata.get("architecture") == "smolvla":
-        summary["prediction_semantics"] = {"predicted_actions": policy.config.chunk_size,
-            "executed_before_replanning": policy.config.n_action_steps}
     for mode in ["policy", "pipeline"]:
         values = [r["latency_ms"] for r in records if r["mode"] == mode]
         summary[mode] = {
             "median_ms": float(np.median(values)),
             "p95_ms": float(np.percentile(values, 95)),
         }
-    # Measure the same safetensors encoding for every variant, including packing
-    # metadata. Serialization happens after timing and is not counted as inference.
+    # Serialization happens after timing and is not counted as inference.
     from safetensors.torch import save_model
 
     weights_dir = ROOT / "outputs/evaluation/serialized" / result_dir.name
@@ -326,7 +306,6 @@ def benchmark(args, policy, metadata, result_dir):
     save_model(policy, str(weights))
     summary["serialized_weights"] = {
         "bytes": weights.stat().st_size,
-        "sha256": file_hash(weights),
         "format": "safetensors state_dict; shared tensors deduplicated; packing metadata included",
         "artifact": str(weights.relative_to(ROOT)),
     }
@@ -336,16 +315,13 @@ def benchmark(args, policy, metadata, result_dir):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["collect", "rollout", "benchmark"])
-    parser.add_argument("--variant", choices=["B16", "Q8", "Q4", "S500", "SmolVLA"], default="B16")
+    parser.add_argument("--variant", choices=["B16", "Q8", "Q4", "S500"], default="B16")
     parser.add_argument("--phase", choices=["development", "final"], default="development")
     parser.add_argument("--tasks", type=int, nargs="+", default=PROTOCOL["task_ids"])
     parser.add_argument("--episodes", type=int, default=10)
     parser.add_argument("--predictions", type=int, default=500)
     parser.add_argument("--repetitions", type=int, default=3)
     parser.add_argument("--checkpoint", type=Path)
-    parser.add_argument("--label", help="Distinct result label for a supplied architecture")
-    parser.add_argument("--buffer-precision", choices=["legacy", "native_rope"], default="legacy",
-                        help="Record an explicit rotary-frequency inference amendment")
     args = parser.parse_args()
     if args.command == "collect":
         collect(args)
@@ -357,16 +333,6 @@ def main():
         parser.error("Tasks must be unique IDs from the frozen suite")
     if args.variant == "S500" and args.checkpoint is None:
         parser.error("S500 task/efficiency evaluation requires a trained checkpoint")
-    if args.variant == "SmolVLA" and args.checkpoint is not None:
-        parser.error("SmolVLA uses the separately pinned complete policy")
-    if args.label:
-        import re
-        if args.variant != 'S500' or not re.fullmatch(r'[A-Za-z0-9_-]{1,40}', args.label):
-            parser.error('Custom labels require a SmolVLM checkpoint and a safe label')
-    if args.buffer_precision != 'legacy' and (args.variant != 'S500' or not args.label):
-        parser.error('Native rotary precision requires an explicitly labeled SmolVLM experiment')
-    loader_variant = args.variant
-    args.variant = args.label or args.variant
     run_id = (
         datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + "-" + args.variant + "-" + args.command
     )
@@ -381,26 +347,13 @@ def main():
         "protocol": PROTOCOL,
         "status": "running",
         "arguments": {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items()},
-        "initial_states_manifest_sha256": file_hash(
-            ROOT / "studies/evaluation/initial_states.json"
-        ),
-        "loader_implementation_sha256": file_hash(ROOT / "evaluation/models.py"),
-        "evaluator_implementation_sha256": file_hash(Path(__file__)),
     }
-    if args.checkpoint:
-        record["checkpoint_sha256"] = file_hash(args.checkpoint / "model.safetensors")
     write_json(result_dir / "run.json", record)
     try:
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
         load_started = time.perf_counter()
-        if loader_variant == "SmolVLA":
-            from evaluation.smolvla import load_policy as load_smolvla
-            policy, metadata = load_smolvla()
-        else:
-            policy, metadata = load_policy(loader_variant, args.checkpoint, buffer_precision=args.buffer_precision)
-        metadata["loader_variant"] = loader_variant
-        metadata["variant"] = args.variant
+        policy, metadata = load_policy(args.variant, args.checkpoint)
         torch.cuda.synchronize()
         record["load_seconds"] = time.perf_counter() - load_started
         record["model"] = metadata

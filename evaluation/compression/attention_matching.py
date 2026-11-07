@@ -7,11 +7,12 @@ these candidates are adaptations, not full QuantVLA reproductions.
 
 import importlib.util
 import math
+import sys
 from collections import defaultdict
 
 import torch
 
-from evaluation.common import ROOT, file_hash, read_json
+from evaluation.compression.vendor import upstream as vendor_source
 
 
 def alpha_ratio(teacher, compressed):
@@ -31,20 +32,15 @@ def matching(policy, change, calibration):
     from evaluation.compression.transforms import apply
     from evaluation.run import PROTOCOL, processors
 
-    manifest = read_json(ROOT / "studies/compression/methods.json")["upstream"]["quantvla"]
-    folder = ROOT / "outputs/compression/vendor/quantvla"
+    folder, manifest = vendor_source("quantvla")
     name = "gr00t/atm/dit_atm.py"
-    if file_hash(folder / name) != manifest["files"][name]:
-        raise ValueError("Pinned QuantVLA attention processor changed")
     spec = importlib.util.spec_from_file_location("compression_quantvla_atm", folder / name)
-    upstream = importlib.util.module_from_spec(spec)
+    atm = importlib.util.module_from_spec(spec)
     # dataclasses resolves annotations through the module registry.
-    import sys
-
-    sys.modules[spec.name] = upstream
-    spec.loader.exec_module(upstream)
+    sys.modules[spec.name] = atm
+    spec.loader.exec_module(atm)
     root = policy.model.action_model
-    upstream.ensure_dit_attention_patch(root, scope="all")
+    atm.ensure_dit_attention_patch(root, scope="all")
     events = [
         {
             "method": "QuantVLA processor adaptation",
@@ -59,12 +55,8 @@ def matching(policy, change, calibration):
 
     def capture():
         logits, outputs = defaultdict(list), defaultdict(list)
-        upstream.register_atm_capture(
-            root, lambda name, x: logits[name].append(x.float().cpu()), "all"
-        )
-        upstream.register_ohb_capture(
-            root, lambda name, x: outputs[name].append(x.float().cpu()), "all"
-        )
+        atm.register_atm_capture(root, lambda name, x: logits[name].append(x.float().cpu()), "all")
+        atm.register_ohb_capture(root, lambda name, x: outputs[name].append(x.float().cpu()), "all")
         try:
             with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
                 for index in calibration["bank_indices"]:
@@ -72,7 +64,7 @@ def matching(policy, change, calibration):
                     torch.manual_seed(PROTOCOL["seed"] + index)
                     policy.predict_action_chunk(inputs(bank[index], pipeline))
         finally:
-            upstream.clear_atm_capture(root)
+            atm.clear_atm_capture(root)
         return (
             {name: torch.stack(values).mean(0).flatten() for name, values in logits.items()},
             {name: torch.stack(values).mean() for name, values in outputs.items()},

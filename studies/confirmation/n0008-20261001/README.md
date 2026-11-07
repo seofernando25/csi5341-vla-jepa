@@ -20,5 +20,4 @@ The frozen GPU pipeline rescaled images twice (see [recovery](../../recovery/REA
 results describe a degraded visual input and cannot rank architectures.
 
 Evidence: [cloud-results/summary.json](cloud-results/summary.json), [validation.csv](cloud-results/validation.csv),
-[figure](cloud-results/figures/F6_cloud.pdf). Rebuild the figure with
-`python -m evaluation.cloud_analysis --from-summary`.
+[figure](cloud-results/figures/F6_cloud.pdf).

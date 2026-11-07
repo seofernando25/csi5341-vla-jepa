@@ -1,7 +1,6 @@
 """Calibrated GPTQ/SparseGPT adapters and packed INT4 deployment.
 
-The upstream algorithms are pinned in methods.json; their code remains in the
-ignored runtime vendor directory. No optimizer training is performed.
+Upstream algorithms come from evaluation.compression.vendor. No optimizer training is performed.
 """
 
 from __future__ import annotations
@@ -14,8 +13,9 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from evaluation.common import ROOT, file_hash, read_json
+from evaluation.common import ROOT
 from evaluation.compression.transforms import replace, selected_linears
+from evaluation.compression.vendor import upstream
 
 
 class PackedInt4(nn.Module):
@@ -79,11 +79,7 @@ def affine_quantize(weight, group_size=128):
 
 
 def load_upstream(method):
-    folder = ROOT / "outputs/compression/vendor" / ("gptq" if method == "gptq" else "sparsegpt")
-    manifest = read_json(ROOT / "studies/compression/methods.json")["upstream"][method]
-    for name, digest in manifest["files"].items():
-        if file_hash(folder / name) != digest:
-            raise ValueError(f"Upstream source changed: {method}/{name}")
+    folder, _ = upstream(method)
     # Both repositories use a top-level quant.py import; isolate that name during loading.
     previous = sys.modules.pop("quant", None)
     sys.path.insert(0, str(folder))

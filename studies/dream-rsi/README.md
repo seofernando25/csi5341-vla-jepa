@@ -10,12 +10,6 @@ prediction loss. It found lower loss but no successful policy.
 - The GPU pipeline rescaled images twice, so the ranking describes a degraded visual input
   ([recovery](../recovery/README.md)). Loss here is not LIBERO success.
 
-| Path | Contents |
-|---|---|
-| [attempts.jsonl](attempts.jsonl), [provenance.json](provenance.json) | Exported journal and frozen configuration/source hashes |
-| [sources/](sources/) | Exact baseline and n0008 source snapshots with hashes |
-| [figures/](figures/) | Screens, promotions and loss/latency Pareto plots |
-| [protocol/](protocol/) | Discovery-context amendment activated on 2026-10-01 |
-| [archive-pil-20260930/](archive-pil-20260930/) | Earlier CPU/PIL-processing study, superseded and kept for history |
-
-Search code and commands: [rsi/README.md](../../rsi/README.md).
+[attempts.jsonl](attempts.jsonl) is the exported search journal; [figures/](figures/) holds the
+screen, promotion and loss/latency plots. The search harness (`rsi/`), its dashboard and source
+snapshots were removed after the study closed; they are in Git history at commit `82df05d`.

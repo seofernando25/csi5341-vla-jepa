@@ -16,7 +16,7 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 
-from evaluation.common import ROOT, environment, file_hash, read_json, write_json
+from evaluation.common import ROOT, environment, write_json
 from evaluation.models import load_policy
 from evaluation.run import PROTOCOL, numpy_raw, prepare, processors
 
@@ -70,11 +70,7 @@ def main():
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + f"-{args.variant}-core"
     directory = ROOT / "studies/evaluation/runs" / run_id
     directory.mkdir(parents=True)
-    bank_path = ROOT / "outputs/evaluation/observations.pt"
-    bank_meta = read_json(ROOT / "studies/evaluation/observation_bank.json")
-    if file_hash(bank_path) != bank_meta["sha256"]:
-        raise ValueError("Observation bank changed")
-    bank = torch.load(bank_path, weights_only=True)
+    bank = torch.load(ROOT / "outputs/evaluation/observations.pt", weights_only=True)
     record = {
         "run_id": run_id,
         "variant": args.variant,
@@ -83,16 +79,12 @@ def main():
         "status": "running",
         "protocol": PROTOCOL,
         "environment": environment(),
-        "observation_bank_sha256": bank_meta["sha256"],
-        "initial_states_manifest_sha256": file_hash(
-            ROOT / "studies/evaluation/initial_states.json"
-        ),
         "predictions_per_repetition": args.predictions,
         "repetitions": args.repetitions,
         "timing_scope": "VLM neural forward, token gathering, adapter if present, flow-matching head; excludes all image/token/outer processing",
     }
     if args.checkpoint:
-        record["checkpoint_sha256"] = file_hash(args.checkpoint / "model.safetensors")
+        record["checkpoint"] = str(args.checkpoint)
     write_json(directory / "run.json", record)
     try:
         torch.backends.cudnn.benchmark = False

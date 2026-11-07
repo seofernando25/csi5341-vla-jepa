@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import torch
 
-from evaluation.common import ROOT, file_hash, write_json
+from evaluation.common import ROOT, write_json
 from evaluation.compression.study import inputs, observation_bank, setup
 from evaluation.compression.transforms import roots
 from evaluation.models import load_policy
@@ -65,7 +65,6 @@ def main():
         {
             "method": "linear CKA between block input and output",
             "scores": scores,
-            "calibration_sha256": file_hash(ROOT / "outputs/compression/calibration.pt"),
             "sampling": "16 evenly spaced token rows per block invocation, 20 calibration states; four action denoising steps",
             "interpretation": "CKA ranking adaptation; no fine-tuning and no robot-success claim",
         },

@@ -19,21 +19,10 @@ checkpoints/
 *.mp4
 wandb/
 
-# Experiment-local heavy artifacts
-experiments/**/artifacts/
-experiments/**/checkpoints/
-experiments/**/videos/
-
 .env
 .env.*
 !.env.example
 .DS_Store
-
-# Dream-RSI runtime state (workspaces, checkpoints, logs, replay events)
-.rsi/
-.rsi-v1*/
-.rsi-archive*/
-.rsi-retention/
 
 # Keep compact evaluation evidence despite the generic runtime-directory rule.
 !studies/evaluation/runs/
@@ -51,15 +40,9 @@ report/*.fls
 report/*.log
 report/*.out
 
-# Extracted cloud-transfer integrity manifest
-/cloud-transfer-manifest.json
-
 # Raw per-batch diagnostic streams stay local; compact summaries are published.
 studies/evaluation/training/*/metrics.jsonl
 
 # Required presentation clips, explicitly retained for the offline viewer.
 !/web/presentation/assets/droid-demonstration.mp4
 !/web/presentation/assets/human-demonstration.mp4
-
-# Raw recovery diagnostic streams stay local.
-studies/recovery/training/*/metrics.jsonl

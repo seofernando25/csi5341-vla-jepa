@@ -11,7 +11,6 @@ Compact evidence for every experiment. The [final report](../report/main.pdf) su
 | SmolVLM recovery | Do corrected inputs and wider adaptation recover S500? | Closed. 31/100 development vs B16 82/100 | [recovery/](recovery/README.md) |
 | Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Closed. Lower loss, 0/10 development successes | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |
 | SmolVLA check | How does the complete pretrained SmolVLA policy do? | Quick check: 7/10, one trial per task | [smolvla/](smolvla/README.md) |
-| Review | What went wrong in the SmolVLM work? | Three AI reviews, synthesized 2026-10-02 | [audit/](audit/20261002/README.md) |
 
 Hardware for all local runs: [HARDWARE.md](HARDWARE.md).
 
@@ -25,9 +24,7 @@ Hardware for all local runs: [HARDWARE.md](HARDWARE.md).
 
 ## Evidence rules
 
-- Every run has a unique ID, checkpoint revision/hash, code revision, configuration, hardware and
+- Every run has a unique ID, checkpoint revision, code revision, configuration, hardware and
   seeds. Failed and interrupted runs stay recorded and separate from task failures.
-- Keep weights, datasets, raw logs and runtime state outside Git (`outputs/`, `.rsi/`).
-  `scripts/evaluation_cleanup.py` previews safe checkpoint cleanup; `--apply` writes a removal
-  manifest first.
+- Keep weights, datasets, raw logs and runtime state outside Git (`outputs/`).
 - Write new results to a new path; do not overwrite another participant's records.

@@ -18,6 +18,7 @@
 \newcommand{\fail}{\textcolor{fail}{\textbf{fail}}}
 \newcommand{\h}[1]{\textbf{H#1}}
 \setlength{\tabcolsep}{3.2pt}
+\raggedbottom
 
 \begin{document}
 \title{How Small Can VLA-JEPA Get? Post-Training\\ Compression of a Robot Policy on LIBERO}
@@ -93,12 +94,12 @@ E6 & Can a smaller backbone replace Qwen? & SmolVLM2-500M + adapter, 10k fine-tu
 \node[box, dashed, fill=white, draw=muted, text=muted, minimum height=6mm,
   below=11mm of lm, text width=78mm]
   (wm) {World model: V-JEPA 2 encoder + latent predictor (0.49B), used only in training};
-\end{tikzpicture}}
+\end{tikzpicture}}%
 \caption{VLA-JEPA inference path with parameter counts. Colored modules are the compression targets; mergers connect vision features to the decoder. The world model is loaded by default but unused at inference.}
 \label{fig:arch}
 \end{figure}
 
-\textbf{Policy.} We use the released \texttt{lerobot/VLA-JEPA-LIBERO} checkpoint in the LeRobot port~\cite{lerobot}, pinned by revision and SHA-256 (Fig.~\ref{fig:arch}). The policy predicts seven actions with four Euler flow steps and executes all seven before replanning. Nothing in this report retrains Qwen.
+\textbf{Policy.} We use the released LIBERO checkpoint of the LeRobot port~\cite{lerobot} (\texttt{VLA-JEPA-LIBERO}), pinned by revision (Fig.~\ref{fig:arch}). The policy predicts seven actions with four Euler flow steps and executes all seven before replanning. Nothing in this report retrains Qwen.
 
 \textbf{Compression arms.} \emph{Study A} quantizes every \texttt{nn.Linear} in the 28-layer Qwen decoder after the checkpoint loads: Q8 with LLM.int8 (outlier threshold 6) and Q4 with NF4 (double quantization, BF16 compute). Every other module stays BF16. \emph{Study B} applies 201 recipes to individual modules and joint deployments: bitsandbytes INT8/NF4, HQQ 2--4 bit, GPTQ, AWQ-style scaling, TorchAO W8A8, magnitude/Wanda/SparseGPT sparsity, and structured removal of MLP channels, attention heads, layers and tokens. Calibrated methods use 20 development frames; no recipe sees reserved trials. Joint deployments also drop the unused world model and may restrict the vocabulary to the 53 token IDs that LIBERO instructions use.
 

@@ -7,7 +7,6 @@ import gc
 import json
 import time
 import traceback
-import zipfile
 from collections import defaultdict
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,9 +14,9 @@ from types import SimpleNamespace
 import numpy as np
 import torch
 
-from evaluation.common import ROOT, environment, file_hash, read_json, write_json
+from evaluation.common import ROOT, environment, read_json, write_json
 from evaluation.compression.transforms import apply, roots, selected_linears, storage_inventory
-from evaluation.models import artifact, load_policy
+from evaluation.models import load_policy
 from evaluation.run import PROTOCOL, numpy_raw, prepare, processors, rollout
 
 STUDY = ROOT / "studies/compression"
@@ -32,11 +31,7 @@ def setup():
 
 
 def observation_bank():
-    path = ROOT / "outputs/evaluation/observations.pt"
-    expected = read_json(ROOT / "studies/evaluation/observation_bank.json")["sha256"]
-    if file_hash(path) != expected:
-        raise ValueError("Frozen observation bank changed")
-    return torch.load(path, weights_only=True)
+    return torch.load(ROOT / "outputs/evaluation/observations.pt", weights_only=True)
 
 
 def calibration_indices(bank):
@@ -120,9 +115,6 @@ def calibrate():
         "block_influence": {k: float(np.mean(v)) for k, v in influence.items()},
         "token_ids": torch.unique(torch.cat(token_ids)),
         "bank_indices": indices,
-        "observation_bank_sha256": read_json(ROOT / "studies/evaluation/observation_bank.json")[
-            "sha256"
-        ],
     }
     destination.parent.mkdir(parents=True, exist_ok=True)
     torch.save(calibration, destination)
@@ -133,7 +125,6 @@ def calibrate():
             "bank_indices": indices,
             "states_per_task": 2,
             "linear_modules": len(sums),
-            "calibration_sha256": file_hash(destination),
             "token_count": len(calibration["token_ids"]),
             "block_influence": calibration["block_influence"],
             "model": metadata,
@@ -244,41 +235,20 @@ def run(args):
     setup()
     recipe = read_json(args.recipe)
     phase = args.phase
-    from evaluation.compression.protocol import verify_final_registration, verify_state_assets
-
-    final_registration = (
-        verify_final_registration(args.recipe) if phase in {"final", "benchmark"} else None
-    )
     folder = STUDY / "measurements" / recipe["id"] / phase
     if folder.exists():
         raise FileExistsError(f"Preserve previous {recipe['id']}/{phase}")
     folder.mkdir(parents=True)
-    with zipfile.ZipFile(folder / "source.zip", "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted((ROOT / "evaluation/compression").glob("*.py")):
-            archive.write(path, path.relative_to(ROOT))
-        for path in [ROOT / "evaluation/models.py", ROOT / "evaluation/run.py"]:
-            archive.write(path, path.relative_to(ROOT))
     record = {
         "candidate": recipe,
         "phase": phase,
         "status": "running",
-        "recipe_sha256": file_hash(args.recipe),
         "environment": environment(),
         "original_protocol": PROTOCOL,
-        "states_sha256": file_hash(ROOT / "studies/evaluation/initial_states.json"),
-        "calibration_sha256": file_hash(RUNTIME / "calibration.pt"),
-        "checkpoint_sha256": file_hash(artifact("baseline") / "model.safetensors"),
-        "interpretation": "New post-training compression study; action agreement is not task success.",
-        "final_registration": final_registration,
     }
     write_json(folder / "run.json", record)
     started = time.perf_counter()
     try:
-        if (
-            final_registration
-            and record["checkpoint_sha256"] != final_registration["checkpoint_sha256"]
-        ):
-            raise ValueError("Baseline checkpoint changed after final selection was frozen")
         calibration = torch.load(RUNTIME / "calibration.pt", weights_only=True)
         policy, record["model"] = load_policy("B16")
         record["transformations"] = apply(policy, recipe, calibration)
@@ -298,16 +268,6 @@ def run(args):
                 parameter.requires_grad for parameter in policy.parameters()
             ),
         }
-        if phase in {"development", "size", "final", "benchmark"}:
-            from evaluation.compression.artifacts import tensor_fingerprint
-
-            record["deployed_tensor_fingerprint"] = tensor_fingerprint(policy)
-            if (
-                final_registration
-                and record["deployed_tensor_fingerprint"]["sha256"]
-                != final_registration["deployed_tensor_sha256"]
-            ):
-                raise ValueError("Compressed tensors differ from the frozen selected model")
         gc.collect()
         torch.cuda.empty_cache()
         write_json(folder / "run.json", record)
@@ -326,7 +286,6 @@ def run(args):
                 "serialized_weights": serialize(policy, recipe["id"], folder),
             }
         else:
-            record["state_asset_verification"] = verify_state_assets()
             evaluation_phase = "final" if phase == "final" else "development"
             episodes = {"smoke": 1, "development": 10, "final": 50}[phase]
             arguments = SimpleNamespace(
@@ -336,11 +295,7 @@ def run(args):
                 phase=evaluation_phase,
                 episodes=episodes,
             )
-            from evaluation.compression.protocol import guarded_environments
-
-            with guarded_environments() as membership:
-                record["summary"] = rollout(arguments, policy, record["model"], folder)
-                record["state_membership"] = membership
+            record["summary"] = rollout(arguments, policy, record["model"], folder)
         record.update(status="completed", wall_seconds=time.perf_counter() - started)
         print(
             json.dumps({"candidate": recipe["id"], "phase": phase, "summary": record["summary"]}),

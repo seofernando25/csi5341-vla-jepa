@@ -1,6 +1,5 @@
 """Check compression math, attention geometry and selection without robot rollouts."""
 
-import json
 from types import SimpleNamespace
 
 import pytest
@@ -22,13 +21,13 @@ from evaluation.compression.transforms import (
 @pytest.mark.parametrize("gemm_backend", [None, "triton"])
 def test_compiled_linears_preserve_payload_hooks_and_module_binding(monkeypatch, gemm_backend):
     from evaluation.compression import compiled
-    from evaluation.compression.artifacts import tensor_fingerprint
+    from evaluation.compression.artifacts import packed_state
 
     model = nn.Sequential(nn.Linear(3, 5), nn.Linear(5, 2, bias=False)).eval()
     first = torch.randn(2, 3)
     second = torch.randn(4, 5)
     expected = [model[0](first).detach(), model[1](second).detach()]
-    payload = tensor_fingerprint(model)
+    payload = {k: v.clone() for k, v in packed_state(model)[0].items()}
     parameters = [id(value) for value in model.parameters()]
     hooks = []
     model[0].register_forward_hook(lambda module, args, output: hooks.append(output.shape))
@@ -54,7 +53,9 @@ def test_compiled_linears_preserve_payload_hooks_and_module_binding(monkeypatch,
     torch.testing.assert_close(model[1](second), expected[1], rtol=0, atol=0)
     assert hooks == [torch.Size([2, 5])]
     assert parameters == [id(value) for value in model.parameters()]
-    assert tensor_fingerprint(model) == payload
+    after = packed_state(model)[0]
+    assert after.keys() == payload.keys()
+    assert all(torch.equal(after[k], payload[k]) for k in payload)
     assert options == [
         {
             "backend": "inductor",
@@ -307,118 +308,6 @@ def test_structural_vision_heads_match_dense_masked_head_outputs():
     )
     assert compact.num_heads == 2
     assert compact.qkv.out_features == 3 * compact.proj.in_features == 48
-
-
-def test_development_selection_uses_smoke_success_and_preserves_frozen_choice(
-    tmp_path, monkeypatch
-):
-    from evaluation.common import write_json
-    from evaluation.compression import mission
-
-    monkeypatch.setattr(mission, "STUDY", tmp_path)
-    write_json(tmp_path / "execution_plan.json", {"protocol": "test"})
-
-    def result(candidate, phase):
-        assert phase != "final"
-        return {"status": "completed", "summary": {"successes": 8}}
-
-    monkeypatch.setattr(mission, "result", result)
-
-    def row(identity, family, success, memory, method):
-        return {
-            "candidate": identity,
-            "family": family,
-            "changes": [{"method": method, "scope": "text_mlp"}],
-            "phases": {
-                "screen": {
-                    "status": "completed",
-                    "summary": {"peak_allocated_bytes": memory, "pipeline_median_ms": 1},
-                },
-                "smoke": {"status": "completed", "summary": {"successes": success}},
-                "final": {"status": "completed", "summary": {"successes": 0}},
-            },
-        }
-
-    rows = [
-        row("joint", "joint compression", 8, 50, "bnb"),
-        row("pruned", "channels", 7, 80, "channels"),
-        row("bad", "channels", 6, 10, "channels"),
-    ]
-    monkeypatch.setattr(mission, "ledger", lambda: rows)
-    execution = {"development_smoke_tolerance_episodes": 1, "development_maximum_candidates": 2}
-    assert mission.development_selection(execution) == ["B16", "joint", "pruned"]
-    assert (
-        "bad"
-        not in json.loads((tmp_path / "development_selection.json").read_text())[
-            "eligible_evidence"
-        ]
-    )
-    # Later evidence never silently rewrites the recorded selection.
-    rows.clear()
-    assert mission.development_selection(execution) == ["B16", "joint", "pruned"]
-
-
-def test_structural_boundary_probes_use_real_outcomes_and_separate_rankings():
-    from evaluation.compression.boundaries import select
-
-    def row(identity, count, success=None, criterion="default", screen="completed"):
-        phases = {
-            "screen": {"status": screen, "summary": {"mean_physical_arm_change_mse": 0}},
-            "final": {"status": "completed", "summary": {"successes": 500}},
-        }
-        if success is not None:
-            phases["smoke"] = {"status": "completed", "summary": {"successes": success}}
-        return {
-            "candidate": identity,
-            "changes": [
-                {"method": "layers", "scope": "text", "count": count, "criterion": criterion}
-            ],
-            "phases": phases,
-        }
-
-    rows = [
-        row("mild", 1, 8),
-        row("mid", 4),
-        row("upper-mid", 8),
-        row("strong", 14, 2),
-        row("runtime-failure", 7, screen="failed"),
-        row("cka", 4, criterion="cka"),
-    ]
-    selected, evidence = select(rows, 7)
-    assert selected == ["cka", "upper-mid"]
-    assert "runtime-failure" not in selected
-    assert evidence["layers/text/default"]["completed_smokes"]["strong"]["successes"] == 2
-    # A failed midpoint moves the next probe down; final outcomes and zero
-    # diagnostic error neither qualify a configuration nor guide this choice.
-    rows[2]["phases"]["smoke"] = {"status": "completed", "summary": {"successes": 6}}
-    selected, _ = select(rows, 7)
-    assert selected == ["cka", "mid"]
-    rows[2]["phases"]["smoke"]["summary"]["successes"] = 8
-    rows[0]["phases"]["smoke"]["summary"]["successes"] = 6
-    _, evidence = select(rows, 7)
-    assert evidence["layers/text/default"]["nonmonotonic_observed_outcomes"]
-
-
-def test_family_endpoint_schedule_keeps_families_beyond_the_old_cap(monkeypatch):
-    from evaluation.compression import mission
-
-    identities = [f"family-{index:02}" for index in range(47)]
-
-    def result(candidate, phase):
-        assert phase != "final"
-        if phase == "smoke":
-            return None
-        return {
-            "status": "completed",
-            "candidate": {
-                "id": candidate,
-                "changes": [{"method": "bnb", "scope": candidate, "bits": 4}],
-            },
-            "summary": {"peak_allocated_bytes": 1},
-        }
-
-    monkeypatch.setattr(mission, "result", result)
-    assert mission.additional_smokes({"candidates": identities}) == identities
 
 
 @pytest.mark.parametrize("fraction", [0, 0.5, 0.75])

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import math
 
 import torch
@@ -128,12 +127,6 @@ def selected_linears(policy, scope):
     return result
 
 
-def tensor_digest(value):
-    return hashlib.sha256(
-        value.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()
-    ).hexdigest()
-
-
 def prune_mask(weight, fraction, importance=None, pattern=None):
     """Wanda: per-output row ranking of |W_ij| sqrt(E[x_j²])."""
     scores = weight.float().abs()
@@ -189,7 +182,6 @@ def independent_heads(attn, fraction, importance, vision=False):
         "original_heads": count,
         "kept_heads": kept,
         "head_dim": dim,
-        "kept_indices_sha256": tensor_digest(heads),
     }
 
 
@@ -301,7 +293,6 @@ def apply(policy, recipe, calibration=None):
                         "method": method,
                         "module": full,
                         "removed_weights": int(mask.sum()),
-                        "mask_sha256": tensor_digest(mask),
                         "sparse_kernel": change.get("sparse_kernel", False),
                     }
                 )
@@ -350,7 +341,6 @@ def apply(policy, recipe, calibration=None):
                         "module": key,
                         "original_width": downstream.in_features,
                         "kept_width": len(keep),
-                        "indices_sha256": tensor_digest(keep),
                     }
                 )
         elif method == "layers":

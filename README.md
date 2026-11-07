@@ -37,11 +37,10 @@ paired against B16 on identical initial states and seeds.
 |---|---|
 | `report/` | Final IEEE report: `main.tex`, `figures.py` (all figures from committed evidence), `data/numbers.json` |
 | `studies/` | Compact evidence for every experiment: run records, per-episode CSVs, milestones |
-| `evaluation/` | Evaluation, benchmarking, training and compression code (`evaluation/compression/`) |
+| `evaluation/` | Rollouts, timing, S500 training, analysis; compression recipes and transforms in `evaluation/compression/` |
 | `src/lerobot_policy_vla_jepa_smolvlm/` | LeRobot plugin for the SmolVLM2 backbone (S500) |
-| `rsi/` | Dream-RSI architecture search (optional arm, closed) |
-| `web/` | Paper presentation and the read-only experiment dashboard |
-| `tests/` | Unit and evidence-integrity tests |
+| `web/presentation/` | Paper presentation (October milestone) |
+| `tests/` | Unit tests for statistics, compression transforms and the plugin |
 
 ## Setup
 
@@ -49,8 +48,8 @@ Linux with an NVIDIA GPU for rollouts and timing; any machine for tests and the 
 
 ```bash
 CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval --extra report
-PYTHONPATH=src uv run --no-sync pytest
-uv run --no-sync python report/figures.py   # rebuild figures and numbers.json
+uv run --no-sync pytest
+uv run --no-sync python -m report.figures   # rebuild figures and numbers.json
 cd report && latexmk -pdf main.tex           # rebuild the PDF
 ```
 

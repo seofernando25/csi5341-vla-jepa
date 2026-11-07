@@ -46,22 +46,21 @@ python -m evaluation.run benchmark --variant B16                   # repeat for 
 python -m evaluation.core_benchmark --variant B16                  # neural-only timing
 python -m evaluation.run rollout --variant B16 --phase final --episodes 50
 python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --steps 10000
-python -m evaluation.select_checkpoint --training-runs "$CSI_TRAIN_RUN"
+python -m evaluation.adaptation --training-runs "$CSI_TRAIN_RUN"   # curves + selection.json
 python -m evaluation.run rollout --variant S500 --checkpoint "$CSI_CHECKPOINT" --phase final --episodes 50
 python -m evaluation.analysis --runs "$CSI_B16_RUN" "$CSI_Q8_RUN" "$CSI_Q4_RUN"
 ```
 
 `CSI_*` variables are user-supplied local paths. Checkpoints and observations stay under ignored
 `outputs/evaluation/`. `--resume <pretrained_model dir>` restores optimizer, scheduler, RNG and
-sampler state; `--steps` is cumulative. The analyzer rejects mismatched controls, duplicate trials
-and missing records.
+sampler state; `--steps` is cumulative. The analyzer rejects mismatched hardware or software,
+duplicate trials and missing records.
 
 ## Frozen controls
 
 - Revisions: [sources.json](../../evaluation/sources.json); inference protocol: [protocol.json](../../evaluation/protocol.json).
 - Initial states: [initial_states.json](initial_states.json); observation bank: [observation_bank.json](observation_bank.json).
-- Execution-source archives: [sources/index.json](sources/index.json). To restore a measured
-  implementation, check out the run's `environment.git_revision` and overlay the indexed ZIP.
+- Each run record stores the Git revision it ran from (`environment.git_revision`).
 - Timing modes: `policy` excludes outer observation preparation and action postprocessing;
   `pipeline` includes them; neural-only timing excludes tokenization and image processing and
   first matches native outputs on all 100 bank observations.

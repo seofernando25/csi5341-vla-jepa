@@ -29,8 +29,8 @@ Same 500 official states (50 per task) for every row. Paired intervals: task-str
   evidence that 2-bit weights improve the policy.
 
 Evidence: [per-task counts and transitions](reserved_confirmation_milestone.json),
-[benchmarks](final_benchmark_milestone.json), [frozen selection](final_selection.json),
-[figure](figures/confirmed_tradeoffs_v2.pdf).
+[benchmarks](final_benchmark_milestone.json), [frozen selection](final_selection.json).
+Figures: [final report](../../report/main.pdf).
 
 ## Selection pipeline
 
@@ -42,8 +42,7 @@ Evidence: [per-task counts and transitions](reserved_confirmation_milestone.json
 | Reserved | 500 | 4 | Final claim; frozen before outcomes |
 
 Calibration uses the first two development observations per task (20 frames), without robot
-outcomes. Development and reserved states are disjoint. Recipes, inputs, source snapshots and
-tensor fingerprints were [frozen](final_selection.json) before reserved trials; reserved
+outcomes. Development and reserved states are disjoint. The selected recipes were [frozen](final_selection.json) before reserved trials; reserved
 outcomes guided no reselection. Per-recipe records: `measurements/<recipe>/<phase>/`; one row per
 recipe in [summary.csv](summary.csv).
 
@@ -92,7 +91,8 @@ Solver, horizon and token reductions have only 10-trial evidence ([solver](solve
   memory and carry no storage or speed claim; packed 2:4 sparsity uses the sparse CUDA backend.
 - Adaptations, not reproductions: AWQ diagonal scaling (not the block-output search); QuantVLA
   ATM/OHB with NF4/BF16 (not its W4A8 pipeline); CKA layer ranking without the paper's fine-tuning.
-- Pinned upstream sources: [methods.json](methods.json); kernel checks:
+- Upstream sources are pinned by repository and revision in [methods.json](methods.json) and
+  cloned on first use (`evaluation/compression/vendor.py`). Kernel checks:
   [kernel_checks.json](kernel_checks.json), [lowbit_kernel_checks.json](lowbit_kernel_checks.json),
   [torchao_kernel_checks.json](torchao_kernel_checks.json).
 
@@ -102,12 +102,14 @@ Hugging Face checkpoints. Temporary archives were deleted after exporting hashes
 ## Reproduce
 
 ```bash
+python -m evaluation.run collect                        # observation bank (Study A)
 python -m evaluation.compression.study calibrate
 python -m evaluation.compression.study run --recipe studies/compression/recipes/<id>.json --phase screen
 # phases: screen, smoke, development, size, final, benchmark
-python report/figures.py   # report figures from summary.csv and milestones
+python -m evaluation.compression.analysis               # rebuild summary.csv
 ```
 
-Checkpoint: `lerobot/VLA-JEPA-LIBERO` revision `735d9f692981e286ade093b5046627eda876e5d0`,
-SHA-256 `b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c`. `tests/test_compression_evidence.py`
-verifies [validation.json](validation.json): evidence hashes and 17 measured source files.
+Checkpoint: `lerobot/VLA-JEPA-LIBERO` revision `735d9f692981e286ade093b5046627eda876e5d0`.
+The campaign scheduler that chose which recipes advanced was removed after the study closed;
+its decisions are recorded in [decisions.jsonl](decisions.jsonl) and the `*_selection.json` files,
+and the code is in Git history at commit `82df05d`.

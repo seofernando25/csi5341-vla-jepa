@@ -9,7 +9,6 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
-import re
 import sys
 import time
 from datetime import UTC, datetime
@@ -18,7 +17,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from evaluation.common import ROOT, environment, file_hash, read_json, write_json
+from evaluation.common import ROOT, environment, read_json, write_json
 from evaluation.models import SOURCES, artifact
 
 RECIPE = read_json(ROOT / "evaluation/training_config.json")
@@ -81,13 +80,8 @@ def configuration(dataset_root, output, steps):
     )
 
 
-def split_manifest(dataset_root, train, heldout):
-    """Hash local data and record whole-trajectory membership; no host paths."""
-    files = sorted(
-        p
-        for p in dataset_root.rglob("*")
-        if p.is_file() and p.suffix in {".json", ".parquet", ".mp4"}
-    )
+def split_manifest(train, heldout):
+    """Record whole-trajectory membership of the train/validation split; no host paths."""
     train_episodes, validation_episodes = list(train.episodes), list(heldout.episodes)
     if set(train_episodes) & set(validation_episodes):
         raise ValueError("Training and validation trajectories overlap")
@@ -99,7 +93,6 @@ def split_manifest(dataset_root, train, heldout):
         "validation_episodes": validation_episodes,
         "train_frames": len(train),
         "validation_frames": len(heldout),
-        "files": {str(p.relative_to(dataset_root)): file_hash(p) for p in files},
     }
 
 
@@ -119,46 +112,30 @@ def main():
     parser.add_argument("--steps", type=int, default=500)
     parser.add_argument("--resume", type=Path, help="Native checkpoint pretrained_model directory")
     parser.add_argument("--prepare-only", action="store_true")
-    parser.add_argument("--run-label", default="S500")
-    parser.add_argument("--architecture-source", type=Path)
     args = parser.parse_args()
     if args.steps < 1:
         parser.error("steps must be positive")
-    if not re.fullmatch(r'[A-Za-z0-9_-]{1,40}', args.run_label):
-        parser.error("Invalid run label")
-    architecture = None
-    if args.architecture_source:
-        source = args.architecture_source.resolve() / 'src'
-        sys.path.insert(0, str(source))
-        import lerobot_policy_vla_jepa_smolvlm as plugin
-        if not Path(plugin.__file__).resolve().is_relative_to(source):
-            raise ValueError('Selected architecture was not imported')
-        architecture = {str(p.relative_to(source)): file_hash(p)
-                        for p in sorted(source.rglob('*.py'))}
     from lerobot.scripts import lerobot_train as native
 
-    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + f"-{args.run_label}-train"
+    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + "-S500-train"
     evidence_dir = ROOT / "studies/evaluation/training" / run_id
     runtime = ROOT / "outputs/evaluation/training" / run_id
     evidence_dir.mkdir(parents=True)
     runtime.mkdir(parents=True)
     record = {
         "run_id": run_id,
-        "variant": args.run_label,
-        "architecture_source_manifest": architecture,
+        "variant": "S500",
         "status": "preparing",
         "recipe": RECIPE,
         "sources": SOURCES,
         "environment": environment(),
         "requested_steps": args.steps,
         "purpose": "engineering_preflight" if args.steps < 500 else "adaptation",
-        "resume_checkpoint_sha256": file_hash(args.resume / "model.safetensors")
-        if args.resume
-        else None,
+        "resume_checkpoint": str(args.resume) if args.resume else None,
     }
     write_json(evidence_dir / "run.json", record)
     cfg = configuration(args.dataset_root.resolve(), runtime / "train", args.steps)
-    cfg.policy.image_processor_backend = 'torchvision'
+    cfg.policy.image_processor_backend = "torchvision"
     original_datasets = native.make_train_eval_datasets
     original_loaders = native.make_dataloaders
     original_policy = native.make_policy
@@ -180,13 +157,11 @@ def main():
         train, heldout = original_datasets(config)
         if heldout is None:
             raise ValueError("Validation split is required")
-        manifest = split_manifest(args.dataset_root.resolve(), train, heldout)
+        manifest = split_manifest(train, heldout)
         path = ROOT / "studies/evaluation/training_split.json"
         if path.exists() and read_json(path) != manifest:
             raise ValueError("Dataset or frozen split changed")
         write_json(path, manifest)
-        record["training_split_sha256"] = file_hash(path)
-        write_json(evidence_dir / "run.json", record)
         return train, heldout
 
     def loaders(config, dataset, eval_dataset, step, parallel_dims):
@@ -382,8 +357,6 @@ def main():
                 initial.config.init_from_vla_jepa = None
                 initial.save_pretrained(initial_dir)
                 cfg.policy.pretrained_path = initial_dir
-                record["initializer_sha256"] = file_hash(initial_dir / "model.safetensors")
-                write_json(evidence_dir / "run.json", record)
                 del initial
                 native.train(cfg)
             checkpoints = []
@@ -395,7 +368,6 @@ def main():
                     checkpoints.append(
                         {
                             "step": int(step_name),
-                            "sha256": file_hash(weights),
                             "bytes": weights.stat().st_size,
                             "artifact": str(weights.parent.relative_to(ROOT)),
                         }

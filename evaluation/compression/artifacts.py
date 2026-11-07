@@ -2,15 +2,13 @@
 
 import csv
 import gc
-import hashlib
-import json
 import time
 
 import numpy as np
 import torch
 from safetensors.torch import save_file
 
-from evaluation.common import ROOT, file_hash, write_json
+from evaluation.common import ROOT, write_json
 from evaluation.compression.transforms import storage_inventory
 from evaluation.run import PROTOCOL, inference_autocast, numpy_raw, prepare, processors
 
@@ -51,7 +49,7 @@ def packed_state(policy):
         visit(name, value)
     # The upstream QuantVLA processor stores its calibrated output multiplier
     # as a Python scalar rather than a buffer. It affects inference and must
-    # travel with the tensor payload and be checked across evaluation phases.
+    # travel with the tensor payload.
     scalars = {
         f"{name}._ohb_beta_scalar": float(module._ohb_beta_scalar)
         for name, module in policy.named_modules()
@@ -64,31 +62,6 @@ def packed_state(policy):
     }
 
 
-def tensor_fingerprint(policy):
-    """Canonical model tensor payload, independent of archive header order."""
-    tensors, layout = packed_state(policy)
-    digest = hashlib.sha256()
-    total = 0
-    for name, value in sorted(tensors.items()):
-        header = json.dumps(
-            {"name": name, "dtype": str(value.dtype), "shape": list(value.shape)},
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode()
-        digest.update(len(header).to_bytes(8, "little"))
-        digest.update(header)
-        array = value.reshape(-1).view(torch.uint8).numpy()
-        digest.update(memoryview(array))
-        total += array.nbytes
-    digest.update(json.dumps(layout, sort_keys=True, separators=(",", ":")).encode())
-    return {
-        "sha256": digest.hexdigest(),
-        "tensor_count": len(tensors),
-        "tensor_bytes": total,
-        "algorithm": "SHA256 sorted tensor names/dtypes/shapes/bytes, alias mapping, subclass layouts and calibrated QuantVLA output multipliers; remaining semantics protected by recipe/source hashes",
-    }
-
-
 def serialize(policy, candidate, result_dir):
     folder = ROOT / "outputs/compression/serialized" / candidate / result_dir.name
     folder.mkdir(parents=True, exist_ok=False)
@@ -98,7 +71,6 @@ def serialize(policy, candidate, result_dir):
     write_json(result_dir / "tensor_layout.json", layout)
     summary = {
         "bytes": path.stat().st_size,
-        "sha256": file_hash(path),
         "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
         "artifact": str(path.relative_to(ROOT)),
         "direct_HF_checkpoint": False,
@@ -128,7 +100,7 @@ def benchmark(policy, candidate, result_dir, predictions=500, repetitions=3):
         env_pre.reset()
         pre.reset()
         post.reset()
-        with torch.inference_mode(), inference_autocast(policy):
+        with torch.inference_mode(), inference_autocast():
             batch = prepare(numpy_raw(sample["raw"]), sample["instruction"], env_pre, pre)
             action = post(policy.predict_action_chunk(batch)).cpu()
         if not torch.isfinite(action).all():
@@ -172,7 +144,7 @@ def benchmark(policy, candidate, result_dir, predictions=500, repetitions=3):
                         torch.cuda.reset_peak_memory_stats()
                     torch.cuda.synchronize()
                     started = time.perf_counter()
-                    with torch.inference_mode(), inference_autocast(policy):
+                    with torch.inference_mode(), inference_autocast():
                         if mode == "pipeline":
                             batch = prepare(raw, sample["instruction"], env_pre, pre)
                         action = policy.predict_action_chunk(batch)

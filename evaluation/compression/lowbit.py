@@ -6,19 +6,15 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from evaluation.common import ROOT, file_hash, read_json
 from evaluation.compression.transforms import replace, selected_linears
+from evaluation.compression.vendor import upstream
 
 
 def package(method):
-    folder = ROOT / "outputs/compression/vendor" / method
-    manifest = read_json(ROOT / "studies/compression/methods.json")["upstream"][method]
-    for name, digest in manifest["files"].items():
-        if file_hash(folder / name) != digest:
-            raise ValueError(f"Pinned low-bit source changed: {method}/{name}")
+    folder, entry = upstream(method)
     if str(folder) not in sys.path:
         sys.path.insert(0, str(folder))
-    return manifest
+    return entry
 
 
 class HQQPackedLinear(nn.Module):

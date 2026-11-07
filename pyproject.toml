@@ -34,7 +34,11 @@ packages = ["src/lerobot_policy_vla_jepa_smolvlm"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "src"]
+filterwarnings = [
+  # Raised inside a third-party dependency at import time, not by project code.
+  "ignore:`torch.jit.script_method` is deprecated:DeprecationWarning",
+]
 
 [tool.ruff]
 line-length = 100

@@ -12,6 +12,7 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 - `terse-writing`: all prose, including the report, READMEs, commits and board records.
 - `reporting-results`: checklist before any number leaves the terminal.
 - `agent-board`: reading and posting coordination records.
+- `untangle-codebase`: whole-codebase refactor procedure (run only when asked).
 
 ## Coordination
 
@@ -25,8 +26,11 @@ records follows the user's communication authorization; never rewrite old record
   which reads committed evidence under `studies/`. Rebuild both after any evidence change.
 - Study evidence: `studies/<study>/`, indexed in `studies/README.md`. Each study README states
   its question, result, evidence and reproduction command.
-- Compression code is hash-validated by `tests/test_compression_evidence.py`. Do not restyle
-  `evaluation/compression/` or other measured sources; run records hash them.
+- Code: `evaluation/` (rollouts, timing, S500 training, analysis), `evaluation/compression/`
+  (recipes → transforms → measurements), `src/` (SmolVLM plugin). Closed arms keep only their
+  results; their code is in Git history at commit `82df05d`.
+- Checks: `uv run --no-sync ruff check .`, `uv run --no-sync ruff format --check .` and
+  `uv run --no-sync pytest` must pass with no warnings.
 
 ## Evidence rules
 
@@ -40,9 +44,7 @@ records follows the user's communication authorization; never rewrite old record
   validation.
 - Qwen is evaluation-only. LeRobot stays pinned at `30074f7f1358b3c015ae1750017200e86e9c4eb6`.
 
-## Archived arms
+## Closed arms
 
-The SmolVLM backbone swap (S500, recovery, n0008 confirmation) and Dream-RSI are closed negative
-results. Before editing `rsi/`, read `rsi/README.md` and `rsi/config.json`: the search
-configuration, scoring, evaluator and base source are frozen, and its journal must stay
-consistent across resumes.
+The SmolVLM backbone swap (S500), its recovery, the n0008 confirmation and Dream-RSI are closed
+negative results. Their summaries stay under `studies/`; do not restart them without a new plan.
