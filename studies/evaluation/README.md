@@ -1,59 +1,68 @@
-# Evaluation campaign
+# Study A: decoder quantization and the SmolVLM backbone
 
-[Report](report/report.pdf) · [Plan and deliverables](../EVALUATION_PLAN.md)
+Matched comparison of four configurations on LIBERO-Spatial (500 reserved trials each, RTX 3090):
 
-B16/Q8/Q4 use the same trained Qwen policy; S500 requires adaptation. Dream-RSI is deferred. CUDA smoke checks establish execution only. Raw CSVs and JSON provenance live in `runs/`; failed and interrupted runs remain recorded.
+| ID | Configuration | Success | Peak allocated | Median latency |
+|---|---|---:|---:|---:|
+| B16 | `lerobot/VLA-JEPA-LIBERO`, BF16 | 475/500 | 5.22 GiB | 79.1 ms |
+| Q8 | Qwen decoder `nn.Linear` → LLM.int8 (threshold 6) | 474/500 | 4.00 GiB | 157.4 ms |
+| Q4 | Same scope → NF4, double quantization, BF16 compute | 479/500 | 3.29 GiB | 93.6 ms |
+| S500 | SmolVLM2-500M + adapter, 10k fine-tuning steps | 11/500 | 3.07 GiB | 1269.7 ms |
 
-## Qwen baseline provenance and paper alignment
+Machine-readable summary: [analysis/summary.json](analysis/summary.json), [T1_summary.csv](analysis/T1_summary.csv).
+Per-episode outcomes: `runs/<run-id>/episodes.csv`. Vision tower, embeddings, action head and
+world model stay BF16 in Q8/Q4; quantization runs after checkpoint restoration.
 
-Verified October 9, 2026: B16 loads `lerobot/VLA-JEPA-LIBERO` at revision `735d9f692981e286ade093b5046627eda876e5d0`. [LeRobot documents](https://huggingface.co/docs/lerobot/vla_jepa#pretrained-checkpoints) this release as a conversion of the authors' [ginwind/VLA-JEPA checkpoints](https://huggingface.co/ginwind/VLA-JEPA); it is the released trained policy, not a Qwen policy trained in this project. Q8/Q4 quantize the restored baseline weights without further training.
+## Baseline provenance
 
-Qwen3-VL-2B, seven-action chunks, four denoising steps, and BF16 inference agree with [the paper's Appendix A](https://arxiv.org/html/2602.10098v1#A1) and [the authors' evaluation script](https://github.com/ginwind/VLA-JEPA/blob/main/examples/LIBERO/eval_libero.sh). Our final Spatial evaluation uses 50 episodes per task (500 total), matching the paper's trial count. Our measured success is 475/500 (95.0%); the paper reports 96.2% on Spatial, while its 97.2% is the four-suite average.
+B16 loads `lerobot/VLA-JEPA-LIBERO` at revision `735d9f692981e286ade093b5046627eda876e5d0`,
+LeRobot's [conversion](https://huggingface.co/docs/lerobot/vla_jepa#pretrained-checkpoints) of the
+authors' [checkpoints](https://huggingface.co/ginwind/VLA-JEPA). Qwen3-VL-2B, seven-action chunks,
+four denoising steps and BF16 match the paper's Appendix A and the authors' evaluation script.
+We measure 95.0% on Spatial; the paper reports 96.2%. We use the LeRobot port and our evaluator,
+not the authors' evaluator, so numerical equivalence is not established.
 
-The user accepts this released-checkpoint baseline for the project comparison. Record the implementation distinction: our measurements use the pinned LeRobot port and local evaluator, rather than the authors' original evaluator; full numerical equivalence between those implementations has not been established. SmolVLM/RSI adaptation remains a separate experimental recipe.
+## S500
+
+S500 replaces Qwen with `HuggingFaceTB/SmolVLM2-500M-Video-Instruct`, projects its decoder output
+into the existing conditioning interface, and trains the adapter, action head and latent predictor
+with SmolVLM and the V-JEPA 2 encoder frozen ([training_config.json](../../evaluation/training_config.json)).
+Demonstrations are split by whole trajectories: 384 training, 48 held-out
+([training_split.json](training_split.json)). Held-out loss selected step 10,000 from checkpoints at
+1,500/5,000/10,000 ([selection.json](selection.json)); simulator scores were not used. SmolVLM
+expands each image into 17 tiles of 512 pixels, which explains most of its latency.
+S500 is a deployment comparison under limited adaptation, not a controlled test of backbone size.
 
 ## Reproduce
 
-Run from the repository root. GPU jobs run sequentially for comparable timing; building the PDF also requires `pdflatex`.
+Run from the repository root on a Linux NVIDIA host. GPU jobs run one at a time for comparable timing.
 
 ```bash
-uv sync --frozen --extra dev --extra eval --extra report
-source .venv/bin/activate
+uv sync --frozen --extra dev --extra eval --extra report && source .venv/bin/activate
 python -m evaluation.prepare baseline qwen smolvlm world_model pretrain simulator_assets
 python -m evaluation.libero_setup
-python -m evaluation.run collect
-python -m evaluation.smoke B16
-python -m evaluation.run benchmark --variant B16
-python -m evaluation.core_benchmark --variant B16
-python -m evaluation.run rollout --variant B16 --phase development --episodes 10
-python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --prepare-only
-python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --steps 500
-python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --resume "$CSI_CHECKPOINT" --steps 1500
+python -m evaluation.run collect                                   # observation bank
+python -m evaluation.run benchmark --variant B16                   # repeat for Q8, Q4
+python -m evaluation.core_benchmark --variant B16                  # neural-only timing
+python -m evaluation.run rollout --variant B16 --phase final --episodes 50
+python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --steps 10000
+python -m evaluation.select_checkpoint --training-runs "$CSI_TRAIN_RUN"
 python -m evaluation.run rollout --variant S500 --checkpoint "$CSI_CHECKPOINT" --phase final --episodes 50
 python -m evaluation.analysis --runs "$CSI_B16_RUN" "$CSI_Q8_RUN" "$CSI_Q4_RUN"
-python -m evaluation.training_analysis --runs "$CSI_TRAIN_RUN"
-python -m evaluation.select_checkpoint --training-runs "$CSI_INITIAL_RUN" "$CSI_TRAIN_RUN"
-python -m evaluation.reproducibility --runs "$CSI_B16_RUN" "$CSI_Q8_RUN" "$CSI_Q4_RUN"
-python -m evaluation.report
 ```
 
-`CSI_DATASET_ROOT` identifies the local LIBERO-Spatial LeRobot dataset. Checkpoints and observations stay under ignored `outputs/evaluation/`; the environment variables above are user-supplied paths, not committed machine settings. Repeat inference commands for Q8/Q4 and, after selection, S500. `--resume` takes a native checkpoint's `pretrained_model` directory and restores optimizer, scheduler, RNG and sampler state. `--steps` is the cumulative target.
-
-Select run directories explicitly for analysis. The analyzer rejects mismatched controls, unequal timing protocols, duplicate trials and missing records. Main figures use matched complete runs; timing pilots are separate. Save vector PDF and 300-dpi PNG figures with hashed input records. Missing values stay missing.
-
-The neural-only benchmark excludes tokenization and image processing, and must first match native-policy outputs on all 100 bank observations under identical noise seeds. Include its completed run directories in `evaluation.analysis` to export neural median/p95 alongside full pipeline timing. Exact execution-source archives are indexed in [`sources/index.json`](sources/index.json); their contents are checked against each run's recorded source hashes.
-
-Execution-source archives are overlays, not standalone packages. To restore a measured implementation, use an isolated checkout at its `environment.git_revision`, overlay the indexed ZIP, and retain this study's frozen JSON manifests. Verify the archive and source hashes before running. Dataset hashes identify the exact local conversion; an upstream conversion revision has not been established.
+`CSI_*` variables are user-supplied local paths. Checkpoints and observations stay under ignored
+`outputs/evaluation/`. `--resume <pretrained_model dir>` restores optimizer, scheduler, RNG and
+sampler state; `--steps` is cumulative. The analyzer rejects mismatched controls, duplicate trials
+and missing records.
 
 ## Frozen controls
 
-- Revisions: [`sources.json`](../../evaluation/sources.json); inference: [`protocol.json`](../../evaluation/protocol.json).
-- Robot states: [`initial_states.json`](initial_states.json); development states are disjoint from the 50 official final states per task. Keep development diagnostics separate from final benchmark scores.
-- Demonstrations: [`training_split.json`](training_split.json); 384 training / 48 held-out trajectories. Hashes describe the local conversion, not an asserted upstream dataset revision.
-- Adaptation: [`training_config.json`](../../evaluation/training_config.json); frozen SmolVLM and target encoder; train adapter, action head and latent predictor. Baseline normalization stays fixed. Validation is held out from this adaptation run, not necessarily from the published models' prior training.
-- Timing includes backbone tokenization and image processing in both modes. `policy` excludes outer observation preparation and action postprocessing; `pipeline` includes them. Neither includes simulator stepping or rendering. Q8 internally casts decoder inputs to FP16; duplicate backend warnings are logged once.
-- The [SmolVLM processor probe](checks/processor_probe.json) verifies correct float-image scaling and records 17 native 512-pixel tiles for one 224-pixel input. Camera/outer policy preprocessing is shared; backbone-native processing differs. Interpret S500 as a deployment comparison, not an isolated parameter-count experiment.
-
-The [500-step pilot](training/20260923T235657557094Z-S500-train/run.json) completed; [F5](adaptation/figures/F5_adaptation.pdf) contains its measured validation loss. The [frozen budget](budget.json) retains 1,500/5,000/10,000-step checkpoints, seed 42, with approximately ten projected GPU-hours. The [development comparison](development/summary.json) and [F1–F4 figures](development/figures/) cover B16/Q8/Q4 at 100 episodes each. Final success and corresponding figures, further S500 adaptation/development points, and the complete T1 remain outstanding.
-
-The [LIBERO maintainer’s explanation](https://github.com/Lifelong-Robot-Learning/LIBERO/issues/34) describes fixed states as seeded environment initializations and pruning as evaluation subsampling. Counts and exact membership here are verified against the installed files.
+- Revisions: [sources.json](../../evaluation/sources.json); inference protocol: [protocol.json](../../evaluation/protocol.json).
+- Initial states: [initial_states.json](initial_states.json); observation bank: [observation_bank.json](observation_bank.json).
+- Execution-source archives: [sources/index.json](sources/index.json). To restore a measured
+  implementation, check out the run's `environment.git_revision` and overlay the indexed ZIP.
+- Timing modes: `policy` excludes outer observation preparation and action postprocessing;
+  `pipeline` includes them; neural-only timing excludes tokenization and image processing and
+  first matches native outputs on all 100 bank observations.
+- Hardware: [hardware/local_rtx3090.json](hardware/local_rtx3090.json).

@@ -1,11 +1,24 @@
-# n0008 confirmation
+# n0008 confirmation (closed)
 
-Train the selected late-decoder residual adapter and a matched GPU SmolVLM baseline from the same pretrained action/world initialization. The frozen [plan](plan.json) uses seed 42, batch 2, a fixed 10k-step schedule, the existing trajectory split and 200 held-out observations. Select the lowest held-out loss at 1,500/5,000/10,000 steps; simulator success never selects weights.
+Longer training of Dream-RSI's best candidate, n0008: a trainable residual adapter before the final
+SmolVLM decoder layer. Lower held-out loss did not produce successful control.
 
-The runner resumes native optimizer checkpoints after interruption, then evaluates each selected model on the same 100 development LIBERO-Spatial episodes and 500 × 3 timing inputs. Preserve separate labels and source/checkpoint hashes. Final 500-episode evaluation follows development review. Qwen remains evaluation-only; the published 95% project reference has a different training history.
+| Measure | Result |
+|---|---|
+| Held-out loss, 200 samples | 0.2653 at 10k steps (0.3056 at 5.5k) |
+| Development success | 0/10, one trial per task |
+| Pipeline latency, RTX 5090 | 302.8 / 407.7 ms median / p95 |
+| Peak allocated inference memory | 2.97 GiB |
+| Cloud cost | about USD 2.17 |
 
-This confirmation uses the established longer adaptation recipe, not the short RSI screening schedule. Screening ranks are hypotheses; compare these two confirmation arms directly. The initial budget is much smaller than the paper's training exposure. No task-performance claim exists until rollouts complete.
+Plan: [plan.json](plan.json): seed 42, batch 2, fixed 10k-step schedule, existing trajectory split,
+selection by held-out loss at 1.5k/5k/10k steps. Training ran locally to 5k and on an RTX 5090
+from 5k to 10k. The matched SmolVLM baseline arm and full development/final evaluation were not
+completed.
 
-Runtime weights/logs live under ignored `outputs/`; compact selections and measurements remain here and in `studies/evaluation/`. Pruning preserves milestone inference weights and the latest optimizer state after exporting hashes.
+The frozen GPU pipeline rescaled images twice (see [recovery](../../recovery/README.md)), so these
+results describe a degraded visual input and cannot rank architectures.
 
-Cloud continuation completed on RTX 5090: 10k held-out loss 0.2653; development 0/10 successes; pipeline median/p95 302.8/407.7 ms; inference allocation 2.97 GiB. The full resumable checkpoint was verified locally before rental deletion (total spend about $2.17). These are separate diagnostics, not final LIBERO or a matched hardware/pipeline comparison. See [compact evidence and figure](cloud-results/summary.json).
+Evidence: [cloud-results/summary.json](cloud-results/summary.json), [validation.csv](cloud-results/validation.csv),
+[figure](cloud-results/figures/F6_cloud.pdf). Rebuild the figure with
+`python -m evaluation.cloud_analysis --from-summary`.

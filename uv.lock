@@ -1020,6 +1020,8 @@ eval = [
 ]
 report = [
     { name = "matplotlib" },
+    { name = "pandas" },
+    { name = "scipy" },
 ]
 
 [package.metadata]
@@ -1030,10 +1032,12 @@ requires-dist = [
     { name = "lerobot", extras = ["vla-jepa", "training"], git = "https://github.com/huggingface/lerobot.git?rev=30074f7f1358b3c015ae1750017200e86e9c4eb6" },
     { name = "matplotlib", marker = "extra == 'report'", specifier = ">=3.11.2" },
     { name = "num2words", specifier = ">=0.5.14" },
+    { name = "pandas", marker = "extra == 'report'", specifier = ">=2.2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.14" },
     { name = "safetensors", specifier = ">=0.5" },
     { name = "scipy", marker = "extra == 'eval'", specifier = ">=1.14,<2.0" },
+    { name = "scipy", marker = "extra == 'report'", specifier = ">=1.14,<2.0" },
 ]
 provides-extras = ["dev", "eval", "report"]
 

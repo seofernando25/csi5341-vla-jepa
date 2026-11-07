@@ -3,27 +3,37 @@
 import argparse
 import json
 import re
-import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 BOARD = Path(__file__).resolve().parents[1] / "AGENT_BOARD.jsonl"
 TYPES = {"MSG","ASK","ACK","CLM","DONE","BLK","DEC","CORR"}
 AGENTS = {"F","N"}
 KEYS = {"v","id","ts","from","to","type","ref","scope","msg"}
-TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+TS_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")  # old records carry fractions
 ID_RE = re.compile(r"^[FN]-\d{8}T\d{6}Z-(?:[0-9a-f]{8}|\d{2})$")  # accepts migrated v0 IDs
+# Six 2026-10-02 records predate validation and use descriptive IDs.
+# The log is append-only, so they are accepted as frozen exceptions instead of rewritten.
+LEGACY_IDS = {
+    "F-20261002T025900Z-recovery-diagnostics",
+    "F-20261002T030251Z-noise-audit",
+    "F-20261002T031254Z-noise-audit-done",
+    "F-20261002T032927Z-query-probes",
+    "F-20261002T034002Z-query-probes-done",
+    "F-20261002T043548Z-query-followup",
+}
 
 
 def load():
     records=[]; ids=set()
     for n,line in enumerate(BOARD.read_text().splitlines(),1):
         try: r=json.loads(line)
-        except Exception as e: raise SystemExit(f"line {n}: invalid JSON: {e}")
+        except json.JSONDecodeError as e: raise SystemExit(f"line {n}: invalid JSON: {e}") from e
         if set(r) != KEYS: raise SystemExit(f"line {n}: keys={sorted(r)}")
         if r["v"] != 1: raise SystemExit(f"line {n}: unsupported v")
-        if not ID_RE.match(r["id"]): raise SystemExit(f"line {n}: bad id")
+        legacy = r["id"] in LEGACY_IDS
+        if not (legacy or ID_RE.match(r["id"])): raise SystemExit(f"line {n}: bad id")
         if not TS_RE.match(r["ts"]): raise SystemExit(f"line {n}: bad ts")
         if r["from"] not in AGENTS or r["to"] not in AGENTS|{"*"}: raise SystemExit(f"line {n}: bad agent")
         if r["type"] not in TYPES: raise SystemExit(f"line {n}: bad type")
@@ -39,7 +49,7 @@ def load():
 def append(args):
     records=load()
     if args.ref and args.ref not in {r['id'] for r in records}: raise SystemExit("ref not found")
-    now=datetime.now(timezone.utc).replace(microsecond=0)
+    now=datetime.now(UTC).replace(microsecond=0)
     compact=now.strftime("%Y%m%dT%H%M%SZ")
     r={"v":1,"id":f"{args.sender}-{compact}-{uuid.uuid4().hex[:8]}","ts":now.strftime("%Y-%m-%dT%H:%M:%SZ"),"from":args.sender,"to":args.to,"type":args.type,"ref":args.ref,"scope":args.scope,"msg":args.msg}
     if r['type']=='CORR' and not r['ref']: raise SystemExit("CORR requires --ref")

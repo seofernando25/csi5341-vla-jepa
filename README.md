@@ -1,35 +1,65 @@
-# CSI 5341 — Efficient VLA-JEPA
+# How Small Can VLA-JEPA Get?
 
-Course project by Noah Sprenger and Fernando Nogueira: evaluate how to reduce VLA-JEPA's hardware requirements while preserving robotic manipulation performance.
+CSI 5341 course project by Noah Sprenger and Fernando Nogueira. We compress the released
+[VLA-JEPA](https://arxiv.org/abs/2602.10098) LIBERO policy after training and measure what
+it costs in task success, latency and GPU memory.
 
-| Comparison | Scope |
-| --- | --- |
-| Baseline | Evaluate pretrained VLA-JEPA in LIBERO. |
-| Quantized inference | Compare reduced precision against the same baseline. |
-| Smaller backbone | Replace Qwen with SmolVLM2-500M and run reduced fine-tuning. |
-| Dream-RSI (optional) | Search for better SmolVLM conditioning architectures. |
+**[Final report (PDF)](report/main.pdf)** · [Report source](report/) · [Studies and evidence](studies/README.md) · [Paper presentation](web/presentation/README.md)
 
-Report task success, inference latency, peak GPU memory, and hardware under matched evaluation settings. Full training from scratch is outside scope. Track experiments, figures, and remaining deliverables in the [evaluation plan](studies/EVALUATION_PLAN.md).
+## Results
 
-[Mac / next-agent handoff](HANDOFF.md) · [Working report](studies/evaluation/report/report.pdf) · [Reproduction commands](studies/evaluation/README.md) · [Hardware](studies/HARDWARE.md) · [Later cloud comparison](studies/CROSS_HARDWARE_PLAN.md)
+LIBERO-Spatial, 500 reserved trials per configuration, one RTX 3090, batch size 1. Changes are
+paired against B16 on identical initial states and seeds.
 
-## Presentation
+| Configuration | Success | Δ vs B16, pp [95% CI] | Peak memory | Median latency |
+|---|---:|---:|---:|---:|
+| B16: released BF16 policy | 95.0% | — | 5.61 GB | 79 ms |
+| Q8: LLM.int8 language decoder | 94.8% | −0.2 [−1.2, +0.8] | 4.30 GB (−23%) | 157 ms |
+| Q4: NF4 language decoder | 95.8% | +0.8 [−0.6, +2.2] | 3.54 GB (−37%) | 94 ms |
+| C1: NF4 everywhere + MLP channel pruning¹ | 93.4% | −1.6 [−3.2, 0.0] | 0.94 GB (−83%) | 135 ms |
+| C2: NF4 language, 2-bit HQQ vision/action¹ | 98.0% | +3.0 [+1.2, +5.0] | 1.07 GB (−81%) | 144 ms |
+| C3: C2 with full vocabulary | 96.8% | +1.8 [−0.2, +3.8] | 1.38 GB (−75%) | 143 ms |
+| S500: SmolVLM2-500M backbone, fine-tuned | 2.2% | −92.8 | 3.30 GB (−41%) | 1270 ms |
 
-The [immersive presentation](web/presentation/README.md) includes its required local footage, narration, fonts, diagrams and 3D dependencies. Serve the repository with `python3 -m http.server 8000 --bind 127.0.0.1` and open `http://localhost:8000/web/presentation/`.
+¹ Embedding table restricted to the 53 token IDs in LIBERO prompts.
 
-[Slides](web/presentation/documents/slides.pdf) · [Slides with backups](web/presentation/documents/slides-with-backups.pdf) · [Presenter guide](web/presentation/documents/presenter-guide.pdf)
+- NF4 decoder quantization meets the proposal target (≥25% less memory, ≤5 points lost). LLM.int8
+  misses it: 25.1% is its theoretical ceiling.
+- The language decoder limits compression. Vision and action weights tolerate 2-bit quantization.
+- Every compressed policy is slower at batch size 1.
+- Offline action change on fixed frames screens out bad recipes (Spearman ρ = −0.67 over 163)
+  but cannot rank near-lossless ones.
+- Replacing Qwen with SmolVLM2-500M failed within our training budget.
+
+## Layout
+
+| Path | Contents |
+|---|---|
+| `report/` | Final IEEE report: `main.tex`, `figures.py` (all figures from committed evidence), `data/numbers.json` |
+| `studies/` | Compact evidence for every experiment: run records, per-episode CSVs, milestones |
+| `evaluation/` | Evaluation, benchmarking, training and compression code (`evaluation/compression/`) |
+| `src/lerobot_policy_vla_jepa_smolvlm/` | LeRobot plugin for the SmolVLM2 backbone (S500) |
+| `rsi/` | Dream-RSI architecture search (optional arm, closed) |
+| `web/` | Paper presentation and the read-only experiment dashboard |
+| `tests/` | Unit and evidence-integrity tests |
 
 ## Setup
 
+Linux with an NVIDIA GPU for rollouts and timing; any machine for tests and the report.
+
 ```bash
-CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval
-PYTHONPATH=src uv run pytest
-PYTHONPATH=src uv run python scripts/smoke_plugin.py
-PYTHONPATH=src uv run python -m rsi dry-run
+CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval --extra report
+PYTHONPATH=src uv run --no-sync pytest
+uv run --no-sync python report/figures.py   # rebuild figures and numbers.json
+cd report && latexmk -pdf main.tex           # rebuild the PDF
 ```
 
-The active plugin is `vla_jepa_smolvlm`, using [SmolVLM2-500M-Video-Instruct](https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct). The backbone swap requires fine-tuning; it is not a ready-trained robot policy. Quantization remains a separate comparison arm.
+Run `uv sync` with the extras above; a plain `uv run` re-syncs and drops them.
+Reproduction commands for each study are in its README under [studies/](studies/README.md).
 
-[Dream-RSI commands](rsi/README.md) operate one fresh, resumable SmolVLM study. New results belong in [studies/](studies/README.md).
+LeRobot is pinned to `30074f7f1358b3c015ae1750017200e86e9c4eb6`. No weights or datasets are
+redistributed; see [NOTICE.md](NOTICE.md).
 
-References: [VLA-JEPA](https://arxiv.org/abs/2602.10098), [V-JEPA 2](https://arxiv.org/abs/2506.09985), [SmolVLM](https://arxiv.org/abs/2504.05299), [Dream-RSI](https://arxiv.org/abs/2609.14858). Built on Hugging Face LeRobot; no weights or datasets are redistributed.
+References: [VLA-JEPA](https://arxiv.org/abs/2602.10098), [V-JEPA 2](https://arxiv.org/abs/2506.09985),
+[SmolVLM](https://arxiv.org/abs/2504.05299), [LIBERO](https://arxiv.org/abs/2306.03310),
+[Dream-RSI](https://arxiv.org/abs/2609.14858).

@@ -2,7 +2,7 @@
 
 The reviewers found accurate recorded measurements, real engineering defects, and partial recovery. They did **not** find evidence of a competitive SmolVLM policy, a demonstrated n0008 architecture benefit, or a reproduction of the paper's training. The central problem was experimental design and prioritization: a narrow loss search on defective inputs was followed by several coupled recovery interventions, without completing the comparison needed to establish which intervention helped.
 
-This is the original implementation agent's synthesis of three fresh-context AI reviews, not an external human audit. Their unedited reports are linked below. Research remains paused; no experiments or rentals were launched.
+This is the original implementation agent's synthesis of three fresh-context AI reviews, not an external human audit. Their unedited reports are linked below. File paths and line numbers in them refer to commit `2cbe16e`; the working report they cite (`studies/evaluation/report/`) was later replaced by the [final report](../../../report/main.pdf).
 
 ## What happened
 

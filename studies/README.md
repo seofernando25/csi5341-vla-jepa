@@ -1,19 +1,33 @@
-# Experiment protocol
+# Studies
 
-The [evaluation plan and delivery tracker](EVALUATION_PLAN.md) records the agreed experiments, budgets, five figures, summary table, and remaining work. Update it with evidence as deliverables are completed. Dream-RSI is deferred from this plan.
+Compact evidence for every experiment. The [final report](../report/main.pdf) summarizes them;
+`report/figures.py` reads its numbers from here.
 
-The main comparison is pretrained VLA-JEPA, its quantized inference variant, and VLA-JEPA with SmolVLM2-500M-Video-Instruct. Dream-RSI is optional after those comparisons work.
+| Study | Question | Status and headline | Folder |
+|---|---|---|---|
+| Quantization (A) | Does INT8/NF4 decoder quantization keep success? | Done. Q4 −37% memory, +0.8 pp; Q8 −23%, −0.2 pp (500 trials each) | [evaluation/](evaluation/README.md) |
+| Compression (B) | How far can post-training compression go, and what breaks first? | Done. 201 recipes; C1–C3 keep 93–98% success at 0.94–1.38 GB | [compression/](compression/README.md) |
+| SmolVLM backbone (S500) | Can SmolVLM2-500M replace Qwen with limited fine-tuning? | Negative. 2.2% after 10k steps | [evaluation/](evaluation/README.md) |
+| SmolVLM recovery | Do corrected inputs and wider adaptation recover S500? | Closed. 31/100 development vs B16 82/100 | [recovery/](recovery/README.md) |
+| Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Closed. Lower loss, 0/10 development successes | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |
+| SmolVLA check | How does the complete pretrained SmolVLA policy do? | Quick check: 7/10, one trial per task | [smolvla/](smolvla/README.md) |
+| Review | What went wrong in the SmolVLM work? | Three AI reviews, synthesized 2026-10-02 | [audit/](audit/20261002/README.md) |
 
-Completed October 10 study: [VLA-JEPA-LIBERO: Maximum Compression at ≥90% Success](compression/README.md). All 21 major domains have task evidence; the smallest confirmed deployment scores 93.4% on 500 reserved trials with 838.5 MB packed weights and 83.2% lower peak CUDA allocation. It preserves the earlier comparison and RSI protocols; measured latency and coverage limits are recorded in the report.
+Hardware for all local runs: [HARDWARE.md](HARDWARE.md).
 
-Next experiment direction: [replace Qwen with SmolVLM while retaining LIBERO-trained VLA-JEPA components](SMOLVLM_LIBERO_PROPOSAL.md), then adapt and evaluate the conditioning interface. Proposal only; no experiment is scheduled.
+## Protocol shared by all rollout studies
 
-- Keep LIBERO suite, task set, episode count, seeds, action horizon, outer camera preparation, and hardware matched. Record checkpoint/code revisions and backbone-native image/token processing differences.
-- Report per-task and aggregate success, warmed-up policy inference latency (median/p95), peak GPU memory, model size, and training budget. Separate simulator wall time from policy latency.
-- Quantization must state precision, method, and affected modules. Removing an unused world model is an additional ablation, not evidence of quantization by itself.
-- Fine-tune the smaller backbone's conditioning interface and compatible action/world modules on the fixed training split; do not train Qwen. Keep evaluation data held out.
-- Dream-RSI screening uses held-out loss only. Confirm promising architectures with matched training and closed-loop LIBERO evaluation before claiming efficiency or task improvements.
+- LIBERO-Spatial, ten tasks. Reserved trials use the 50 official initial states per task; development
+  trials use 10 other states per task, disjoint by hash ([initial_states.json](evaluation/initial_states.json)).
+- Fixed per-episode seeds, 280-step limit, seven-action chunks, four flow steps, BF16, batch size 1.
+- Success: Wilson 95% interval. Differences: task-stratified paired bootstrap, 10,000 resamples.
+- Latency: synchronized observation-to-action time, 20 warm-ups, 3 × 500 predictions, simulator excluded.
 
-Keep new compact results and provenance here; keep weights, datasets, raw logs, and runtime state outside Git. Attribute each result to its measured backbone and configuration.
+## Evidence rules
 
-The [hardware inventory](HARDWARE.md) and [later cross-architecture protocol](CROSS_HARDWARE_PLAN.md) define the future Vast.ai replication, after the local study.
+- Every run has a unique ID, checkpoint revision/hash, code revision, configuration, hardware and
+  seeds. Failed and interrupted runs stay recorded and separate from task failures.
+- Keep weights, datasets, raw logs and runtime state outside Git (`outputs/`, `.rsi/`).
+  `scripts/evaluation_cleanup.py` previews safe checkpoint cleanup; `--apply` writes a removal
+  manifest first.
+- Write new results to a new path; do not overwrite another participant's records.

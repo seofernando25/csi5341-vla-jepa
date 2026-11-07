@@ -1,0 +1,412 @@
+{
+  "rows": {
+    "B16": {
+      "study": "quantization",
+      "successes": 475,
+      "per_task": [
+        50,
+        50,
+        50,
+        48,
+        48,
+        33,
+        50,
+        50,
+        47,
+        49
+      ],
+      "peak_allocated_gb": 5.605132288,
+      "peak_reserved_gb": 5.64133888,
+      "weights_gb": 5.532491518,
+      "median_ms": 79.14080000000467,
+      "p95_ms": 84.25313264997385,
+      "paired_pp": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "success_pct": 95.0,
+      "wilson_pct": [
+        92.72318386186078,
+        96.59062548585689
+      ]
+    },
+    "Q8": {
+      "study": "quantization",
+      "successes": 474,
+      "per_task": [
+        50,
+        50,
+        50,
+        49,
+        48,
+        31,
+        50,
+        50,
+        47,
+        49
+      ],
+      "peak_allocated_gb": 4.299864576,
+      "peak_reserved_gb": 4.840226816,
+      "weights_gb": 4.12555281,
+      "median_ms": 157.4114224999903,
+      "p95_ms": 161.39642994980932,
+      "paired_pp": [
+        -0.2,
+        -1.2,
+        0.8
+      ],
+      "transitions": {
+        "gained": 3,
+        "lost": 4,
+        "both_failed": 22
+      },
+      "success_pct": 94.8,
+      "wilson_pct": [
+        92.48988558499484,
+        96.4269734989552
+      ]
+    },
+    "Q4": {
+      "study": "quantization",
+      "successes": 479,
+      "per_task": [
+        50,
+        50,
+        49,
+        50,
+        47,
+        37,
+        50,
+        50,
+        47,
+        49
+      ],
+      "peak_allocated_gb": 3.537677312,
+      "peak_reserved_gb": 3.600809984,
+      "weights_gb": 3.441321227,
+      "median_ms": 93.56036799999856,
+      "p95_ms": 97.90970649999053,
+      "paired_pp": [
+        0.8,
+        -0.5999999999999999,
+        2.2
+      ],
+      "transitions": {
+        "gained": 8,
+        "lost": 4,
+        "both_failed": 17
+      },
+      "success_pct": 95.8,
+      "wilson_pct": [
+        93.6648414045857,
+        97.23676899820252
+      ]
+    },
+    "S500": {
+      "study": "quantization",
+      "successes": 11,
+      "per_task": [
+        5,
+        0,
+        2,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "peak_allocated_gb": 3.299738624,
+      "peak_reserved_gb": 4.366270464,
+      "weights_gb": 2.296418702,
+      "median_ms": 1269.7441680029442,
+      "p95_ms": 1277.8382459990098,
+      "paired_pp": [
+        -92.8,
+        -94.8,
+        -90.6
+      ],
+      "success_pct": 2.2,
+      "wilson_pct": [
+        1.2328008214938035,
+        3.896086138041656
+      ]
+    },
+    "B16c": {
+      "study": "compression",
+      "candidate": "B16",
+      "successes": 475,
+      "per_task": [
+        50,
+        50,
+        50,
+        48,
+        48,
+        33,
+        50,
+        50,
+        47,
+        49
+      ],
+      "peak_allocated_gb": 5.6051328,
+      "weights_gb": 5.532491478,
+      "median_ms": 77.51055799963069,
+      "p95_ms": 80.51419844960037,
+      "success_pct": 95.0,
+      "wilson_pct": [
+        92.72318386186078,
+        96.59062548585689
+      ]
+    },
+    "C1": {
+      "study": "compression",
+      "candidate": "deploy-nf4-vision-text-channels-restricted",
+      "successes": 467,
+      "per_task": [
+        50,
+        49,
+        50,
+        50,
+        45,
+        29,
+        49,
+        50,
+        46,
+        49
+      ],
+      "peak_allocated_gb": 0.940727296,
+      "weights_gb": 0.838493279,
+      "median_ms": 135.1303774972621,
+      "p95_ms": 137.998395847535,
+      "paired_pp": [
+        -1.6,
+        -3.2000000000000006,
+        0.0
+      ],
+      "transitions": {
+        "both_success": 462,
+        "both_failure": 20,
+        "gained_success": 5,
+        "lost_success": 13
+      },
+      "success_pct": 93.4,
+      "wilson_pct": [
+        90.87605986117696,
+        95.26214737639967
+      ]
+    },
+    "C2": {
+      "study": "compression",
+      "candidate": "deploy-hqq2-vision-action-restricted",
+      "successes": 490,
+      "per_task": [
+        50,
+        50,
+        49,
+        50,
+        45,
+        48,
+        50,
+        49,
+        49,
+        50
+      ],
+      "peak_allocated_gb": 1.065880576,
+      "weights_gb": 0.977829582,
+      "median_ms": 143.51764399907552,
+      "p95_ms": 146.06975524875452,
+      "paired_pp": [
+        3.0,
+        1.2,
+        5.0
+      ],
+      "transitions": {
+        "both_success": 468,
+        "both_failure": 3,
+        "gained_success": 22,
+        "lost_success": 7
+      },
+      "success_pct": 98.0,
+      "wilson_pct": [
+        96.3579816587725,
+        98.91008164545968
+      ]
+    },
+    "C3": {
+      "study": "compression",
+      "candidate": "deploy-hqq2-vision-action",
+      "successes": 484,
+      "per_task": [
+        50,
+        49,
+        50,
+        49,
+        45,
+        44,
+        49,
+        50,
+        48,
+        50
+      ],
+      "peak_allocated_gb": 1.376827904,
+      "weights_gb": 1.28877827,
+      "median_ms": 142.91214349941583,
+      "p95_ms": 145.47352405134006,
+      "paired_pp": [
+        1.7999999999999998,
+        -0.2,
+        3.8
+      ],
+      "transitions": {
+        "both_success": 465,
+        "both_failure": 6,
+        "gained_success": 19,
+        "lost_success": 10
+      },
+      "success_pct": 96.8,
+      "wilson_pct": [
+        94.86551307688838,
+        98.020848644738
+      ]
+    }
+  },
+  "b16_repeat_agreement": 1.0,
+  "b16_failures_at_step_cap": 25,
+  "b16_step_cap": 280,
+  "b16_task5_failures": 17,
+  "census": {
+    "checkpoint": "lerobot/VLA-JEPA-LIBERO@735d9f692981e286ade093b5046627eda876e5d0",
+    "dtype": "bfloat16",
+    "parameters": {
+      "language decoder linear": 1409286144,
+      "vision encoder and mergers": 406957056,
+      "V-JEPA 2 encoder (world model)": 325971328,
+      "language embeddings and norms": 311288832,
+      "latent predictor (world model)": 161647616,
+      "action head": 155182343
+    }
+  },
+  "memory_ceiling": {
+    "decoder_linear_params": 1409286144,
+    "total_params": 2770333319,
+    "INT8": {
+      "saved_gb": 1.409286144,
+      "ceiling_pct": 25.142781143937203
+    },
+    "NF4": {
+      "saved_gb": 2.091565056,
+      "ceiling_pct": 37.31517738622907
+    }
+  },
+  "sensitivity": {
+    "bits": {
+      "language": {
+        "16": 8.0,
+        "8": 8.0,
+        "4": 7.0,
+        "3": 7.0,
+        "2": 1.0
+      },
+      "vision": {
+        "16": 8.0,
+        "8": 8.0,
+        "4": 8.0,
+        "3": 8.0,
+        "2": 8.0
+      },
+      "action": {
+        "16": 8.0,
+        "8": 8.0,
+        "4": 8.0,
+        "3": 8.0,
+        "2": 8.0
+      }
+    },
+    "structure": {
+      "language": {
+        "MLP channels": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.25": 7.0,
+          "0.5": 6.0,
+          "0.75": 2.0
+        },
+        "KV heads": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.25": 7.0,
+          "0.5": 2.0
+        },
+        "layers": {
+          "0.0": 8.0,
+          "0.036": 8.0,
+          "0.143": 7.0,
+          "0.286": 0.0,
+          "0.714": 0.0
+        }
+      },
+      "vision": {
+        "MLP channels": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.5": 8.0,
+          "0.75": 0.0
+        },
+        "heads": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.5": 8.0,
+          "0.75": 1.0
+        },
+        "layers": {
+          "0.0": 8.0,
+          "0.042": 8.0,
+          "0.333": 8.0,
+          "0.5": 7.0,
+          "0.667": 0.0
+        }
+      },
+      "action": {
+        "MLP channels": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.75": 7.0
+        },
+        "heads": {
+          "0.0": 8.0,
+          "0.125": 8.0,
+          "0.75": 7.0
+        },
+        "layers": {
+          "0.0": 8.0,
+          "0.062": 8.0,
+          "0.5": 7.0,
+          "0.75": 5.0
+        }
+      }
+    }
+  },
+  "divergence": {
+    "spearman_rho": -0.6658433266203028,
+    "p_value": 3.0955096468693034e-22,
+    "n": 163,
+    "rho_gripper": -0.591474327596087,
+    "development": {
+      "n": 24,
+      "spearman_rho": -0.26819414526507296,
+      "p_value": 0.20511763724186693
+    },
+    "below_1e-4": {
+      "n": 65,
+      "mean_smoke": 7.876923076923077,
+      "share_ge7": 0.9846153846153847
+    },
+    "above_1e-3": {
+      "n": 62,
+      "mean_smoke": 4.919354838709677,
+      "share_ge7": 0.4838709677419355
+    }
+  }
+}
