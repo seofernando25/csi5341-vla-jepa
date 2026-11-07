@@ -1,0 +1,223 @@
+{
+  "verified_at": "2026-10-10T00:21:43.919042+00:00",
+  "control": "B16",
+  "candidates": {
+    "B16": {
+      "changes": [],
+      "recipe_sha256": "83bc8412d194fdb78deb6bfa5ef864efb570440c5f73cef6b1672cfe4c4e107d",
+      "screen_record_sha256": "f3f7616eff69746486c02f923e63bc551b43c4b9c860098295f483b4c665ccfa",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "0eca0b2f134a1ed832dc1c2127ec37f975ece82779a6c4368cd7689b19e64138",
+        "record_sha256": "bad9379913f006848564d8613fa948871bc2e5a316d1aa3e12e566e64d75f10e",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "pipeline_median_ms": 74.12366100106738,
+        "pipeline_p95_ms": 76.21309400065002
+      },
+      "observed_rollout": {
+        "total_episode_wall_seconds": 60.80783420699845,
+        "median_episode_wall_seconds": 5.418803365000713,
+        "total_physics_steps": 1404
+      }
+    },
+    "solver-1": {
+      "changes": [
+        {
+          "method": "solver_steps",
+          "count": 1
+        }
+      ],
+      "recipe_sha256": "e1f3dfefa0f6d357be93a4d90ecc916248ec5a425864bf03664248cb13989ad5",
+      "screen_record_sha256": "099822921b801a1797fb20f68cd52f1f8b291e951cfe965162c0a8703a7b7ee9",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "18d82fafaea029e5e70af45c2c9e155512ec31bfa4acf274b30ee4f97ff387a9",
+        "record_sha256": "1623b82b2d53583d05b4beb2e32e34c33911ad62fd7671365dc4b5f5608bc92f",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "pipeline_median_ms": 53.708444500443875,
+        "pipeline_p95_ms": 55.86907749911916
+      },
+      "observed_rollout": {
+        "total_episode_wall_seconds": 57.97518928797945,
+        "median_episode_wall_seconds": 5.132118210000044,
+        "total_physics_steps": 1410
+      }
+    },
+    "solver-2": {
+      "changes": [
+        {
+          "method": "solver_steps",
+          "count": 2
+        }
+      ],
+      "recipe_sha256": "501a2775b182f931207a5f9a4cb1654b349168dc9e0c63948c8686ee4f7bca54",
+      "screen_record_sha256": "4bf816bcc575407a8d50b1f0a90a9d3fd4e37c328825402440527e00a2716775",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "bc45fa8e59e151a30f95f1d2e1b8c0e840acf4ae4a7ecd14366daa8ca76eabe0",
+        "record_sha256": "ba4c7a9e4808ccef788d5e2fae5b4ab800fc8a3fe2d27ffc7bad3276a8b80bf9",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "pipeline_median_ms": 61.39138000071398,
+        "pipeline_p95_ms": 63.38137114926212
+      },
+      "observed_rollout": {
+        "total_episode_wall_seconds": 59.1068302300082,
+        "median_episode_wall_seconds": 5.271300471500581,
+        "total_physics_steps": 1412
+      }
+    },
+    "solver-3": {
+      "changes": [
+        {
+          "method": "solver_steps",
+          "count": 3
+        }
+      ],
+      "recipe_sha256": "d026e2f74743509f8bb472049b845938866ce06e36386074de98103afd23706c",
+      "screen_record_sha256": "69bce2ab8315ae44cf16f5eb8b088c575c5f793a4c4e908a97e89f5b59dc42bf",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "130e801792e9e1f59e67a3069b4adf387632c06f87bb5b15542b3733b446d1b6",
+        "record_sha256": "7c17ccb2d9ec1609383078f0c554326cc361fcca567cdd0d64a236c90b71e6c7",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "screen": {
+        "peak_allocated_bytes": 5605133312,
+        "peak_reserved_bytes": 5641338880,
+        "pipeline_median_ms": 69.67025300036767,
+        "pipeline_p95_ms": 75.91837265154027
+      },
+      "observed_rollout": {
+        "total_episode_wall_seconds": 59.22842681499242,
+        "median_episode_wall_seconds": 5.220109575499009,
+        "total_physics_steps": 1407
+      }
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state preliminary solver-step ablations and 80-observation latency screens. Episode wall times include policy/simulator/rendering and differing termination lengths; they are not steady inference benchmarks. These changes reduce solver computation, not model storage."
+}

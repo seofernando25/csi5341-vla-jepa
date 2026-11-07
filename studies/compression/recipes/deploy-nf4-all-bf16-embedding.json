@@ -1,0 +1,30 @@
+{
+  "id": "deploy-nf4-all-bf16-embedding",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 4
+    }
+  ],
+  "purpose": "Preserve full-vocabulary BF16 embedding while measuring quantized deployment without unused world-model residency"
+}

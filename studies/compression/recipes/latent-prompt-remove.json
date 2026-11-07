@@ -1,0 +1,10 @@
+{
+  "id": "latent-prompt-remove",
+  "family": "conditioning_tokens",
+  "changes": [
+    {
+      "method": "conditioning_tokens",
+      "scope": "latent"
+    }
+  ]
+}

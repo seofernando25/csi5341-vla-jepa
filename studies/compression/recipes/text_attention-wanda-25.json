@@ -1,0 +1,11 @@
+{
+  "id": "text_attention-wanda-25",
+  "family": "weight_sparsity",
+  "changes": [
+    {
+      "method": "wanda",
+      "scope": "text_attention",
+      "fraction": 0.25
+    }
+  ]
+}

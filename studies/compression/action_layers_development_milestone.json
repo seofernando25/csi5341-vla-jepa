@@ -1,0 +1,75 @@
+{
+  "verified_at": "2026-10-10T03:42:35.808925+00:00",
+  "candidate": "action-layers-8",
+  "recipe_sha256": "b2c449a7252d77e197ded55e3e0a2bbe11633996a40add6c2f49c2b2930c41ff",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 77,
+    "success_fraction": 0.77,
+    "wilson95_fraction": [
+      0.6784561697712622,
+      0.8415673411969654
+    ],
+    "task_successes": {
+      "0": 3,
+      "1": 10,
+      "2": 10,
+      "3": 8,
+      "4": 8,
+      "5": 6,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 9
+    },
+    "episodes_sha256": "847e51137a102d55218e86bc9bd02931eaf4e2ab07bef40565f8bebd005f0093",
+    "record_sha256": "1c181662dc529424b42d70d04147038c03a4af6653549254b1800806e41c4bd4",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 74,
+        "both_failure": 15,
+        "gained_success": 3,
+        "lost_success": 8
+      },
+      "difference_pp": -5.0,
+      "ci95_pp": [
+        -11.000000000000002,
+        1.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "df2d8341f0d87cd0a0611b9a48adfd0505d6823af1f2f172b5d931ea272689dd",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_removed_layers": [
+    {
+      "method": "layers",
+      "scope": "action",
+      "removed_indices": [
+        9,
+        7,
+        11,
+        10,
+        13,
+        6,
+        5,
+        15
+      ],
+      "criterion": "mean relative residual energy on calibration states"
+    }
+  ],
+  "screen_record_sha256": "36d5f33e3c6892a1db69c8d59b515d2156163d80ca549632e837e4df3a261de5",
+  "screen": {
+    "peak_allocated_bytes": 5461974016,
+    "peak_reserved_bytes": 5563744256,
+    "resident_tensor_storage_bytes": 5392156430,
+    "pipeline_median_ms": 63.129268999546184,
+    "inference_core_logical_parameter_elements": 2212654343
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone action-depth comparison; all episode records validated. Physically removes eight of sixteen action blocks using mean relative residual energy on frozen calibration states; CKA ranking is a separate registered comparison. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate at its cutoff. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

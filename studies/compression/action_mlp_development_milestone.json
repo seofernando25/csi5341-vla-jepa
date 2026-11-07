@@ -1,0 +1,156 @@
+{
+  "verified_at": "2026-10-10T02:37:28.814255+00:00",
+  "candidate": "action_mlp-channels-750",
+  "recipe_sha256": "40eabb954f5f291c2d232a0f8d3b4970b7a631fc58facbd1765304fd58124996",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 80,
+    "success_fraction": 0.8,
+    "wilson95_fraction": [
+      0.7111708344068411,
+      0.8666330666689676
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 4,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "40bc273cefd538b37a4fcdfae7150f8d809aea303d6caa3d7532af96ccbb6380",
+    "record_sha256": "2c104e695880c3e001a4a419885811f8217a06181fa37c20068d0d96939d336c",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 80,
+        "both_failure": 18,
+        "gained_success": 0,
+        "lost_success": 2
+      },
+      "difference_pp": -2.0,
+      "ci95_pp": [
+        -5.0,
+        0.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "9298492710a4f59786f7b44a5a67f3aef6f01656f8f8ade5a480d70c4bdbed49",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_channel_widths": [
+    {
+      "module": "action.model.transformer_blocks.0.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "b0f02d129e3bb204624795e5ab7f0c5f5f2ab9734e3a7bb3faeee68c31ea7b98"
+    },
+    {
+      "module": "action.model.transformer_blocks.1.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "542cdb0f20f515be204ffe83203f7f548238a91f4d6695ecf9807813879e5bac"
+    },
+    {
+      "module": "action.model.transformer_blocks.2.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "f04c8327c14bb9668039808e7ef938ea3ad1aefcaafb3850acddbd4e5434da1b"
+    },
+    {
+      "module": "action.model.transformer_blocks.3.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "1b38ce663b3da4d55b654e4d86c9b323b14758327258e3eecaa78a5252baa99d"
+    },
+    {
+      "module": "action.model.transformer_blocks.4.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "5a74a11e71c610f563248b0b9d0e85fb06d412a630bc442388f8859ed96ed493"
+    },
+    {
+      "module": "action.model.transformer_blocks.5.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "458c631fbf99d13f72f63a3f5d765de686f24924935548b5b35a3c5e71beb6d0"
+    },
+    {
+      "module": "action.model.transformer_blocks.6.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "b49ec93ce50849c118e157036bcce7d504408c7d6aded058a42bd36347a3bd31"
+    },
+    {
+      "module": "action.model.transformer_blocks.7.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "2a2ca8bc09d4052f5e758108b169fe825cb57de1af35c65346375d3552f9a54d"
+    },
+    {
+      "module": "action.model.transformer_blocks.8.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "2f04b07378e9722f83ffec5a77de83167e664597c1bab2c41c3e7fa8c132223a"
+    },
+    {
+      "module": "action.model.transformer_blocks.9.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "b376b421e002ce3a82ca979b4f34749e7af9c9075d109f8ae2df98fc7b7a6f6d"
+    },
+    {
+      "module": "action.model.transformer_blocks.10.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "b0b487f8c0a884a3515b9fc3b82de137ee8c150d2d60cb903506befb291be1df"
+    },
+    {
+      "module": "action.model.transformer_blocks.11.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "4f64e7738dbee45b58e96baca55da1b667513aa3495e548309d26e59e7a6c408"
+    },
+    {
+      "module": "action.model.transformer_blocks.12.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "868dc0148ee2488f5cc936dd441bc3ceab42dbca5e9a9ac1badace4dd07bfd9e"
+    },
+    {
+      "module": "action.model.transformer_blocks.13.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "fee621d6635417b7c4c93619c8dab80e17117285ebc1e395062f9b61bc527775"
+    },
+    {
+      "module": "action.model.transformer_blocks.14.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "3dbada1a1bec8e7a64ac8d67cd7fc910523ae6663cd2bdff73b0dbd3cdb6384a"
+    },
+    {
+      "module": "action.model.transformer_blocks.15.ff.net.2",
+      "original_width": 3072,
+      "kept_width": 768,
+      "indices_sha256": "3f07ea8d7d40c061ea99ef39fa4a2bd56a95cf376b89f5f981a132fec80a261d"
+    }
+  ],
+  "screen_record_sha256": "463fff64d2f0c965e5079a0b9b63febd3e58dac316263ea0851b05068fbf9e36",
+  "screen": {
+    "peak_allocated_bytes": 5492845568,
+    "peak_reserved_bytes": 5620367360,
+    "resident_tensor_storage_bytes": 5418956558,
+    "pipeline_median_ms": 76.75929250035551,
+    "inference_core_logical_parameter_elements": 2226054407
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone action-MLP channel-pruning comparison; all episode records validated. Physically retains 25% of each selected MLP width. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "text-cka-layers-4",
+  "family": "CKA structural depth pruning",
+  "changes": [
+    {
+      "method": "layers",
+      "scope": "text",
+      "count": 4,
+      "criterion": "cka"
+    }
+  ]
+}

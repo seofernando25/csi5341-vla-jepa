@@ -1,0 +1,126 @@
+{
+  "verified_at": "2026-10-10T04:40:44.279253+00:00",
+  "supplemental_selection_sha256": "9b13299b4eaf44b49f2ae6c03f2e1a239dc933749cf8a2006d3788e7ccfa84b9",
+  "initial_development_size_milestone_sha256": "f317f191a22d7bcf400a278fe5da33a206c8e897b90a97ecbc37fe718b68b3fa",
+  "candidates": [
+    {
+      "candidate": "action-cka-layers-8",
+      "development": {
+        "episodes": 100,
+        "successes": 80,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.7111708344068411,
+          0.8666330666689676
+        ],
+        "task_successes": {
+          "0": 3,
+          "1": 10,
+          "2": 10,
+          "3": 9,
+          "4": 10,
+          "5": 4,
+          "6": 10,
+          "7": 10,
+          "8": 4,
+          "9": 10
+        },
+        "episodes_sha256": "831d9c127d39994175185c2a6fb78837e51818653f6af503a32c373524b0e9de",
+        "record_sha256": "30fbfdaf643a2ec935980b6e9ddfda2d72b3616aca46882ff1760f8de833b1a3",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 79,
+            "both_failure": 17,
+            "gained_success": 1,
+            "lost_success": 3
+          },
+          "difference_pp": -2.0000000000000004,
+          "ci95_pp": [
+            -6.000000000000001,
+            1.9999999999999998
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        }
+      },
+      "size": {
+        "registered_parameter_elements": 2696077959,
+        "represented_logical_parameter_elements": 2696077959,
+        "resident_tensor_storage_bytes": 5392156430,
+        "inference_core_logical_parameter_elements": 2212654343,
+        "serialized_weights": {
+          "bytes": 5392356054,
+          "sha256": "55e1d47d6bea5b0606e0c45c97e407594fe8201657fabab72fde5fc7533d7ce3",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/action-cka-layers-8/size/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "deployed_tensor_sha256": "4097a75e454114c306163b9f5e96144ba71417cdc443aac544a8402eeb9d8e32",
+      "development_size_tensors_match": true,
+      "recipe_sha256": "6c23d1796973fa252111bbc375b8437daec95c060cfd0ea9b1ebc88884750f19",
+      "size_record_sha256": "dc2d1dd9442f80b0b4677906e9ed595c1e3f8772eee5385b90733232516bc8c5"
+    },
+    {
+      "candidate": "deploy-hqq3-text-hqq2",
+      "development": {
+        "episodes": 100,
+        "successes": 82,
+        "success_fraction": 0.82,
+        "wilson95_fraction": [
+          0.7333264161369926,
+          0.8829977450105364
+        ],
+        "task_successes": {
+          "0": 4,
+          "1": 9,
+          "2": 9,
+          "3": 9,
+          "4": 9,
+          "5": 8,
+          "6": 10,
+          "7": 9,
+          "8": 5,
+          "9": 10
+        },
+        "episodes_sha256": "5e71090f71e390b4ba9c191992800d562d6462207ad9dcaed821b23717622b62",
+        "record_sha256": "080ee3ce4f7c19b180104be04a1f1427dadcf3547a83339a7a33488e1960f10b",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 76,
+            "both_failure": 12,
+            "gained_success": 6,
+            "lost_success": 6
+          },
+          "difference_pp": -5.551115123125783e-16,
+          "ci95_pp": [
+            -6.000000000000001,
+            6.000000000000001
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        }
+      },
+      "size": {
+        "registered_parameter_elements": 104516743,
+        "represented_logical_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 1265793274,
+        "inference_core_logical_parameter_elements": 2282714375,
+        "serialized_weights": {
+          "bytes": 1266078089,
+          "sha256": "d7f0d9bbc21e1e0d6c22a11a6bcdb64c81d149677196c7400bdf85b8c109692e",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/deploy-hqq3-text-hqq2/size/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "deployed_tensor_sha256": "d658ce23df2bd95e3c28b72d48db10af230ffeae3882bfcf19eb0dfe4c111a3b",
+      "development_size_tensors_match": true,
+      "recipe_sha256": "8277050f59416179008ca641fb7bc367f9acb17c030360289453e8e37f33c461",
+      "size_record_sha256": "99dd4acc08cc4aaeaf152f7093f84203c6b699b89d0449e845d10b07c8c920fe"
+    }
+  ],
+  "total_initial_supplemental_configurations": 23,
+  "total_initial_supplemental_development_episodes": 2300,
+  "final_outcomes_used": false
+}

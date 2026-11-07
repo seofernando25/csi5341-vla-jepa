@@ -1,0 +1,11 @@
+{
+  "id": "action-bf16-compiled-triton",
+  "family": "Triton compiled BF16 control",
+  "changes": [
+    {
+      "method": "compile_linears",
+      "scope": "action",
+      "gemm_backend": "triton"
+    }
+  ]
+}

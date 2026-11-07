@@ -1,0 +1,14 @@
+{
+  "id": "text-hqq3-axis0-pytorch",
+  "family": "HQQ packed post-training quantization",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "text",
+      "bits": 3,
+      "axis": 0,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

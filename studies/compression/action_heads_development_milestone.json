@@ -1,0 +1,188 @@
+{
+  "verified_at": "2026-10-10T03:15:05.219139+00:00",
+  "candidate": "action_attention-heads-750",
+  "recipe_sha256": "fa57d5a15d7b6bd5b978175eca147fb2bc51d0f949fb269d3d2b1334f883bc05",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 69,
+    "success_fraction": 0.69,
+    "wilson95_fraction": [
+      0.5937394428051057,
+      0.7722030278762395
+    ],
+    "task_successes": {
+      "0": 2,
+      "1": 10,
+      "2": 9,
+      "3": 9,
+      "4": 3,
+      "5": 4,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 9
+    },
+    "episodes_sha256": "098ad42a73ec483d25b0f5173517e8957e10acb8c628922061c55a20896ed6b4",
+    "record_sha256": "d90ece6a521ab7c316085a248e08610f6a513cae66ce13b3b6025e05e84a1a1f",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 69,
+        "both_failure": 18,
+        "gained_success": 0,
+        "lost_success": 13
+      },
+      "difference_pp": -13.0,
+      "ci95_pp": [
+        -18.000000000000004,
+        -7.999999999999999
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "2a253882f79f22f325b1ec46126ca371b5f3377ed2e1d7dafcc9a2fcd29bf110",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": false,
+  "actual_attention_heads": [
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.0.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "6b6aab73e0e10c2722da268f58a42ef19eaa32e0c8b47bb624e7ca6663d8770d"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.1.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "c3142963719411f367d8263de71c9ce18fd84ddcba6efa2f1d8784eedb1db0ad"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.2.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "11bb3f5c7019118bac58dfc6e5d7635f56de7812358859e619df458f35e11369"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.3.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "683889544c7261aea9140136abd6b795b1bf2d57b1ed42c6ff26093a83d6f2c0"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.4.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "3ef6c82f91c26877f71212e41ac7497ec36a5e424b9f232eba54f62737b728a8"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.5.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "5b9f94ae777aa3a7a0618c1050e8d30df8260a729dfa196ca26e71ce77d91173"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.6.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "d13800f9d34ea8509fbcefaa959de24ba64897c7551005fdae56624176d4fb77"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.7.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "59cd57a19b34c873ad63e5df970dc67a1873947804a55c4c14a59d8976e28bed"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.8.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "58f2d55c90e88629059e595983d9ded24f73b03a061f43d958bd915be3a11fa2"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.9.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "ded7ac4001b8954c085519bfc2b55a0e15371d34351d5b5032a70a13f80d0b94"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.10.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "f5f38eb8784416cdb1fd95879adbeb761142dfe71fa10d141b69bd93dc03a33d"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.11.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "3bd6a3846fc27b98b2081dea745e93532b79817d87c153fd34a9328daa0f3fcd"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.12.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "5130f01459412314d6e28995c9998bf33dc5bdb288600ee1fa53213c26cbbec4"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.13.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "9dff505e85563a9e6158e1bec349e4cbc482a9e4a4ba759112f1f55d6f7782fc"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.14.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "4d844d35be0b82c57e51c64757b4271683d18641660e8548d51c17951820e71a"
+    },
+    {
+      "method": "heads",
+      "module": "action.model.transformer_blocks.15.attn1.to_out.0",
+      "original_heads": 12,
+      "kept_heads": 3,
+      "head_dim": 64,
+      "kept_indices_sha256": "d3f2d7870e028699d033a391a7072f155e123ce64a1c19584d40dd347e80a0ef"
+    }
+  ],
+  "screen_record_sha256": "727e0443b8c7d1fc1bf6b45fcbfebe9f1529ac0d03190e89f1e3daebcdcfcdc9",
+  "screen": {
+    "peak_allocated_bytes": 5518969856,
+    "peak_reserved_bytes": 5651824640,
+    "resident_tensor_storage_bytes": 5452005134,
+    "pipeline_median_ms": 78.27848500164691,
+    "inference_core_logical_parameter_elements": 2242578695
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone action-attention head-pruning comparison; all episode records validated. Physically retains 3 of 12 heads in each of 16 blocks, preserving head dimension 64. Other weights remain BF16 and world models remain resident. Misses the observed relative development gate and is ineligible for reserved confirmation under this protocol. Early screen fields that were not recorded remain null; archive size remains scheduled and steady benchmarks are unmeasured."
+}

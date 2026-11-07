@@ -1,0 +1,177 @@
+{
+  "candidates": [
+    "text_mlp-channels-500",
+    "vision_mlp-channels-500",
+    "text-heads-250",
+    "vision_attention-heads-500",
+    "action-cka-layers-8",
+    "action-layers-8",
+    "text-cka-layers-8",
+    "text-layers-8",
+    "vision-cka-layers-8",
+    "vision-layers-8"
+  ],
+  "minimum_smoke_successes": 7,
+  "smoke_evidence": {
+    "channels/action_mlp/default": {
+      "completed_smokes": {
+        "action_mlp-channels-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "action_mlp-channels-750": {
+          "strength": 0.75,
+          "successes": 7
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "channels/merger/default": {
+      "completed_smokes": {
+        "merger-channels-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "merger-channels-750": {
+          "strength": 0.75,
+          "successes": 7
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "channels/text_mlp/default": {
+      "completed_smokes": {
+        "text_mlp-channels-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "text_mlp-channels-750": {
+          "strength": 0.75,
+          "successes": 2
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "channels/vision_mlp/default": {
+      "completed_smokes": {
+        "vision_mlp-channels-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "vision_mlp-channels-750": {
+          "strength": 0.75,
+          "successes": 0
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "heads/action_attention/default": {
+      "completed_smokes": {
+        "action_attention-heads-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "action_attention-heads-750": {
+          "strength": 0.75,
+          "successes": 7
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "heads/text_attention/default": {
+      "completed_smokes": {
+        "text-heads-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "text-heads-500": {
+          "strength": 0.5,
+          "successes": 2
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "heads/vision_attention/default": {
+      "completed_smokes": {
+        "vision_attention-heads-125": {
+          "strength": 0.125,
+          "successes": 8
+        },
+        "vision_attention-heads-750": {
+          "strength": 0.75,
+          "successes": 1
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/action/cka": {
+      "completed_smokes": {
+        "action-cka-layers-2": {
+          "strength": 2,
+          "successes": 8
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/action/default": {
+      "completed_smokes": {
+        "action-layers-1": {
+          "strength": 1,
+          "successes": 8
+        },
+        "action-layers-12": {
+          "strength": 12,
+          "successes": 5
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/text/cka": {
+      "completed_smokes": {
+        "text-cka-layers-2": {
+          "strength": 2,
+          "successes": 8
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/text/default": {
+      "completed_smokes": {
+        "text-layers-1": {
+          "strength": 1,
+          "successes": 8
+        },
+        "text-layers-20": {
+          "strength": 20,
+          "successes": 0
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/vision/cka": {
+      "completed_smokes": {
+        "vision-cka-layers-2": {
+          "strength": 2,
+          "successes": 8
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    },
+    "layers/vision/default": {
+      "completed_smokes": {
+        "vision-layers-1": {
+          "strength": 1,
+          "successes": 8
+        },
+        "vision-layers-16": {
+          "strength": 16,
+          "successes": 0
+        }
+      },
+      "nonmonotonic_observed_outcomes": false
+    }
+  },
+  "execution_plan_sha256": "84896abed29492ce792181c94d622fd4ac2e6c1193c8faa6ecf3727a7d81651b",
+  "final_outcomes_used": false,
+  "interpretation": "Development smoke brackets; no monotonicity or final-success claim"
+}

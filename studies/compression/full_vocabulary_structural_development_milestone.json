@@ -1,0 +1,82 @@
+{
+  "verified_at": "2026-10-10T02:19:43.938828+00:00",
+  "candidate": "deploy-nf4-structural",
+  "recipe_sha256": "136d292a69b0f6573f06de7e25b5d704a6250eb506166cc66a9b097355ba1858",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 82,
+    "success_fraction": 0.82,
+    "wilson95_fraction": [
+      0.7333264161369926,
+      0.8829977450105364
+    ],
+    "task_successes": {
+      "0": 5,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 9,
+      "5": 4,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "82f49a3b8a1c59d444652ce72411889d31d7edb942c7616bfc491951a5def498",
+    "record_sha256": "5f8e73cc55feaa87370af433e95e1a4604e910c5838993c8f2535f5c3459d558",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 80,
+        "both_failure": 16,
+        "gained_success": 2,
+        "lost_success": 2
+      },
+      "difference_pp": 0.0,
+      "ci95_pp": [
+        -4.0,
+        4.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "a34a0e5f37ef7ef9ce4c48fd2789f7aebe21bb0adc246dfa429b803714fdb889",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen_record_sha256": "751bd4d8ca039aba5c056d60545232863410c9ea4f49986c2c5d8ea9575edae4",
+  "screen": {
+    "peak_allocated_bytes": 1369522176,
+    "peak_reserved_bytes": 3512729600,
+    "resident_tensor_storage_bytes": 1211240114,
+    "pipeline_median_ms": 128.51792000037676,
+    "inference_core_logical_parameter_elements": 2038547079
+  },
+  "restricted_embedding_substitution": {
+    "candidate": "deploy-nf4-structural-mild-restricted",
+    "candidate_record_sha256": "24624d381bf3faade92f0631e3fee62b75bb38845faaf1be61e62df97346a8fd",
+    "candidate_episodes_sha256": "d24930c0d0eb0f361b9d2ab1bb6eb4050d224a29415b05bb2550f54b3789785b",
+    "candidate_recipe_sha256": "2b16c7286b2676d95b19dfe5452d8aa18170d9fef044d95230bd104294613522",
+    "other_recipe_changes_verified_identical": true,
+    "structural_selections_verified_identical": true,
+    "paired": {
+      "transitions": {
+        "both_success": 81,
+        "both_failure": 18,
+        "gained_success": 0,
+        "lost_success": 1
+      },
+      "difference_pp": -1.0,
+      "ci95_pp": [
+        -3.0,
+        0.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "screen_peak_allocated_reduction_fraction": 0.22889562322793666,
+    "resident_storage_reduction_fraction": 0.2567182282075575,
+    "interpretation": "Substitution changes stored vocabulary and embedding precision (full-vocabulary INT8 to restricted-vocabulary BF16); it does not isolate vocabulary pruning alone."
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state full-vocabulary development comparison; all episode records validated. Clears the observed relative development gate. Actual packed archive size and development/size fingerprint agreement remain required before final selection; reserved task success and steady benchmarks remain unmeasured."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "deploy-int4-all",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "int8_embedding"
+    },
+    {
+      "method": "torchao",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "torchao",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "torchao",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "torchao",
+      "scope": "action",
+      "bits": 4
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "verified_at": "2026-10-10T03:04:51.096734+00:00",
+  "candidate": "vision_mlp-channels-500",
+  "recipe_sha256": "9a3a19e340597d0ee1eb72e0788b5bb1bbe919f626f7c48be00eb804bcf9c46c",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 83,
+    "success_fraction": 0.83,
+    "wilson95_fraction": [
+      0.7445199523239887,
+      0.8910643388594006
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 7,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "d29a273c2ce4e3895da9899622b86bf66cbdfa62086a50af0344294fd72dc1a8",
+    "record_sha256": "af9bf1387562caac2be586a80b6c3854cc840503b0bc360015ddaf40399c1536",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 80,
+        "both_failure": 15,
+        "gained_success": 3,
+        "lost_success": 2
+      },
+      "difference_pp": 1.0,
+      "ci95_pp": [
+        -3.0000000000000004,
+        5.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "215365f333af808606e08607cd8bf9647c55f9298ab8ffe64f8c939bc7dfe12f",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_channel_widths": [
+    {
+      "module": "vision.blocks.0.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "9d592395f909fec92997a368c3ff229b250dd700109baf3f33f7046825477ba6"
+    },
+    {
+      "module": "vision.blocks.1.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d1534313183956d5604cfe6b9fce97204159ceec29e77496396adb118a826523"
+    },
+    {
+      "module": "vision.blocks.2.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "117f99c67909c6ab981098540d9c942c4501ad2d5eacc991086fd0ded7067e96"
+    },
+    {
+      "module": "vision.blocks.3.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "db15a4b8cc0cc11ca620bb01266bfb3c655d1bbfaebf0fcfaecf12411c1e1eb6"
+    },
+    {
+      "module": "vision.blocks.4.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "a08b41ff2a353e6c6ac16ec12a9d8954e7c035c8ef4d08bb727f89d8496af626"
+    },
+    {
+      "module": "vision.blocks.5.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d481b2c14c11a06f4341ae6f196a8d7de38b1d1b4d6b05e8b97ff09fdc754aec"
+    },
+    {
+      "module": "vision.blocks.6.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "73789b2d24842fb94326f054b8ff8b0c0a3a50345a89f90357143dfa7aa90d46"
+    },
+    {
+      "module": "vision.blocks.7.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "9ae5ffff91d3fd98c2526ec20e7292eaff60d8675f2f1c31dbbe6d7adc15047e"
+    },
+    {
+      "module": "vision.blocks.8.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4f7de5aa8d6954e840e4f0a61c4844d15532c23388aa456a83dc0dcf7ae819e3"
+    },
+    {
+      "module": "vision.blocks.9.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "53e0ed46b9745aff62207534276d66dbcb10162b3d85851200f48aef31053f65"
+    },
+    {
+      "module": "vision.blocks.10.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "1d4b78d8b9d51d9be5577589668427f03fdefa2979cff7ce6fcb2a529e27d771"
+    },
+    {
+      "module": "vision.blocks.11.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "be6c2b4df8d661560478bf6b088cb0b98d17280aed51b1e9de3cc708186ce8b4"
+    },
+    {
+      "module": "vision.blocks.12.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "90be836261e9720a3261e2416f3d0742615e63a0cc32b004de22d85e4afe2ab7"
+    },
+    {
+      "module": "vision.blocks.13.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "b1bdd92d688edc7d43b01bddc5f71684a3d4acc75f7046e9a2255a770924d584"
+    },
+    {
+      "module": "vision.blocks.14.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "d52cbab0fb743eb7e835a2c085f4858434e2dd0daf6c21d2bc84924f70a4a5e8"
+    },
+    {
+      "module": "vision.blocks.15.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "31ee25bcad929ff9c9b721d3a31ee473365740e4a746aaf07206357effeab261"
+    },
+    {
+      "module": "vision.blocks.16.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "da25c55ea5bb6752a76334f9583f31c070ff654b2d1921a54c8b08fce4652765"
+    },
+    {
+      "module": "vision.blocks.17.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4a473317f6fa7d98d445e0fc537167b9c6245f069798467e632a0c6af71e57aa"
+    },
+    {
+      "module": "vision.blocks.18.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "495b2c058265ccf5fac7b52093ad7bd91288eb059d4e245a6442f7266c33bd62"
+    },
+    {
+      "module": "vision.blocks.19.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "4cfe968d6793d0626a8eea0217fd516608cae2f88896126f0bb33013c4484a3f"
+    },
+    {
+      "module": "vision.blocks.20.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "72a6a2e642d5b57649aebedcfd01e78ba86d2f744dcceb37233b712a54c68845"
+    },
+    {
+      "module": "vision.blocks.21.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "de2f1e58ba39b1a5387f0da8eb629f2d020cfb70a8a95b2ba0c103fc77cd4550"
+    },
+    {
+      "module": "vision.blocks.22.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "145609dbc278c53072706913e93f2ac9fa7e211018c0f502656d6f11915b5cc7"
+    },
+    {
+      "module": "vision.blocks.23.mlp.linear_fc2",
+      "original_width": 4096,
+      "kept_width": 2048,
+      "indices_sha256": "14cff14082d6c5e5006d648bf6a58df85a4492e91a8bbee93cb444171f0e9fc9"
+    }
+  ],
+  "screen_record_sha256": "74862dcaa21c08074a09405a64792ce7a056eae5e166ab3b9f7a7ed2a84d949a",
+  "screen": {
+    "peak_allocated_bytes": 5404216320,
+    "peak_reserved_bytes": 5605687296,
+    "resident_tensor_storage_bytes": 5330851598,
+    "pipeline_median_ms": 74.91866250165913,
+    "inference_core_logical_parameter_elements": 2182001927
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone vision-MLP channel-pruning comparison; all episode records validated. Physically retains 50% of each selected MLP width. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

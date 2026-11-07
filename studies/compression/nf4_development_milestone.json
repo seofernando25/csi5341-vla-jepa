@@ -1,0 +1,236 @@
+{
+  "verified_at": "2026-10-10T02:09:39.593224+00:00",
+  "candidate": "deploy-nf4-all-restricted",
+  "recipe_sha256": "fe7d6d9c36aa297a81698f76636de25407f8bb0487cc9e3f4119ccfffa8fe55f",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 85,
+    "success_fraction": 0.85,
+    "wilson95_fraction": [
+      0.7671644040916763,
+      0.9069401471634337
+    ],
+    "task_successes": {
+      "0": 5,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 6,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "ec404ea1f54247eccbe008cf4925c0f7015bf5ea9262066fa4db92a112c7bbe5",
+    "record_sha256": "ff083c6a4248c9909702ef5b9076a2f8752170c3251764582e241717ab5e7c50",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 81,
+        "both_failure": 14,
+        "gained_success": 4,
+        "lost_success": 1
+      },
+      "difference_pp": 3.0000000000000004,
+      "ci95_pp": [
+        -1.0,
+        7.000000000000001
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "3df2a2addda9c405284ea51baa33bbeca486f2dccf5f4f71af454b905d20172b",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen_record_sha256": "9b6a80d80834c4f185efef7b317ddbb424bdb4780a7df981d19e7ba434febc01",
+  "screen": {
+    "peak_allocated_bytes": 1129250304,
+    "peak_reserved_bytes": 1243611136,
+    "resident_tensor_storage_bytes": 1026338546,
+    "pipeline_median_ms": 137.25975149827718,
+    "inference_core_logical_parameter_elements": 1971657991
+  },
+  "additional_structural_comparisons": {
+    "deploy-nf4-text-channel-boundaries-restricted": {
+      "added_changes": [
+        {
+          "method": "channels",
+          "scope": "text_mlp",
+          "fraction": 0.25
+        }
+      ],
+      "other_recipe_changes_verified_identical": true,
+      "recipe_sha256": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+      "record_sha256": "0e03f358af7d54a2a4daf016f4c170167828c88729d6ee2f614aa618053ac035",
+      "episodes_sha256": "34173a24d0a0e138ada82ba3934193cfea3ef827c9b57341b4ff18c309ca214c",
+      "successes": 78,
+      "paired_vs_nf4_control": {
+        "transitions": {
+          "both_success": 77,
+          "both_failure": 14,
+          "gained_success": 1,
+          "lost_success": 8
+        },
+        "difference_pp": -6.999999999999999,
+        "ci95_pp": [
+          -12.000000000000002,
+          -2.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "screen_peak_allocated_reduction_fraction": 0.1274248299870283,
+      "resident_storage_reduction_fraction": 0.1328156839975101
+    },
+    "deploy-nf4-structural-mild-restricted": {
+      "added_changes": [
+        {
+          "method": "channels",
+          "scope": "text_mlp",
+          "fraction": 0.125
+        },
+        {
+          "method": "channels",
+          "scope": "vision_mlp",
+          "fraction": 0.125
+        },
+        {
+          "method": "channels",
+          "scope": "merger",
+          "fraction": 0.125
+        },
+        {
+          "method": "channels",
+          "scope": "action_mlp",
+          "fraction": 0.125
+        },
+        {
+          "method": "layers",
+          "scope": "text",
+          "count": 1
+        },
+        {
+          "method": "layers",
+          "scope": "vision",
+          "count": 1
+        },
+        {
+          "method": "layers",
+          "scope": "action",
+          "count": 1
+        }
+      ],
+      "other_recipe_changes_verified_identical": true,
+      "recipe_sha256": "2b16c7286b2676d95b19dfe5452d8aa18170d9fef044d95230bd104294613522",
+      "record_sha256": "24624d381bf3faade92f0631e3fee62b75bb38845faaf1be61e62df97346a8fd",
+      "episodes_sha256": "d24930c0d0eb0f361b9d2ab1bb6eb4050d224a29415b05bb2550f54b3789785b",
+      "successes": 81,
+      "paired_vs_nf4_control": {
+        "transitions": {
+          "both_success": 80,
+          "both_failure": 14,
+          "gained_success": 1,
+          "lost_success": 5
+        },
+        "difference_pp": -4.0,
+        "ci95_pp": [
+          -8.0,
+          0.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "screen_peak_allocated_reduction_fraction": 0.06482686764899914,
+      "resident_storage_reduction_fraction": 0.12281118008404213
+    },
+    "deploy-nf4-channel-boundaries-restricted": {
+      "added_changes": [
+        {
+          "method": "channels",
+          "scope": "action_mlp",
+          "fraction": 0.75
+        },
+        {
+          "method": "channels",
+          "scope": "merger",
+          "fraction": 0.75
+        },
+        {
+          "method": "channels",
+          "scope": "text_mlp",
+          "fraction": 0.25
+        },
+        {
+          "method": "channels",
+          "scope": "vision_mlp",
+          "fraction": 0.5
+        }
+      ],
+      "other_recipe_changes_verified_identical": true,
+      "recipe_sha256": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd",
+      "record_sha256": "4c5a988d0c2db3e86bddfd7a9ddc0c2b76a691c6c3d7f9efdf33fb30f206b80f",
+      "episodes_sha256": "39f73df4c58505542570ec2d658af2937642727980aaee39aee7281a9bf18602",
+      "successes": 70,
+      "paired_vs_nf4_control": {
+        "transitions": {
+          "both_success": 70,
+          "both_failure": 15,
+          "gained_success": 0,
+          "lost_success": 15
+        },
+        "difference_pp": -15.0,
+        "ci95_pp": [
+          -21.000000000000004,
+          -9.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "screen_peak_allocated_reduction_fraction": 0.22947931302925728,
+      "resident_storage_reduction_fraction": 0.2500115395646457
+    },
+    "deploy-nf4-depth-boundaries-restricted": {
+      "added_changes": [
+        {
+          "method": "layers",
+          "scope": "action",
+          "count": 8,
+          "criterion": "cka"
+        },
+        {
+          "method": "layers",
+          "scope": "text",
+          "count": 4,
+          "criterion": "cka"
+        },
+        {
+          "method": "layers",
+          "scope": "vision",
+          "count": 12
+        }
+      ],
+      "other_recipe_changes_verified_identical": true,
+      "recipe_sha256": "0d46d5aae5a12c30a1b55611eb908a19dc515f674ae23dbca5794f89c8abe625",
+      "record_sha256": "12e7394e2ec27aea34d574c3c1289262275ec9bc4d351fa18add545cb1a1b046",
+      "episodes_sha256": "5e050ef384c319cdb3a5ff8f0ff2056b21006edc368f12c3e22e389c63b8a8b9",
+      "successes": 65,
+      "paired_vs_nf4_control": {
+        "transitions": {
+          "both_success": 63,
+          "both_failure": 13,
+          "gained_success": 2,
+          "lost_success": 22
+        },
+        "difference_pp": -20.0,
+        "ci95_pp": [
+          -27.0,
+          -13.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "screen_peak_allocated_reduction_fraction": 0.19935871365503743,
+      "resident_storage_reduction_fraction": 0.2128852792789876
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched 100-state NF4 control and additional structural deployment comparisons; controls and episode records validated. The control includes world-model removal and vocabulary compaction, but no layer/channel pruning. Actual packed archive sizes and matching development/size fingerprints remain required before final selection; reserved task success and steady benchmarks remain unmeasured."
+}

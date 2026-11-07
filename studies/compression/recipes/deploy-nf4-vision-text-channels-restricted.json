@@ -1,0 +1,42 @@
+{
+  "id": "deploy-nf4-vision-text-channels-restricted",
+  "family": "joint compression",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "compact_embedding"
+    },
+    {
+      "method": "channels",
+      "scope": "text_mlp",
+      "fraction": 0.25
+    },
+    {
+      "method": "channels",
+      "scope": "vision_mlp",
+      "fraction": 0.5
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 4
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "text-torchao-dynamic8",
+  "family": "INT8 weight/activation quantization",
+  "changes": [
+    {
+      "method": "torchao",
+      "scope": "text",
+      "bits": 8
+    }
+  ]
+}

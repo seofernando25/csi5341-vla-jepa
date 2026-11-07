@@ -1,0 +1,20 @@
+{
+  "torch_version": "2.11.0+cu128",
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "sparse_2of4": {
+    "maximum_difference": 0.0078125,
+    "storage": {
+      "registered_parameter_elements": 1048576,
+      "resident_tensor_storage_bytes": 1179648
+    },
+    "dense_bytes": 2097152
+  },
+  "packed_int4": {
+    "maximum_difference": 0.015625,
+    "storage": {
+      "registered_parameter_elements": 1024,
+      "resident_tensor_storage_bytes": 1116160
+    },
+    "dense_bytes": 4194304
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "id": "action-nf4-ohb",
+  "family": "QuantVLA attention calibration adaptation",
+  "changes": [
+    {
+      "method": "attention_matching",
+      "atm": false,
+      "ohb": true,
+      "quantizer": {
+        "method": "bnb",
+        "scope": "action",
+        "bits": 4
+      }
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "verified_at": "2026-10-09T23:49:19.520152+00:00",
+  "selection_manifest_sha256": "0127485e2a72c5813c9500ac6f421063f85c44579fcd8067f0be8ab829d9bb11",
+  "baseline_record_sha256": "bad9379913f006848564d8613fa948871bc2e5a316d1aa3e12e566e64d75f10e",
+  "minimum_preliminary_successes": 7,
+  "completed_candidates": 10,
+  "candidates": {
+    "text_mlp-channels-500": {
+      "successes": 6,
+      "episodes": 10,
+      "clears_preliminary_cutoff": false,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 6,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 2
+        },
+        "difference_pp": -20.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "402b8c28dc1a408662815928b60d5514ae5c046ef9788d5ed65a5805b56cc5bc",
+      "episodes_sha256": "8eed8041f8ee52fe4f538f0e5ff30ef0049084fe25a9663f0fea57fd0d5b9e4d"
+    },
+    "vision_mlp-channels-500": {
+      "successes": 8,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "e6a7aa6b12ffe48ab7d31e7366ce2bc8f920cb700d1279c6c2787cae94e4300c",
+      "episodes_sha256": "4dccc745f7ca474735b936d393f144cca22dd232be0fd09c6beadb1f146a93b9"
+    },
+    "text-heads-250": {
+      "successes": 7,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "f39e4175c8bcb02cd1a6adfdc488449a7e169ca8ec24507ecee4745fda36601e",
+      "episodes_sha256": "d31bbca77839cffac170ad382b6cfb9de2778306ff47c92561d4bedae5a5a38d"
+    },
+    "vision_attention-heads-500": {
+      "successes": 8,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "2317acddc0184c5dd3fdca2e855c2ba6006ec1e6eaa3c4b0b2770fa3b6cd4b53",
+      "episodes_sha256": "044234f495e60fe88fe6b0e8df62d4f88c46669a67c711bb26d26e53354fa11f"
+    },
+    "action-cka-layers-8": {
+      "successes": 8,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "bdff3c711a76a056b17960e21c9acd7e0cb0cbeabab3d43af17b3856853a80ad",
+      "episodes_sha256": "ef494d84ee8adb0f78a0a5b1ae60cfe95165e10285b459f0d4af9c3d212ac5bc"
+    },
+    "action-layers-8": {
+      "successes": 7,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "215f6b8ddc0eb855dc9d5db75fd4b33f31bd397eb5b711a3b29dc8c4111ea927",
+      "episodes_sha256": "592af53d147e0f16b8ee7519241e8cf87cb71567fa149f6536b0ee763b52c79d"
+    },
+    "text-cka-layers-8": {
+      "successes": 0,
+      "episodes": 10,
+      "clears_preliminary_cutoff": false,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 0,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 8
+        },
+        "difference_pp": -80.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "a4c583402cb5adcd04281046f9f8ec7964e5fa85f7326b599ad707d7db849dea",
+      "episodes_sha256": "a6a017c59c29639ba56bc67aa69254f3a6fe98aed02709d0cb5da8b6ea4b21e5"
+    },
+    "text-layers-8": {
+      "successes": 0,
+      "episodes": 10,
+      "clears_preliminary_cutoff": false,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 0,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 8
+        },
+        "difference_pp": -80.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "e5c2a0533f231abc43e58dadb9741abd91bd20c5966578d4530e2fd5a36edff5",
+      "episodes_sha256": "8c23f5adad08147e5e62baee757e4b34535bb8e6cefc086a0defa1fa281881c8"
+    },
+    "vision-cka-layers-8": {
+      "successes": 8,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "ef086315b7c7d1c063b95dfa76bafa5276f3dfb9723139dcbd0ece06178f8a69",
+      "episodes_sha256": "915f343b37ecf157b8f5b18007385fd77497a60878b26664cb6e0252c4a2ae82"
+    },
+    "vision-layers-8": {
+      "successes": 8,
+      "episodes": 10,
+      "clears_preliminary_cutoff": true,
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "record_sha256": "2731342c106f29032dcd1195bf1a5d697a8c32ee589a960ea2ffd8847c59c88c",
+      "episodes_sha256": "91f629a0add4e759cc431fb78a0b9abbe671844351f321f84836bfa6ff6985b3"
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state development probes; no 90% success confirmation or global optimality claim."
+}

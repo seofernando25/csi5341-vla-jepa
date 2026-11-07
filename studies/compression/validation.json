@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-10-10T00:31:24.299002+00:00",
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q tests/test_compression.py tests/test_compression_evidence.py tests/test_evaluation.py",
+    "passed": 59
+  },
+  "ruff": {
+    "command": ".venv/bin/ruff check evaluation/compression tests/test_compression.py tests/test_compression_evidence.py",
+    "status": "passed"
+  },
+  "lowbit_kernel_checks": "lowbit_kernel_checks.json",
+  "source_sha256": {
+    "evaluation/compression/__init__.py": "b0c9a61903059a6f94617917b65221e854eb6ec042557f2cf008d8d8a7da9d42",
+    "evaluation/compression/advanced.py": "268c7a8e1555175266e33b94974a4ec03548e340ba9a89974283f97646443561",
+    "evaluation/compression/analysis.py": "92bf2b01c47c2073bfc47cdf89c56beb64da2ef81f5f15e49899cf625e454a4d",
+    "evaluation/compression/artifacts.py": "f49ac1d0487f7cd55a03e582e7efeebb25d9385f3f6f2d919ce04d115a60f460",
+    "evaluation/compression/attention_matching.py": "9156ad2dd59509e8f61b96888ca1a8dd8e7028329b993cff2eb0270015511991",
+    "evaluation/compression/boundaries.py": "4dc8b695d956815f8d1d4ca7292f67c8666a24d80575afdde6373af17093dbf0",
+    "evaluation/compression/cka.py": "0bf32c6279ffecf8b2421295012bba603be0c1df71e72dfd36fa5167f1ab4d32",
+    "evaluation/compression/compiled.py": "3ddfef27bd433e7041d634190d42a52737a98d3ca9dedbb97d8fce0218e16af4",
+    "evaluation/compression/confirmation.py": "898674c6c4c7302adff905bf4789aa89271aa72aebc9b75b843786dafb68c9af",
+    "evaluation/compression/lowbit.py": "ac2cfee3634c21e3b4ebc498c0b2dc242582c57f7fe091e3be11ed4f4eb1cd50",
+    "evaluation/compression/mission.py": "395bc6e2bc8d3672ee9514c8fb55b565580e4822e37f3a31901482a0ddda83b0",
+    "evaluation/compression/protocol.py": "a0c6595349cafef905e892fc16340590e409f85df892f31a48eed5333d928d00",
+    "evaluation/compression/queue.py": "cb6630eb322cf93c2ec88a42894f1ee9a36ab3ef949e390648f34e60108fedf2",
+    "evaluation/compression/refinements.py": "5698ac1d9582728ccc839381ba97320f3ac78bbf33625f59e766a84ea288e884",
+    "evaluation/compression/study.py": "00d02b87e1e76ca6b6b655e67c8162897ba5527aa308b0c9162bfdecfd8a46e0",
+    "evaluation/compression/tokens.py": "afe2167557d157d5466c92a2378489e480458b3c82d57463a1fc319ec4ee3a84",
+    "evaluation/compression/transforms.py": "799d15bfddf179438b6df6f4b8f8e9803ff59338a2ee25e9e21465561fd897ef"
+  },
+  "training_launched": false,
+  "torchao_kernel_checks": "torchao_kernel_checks.json",
+  "additional_checks": [
+    "CPU compiled graph preserves payload, hooks and module binding; backend errors propagate",
+    "Compiled screen priming resets state/noise per bank observation; CUDA compilation remains scheduled in isolated candidate screens",
+    "Fresh boundary child runs supplemental compiled recipes before old parent development selection",
+    "CPU compiled graphs cover default and forced Triton options, unchanged payload/hooks/module bindings and rejection of unknown backend; new Triton CUDA screens remain pending"
+  ]
+}

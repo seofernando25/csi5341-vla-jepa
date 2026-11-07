@@ -1,0 +1,11 @@
+{
+  "id": "vision_blocks-bnb8",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 8
+    }
+  ]
+}

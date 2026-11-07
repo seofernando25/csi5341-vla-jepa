@@ -1,0 +1,82 @@
+{
+  "verified_at": "2026-10-10T04:10:51.877179+00:00",
+  "candidate": "deploy-hqq2-vision-action",
+  "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 87,
+    "success_fraction": 0.87,
+    "wilson95_fraction": [
+      0.7901964855992357,
+      0.9224283257275948
+    ],
+    "task_successes": {
+      "0": 5,
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 9,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "549f0cd03c80dce45306561df4aaa735977a7437f9667f6b920a4d6e6025c6ab",
+    "record_sha256": "6180496d0cc755960a5f23221ec902f7acc1c87c41fbeef123db268af0dc6c23",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 81,
+        "both_failure": 12,
+        "gained_success": 6,
+        "lost_success": 1
+      },
+      "difference_pp": 5.0,
+      "ci95_pp": [
+        0.9999999999999999,
+        10.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "ae7c63e060a0486084d33bdb55ad2e5e415db4dcdff3d50c8f92516a32b40fc2",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen_record_sha256": "4a9926e95f48c939e88421007239c4dc782ab87c8cf86f2bd4cb9b00c6545d0d",
+  "screen": {
+    "peak_allocated_bytes": 1376828416,
+    "peak_reserved_bytes": 2497708032,
+    "resident_tensor_storage_bytes": 1288371466,
+    "pipeline_median_ms": 146.68336050090147,
+    "inference_core_logical_parameter_elements": 2282714375
+  },
+  "screen_metrics_not_recorded": [],
+  "restricted_embedding_substitution": {
+    "candidate": "deploy-hqq2-vision-action-restricted",
+    "candidate_record_sha256": "870b9ddd6ca941e37bd9edc1c3d044135f4e17fabdbe13393d055acf269a301a",
+    "candidate_episodes_sha256": "c9c8534e45b426e3a7f84affad61bedc99a78035ffc38bb122f3d718aa89337d",
+    "candidate_recipe_sha256": "5fa94a9fd2e5f606c9c18aaba913568eec76f1f36d25b469c0c3e6ab060460dc",
+    "other_recipe_changes_verified_identical": true,
+    "paired": {
+      "transitions": {
+        "both_success": 86,
+        "both_failure": 12,
+        "gained_success": 1,
+        "lost_success": 1
+      },
+      "difference_pp": 0.0,
+      "ci95_pp": [
+        -3.0,
+        3.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "screen_peak_allocated_reduction_fraction": 0.22584319468316383,
+    "resident_storage_reduction_fraction": 0.24134919486023454,
+    "interpretation": "Substitution changes stored vocabulary and embedding precision (full-vocabulary INT8 to restricted-vocabulary BF16); it does not isolate vocabulary pruning alone."
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state full-vocabulary HQQ2 mixed-precision development comparison; all episode records validated. Clears the observed relative development gate. Actual packed archive size and development/size fingerprint agreement remain required before final selection; reserved task success and steady benchmarks remain unmeasured."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "text-sparsegpt-2of4-packed",
+  "family": "Hessian compensated packed sparsity",
+  "changes": [
+    {
+      "method": "sparsegpt",
+      "scope": "text",
+      "fraction": 0.5,
+      "pattern": "2:4",
+      "sparse_kernel": true
+    }
+  ]
+}

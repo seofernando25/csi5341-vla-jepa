@@ -1,0 +1,284 @@
+{
+  "verified_at": "2026-10-10T04:51:58.400940+00:00",
+  "registration_sha256": "33a5a353109411bda1a08568872311e8a6dfb9f7c67ed26f89768a70d17d2720",
+  "development_selection_sha256": "d52fe60c070d9126f6e3b716fcdc2ceab3aba4d7d53971e8cdb0aa884a1b5f70",
+  "candidates": {
+    "deploy-nf4-vision-text-channels-restricted": {
+      "recipe_sha256": "5a2ee98e2c765394525f5c1b92a628d0bbc7a59893ade09161ebee0a532b16ef",
+      "screen_summary": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.0008100367926090257,
+        "maximum_physical_arm_change_mse": 0.003286873223260045,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.25,
+        "pipeline_median_ms": 134.37123150288244,
+        "pipeline_p95_ms": 138.51457799901254,
+        "peak_allocated_bytes": 940727808,
+        "peak_reserved_bytes": 2327838720,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 806073479,
+        "represented_logical_parameter_elements": 1606704391,
+        "resident_tensor_storage_bytes": 837997298,
+        "inference_core_logical_parameter_elements": 1606704391
+      },
+      "screen_record_sha256": "c09d3db15f4bb2e88a37bb9259d33f21fb407fb8a8b389e7614c69d6dee77bad",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "307cb31ea8993cd1ecfb78cb554ed1ad3c17e77078fe63f0b356374dab4cd8cf",
+        "record_sha256": "f116943227b285c5311c88cae5d70d265f946738e6d6914c5f7378b0a7905533",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "selected_for_development": true
+    },
+    "deploy-nf4-vision-text-channels-heads-restricted": {
+      "recipe_sha256": "2f3c35a1f3c7423f7610286de5dec445be0e7f8592e116b807cafab041bcb6ad",
+      "screen_summary": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.031201481027528642,
+        "maximum_physical_arm_change_mse": 0.08744897693395615,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.787841796875,
+        "pipeline_median_ms": 134.30357899778755,
+        "pipeline_p95_ms": 135.73959569803264,
+        "peak_allocated_bytes": 879281664,
+        "peak_reserved_bytes": 2023751680,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 736830599,
+        "represented_logical_parameter_elements": 1468255495,
+        "resident_tensor_storage_bytes": 766521074,
+        "inference_core_logical_parameter_elements": 1468255495
+      },
+      "screen_record_sha256": "c7153fc5f448605e5f431b5d5559c60452d81205e1b69799d935a62cca3a26fc",
+      "smoke": {
+        "episodes": 10,
+        "successes": 2,
+        "success_fraction": 0.2,
+        "wilson95_fraction": [
+          0.05668215145437519,
+          0.5098375284633583
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 0,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "episodes_sha256": "68b6f4ab8f87e252a9b6a4427bc4bfdf28fdb70f885d54235355e35d7d63c63a",
+        "record_sha256": "a33006d0cb400acb6dc4a4279c6eb4afb95218bfe9cbfe3f8bc4f5329db16674",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 2,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 6
+          },
+          "difference_pp": -60.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "selected_for_development": false
+    },
+    "deploy-hqq2-vision-text-channels-restricted": {
+      "recipe_sha256": "b562e5f126d40bda14acae9683b406f60898f5194dcdbeac1edc6d47a12b9207",
+      "screen_summary": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.009591080497193616,
+        "maximum_physical_arm_change_mse": 0.029625913128256798,
+        "mean_gripper_disagreement": 0.0,
+        "maximum_normalized_action_difference": 0.51611328125,
+        "pipeline_median_ms": 141.07834950482356,
+        "pipeline_p95_ms": 142.76996305161447,
+        "peak_allocated_bytes": 890299904,
+        "peak_reserved_bytes": 2613051392,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 677098631,
+        "represented_logical_parameter_elements": 1606704391,
+        "resident_tensor_storage_bytes": 809554610,
+        "inference_core_logical_parameter_elements": 1606704391
+      },
+      "screen_record_sha256": "076653136c11eb3959b36e059326fa301693c7be20059ca503afbf99f83880fa",
+      "smoke": {
+        "episodes": 10,
+        "successes": 5,
+        "success_fraction": 0.5,
+        "wilson95_fraction": [
+          0.236593090512564,
+          0.7634069094874361
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 0,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 0,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "0e024c04315ccf710ac8bac6fd73be077f9cc08f2e6949fb294cd07f01903186",
+        "record_sha256": "172f7930f05aa0c60132321c9e121ddda544dab95aea413c6da6e6410edc3fd5",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 5,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 3
+          },
+          "difference_pp": -30.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "selected_for_development": false
+    },
+    "deploy-hqq2-vision-text-channels-heads-restricted": {
+      "recipe_sha256": "35a5737ad10c0992b9a8607d794b9940800cb746534d04ad0e6aa823e7cbded8",
+      "screen_summary": {
+        "diagnostic_observations": 80,
+        "warmup": 10,
+        "mean_physical_arm_change_mse": 0.06558673707768321,
+        "maximum_physical_arm_change_mse": 0.10903368890285492,
+        "mean_gripper_disagreement": 0.048214287497103214,
+        "maximum_normalized_action_difference": 0.9521484375,
+        "pipeline_median_ms": 140.60322750083287,
+        "pipeline_p95_ms": 142.0492558983824,
+        "peak_allocated_bytes": 850421248,
+        "peak_reserved_bytes": 2279604224,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "registered_parameter_elements": 633021575,
+        "represented_logical_parameter_elements": 1468255495,
+        "resident_tensor_storage_bytes": 748314290,
+        "inference_core_logical_parameter_elements": 1468255495
+      },
+      "screen_record_sha256": "e2c3cbcc2163e5ef47ae67662e1082799946fe12e4e9c00f3102a7cb70f051e7",
+      "smoke": {
+        "episodes": 10,
+        "successes": 0,
+        "success_fraction": 0.0,
+        "wilson95_fraction": [
+          0.0,
+          0.2775327998628892
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0,
+          "4": 0,
+          "5": 0,
+          "6": 0,
+          "7": 0,
+          "8": 0,
+          "9": 0
+        },
+        "episodes_sha256": "cf3385bb0d4807117fdd1482902f9711996535a16d835ec393a4e441edfcce0a",
+        "record_sha256": "d2a5d2f54e201833d04d942a6222f0220809d594d60f51b0796375dd470a44ad",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 0,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 8
+          },
+          "difference_pp": -80.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "selected_for_development": false
+    }
+  },
+  "comparisons": {
+    "add_heads_NF4": {
+      "control": "deploy-nf4-vision-text-channels-restricted",
+      "candidate": "deploy-nf4-vision-text-channels-heads-restricted",
+      "paired": {
+        "transitions": {
+          "both_success": 2,
+          "both_failure": 3,
+          "gained_success": 0,
+          "lost_success": 5
+        },
+        "difference_pp": -50.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      }
+    },
+    "add_heads_HQQ2": {
+      "control": "deploy-hqq2-vision-text-channels-restricted",
+      "candidate": "deploy-hqq2-vision-text-channels-heads-restricted",
+      "paired": {
+        "transitions": {
+          "both_success": 0,
+          "both_failure": 5,
+          "gained_success": 0,
+          "lost_success": 5
+        },
+        "difference_pp": -50.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      }
+    },
+    "mixed_quantization_channels": {
+      "control": "deploy-nf4-vision-text-channels-restricted",
+      "candidate": "deploy-hqq2-vision-text-channels-restricted",
+      "paired": {
+        "transitions": {
+          "both_success": 5,
+          "both_failure": 3,
+          "gained_success": 0,
+          "lost_success": 2
+        },
+        "difference_pp": -20.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      }
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state selection evidence, with one state per task; no within-task uncertainty estimate. Physical storage and finite numerical screens do not establish robot success. Only the recorded seven-success variant advances under the fixed rule."
+}

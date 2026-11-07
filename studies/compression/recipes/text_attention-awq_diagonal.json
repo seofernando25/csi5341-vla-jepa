@@ -1,0 +1,12 @@
+{
+  "id": "text_attention-awq_diagonal",
+  "family": "calibrated_quantization",
+  "changes": [
+    {
+      "method": "awq_diagonal",
+      "scope": "text_attention",
+      "bits": 4,
+      "fraction": 0.5
+    }
+  ]
+}

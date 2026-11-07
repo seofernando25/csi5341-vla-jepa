@@ -1,0 +1,11 @@
+{
+  "id": "vision_blocks-torchao-dynamic8",
+  "family": "INT8 weight/activation quantization",
+  "changes": [
+    {
+      "method": "torchao",
+      "scope": "vision_blocks",
+      "bits": 8
+    }
+  ]
+}

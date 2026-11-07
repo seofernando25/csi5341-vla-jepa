@@ -1,0 +1,228 @@
+{
+  "verified_at": "2026-10-10T03:24:43.645685+00:00",
+  "candidate": "text-heads-250",
+  "recipe_sha256": "d4c35556ac5020cfc7930e319e224a2a112d0ac417c2d0cca2d4ea29a1b0d1b5",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 83,
+    "success_fraction": 0.83,
+    "wilson95_fraction": [
+      0.7445199523239887,
+      0.8910643388594006
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 10,
+      "3": 9,
+      "4": 9,
+      "5": 8,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "1daebe1640a30d74d5e82422dde0dc7f787c7bca03d633c7f1480a449393b956",
+    "record_sha256": "74b21d777cf95657ae401320fb2d09cd22c925bb3cba74fbcff5db0c896e1edb",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 79,
+        "both_failure": 14,
+        "gained_success": 4,
+        "lost_success": 3
+      },
+      "difference_pp": 0.9999999999999999,
+      "ci95_pp": [
+        -4.0,
+        6.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "e5773fb3d13ee92cb8d2b4e30e97b1597d467d9567428d76442162bebb6850da",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_attention_heads": [
+    {
+      "method": "heads",
+      "module": "text.layers.0.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.1.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.2.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.3.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.4.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.5.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.6.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.7.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.8.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.9.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.10.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.11.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.12.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.13.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.14.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.15.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.16.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.17.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.18.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.19.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.20.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.21.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.22.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.23.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.24.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.25.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.26.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    },
+    {
+      "method": "heads",
+      "module": "text.layers.27.self_attn",
+      "original_kv_heads": 8,
+      "kept_kv_heads": 6
+    }
+  ],
+  "screen_record_sha256": "720bae389e8632eabd5961d9908d9428a6d38387123e5bc5dc89bf2e323bd102",
+  "screen": {
+    "peak_allocated_bytes": 5441522688,
+    "peak_reserved_bytes": 5528092672,
+    "resident_tensor_storage_bytes": 5356115726,
+    "pipeline_median_ms": 76.88830249935563,
+    "inference_core_logical_parameter_elements": 2194633991
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone grouped-query language-head pruning comparison; all episode records validated. Physically retains 6 of 8 KV heads in each of 28 layers, with complete query groups and unchanged per-head geometry. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

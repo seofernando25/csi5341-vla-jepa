@@ -1,0 +1,175 @@
+{
+  "registered_at": "2026-10-10T00:46:33.650570+00:00",
+  "candidates": [
+    "action-cka-layers-8",
+    "deploy-hqq3-text-hqq2"
+  ],
+  "control": "B16",
+  "original_development_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "evidence": {
+    "action-cka-layers-8": {
+      "recipe_sha256": "6c23d1796973fa252111bbc375b8437daec95c060cfd0ea9b1ebc88884750f19",
+      "screen_record_sha256": "72aa6359c691362d7f22fcc96577e4498762176c3321849953d0fd13ed7698c3",
+      "resident_tensor_storage_bytes": 5392156430,
+      "peak_allocated_bytes": 5461982208,
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "ef494d84ee8adb0f78a0a5b1ae60cfe95165e10285b459f0d4af9c3d212ac5bc",
+        "record_sha256": "bdff3c711a76a056b17960e21c9acd7e0cb0cbeabab3d43af17b3856853a80ad",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      }
+    },
+    "action-layers-8": {
+      "recipe_sha256": "b2c449a7252d77e197ded55e3e0a2bbe11633996a40add6c2f49c2b2930c41ff",
+      "screen_record_sha256": "36d5f33e3c6892a1db69c8d59b515d2156163d80ca549632e837e4df3a261de5",
+      "resident_tensor_storage_bytes": 5392156430,
+      "peak_allocated_bytes": 5461974016,
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "592af53d147e0f16b8ee7519241e8cf87cb71567fa149f6536b0ee763b52c79d",
+        "record_sha256": "215f6b8ddc0eb855dc9d5db75fd4b33f31bd397eb5b711a3b29dc8c4111ea927",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      }
+    },
+    "deploy-hqq3-text-hqq2": {
+      "recipe_sha256": "8277050f59416179008ca641fb7bc367f9acb17c030360289453e8e37f33c461",
+      "screen_record_sha256": "a5ad6db76931227abdb4c7228ca7728603e1890b1f5ebab55b1f0edf7dfd8c6f",
+      "resident_tensor_storage_bytes": 1265793274,
+      "peak_allocated_bytes": 1402428416,
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "910355485e7421eae6389c55802e4d8a2ca911ed88cd621932113e675681691d",
+        "record_sha256": "0f0fdeccc31559c2304c45acb38faf638e2b2d72bc6bbebd50bf0b7d2a76ce20",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      }
+    },
+    "deploy-hqq2-vision-action": {
+      "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f",
+      "screen_record_sha256": "4a9926e95f48c939e88421007239c4dc782ab87c8cf86f2bd4cb9b00c6545d0d",
+      "resident_tensor_storage_bytes": 1288371466,
+      "peak_allocated_bytes": 1376828416,
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "c49a470b72d62e870ca318d699fb335bb41b69319622138ae142e34e87f4b267",
+        "record_sha256": "8d051fef9bc2ac1d9ac2e2e67e036db1a9a4fadb72771f636ea635d4f9026712",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      }
+    }
+  },
+  "reason": "Supplement the preserved 20-candidate development selection with a same-storage CKA action-depth variant having better matched smoke success and a lower-storage full-vocabulary HQQ3 variant excluded by peak-memory ordering. Use the same 100-state cohort and measure actual archive size after completed development runs.",
+  "development_outcomes_used": false,
+  "final_outcomes_used": false,
+  "schedule": "After the original serialized mission completes, run both supplemental development cohorts and size measurements before final selection"
+}

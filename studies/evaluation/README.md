@@ -4,6 +4,14 @@
 
 B16/Q8/Q4 use the same trained Qwen policy; S500 requires adaptation. Dream-RSI is deferred. CUDA smoke checks establish execution only. Raw CSVs and JSON provenance live in `runs/`; failed and interrupted runs remain recorded.
 
+## Qwen baseline provenance and paper alignment
+
+Verified October 9, 2026: B16 loads `lerobot/VLA-JEPA-LIBERO` at revision `735d9f692981e286ade093b5046627eda876e5d0`. [LeRobot documents](https://huggingface.co/docs/lerobot/vla_jepa#pretrained-checkpoints) this release as a conversion of the authors' [ginwind/VLA-JEPA checkpoints](https://huggingface.co/ginwind/VLA-JEPA); it is the released trained policy, not a Qwen policy trained in this project. Q8/Q4 quantize the restored baseline weights without further training.
+
+Qwen3-VL-2B, seven-action chunks, four denoising steps, and BF16 inference agree with [the paper's Appendix A](https://arxiv.org/html/2602.10098v1#A1) and [the authors' evaluation script](https://github.com/ginwind/VLA-JEPA/blob/main/examples/LIBERO/eval_libero.sh). Our final Spatial evaluation uses 50 episodes per task (500 total), matching the paper's trial count. Our measured success is 475/500 (95.0%); the paper reports 96.2% on Spatial, while its 97.2% is the four-suite average.
+
+The user accepts this released-checkpoint baseline for the project comparison. Record the implementation distinction: our measurements use the pinned LeRobot port and local evaluator, rather than the authors' original evaluator; full numerical equivalence between those implementations has not been established. SmolVLM/RSI adaptation remains a separate experimental recipe.
+
 ## Reproduce
 
 Run from the repository root. GPU jobs run sequentially for comparable timing; building the PDF also requires `pdflatex`.

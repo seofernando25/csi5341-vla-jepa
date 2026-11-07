@@ -1,0 +1,31 @@
+{
+  "selected_at": "2026-10-10T04:50:33.323378+00:00",
+  "candidates": [
+    "deploy-nf4-vision-text-channels-restricted"
+  ],
+  "registration_sha256": "33a5a353109411bda1a08568872311e8a6dfb9f7c67ed26f89768a70d17d2720",
+  "minimum_smoke_successes": 7,
+  "evidence": {
+    "deploy-nf4-vision-text-channels-restricted": {
+      "screen_record_sha256": "c09d3db15f4bb2e88a37bb9259d33f21fb407fb8a8b389e7614c69d6dee77bad",
+      "smoke_record_sha256": "f116943227b285c5311c88cae5d70d265f946738e6d6914c5f7378b0a7905533",
+      "smoke_successes": 7
+    },
+    "deploy-nf4-vision-text-channels-heads-restricted": {
+      "screen_record_sha256": "c7153fc5f448605e5f431b5d5559c60452d81205e1b69799d935a62cca3a26fc",
+      "smoke_record_sha256": "a33006d0cb400acb6dc4a4279c6eb4afb95218bfe9cbfe3f8bc4f5329db16674",
+      "smoke_successes": 2
+    },
+    "deploy-hqq2-vision-text-channels-restricted": {
+      "screen_record_sha256": "076653136c11eb3959b36e059326fa301693c7be20059ca503afbf99f83880fa",
+      "smoke_record_sha256": "172f7930f05aa0c60132321c9e121ddda544dab95aea413c6da6e6410edc3fd5",
+      "smoke_successes": 5
+    },
+    "deploy-hqq2-vision-text-channels-heads-restricted": {
+      "screen_record_sha256": "e2c3cbcc2163e5ef47ae67662e1082799946fe12e4e9c00f3102a7cb70f051e7",
+      "smoke_record_sha256": "d2a5d2f54e201833d04d942a6222f0220809d594d60f51b0796375dd470a44ad",
+      "smoke_successes": 0
+    }
+  },
+  "final_outcomes_used": false
+}

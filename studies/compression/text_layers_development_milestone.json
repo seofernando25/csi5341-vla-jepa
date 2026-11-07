@@ -1,0 +1,76 @@
+{
+  "verified_at": "2026-10-10T03:51:26.636886+00:00",
+  "candidate": "text-cka-layers-4",
+  "recipe_sha256": "a1639d1471726c5496cee1369e8e87226ad5cb61aa0a12c7412ad8f01a8ba299",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 80,
+    "success_fraction": 0.8,
+    "wilson95_fraction": [
+      0.7111708344068411,
+      0.8666330666689676
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 8,
+      "2": 10,
+      "3": 9,
+      "4": 10,
+      "5": 4,
+      "6": 10,
+      "7": 10,
+      "8": 5,
+      "9": 10
+    },
+    "episodes_sha256": "15041407ec6ddd606acb7efa53223ecc79b19c71178cace7dca82c131f9022b0",
+    "record_sha256": "e4d2c6b2d214bb668d1e4e16556bf23b823b1903d238428f925f923b93a74977",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 76,
+        "both_failure": 14,
+        "gained_success": 4,
+        "lost_success": 6
+      },
+      "difference_pp": -2.0,
+      "ci95_pp": [
+        -8.0,
+        4.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "fd41ce27e7c697da0cd6e014823b054781ee5129f6efa4dc1cf272d710031a81",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "actual_removed_layers": [
+    {
+      "method": "layers",
+      "scope": "text",
+      "removed_indices": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "criterion": "cka"
+    }
+  ],
+  "early_deepstack_fusion_layers_preserved": [
+    0,
+    1,
+    2
+  ],
+  "screen_record_sha256": "d016d266772c31b0aefc5abe284c74522cbb98c81b21b1562d1d9db1a6acda5b",
+  "screen": {
+    "peak_allocated_bytes": 5198453760,
+    "peak_reserved_bytes": 5251268608,
+    "resident_tensor_storage_bytes": 5129588494,
+    "pipeline_median_ms": 73.80533999821637,
+    "inference_core_logical_parameter_elements": 2081370375
+  },
+  "screen_metrics_not_recorded": [],
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state standalone language-depth comparison; all episode records validated. Physically removes four of twenty-eight language blocks using CKA on frozen calibration states, preserving early DeepStack fusion layers. This post-training test omits the downstream fine-tuning used in the paper. Other weights remain BF16 and world models remain resident. Clears the observed relative development gate. Early screen fields that were not recorded remain null; actual archive size and matching development/size fingerprints remain required before final selection. Reserved task success and steady benchmarks remain unmeasured."
+}

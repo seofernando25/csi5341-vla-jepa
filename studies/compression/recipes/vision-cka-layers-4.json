@@ -1,0 +1,12 @@
+{
+  "id": "vision-cka-layers-4",
+  "family": "CKA structural depth pruning",
+  "changes": [
+    {
+      "method": "layers",
+      "scope": "vision",
+      "count": 4,
+      "criterion": "cka"
+    }
+  ]
+}

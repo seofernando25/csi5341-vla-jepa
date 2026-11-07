@@ -1,0 +1,199 @@
+{
+  "registered_at": "2026-10-10T04:28:35.780588+00:00",
+  "candidates": [
+    "deploy-nf4-vision-text-channels-restricted",
+    "deploy-nf4-vision-text-channels-heads-restricted",
+    "deploy-hqq2-vision-text-channels-restricted",
+    "deploy-hqq2-vision-text-channels-heads-restricted"
+  ],
+  "recipe_sha256": {
+    "deploy-nf4-vision-text-channels-restricted": "5a2ee98e2c765394525f5c1b92a628d0bbc7a59893ade09161ebee0a532b16ef",
+    "deploy-nf4-vision-text-channels-heads-restricted": "2f3c35a1f3c7423f7610286de5dec445be0e7f8592e116b807cafab041bcb6ad",
+    "deploy-hqq2-vision-text-channels-restricted": "b562e5f126d40bda14acae9683b406f60898f5194dcdbeac1edc6d47a12b9207",
+    "deploy-hqq2-vision-text-channels-heads-restricted": "35a5737ad10c0992b9a8607d794b9940800cb746534d04ad0e6aa823e7cbded8"
+  },
+  "quantization_control": {
+    "deploy-nf4-vision-text-channels-restricted": "deploy-nf4-all-restricted",
+    "deploy-nf4-vision-text-channels-heads-restricted": "deploy-nf4-all-restricted",
+    "deploy-hqq2-vision-text-channels-restricted": "deploy-hqq2-vision-action-restricted",
+    "deploy-hqq2-vision-text-channels-heads-restricted": "deploy-hqq2-vision-action-restricted"
+  },
+  "structural_settings": {
+    "deploy-nf4-vision-text-channels-restricted": [
+      {
+        "method": "channels",
+        "scope": "text_mlp",
+        "fraction": 0.25
+      },
+      {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      }
+    ],
+    "deploy-nf4-vision-text-channels-heads-restricted": [
+      {
+        "method": "channels",
+        "scope": "text_mlp",
+        "fraction": 0.25
+      },
+      {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      },
+      {
+        "method": "heads",
+        "scope": "text_attention",
+        "fraction": 0.25
+      },
+      {
+        "method": "heads",
+        "scope": "vision_attention",
+        "fraction": 0.5
+      }
+    ],
+    "deploy-hqq2-vision-text-channels-restricted": [
+      {
+        "method": "channels",
+        "scope": "text_mlp",
+        "fraction": 0.25
+      },
+      {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      }
+    ],
+    "deploy-hqq2-vision-text-channels-heads-restricted": [
+      {
+        "method": "channels",
+        "scope": "text_mlp",
+        "fraction": 0.25
+      },
+      {
+        "method": "channels",
+        "scope": "vision_mlp",
+        "fraction": 0.5
+      },
+      {
+        "method": "heads",
+        "scope": "text_attention",
+        "fraction": 0.25
+      },
+      {
+        "method": "heads",
+        "scope": "vision_attention",
+        "fraction": 0.5
+      }
+    ]
+  },
+  "evidence": {
+    "B16": {
+      "development_successes": 82,
+      "development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+      "development_episodes_sha256": "532a0bf8c4f486402b6b2842797e594630a005a139cc10ad1b2d9e1ffe56fa74",
+      "size_record_sha256": "0f6e525d8032ba21f142281b6fd415d5adb9159b6f703e9c64a8542e3de824a7",
+      "serialized_bytes": 5532491478,
+      "recipe_sha256": "83bc8412d194fdb78deb6bfa5ef864efb570440c5f73cef6b1672cfe4c4e107d"
+    },
+    "deploy-nf4-all-restricted": {
+      "development_successes": 85,
+      "development_record_sha256": "ff083c6a4248c9909702ef5b9076a2f8752170c3251764582e241717ab5e7c50",
+      "development_episodes_sha256": "ec404ea1f54247eccbe008cf4925c0f7015bf5ea9262066fa4db92a112c7bbe5",
+      "size_record_sha256": "de88aca9ecf1e77630eb611b6beebc896a62da9465246d6bfd8c414e740a55b2",
+      "serialized_bytes": 1026834567,
+      "recipe_sha256": "fe7d6d9c36aa297a81698f76636de25407f8bb0487cc9e3f4119ccfffa8fe55f"
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "development_successes": 87,
+      "development_record_sha256": "870b9ddd6ca941e37bd9edc1c3d044135f4e17fabdbe13393d055acf269a301a",
+      "development_episodes_sha256": "c9c8534e45b426e3a7f84affad61bedc99a78035ffc38bb122f3d718aa89337d",
+      "size_record_sha256": "6ea6e2da32a5b9c437225c0785cb6bee0a7081c96a23e59c811f1bfb1f3eae4a",
+      "serialized_bytes": 977829582,
+      "recipe_sha256": "5fa94a9fd2e5f606c9c18aaba913568eec76f1f36d25b469c0c3e6ab060460dc"
+    },
+    "deploy-nf4-text-channel-boundaries-restricted": {
+      "development_successes": 78,
+      "development_record_sha256": "0e03f358af7d54a2a4daf016f4c170167828c88729d6ee2f614aa618053ac035",
+      "development_episodes_sha256": "34173a24d0a0e138ada82ba3934193cfea3ef827c9b57341b4ff18c309ca214c",
+      "size_record_sha256": "4fac58ef3259bfd970cb307bdc92296380a609da9eec67bbb1f098484b35b9ad",
+      "serialized_bytes": 890520678,
+      "recipe_sha256": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5"
+    },
+    "deploy-nf4-channel-boundaries-restricted": {
+      "development_successes": 70,
+      "development_record_sha256": "4c5a988d0c2db3e86bddfd7a9ddc0c2b76a691c6c3d7f9efdf33fb30f206b80f",
+      "development_episodes_sha256": "39f73df4c58505542570ec2d658af2937642727980aaee39aee7281a9bf18602",
+      "size_record_sha256": "3befbd8e5a8703b2ceffca0b484bbd592a4229b8738a171057f83ca10cad9c7b",
+      "serialized_bytes": 770237797,
+      "recipe_sha256": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd"
+    },
+    "text_mlp-channels-250": {
+      "development_successes": 79,
+      "development_record_sha256": "6263eb8f037482d73ea8f1538a4126f4a7a75ffd059f4034265b0b4ebd7f7951",
+      "development_episodes_sha256": "b05ed9d173a0ed3814abb1e6cdc45469fe7ed78b79d884bab252d078e2eec226",
+      "size_record_sha256": "a3dd9c71fb5509db5abf19e8208d986a79448fec4abb2e735b81002ad88ac3d5",
+      "serialized_bytes": 5004009166,
+      "recipe_sha256": "480f7c67f117b593be61c9be66a71eeacc8a1a1e3e0bd85f4df5bfd0cc207385"
+    },
+    "vision_mlp-channels-500": {
+      "development_successes": 83,
+      "development_record_sha256": "af9bf1387562caac2be586a80b6c3854cc840503b0bc360015ddaf40399c1536",
+      "development_episodes_sha256": "d29a273c2ce4e3895da9899622b86bf66cbdfa62086a50af0344294fd72dc1a8",
+      "size_record_sha256": "d57f9c44bcaa0f7818573909628f7cecaf15a036adac4e41d2113fc3578982f8",
+      "serialized_bytes": 5331066582,
+      "recipe_sha256": "9a3a19e340597d0ee1eb72e0788b5bb1bbe919f626f7c48be00eb804bcf9c46c"
+    },
+    "text-heads-250": {
+      "development_successes": 83,
+      "development_record_sha256": "74b21d777cf95657ae401320fb2d09cd22c925bb3cba74fbcff5db0c896e1edb",
+      "development_episodes_sha256": "1daebe1640a30d74d5e82422dde0dc7f787c7bca03d633c7f1480a449393b956",
+      "size_record_sha256": "6a0bac0412502bb2cfcf82eda2eb25e809e8170a650b92637ee6fab06079d60e",
+      "serialized_bytes": 5356330654,
+      "recipe_sha256": "d4c35556ac5020cfc7930e319e224a2a112d0ac417c2d0cca2d4ea29a1b0d1b5"
+    },
+    "vision_attention-heads-500": {
+      "development_successes": 82,
+      "development_record_sha256": "c3356fb2fc9cbedc952ecdff96a44162bc4213f5d75aeb53614f4daf26bc49fd",
+      "development_episodes_sha256": "81309faaf421a8bfb0acaeb7a4ef55b8cc52571039cf9ccef7be0dfd230f343c",
+      "size_record_sha256": "a2cff3d1c56ee4c526f85c546b167cb568ab0df4daaa31daa506836f7008251b",
+      "serialized_bytes": 5431754430,
+      "recipe_sha256": "a8e7bbbbed0cbe8cae5d09eb1adfe92fd84628a788a9118343ac6e972a5f2aee"
+    },
+    "merger-channels-750": {
+      "development_successes": 76,
+      "development_record_sha256": "5d9ce07536b7f43c3e6b1687ba6515bcb9af9af35d7990c567089f9e2ffedec1",
+      "development_episodes_sha256": "e3d40e257cce2f860b59b1fc25d93446ff49b11b996b4282331f903d6e1901ae",
+      "size_record_sha256": "5817e56c80ed402a98ba7ae6f00bedac92b4b1a9183012ff07f53936f23f2c41",
+      "serialized_bytes": 5381471958,
+      "recipe_sha256": "ffd9df98d638a00fba254864251e6c90bbc398b505ed4870fb6a8c3695f26012"
+    },
+    "action_attention-heads-750": {
+      "development_successes": 69,
+      "development_record_sha256": "d90ece6a521ab7c316085a248e08610f6a513cae66ce13b3b6025e05e84a1a1f",
+      "development_episodes_sha256": "098ad42a73ec483d25b0f5173517e8957e10acb8c628922061c55a20896ed6b4",
+      "size_record_sha256": "67571169390d09105d7b5010aff8e98dd41bde1bf0daa345979979403e9cd5c8",
+      "serialized_bytes": 5452220046,
+      "recipe_sha256": "fa57d5a15d7b6bd5b978175eca147fb2bc51d0f949fb269d3d2b1334f883bc05"
+    }
+  },
+  "initial_development_size_milestone_sha256": "f317f191a22d7bcf400a278fe5da33a206c8e897b90a97ecbc37fe718b68b3fa",
+  "original_development_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "supplemental_development_selection_sha256": "9b13299b4eaf44b49f2ae6c03f2e1a239dc933749cf8a2006d3788e7ccfa84b9",
+  "prior_plan_sha256": "3af1ef66245dd49f4af4ceabf340a8f7bc3eea52ebdbbadf09c26284ee8fc76e",
+  "reason": "The 890.5 MB compact language-MLP candidate passes at 78/100. Standalone vision MLP, language KV-head and vision-head cuts score 83, 83 and 82; merger 75% and action-head 75% cuts fail at 76 and 69. The all-channel bundle scores 70. Test a finite 2x2 joint matrix excluding those failed merger/action-head cuts, pairing channel-only and channel-plus-head structure with measured 85/100 NF4 and 87/100 NF4/HQQ2 controls. Combined success must be measured; isolated passes do not establish compatibility.",
+  "phases": [
+    "screen",
+    "smoke",
+    "development",
+    "size"
+  ],
+  "minimum_smoke_successes": 7,
+  "minimum_development_successes": 77,
+  "dispatch_after": "Both existing supplemental development and size runs complete with matched deployed fingerprints",
+  "maximum_additional_candidates": 4,
+  "no_further_refinement_rounds": true,
+  "final_outcomes_used": false,
+  "checkpoint_calibration_states_changed": false
+}

@@ -1,0 +1,34 @@
+{
+  "verified_at": "2026-10-10T05:39:46.893607+00:00",
+  "candidate": "B16",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "recipe_sha256": "83bc8412d194fdb78deb6bfa5ef864efb570440c5f73cef6b1672cfe4c4e107d",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "deployed_tensor_sha256": "cb32294290a10a8f3537c34b7aab748daff83d02f37a935f27b3aeae5cebf0ee",
+  "final": {
+    "episodes": 500,
+    "successes": 475,
+    "success_fraction": 0.95,
+    "wilson95_fraction": [
+      0.9272318388284524,
+      0.9659062547561506
+    ],
+    "task_successes": {
+      "0": 50,
+      "1": 50,
+      "2": 50,
+      "3": 48,
+      "4": 48,
+      "5": 33,
+      "6": 50,
+      "7": 50,
+      "8": 47,
+      "9": 49
+    },
+    "episodes_sha256": "051ddc38480cb51d15cfb9a5a1cf608ba528a29be13707e4b7c85e62896185fa",
+    "record_sha256": "6f70c005a77a75f1ca5e5ead6c89b2783fb11300439096c7424c6c2b9e3befda",
+    "meets_90_percent_observed_success": true
+  },
+  "state_membership_validated": true,
+  "interpretation": "Fresh frozen-protocol 500-trial control measured in this study. Compressed policies and steady benchmarks remain in progress. Existing historical baseline outcomes were not substituted."
+}

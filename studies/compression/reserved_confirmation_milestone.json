@@ -1,0 +1,145 @@
+{
+  "verified_at": "2026-10-10T07:46:30.561514+00:00",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "candidates": {
+    "B16": {
+      "episodes": 500,
+      "successes": 475,
+      "success_fraction": 0.95,
+      "wilson95_fraction": [
+        0.9272318388284524,
+        0.9659062547561506
+      ],
+      "task_successes": {
+        "0": 50,
+        "1": 50,
+        "2": 50,
+        "3": 48,
+        "4": 48,
+        "5": 33,
+        "6": 50,
+        "7": 50,
+        "8": 47,
+        "9": 49
+      },
+      "episodes_sha256": "051ddc38480cb51d15cfb9a5a1cf608ba528a29be13707e4b7c85e62896185fa",
+      "record_sha256": "6f70c005a77a75f1ca5e5ead6c89b2783fb11300439096c7424c6c2b9e3befda",
+      "meets_90_percent_observed_success": true
+    },
+    "deploy-nf4-vision-text-channels-restricted": {
+      "episodes": 500,
+      "successes": 467,
+      "success_fraction": 0.934,
+      "wilson95_fraction": [
+        0.9087605988391466,
+        0.9526214736402262
+      ],
+      "task_successes": {
+        "0": 50,
+        "1": 49,
+        "2": 50,
+        "3": 50,
+        "4": 45,
+        "5": 29,
+        "6": 49,
+        "7": 50,
+        "8": 46,
+        "9": 49
+      },
+      "episodes_sha256": "022452d75aab1c770d72340ecf7beb85d8d26ff6e98772186689f544b35234f2",
+      "record_sha256": "dde2f052b378cea567bb919951f4f1ca0d2582c5d22488792a5af041c2bb83f1",
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 462,
+          "both_failure": 20,
+          "gained_success": 5,
+          "lost_success": 13
+        },
+        "difference_pp": -1.6,
+        "ci95_pp": [
+          -3.2000000000000006,
+          0.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "meets_90_percent_observed_success": true
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "episodes": 500,
+      "successes": 490,
+      "success_fraction": 0.98,
+      "wilson95_fraction": [
+        0.9635798167531208,
+        0.9891008164037892
+      ],
+      "task_successes": {
+        "0": 50,
+        "1": 50,
+        "2": 49,
+        "3": 50,
+        "4": 45,
+        "5": 48,
+        "6": 50,
+        "7": 49,
+        "8": 49,
+        "9": 50
+      },
+      "episodes_sha256": "57c57b6ca11ee00b0ce7d1343535d61b151dd0669617e3b795ee81ee95f2d964",
+      "record_sha256": "a36e87803f90f99889eb64ab84c99656a97ef61afeb04799d63e97b4ab69ab57",
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 468,
+          "both_failure": 3,
+          "gained_success": 22,
+          "lost_success": 7
+        },
+        "difference_pp": 3.0,
+        "ci95_pp": [
+          1.2,
+          5.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "meets_90_percent_observed_success": true
+    },
+    "deploy-hqq2-vision-action": {
+      "episodes": 500,
+      "successes": 484,
+      "success_fraction": 0.968,
+      "wilson95_fraction": [
+        0.9486551309545582,
+        0.9802084863734289
+      ],
+      "task_successes": {
+        "0": 50,
+        "1": 49,
+        "2": 50,
+        "3": 49,
+        "4": 45,
+        "5": 44,
+        "6": 49,
+        "7": 50,
+        "8": 48,
+        "9": 50
+      },
+      "episodes_sha256": "4caeeb445525832e73228564540e453fe1db34029ad3549dfcc81f54167a1efb",
+      "record_sha256": "2d452a08bdc78497037fc5b54a7febc4be8a8204d1449c006bb97e26581e0827",
+      "paired_vs_B16": {
+        "transitions": {
+          "both_success": 465,
+          "both_failure": 6,
+          "gained_success": 19,
+          "lost_success": 10
+        },
+        "difference_pp": 1.7999999999999998,
+        "ci95_pp": [
+          -0.2,
+          3.8
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      },
+      "meets_90_percent_observed_success": true
+    }
+  },
+  "interpretation": "Frozen matched 500-trial reserved comparisons. Final outcomes do not guide recipe changes or further selection. Inference benchmark remains a separate phase."
+}

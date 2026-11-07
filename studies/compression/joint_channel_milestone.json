@@ -1,0 +1,300 @@
+{
+  "verified_at": "2026-10-10T00:09:13.345234+00:00",
+  "selection_manifest_sha256": "e67c8db717857eb660b8c294c9daab78a4791d6ff20e0a9402f2adf9061c47c0",
+  "control": "deploy-nf4-all-restricted",
+  "candidates": {
+    "deploy-nf4-all-restricted": {
+      "changes": [
+        {
+          "method": "world_remove"
+        },
+        {
+          "method": "compact_embedding"
+        },
+        {
+          "method": "bnb",
+          "scope": "text",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "vision_blocks",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "merger",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "action",
+          "bits": 4
+        }
+      ],
+      "recipe_sha256": "fe7d6d9c36aa297a81698f76636de25407f8bb0487cc9e3f4119ccfffa8fe55f",
+      "screen_record_sha256": "9b6a80d80834c4f185efef7b317ddbb424bdb4780a7df981d19e7ba434febc01",
+      "smoke": {
+        "episodes": 10,
+        "successes": 8,
+        "success_fraction": 0.8,
+        "wilson95_fraction": [
+          0.49016247153664183,
+          0.9433178485456247
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "37c788152ea0506665d954e04d7bc9413f7f08fd2bfde6cf63bf80bb7e6fd7e6",
+        "record_sha256": "4c817c7b57703a58c05c008a4df341b3ba582f5117d65a0f66bf2e5947890f8d",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 8,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 0
+          },
+          "difference_pp": 0.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "paired_vs_unpruned_NF4": {
+        "transitions": {
+          "both_success": 8,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 0
+        },
+        "difference_pp": 0.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "screen": {
+        "peak_allocated_bytes": 1129250304,
+        "peak_reserved_bytes": 1243611136,
+        "resident_tensor_storage_bytes": 1026338546,
+        "pipeline_median_ms": 137.25975149827718,
+        "pipeline_p95_ms": 139.1491224498168,
+        "inference_core_logical_parameter_elements": 1971657991
+      }
+    },
+    "deploy-nf4-text-channel-boundaries-restricted": {
+      "changes": [
+        {
+          "method": "world_remove"
+        },
+        {
+          "method": "compact_embedding"
+        },
+        {
+          "method": "channels",
+          "scope": "text_mlp",
+          "fraction": 0.25
+        },
+        {
+          "method": "bnb",
+          "scope": "text",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "vision_blocks",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "merger",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "action",
+          "bits": 4
+        }
+      ],
+      "recipe_sha256": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+      "screen_record_sha256": "a2a548df2ab457ea36baebb9b0b71230ab6cb080c905bd9e770858b5854955a4",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 0,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "243ae93982486379ce86d9fbfdf57c7a8e1ec4e56b62a32b836c9a39e50c6ca4",
+        "record_sha256": "1d2d3bc0f6488c3a811735fe6fda9cf95847fa5f046af91f470fb9807a6a1e77",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "paired_vs_unpruned_NF4": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "screen": {
+        "peak_allocated_bytes": 985355776,
+        "peak_reserved_bytes": 2636120064,
+        "resident_tensor_storage_bytes": 890024690,
+        "pipeline_median_ms": 138.71393199951854,
+        "pipeline_p95_ms": 140.1394458982395,
+        "inference_core_logical_parameter_elements": 1707416839
+      }
+    },
+    "deploy-nf4-channel-boundaries-restricted": {
+      "changes": [
+        {
+          "method": "world_remove"
+        },
+        {
+          "method": "compact_embedding"
+        },
+        {
+          "method": "channels",
+          "scope": "action_mlp",
+          "fraction": 0.75
+        },
+        {
+          "method": "channels",
+          "scope": "merger",
+          "fraction": 0.75
+        },
+        {
+          "method": "channels",
+          "scope": "text_mlp",
+          "fraction": 0.25
+        },
+        {
+          "method": "channels",
+          "scope": "vision_mlp",
+          "fraction": 0.5
+        },
+        {
+          "method": "bnb",
+          "scope": "text",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "vision_blocks",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "merger",
+          "bits": 4
+        },
+        {
+          "method": "bnb",
+          "scope": "action",
+          "bits": 4
+        }
+      ],
+      "recipe_sha256": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd",
+      "screen_record_sha256": "0c145e67e90f4429564da23323f3a60445d013985527f153832c354840a68930",
+      "smoke": {
+        "episodes": 10,
+        "successes": 7,
+        "success_fraction": 0.7,
+        "wilson95_fraction": [
+          0.39677814746114537,
+          0.8922087325936989
+        ],
+        "task_successes": {
+          "0": 0,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 0,
+          "6": 1,
+          "7": 1,
+          "8": 0,
+          "9": 1
+        },
+        "episodes_sha256": "9264ce182b6af937d84dae408e1e9d54e983f4737096189726f57d63b2cc9bdc",
+        "record_sha256": "8e1327ff7ed6ab103dc710daf8608358a30f058511caec3e0a3202c5cb2e4437",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 7,
+            "both_failure": 2,
+            "gained_success": 0,
+            "lost_success": 1
+          },
+          "difference_pp": -10.0,
+          "ci95_pp": null,
+          "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+        }
+      },
+      "paired_vs_unpruned_NF4": {
+        "transitions": {
+          "both_success": 7,
+          "both_failure": 2,
+          "gained_success": 0,
+          "lost_success": 1
+        },
+        "difference_pp": -10.0,
+        "ci95_pp": null,
+        "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+      },
+      "screen": {
+        "peak_allocated_bytes": 870110720,
+        "peak_reserved_bytes": 2462056448,
+        "resident_tensor_storage_bytes": 769742066,
+        "pipeline_median_ms": 140.9941934980452,
+        "pipeline_p95_ms": 144.52192879653012,
+        "inference_core_logical_parameter_elements": 1474534663
+      }
+    }
+  },
+  "paired_combined_vs_language_only": {
+    "transitions": {
+      "both_success": 6,
+      "both_failure": 2,
+      "gained_success": 1,
+      "lost_success": 1
+    },
+    "difference_pp": 0.0,
+    "ci95_pp": null,
+    "uncertainty": "One state per task; within-task bootstrap cannot estimate uncertainty"
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Matched ten-state preliminary task comparisons and 80-observation screens; restricted-vocabulary NF4 deployment; equal aggregate scores do not imply equal task outcomes; development, reserved confirmation, archive sizes and steady benchmarks remain pending"
+}

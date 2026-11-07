@@ -1,0 +1,79 @@
+{
+  "verified_at": "2026-10-10T07:47:55.066891+00:00",
+  "candidate": "deploy-hqq2-vision-action",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f",
+  "checkpoint_sha256": "b2a163c16889f89fb1d5e570d95f5c62313c84d0ecebdd384cd87c35e9a8540c",
+  "deployed_tensor_sha256": "ae7c63e060a0486084d33bdb55ad2e5e415db4dcdff3d50c8f92516a32b40fc2",
+  "final": {
+    "episodes": 500,
+    "successes": 484,
+    "success_fraction": 0.968,
+    "wilson95_fraction": [
+      0.9486551309545582,
+      0.9802084863734289
+    ],
+    "task_successes": {
+      "0": 50,
+      "1": 49,
+      "2": 50,
+      "3": 49,
+      "4": 45,
+      "5": 44,
+      "6": 49,
+      "7": 50,
+      "8": 48,
+      "9": 50
+    },
+    "episodes_sha256": "4caeeb445525832e73228564540e453fe1db34029ad3549dfcc81f54167a1efb",
+    "record_sha256": "2d452a08bdc78497037fc5b54a7febc4be8a8204d1449c006bb97e26581e0827",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 465,
+        "both_failure": 6,
+        "gained_success": 19,
+        "lost_success": 10
+      },
+      "difference_pp": 1.7999999999999998,
+      "ci95_pp": [
+        -0.2,
+        3.8
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    },
+    "meets_90_percent_observed_success": true
+  },
+  "paired_full_vocabulary_vs_compact": {
+    "transitions": {
+      "both_success": 481,
+      "both_failure": 7,
+      "gained_success": 3,
+      "lost_success": 9
+    },
+    "difference_pp": -1.2,
+    "ci95_pp": [
+      -2.6,
+      3.469446951953614e-17
+    ],
+    "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+  },
+  "size": {
+    "registered_parameter_elements": 809159815,
+    "represented_logical_parameter_elements": 2282714375,
+    "resident_tensor_storage_bytes": 1288371466,
+    "inference_core_logical_parameter_elements": 2282714375,
+    "serialized_weights": {
+      "bytes": 1288778270,
+      "sha256": "258cae69cbb5fe3f945427513f928c6a2a08dd7490b2fa0e63f31b37aeba5804",
+      "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+      "artifact": "outputs/compression/serialized/deploy-hqq2-vision-action/size/packed.safetensors",
+      "direct_HF_checkpoint": false,
+      "runtime_archive_removed_after_evidence_export": true
+    }
+  },
+  "size_record_sha256": "6676ad437afee575b03dd6050b2fabc8f357a6ab66471d5f33087c9912ec4cca",
+  "packed_archive_reduction_fraction": 0.7670528232849815,
+  "state_membership_validated": true,
+  "final_size_tensor_fingerprints_match": true,
+  "interpretation": "Full-vocabulary mixed NF4/HQQ2 deployment clears the observed 450/500 target on the frozen matched reserved cohort. INT8 full-vocabulary embeddings change coverage and precision relative to the 53-row BF16 compact arm. Final outcomes do not guide further tuning. Steady inference benchmarks remain pending."
+}

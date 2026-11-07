@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-10T01:04:28.797899+00:00",
+  "candidate": "deploy-nf4-channel-boundaries-restricted",
+  "recipe_sha256": "d232bce278a7d7f356f259522c382e199064812318a34d7ed9e2fb3f0435fafd",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 70,
+    "success_fraction": 0.7,
+    "wilson95_fraction": [
+      0.6041514536665332,
+      0.7810511470506724
+    ],
+    "task_successes": {
+      "0": 1,
+      "1": 10,
+      "2": 9,
+      "3": 10,
+      "4": 10,
+      "5": 0,
+      "6": 10,
+      "7": 9,
+      "8": 1,
+      "9": 10
+    },
+    "episodes_sha256": "39f73df4c58505542570ec2d658af2937642727980aaee39aee7281a9bf18602",
+    "record_sha256": "4c5a988d0c2db3e86bddfd7a9ddc0c2b76a691c6c3d7f9efdf33fb30f206b80f",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 69,
+        "both_failure": 17,
+        "gained_success": 1,
+        "lost_success": 13
+      },
+      "difference_pp": -12.0,
+      "ci95_pp": [
+        -18.0,
+        -6.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "18d3be4d10267982f117d50c5bbb245b420014734a5741d13d59bb7236f47476",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": false,
+  "screen_record_sha256": "0c145e67e90f4429564da23323f3a60445d013985527f153832c354840a68930",
+  "screen": {
+    "peak_allocated_bytes": 870110720,
+    "peak_reserved_bytes": 2462056448,
+    "resident_tensor_storage_bytes": 769742066,
+    "pipeline_median_ms": 140.9941934980452,
+    "inference_core_logical_parameter_elements": 1474534663
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state development comparison; all episode records validated. Misses the recorded relative development gate and is ineligible for reserved confirmation under this protocol. Screen memory/latency are not final steady benchmarks; actual packed archive size remains scheduled."
+}

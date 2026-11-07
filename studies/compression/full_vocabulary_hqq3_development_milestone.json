@@ -1,0 +1,109 @@
+{
+  "verified_at": "2026-10-10T04:39:27.309242+00:00",
+  "candidate": "deploy-hqq3-text-hqq2",
+  "recipe_sha256": "8277050f59416179008ca641fb7bc367f9acb17c030360289453e8e37f33c461",
+  "supplemental_selection_sha256": "9b13299b4eaf44b49f2ae6c03f2e1a239dc933749cf8a2006d3788e7ccfa84b9",
+  "development": {
+    "episodes": 100,
+    "successes": 82,
+    "success_fraction": 0.82,
+    "wilson95_fraction": [
+      0.7333264161369926,
+      0.8829977450105364
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 9,
+      "2": 9,
+      "3": 9,
+      "4": 9,
+      "5": 8,
+      "6": 10,
+      "7": 9,
+      "8": 5,
+      "9": 10
+    },
+    "episodes_sha256": "5e71090f71e390b4ba9c191992800d562d6462207ad9dcaed821b23717622b62",
+    "record_sha256": "080ee3ce4f7c19b180104be04a1f1427dadcf3547a83339a7a33488e1960f10b",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 76,
+        "both_failure": 12,
+        "gained_success": 6,
+        "lost_success": 6
+      },
+      "difference_pp": -5.551115123125783e-16,
+      "ci95_pp": [
+        -6.000000000000001,
+        6.000000000000001
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "d658ce23df2bd95e3c28b72d48db10af230ffeae3882bfcf19eb0dfe4c111a3b",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen": {
+    "diagnostic_observations": 80,
+    "warmup": 10,
+    "mean_physical_arm_change_mse": 0.002678687879597419,
+    "maximum_physical_arm_change_mse": 0.009594212286174297,
+    "mean_gripper_disagreement": 0.0,
+    "maximum_normalized_action_difference": 0.3681640625,
+    "pipeline_median_ms": 188.71169999874837,
+    "pipeline_p95_ms": 206.82918909988075,
+    "peak_allocated_bytes": 1402428416,
+    "peak_reserved_bytes": 1904214016,
+    "predicted_actions": 7,
+    "executed_before_replanning": 7,
+    "registered_parameter_elements": 104516743,
+    "represented_logical_parameter_elements": 2282714375,
+    "resident_tensor_storage_bytes": 1265793274,
+    "inference_core_logical_parameter_elements": 2282714375
+  },
+  "screen_record_sha256": "a5ad6db76931227abdb4c7228ca7728603e1890b1f5ebab55b1f0edf7dfd8c6f",
+  "comparisons": {
+    "restricted_embedding_substitution": {
+      "candidate": "deploy-hqq3-text-hqq2-restricted",
+      "recipe_sha256": "bbcd1856047907515d005fe1af8c5764dfa151e684d6a91f7159c8dcdb63db9e",
+      "development_record_sha256": "21e7d4d1137dfc8baeee4fc8d2d515408f0d42b4b0cb6014f803d4cd00dc4078",
+      "development_episodes_sha256": "2a34d387020b4d12357da5b9ff02db4739f4597f676a34f90d9e348563a922e1",
+      "paired_this_minus_control": {
+        "transitions": {
+          "both_success": 79,
+          "both_failure": 16,
+          "gained_success": 3,
+          "lost_success": 2
+        },
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -3.0000000000000004,
+          5.0
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    },
+    "HQQ2_control": {
+      "candidate": "deploy-hqq2-vision-action",
+      "recipe_sha256": "f53a87d01a0f6d9e4c264ee34d7a85fcf87ef2a1029a6d881564767b6239642f",
+      "development_record_sha256": "6180496d0cc755960a5f23221ec902f7acc1c87c41fbeef123db268af0dc6c23",
+      "development_episodes_sha256": "549f0cd03c80dce45306561df4aaa735977a7437f9667f6b920a4d6e6025c6ab",
+      "paired_this_minus_control": {
+        "transitions": {
+          "both_success": 81,
+          "both_failure": 12,
+          "gained_success": 1,
+          "lost_success": 6
+        },
+        "difference_pp": -5.000000000000001,
+        "ci95_pp": [
+          -10.000000000000002,
+          -5.551115123125783e-16
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+      }
+    }
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state full-vocabulary HQQ3 comparison. Quantization substitution changes both algorithm and bit width; embedding substitution changes both vocabulary coverage and precision. Reserved success and steady benchmarks remain pending; archive checks follow in the supplemental queue."
+}

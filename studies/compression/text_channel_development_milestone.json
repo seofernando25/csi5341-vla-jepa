@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-10T01:25:48.675505+00:00",
+  "candidate": "deploy-nf4-text-channel-boundaries-restricted",
+  "recipe_sha256": "9252b8b32b6402a605bf343bbaf63f1463966d68e3417ee7d3886af61fa433d5",
+  "initial_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "baseline_development_record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f",
+  "development": {
+    "episodes": 100,
+    "successes": 78,
+    "success_fraction": 0.78,
+    "wilson95_fraction": [
+      0.6892964648501421,
+      0.8499871761539459
+    ],
+    "task_successes": {
+      "0": 3,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 8,
+      "5": 3,
+      "6": 10,
+      "7": 10,
+      "8": 4,
+      "9": 10
+    },
+    "episodes_sha256": "34173a24d0a0e138ada82ba3934193cfea3ef827c9b57341b4ff18c309ca214c",
+    "record_sha256": "0e03f358af7d54a2a4daf016f4c170167828c88729d6ee2f614aa618053ac035",
+    "paired_vs_B16": {
+      "transitions": {
+        "both_success": 77,
+        "both_failure": 17,
+        "gained_success": 1,
+        "lost_success": 5
+      },
+      "difference_pp": -4.0,
+      "ci95_pp": [
+        -9.0,
+        0.0
+      ],
+      "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+    }
+  },
+  "deployed_tensor_sha256": "be32bd23a44484c21489cdff50e53d97fe5a320bb1b17e38c7542ce02343c4c1",
+  "minimum_development_successes": 77,
+  "clears_relative_development_gate": true,
+  "screen_record_sha256": "a2a548df2ab457ea36baebb9b0b71230ab6cb080c905bd9e770858b5854955a4",
+  "screen": {
+    "peak_allocated_bytes": 985355776,
+    "peak_reserved_bytes": 2636120064,
+    "resident_tensor_storage_bytes": 890024690,
+    "pipeline_median_ms": 138.71393199951854,
+    "inference_core_logical_parameter_elements": 1707416839
+  },
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state development comparison; all episode records validated. Clears the observed relative development gate. Actual packed archive size and development/size fingerprint agreement remain required before final selection; reserved task success and steady benchmarks remain unmeasured."
+}

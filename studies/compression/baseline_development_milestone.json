@@ -1,0 +1,35 @@
+{
+  "verified_at": "2026-10-10T00:53:25.261923+00:00",
+  "candidate": "B16",
+  "development": {
+    "episodes": 100,
+    "successes": 82,
+    "success_fraction": 0.82,
+    "wilson95_fraction": [
+      0.7333264161369926,
+      0.8829977450105364
+    ],
+    "task_successes": {
+      "0": 4,
+      "1": 10,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "5": 5,
+      "6": 10,
+      "7": 10,
+      "8": 3,
+      "9": 10
+    },
+    "episodes_sha256": "532a0bf8c4f486402b6b2842797e594630a005a139cc10ad1b2d9e1ffe56fa74",
+    "record_sha256": "d5d389cc5deb96cdb2666de4dd6ae81af3a6ca3390d0465002a835fb1cde569f"
+  },
+  "deployed_tensor_sha256": "cb32294290a10a8f3537c34b7aab748daff83d02f37a935f27b3aeae5cebf0ee",
+  "initial_development_selection_sha256": "d770e58ac5315f17b7d90ec516df32e88395763bf78ed4dc8fc211d5e294670f",
+  "supplemental_development_selection_sha256": "9b13299b4eaf44b49f2ae6c03f2e1a239dc933749cf8a2006d3788e7ccfa84b9",
+  "minimum_development_successes_for_confirmation": 77,
+  "reserved_target_successes": 450,
+  "reserved_trials_per_candidate": 500,
+  "final_outcomes_used": false,
+  "interpretation": "Completed matched 100-state development control; selected candidates use the same cohort. The separate reserved 500-state cohort determines the observed 90% target. Actual archive size and reserved control remain pending."
+}

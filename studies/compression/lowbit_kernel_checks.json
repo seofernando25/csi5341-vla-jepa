@@ -1,0 +1,53 @@
+{
+  "comparison": "upstream HQQ native dequantization versus fused GemLite BF16 on RTX3090",
+  "checks": [
+    {
+      "bits": 2,
+      "relative_rms_error_vs_native": 0.0036936579272150993,
+      "native_storage": {
+        "registered_parameter_elements": 1152,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 417024
+      },
+      "gemlite_storage": {
+        "registered_parameter_elements": 125583,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 417084
+      }
+    },
+    {
+      "bits": 4,
+      "relative_rms_error_vs_native": 0.0039009982720017433,
+      "native_storage": {
+        "registered_parameter_elements": 1152,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 748800
+      },
+      "gemlite_storage": {
+        "registered_parameter_elements": 208527,
+        "represented_logical_parameter_elements": 1328256,
+        "resident_tensor_storage_bytes": 748860
+      }
+    }
+  ],
+  "checked_at": "2026-10-09T19:43:58.403588+00:00",
+  "weight_shape": [
+    1152,
+    1152
+  ],
+  "input_shape": [
+    32,
+    1152
+  ],
+  "group_size": 64,
+  "axis": 1,
+  "seed": 42,
+  "compute_dtype": "bfloat16",
+  "backend": "Triton CUDA",
+  "tolerance_relative_rms": 0.025,
+  "source_sha256": "ac2cfee3634c21e3b4ebc498c0b2dc242582c57f7fe091e3be11ed4f4eb1cd50",
+  "upstream": {
+    "hqq": "d88a488ec8aa2d58362ef2038a52bca862db2e74",
+    "gemlite": "f649e80e3014bc7ca8195573683c2c440f3bd94e"
+  }
+}

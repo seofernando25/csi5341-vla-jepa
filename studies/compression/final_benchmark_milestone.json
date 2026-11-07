@@ -1,0 +1,687 @@
+{
+  "verified_at": "2026-10-10T08:18:14.510381+00:00",
+  "selection_sha256": "4c3ca640c111a690c081f1285c0c6ed33c80066a66d3142581fa276f1bfde236",
+  "phase_counts": {
+    "screen": {
+      "completed": 198,
+      "failed": 3
+    },
+    "smoke": {
+      "completed": 163
+    },
+    "development": {
+      "completed": 24
+    },
+    "size": {
+      "completed": 24
+    },
+    "final": {
+      "completed": 4
+    },
+    "benchmark": {
+      "completed": 4
+    }
+  },
+  "validated_episode_counts": {
+    "smoke": 1630,
+    "development": 2400,
+    "final": 2000
+  },
+  "scientific_sources_verified": 534,
+  "frozen_inputs_verified": 7,
+  "validated_code_files_unchanged": 17,
+  "coverage_domains": {
+    "language MLP": {
+      "registered": 55,
+      "screened": 55,
+      "rollout_tested": 51,
+      "development_100": 13,
+      "confirmed_500": 3
+    },
+    "language attention": {
+      "registered": 51,
+      "screened": 51,
+      "rollout_tested": 46,
+      "development_100": 12,
+      "confirmed_500": 3
+    },
+    "language heads": {
+      "registered": 6,
+      "screened": 6,
+      "rollout_tested": 6,
+      "development_100": 1,
+      "confirmed_500": 0
+    },
+    "language depth": {
+      "registered": 14,
+      "screened": 14,
+      "rollout_tested": 11,
+      "development_100": 4,
+      "confirmed_500": 0
+    },
+    "vision MLP": {
+      "registered": 49,
+      "screened": 49,
+      "rollout_tested": 44,
+      "development_100": 12,
+      "confirmed_500": 3
+    },
+    "vision attention": {
+      "registered": 45,
+      "screened": 45,
+      "rollout_tested": 41,
+      "development_100": 11,
+      "confirmed_500": 3
+    },
+    "vision heads": {
+      "registered": 7,
+      "screened": 7,
+      "rollout_tested": 6,
+      "development_100": 1,
+      "confirmed_500": 0
+    },
+    "vision depth": {
+      "registered": 14,
+      "screened": 14,
+      "rollout_tested": 11,
+      "development_100": 4,
+      "confirmed_500": 0
+    },
+    "main/DeepStack mergers": {
+      "registered": 29,
+      "screened": 29,
+      "rollout_tested": 27,
+      "development_100": 12,
+      "confirmed_500": 3
+    },
+    "embeddings": {
+      "registered": 24,
+      "screened": 24,
+      "rollout_tested": 24,
+      "development_100": 11,
+      "confirmed_500": 3
+    },
+    "conditioning tokens": {
+      "registered": 4,
+      "screened": 4,
+      "rollout_tested": 4,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "visual tokens": {
+      "registered": 6,
+      "screened": 6,
+      "rollout_tested": 4,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "action MLP": {
+      "registered": 57,
+      "screened": 54,
+      "rollout_tested": 48,
+      "development_100": 12,
+      "confirmed_500": 3
+    },
+    "action attention": {
+      "registered": 39,
+      "screened": 36,
+      "rollout_tested": 33,
+      "development_100": 11,
+      "confirmed_500": 3
+    },
+    "action heads": {
+      "registered": 5,
+      "screened": 5,
+      "rollout_tested": 3,
+      "development_100": 1,
+      "confirmed_500": 0
+    },
+    "action depth": {
+      "registered": 13,
+      "screened": 13,
+      "rollout_tested": 10,
+      "development_100": 5,
+      "confirmed_500": 0
+    },
+    "action interfaces": {
+      "registered": 39,
+      "screened": 36,
+      "rollout_tested": 33,
+      "development_100": 11,
+      "confirmed_500": 3
+    },
+    "solver steps": {
+      "registered": 3,
+      "screened": 3,
+      "rollout_tested": 3,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "generated action horizon": {
+      "registered": 3,
+      "screened": 3,
+      "rollout_tested": 3,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "replanning horizon": {
+      "registered": 3,
+      "screened": 3,
+      "rollout_tested": 3,
+      "development_100": 0,
+      "confirmed_500": 0
+    },
+    "world-model residency": {
+      "registered": 26,
+      "screened": 26,
+      "rollout_tested": 26,
+      "development_100": 12,
+      "confirmed_500": 3
+    }
+  },
+  "screen_runtime_failures": [
+    {
+      "candidate": "action-bnb4",
+      "error": "\"silu_cuda\" not implemented for 'Byte'"
+    },
+    {
+      "candidate": "action-bnb8",
+      "error": "\"silu_cuda\" not implemented for 'Char'"
+    },
+    {
+      "candidate": "action-torchao-dynamic8-compiled",
+      "error": "self.size(0) needs to be greater than 16, but got 7"
+    }
+  ],
+  "candidates": {
+    "B16": {
+      "final": {
+        "episodes": 500,
+        "successes": 475,
+        "success_fraction": 0.95,
+        "wilson95_fraction": [
+          0.9272318388284524,
+          0.9659062547561506
+        ],
+        "task_successes": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 48,
+          "4": 48,
+          "5": 33,
+          "6": 50,
+          "7": 50,
+          "8": 47,
+          "9": 49
+        },
+        "episodes_sha256": "051ddc38480cb51d15cfb9a5a1cf608ba528a29be13707e4b7c85e62896185fa",
+        "record_sha256": "6f70c005a77a75f1ca5e5ead6c89b2783fb11300439096c7424c6c2b9e3befda",
+        "meets_90_percent_observed_success": true
+      },
+      "benchmark": {
+        "predictions_per_repetition": 500,
+        "repetitions": 3,
+        "warmup_per_repetition": 20,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_timing_csv": false,
+          "wall_seconds": 7.99520871599816,
+          "peak_allocated_bytes": 5605132288,
+          "peak_reserved_bytes": 5641338880,
+          "purpose": "Compile/autotune bank input shapes before steady inference measurements"
+        },
+        "memory_peaks": [
+          {
+            "mode": "policy",
+            "repetition": 0,
+            "allocated_bytes": 5605132800,
+            "reserved_bytes": 5641338880
+          },
+          {
+            "mode": "policy",
+            "repetition": 1,
+            "allocated_bytes": 5605132800,
+            "reserved_bytes": 5641338880
+          },
+          {
+            "mode": "policy",
+            "repetition": 2,
+            "allocated_bytes": 5605132800,
+            "reserved_bytes": 5641338880
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 0,
+            "allocated_bytes": 5605132288,
+            "reserved_bytes": 5641338880
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 1,
+            "allocated_bytes": 5605132288,
+            "reserved_bytes": 5641338880
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 2,
+            "allocated_bytes": 5605132288,
+            "reserved_bytes": 5641338880
+          }
+        ],
+        "registered_parameter_elements": 2766137991,
+        "represented_logical_parameter_elements": 2766137991,
+        "resident_tensor_storage_bytes": 5532276494,
+        "inference_core_logical_parameter_elements": 2282714375,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "policy": {
+          "median_ms": 76.28913400185411,
+          "p95_ms": 79.31286955281394
+        },
+        "pipeline": {
+          "median_ms": 77.51055799963069,
+          "p95_ms": 80.51419844960037
+        },
+        "serialized_weights": {
+          "bytes": 5532491478,
+          "sha256": "084780931bd9f33848e890f8035944bf624bc4e50c6dc99a14604e61c536fddb",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/B16/benchmark/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "packed_weight_reduction_fraction": 0.0,
+      "peak_allocated_reduction_fraction": 0.0,
+      "peak_reserved_reduction_fraction": 0.0,
+      "pipeline_median_ratio_vs_B16": 1.0,
+      "peak_allocated_bytes": 5605132800,
+      "peak_reserved_bytes": 5641338880,
+      "tensor_sha256": "cb32294290a10a8f3537c34b7aab748daff83d02f37a935f27b3aeae5cebf0ee",
+      "meets_90_percent_success_and_25_percent_memory_reduction": false
+    },
+    "deploy-nf4-vision-text-channels-restricted": {
+      "final": {
+        "episodes": 500,
+        "successes": 467,
+        "success_fraction": 0.934,
+        "wilson95_fraction": [
+          0.9087605988391466,
+          0.9526214736402262
+        ],
+        "task_successes": {
+          "0": 50,
+          "1": 49,
+          "2": 50,
+          "3": 50,
+          "4": 45,
+          "5": 29,
+          "6": 49,
+          "7": 50,
+          "8": 46,
+          "9": 49
+        },
+        "episodes_sha256": "022452d75aab1c770d72340ecf7beb85d8d26ff6e98772186689f544b35234f2",
+        "record_sha256": "dde2f052b378cea567bb919951f4f1ca0d2582c5d22488792a5af041c2bb83f1",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 462,
+            "both_failure": 20,
+            "gained_success": 5,
+            "lost_success": 13
+          },
+          "difference_pp": -1.6,
+          "ci95_pp": [
+            -3.2000000000000006,
+            0.0
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        },
+        "meets_90_percent_observed_success": true
+      },
+      "benchmark": {
+        "predictions_per_repetition": 500,
+        "repetitions": 3,
+        "warmup_per_repetition": 20,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_timing_csv": false,
+          "wall_seconds": 13.767981472003157,
+          "peak_allocated_bytes": 940726784,
+          "peak_reserved_bytes": 2327838720,
+          "purpose": "Compile/autotune bank input shapes before steady inference measurements"
+        },
+        "memory_peaks": [
+          {
+            "mode": "policy",
+            "repetition": 0,
+            "allocated_bytes": 940727296,
+            "reserved_bytes": 2327838720
+          },
+          {
+            "mode": "policy",
+            "repetition": 1,
+            "allocated_bytes": 940727296,
+            "reserved_bytes": 2327838720
+          },
+          {
+            "mode": "policy",
+            "repetition": 2,
+            "allocated_bytes": 940727296,
+            "reserved_bytes": 2327838720
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 0,
+            "allocated_bytes": 940726784,
+            "reserved_bytes": 2327838720
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 1,
+            "allocated_bytes": 940726784,
+            "reserved_bytes": 2327838720
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 2,
+            "allocated_bytes": 940726784,
+            "reserved_bytes": 2327838720
+          }
+        ],
+        "registered_parameter_elements": 806073479,
+        "represented_logical_parameter_elements": 1606704391,
+        "resident_tensor_storage_bytes": 837997298,
+        "inference_core_logical_parameter_elements": 1606704391,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "policy": {
+          "median_ms": 134.0329929953441,
+          "p95_ms": 136.38550604737247
+        },
+        "pipeline": {
+          "median_ms": 135.1303774972621,
+          "p95_ms": 137.998395847535
+        },
+        "serialized_weights": {
+          "bytes": 838493279,
+          "sha256": "dfc8821ea446ea9057e41e1fd00fd35c8bcbff6dca32562fc3ff406b552c4e5b",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/deploy-nf4-vision-text-channels-restricted/benchmark/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "packed_weight_reduction_fraction": 0.8484420116444326,
+      "peak_allocated_reduction_fraction": 0.832166813960233,
+      "peak_reserved_reduction_fraction": 0.587360594795539,
+      "pipeline_median_ratio_vs_B16": 1.743380269535744,
+      "peak_allocated_bytes": 940727296,
+      "peak_reserved_bytes": 2327838720,
+      "tensor_sha256": "703fc8d8cb3c6933c409578535f445df5ee68919b7addab1763068d2f5e5f427",
+      "meets_90_percent_success_and_25_percent_memory_reduction": true
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "final": {
+        "episodes": 500,
+        "successes": 490,
+        "success_fraction": 0.98,
+        "wilson95_fraction": [
+          0.9635798167531208,
+          0.9891008164037892
+        ],
+        "task_successes": {
+          "0": 50,
+          "1": 50,
+          "2": 49,
+          "3": 50,
+          "4": 45,
+          "5": 48,
+          "6": 50,
+          "7": 49,
+          "8": 49,
+          "9": 50
+        },
+        "episodes_sha256": "57c57b6ca11ee00b0ce7d1343535d61b151dd0669617e3b795ee81ee95f2d964",
+        "record_sha256": "a36e87803f90f99889eb64ab84c99656a97ef61afeb04799d63e97b4ab69ab57",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 468,
+            "both_failure": 3,
+            "gained_success": 22,
+            "lost_success": 7
+          },
+          "difference_pp": 3.0,
+          "ci95_pp": [
+            1.2,
+            5.0
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        },
+        "meets_90_percent_observed_success": true
+      },
+      "benchmark": {
+        "predictions_per_repetition": 500,
+        "repetitions": 3,
+        "warmup_per_repetition": 20,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_timing_csv": false,
+          "wall_seconds": 14.511471798999992,
+          "peak_allocated_bytes": 1065880064,
+          "peak_reserved_bytes": 1285554176,
+          "purpose": "Compile/autotune bank input shapes before steady inference measurements"
+        },
+        "memory_peaks": [
+          {
+            "mode": "policy",
+            "repetition": 0,
+            "allocated_bytes": 1065880576,
+            "reserved_bytes": 1285554176
+          },
+          {
+            "mode": "policy",
+            "repetition": 1,
+            "allocated_bytes": 1065880576,
+            "reserved_bytes": 1285554176
+          },
+          {
+            "mode": "policy",
+            "repetition": 2,
+            "allocated_bytes": 1065880576,
+            "reserved_bytes": 1285554176
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 0,
+            "allocated_bytes": 1065880064,
+            "reserved_bytes": 1285554176
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 1,
+            "allocated_bytes": 1065880064,
+            "reserved_bytes": 1285554176
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 2,
+            "allocated_bytes": 1065880064,
+            "reserved_bytes": 1285554176
+          }
+        ],
+        "registered_parameter_elements": 809268359,
+        "represented_logical_parameter_elements": 1971657991,
+        "resident_tensor_storage_bytes": 977424050,
+        "inference_core_logical_parameter_elements": 1971657991,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "policy": {
+          "median_ms": 142.29709999926854,
+          "p95_ms": 145.12590405029187
+        },
+        "pipeline": {
+          "median_ms": 143.51764399907552,
+          "p95_ms": 146.06975524875452
+        },
+        "serialized_weights": {
+          "bytes": 977829582,
+          "sha256": "4979656b1570b556d7660c5c22cf1df15dd07b0513500431751d1be5ed3ee46d",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/deploy-hqq2-vision-action-restricted/benchmark/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "packed_weight_reduction_fraction": 0.8232569203426073,
+      "peak_allocated_reduction_fraction": 0.809838479473671,
+      "peak_reserved_reduction_fraction": 0.7721189591078067,
+      "pipeline_median_ratio_vs_B16": 1.8515883216807616,
+      "peak_allocated_bytes": 1065880576,
+      "peak_reserved_bytes": 1285554176,
+      "tensor_sha256": "97e768ff497378831d0b9cab0b9f1dc86b8d1d62451db57a18a1ac75e62b243b",
+      "meets_90_percent_success_and_25_percent_memory_reduction": true
+    },
+    "deploy-hqq2-vision-action": {
+      "final": {
+        "episodes": 500,
+        "successes": 484,
+        "success_fraction": 0.968,
+        "wilson95_fraction": [
+          0.9486551309545582,
+          0.9802084863734289
+        ],
+        "task_successes": {
+          "0": 50,
+          "1": 49,
+          "2": 50,
+          "3": 49,
+          "4": 45,
+          "5": 44,
+          "6": 49,
+          "7": 50,
+          "8": 48,
+          "9": 50
+        },
+        "episodes_sha256": "4caeeb445525832e73228564540e453fe1db34029ad3549dfcc81f54167a1efb",
+        "record_sha256": "2d452a08bdc78497037fc5b54a7febc4be8a8204d1449c006bb97e26581e0827",
+        "paired_vs_B16": {
+          "transitions": {
+            "both_success": 465,
+            "both_failure": 6,
+            "gained_success": 19,
+            "lost_success": 10
+          },
+          "difference_pp": 1.7999999999999998,
+          "ci95_pp": [
+            -0.2,
+            3.8
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42"
+        },
+        "meets_90_percent_observed_success": true
+      },
+      "benchmark": {
+        "predictions_per_repetition": 500,
+        "repetitions": 3,
+        "warmup_per_repetition": 20,
+        "backend_shape_priming": {
+          "observations": 100,
+          "included_in_timing_csv": false,
+          "wall_seconds": 14.428110745997401,
+          "peak_allocated_bytes": 1376827392,
+          "peak_reserved_bytes": 2497708032,
+          "purpose": "Compile/autotune bank input shapes before steady inference measurements"
+        },
+        "memory_peaks": [
+          {
+            "mode": "policy",
+            "repetition": 0,
+            "allocated_bytes": 1376827904,
+            "reserved_bytes": 2497708032
+          },
+          {
+            "mode": "policy",
+            "repetition": 1,
+            "allocated_bytes": 1376827904,
+            "reserved_bytes": 2497708032
+          },
+          {
+            "mode": "policy",
+            "repetition": 2,
+            "allocated_bytes": 1376827904,
+            "reserved_bytes": 2497708032
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 0,
+            "allocated_bytes": 1376827392,
+            "reserved_bytes": 2497708032
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 1,
+            "allocated_bytes": 1376827392,
+            "reserved_bytes": 2497708032
+          },
+          {
+            "mode": "pipeline",
+            "repetition": 2,
+            "allocated_bytes": 1376827392,
+            "reserved_bytes": 2497708032
+          }
+        ],
+        "registered_parameter_elements": 809159815,
+        "represented_logical_parameter_elements": 2282714375,
+        "resident_tensor_storage_bytes": 1288371466,
+        "inference_core_logical_parameter_elements": 2282714375,
+        "predicted_actions": 7,
+        "executed_before_replanning": 7,
+        "policy": {
+          "median_ms": 141.6572534981242,
+          "p95_ms": 144.37789484582026
+        },
+        "pipeline": {
+          "median_ms": 142.91214349941583,
+          "p95_ms": 145.47352405134006
+        },
+        "serialized_weights": {
+          "bytes": 1288778270,
+          "sha256": "258cae69cbb5fe3f945427513f928c6a2a08dd7490b2fa0e63f31b37aeba5804",
+          "format": "safetensors packed tensor archive; subclass layouts and aliases recorded",
+          "artifact": "outputs/compression/serialized/deploy-hqq2-vision-action/benchmark/packed.safetensors",
+          "direct_HF_checkpoint": false,
+          "runtime_archive_removed_after_evidence_export": true
+        }
+      },
+      "packed_weight_reduction_fraction": 0.7670528232849815,
+      "peak_allocated_reduction_fraction": 0.7543630181251013,
+      "peak_reserved_reduction_fraction": 0.5572490706319703,
+      "pipeline_median_ratio_vs_B16": 1.843776476233041,
+      "peak_allocated_bytes": 1376827904,
+      "peak_reserved_bytes": 2497708032,
+      "tensor_sha256": "ae7c63e060a0486084d33bdb55ad2e5e415db4dcdff3d50c8f92516a32b40fc2",
+      "meets_90_percent_success_and_25_percent_memory_reduction": true
+    }
+  },
+  "raw_evidence_sha256": {
+    "measurements/B16/final/run.json": "6f70c005a77a75f1ca5e5ead6c89b2783fb11300439096c7424c6c2b9e3befda",
+    "measurements/B16/final/episodes.csv": "051ddc38480cb51d15cfb9a5a1cf608ba528a29be13707e4b7c85e62896185fa",
+    "measurements/B16/benchmark/run.json": "64bafaa1bf7c6fa2cb2eec11a833bb40a209da6db0152af9d71172d1e6ab06c7",
+    "measurements/B16/benchmark/timings.csv": "58f9b2ed1122446d42f9d2c881d17314e43891f922014fe2b05b4205598ce14c",
+    "measurements/deploy-nf4-vision-text-channels-restricted/final/run.json": "dde2f052b378cea567bb919951f4f1ca0d2582c5d22488792a5af041c2bb83f1",
+    "measurements/deploy-nf4-vision-text-channels-restricted/final/episodes.csv": "022452d75aab1c770d72340ecf7beb85d8d26ff6e98772186689f544b35234f2",
+    "measurements/deploy-nf4-vision-text-channels-restricted/benchmark/run.json": "239a60f4f82204857e2cf296cbf5058ff5a2312bb0419fe9d7f92d59ecba3249",
+    "measurements/deploy-nf4-vision-text-channels-restricted/benchmark/timings.csv": "b1797e7ea1ea699cde58ef607c81d7de5f945bb1d847de6e01d3605ebe036682",
+    "measurements/deploy-hqq2-vision-action-restricted/final/run.json": "a36e87803f90f99889eb64ab84c99656a97ef61afeb04799d63e97b4ab69ab57",
+    "measurements/deploy-hqq2-vision-action-restricted/final/episodes.csv": "57c57b6ca11ee00b0ce7d1343535d61b151dd0669617e3b795ee81ee95f2d964",
+    "measurements/deploy-hqq2-vision-action-restricted/benchmark/run.json": "7de2851b94f0562d9e9f591ab3f606c242ab65a0d4f7f3e6ea1876ac4cc4ffcb",
+    "measurements/deploy-hqq2-vision-action-restricted/benchmark/timings.csv": "4c2602d25bce11732f2d6b9cd2315813872652d8a9273bee454c0a9ff4672948",
+    "measurements/deploy-hqq2-vision-action/final/run.json": "2d452a08bdc78497037fc5b54a7febc4be8a8204d1449c006bb97e26581e0827",
+    "measurements/deploy-hqq2-vision-action/final/episodes.csv": "4caeeb445525832e73228564540e453fe1db34029ad3549dfcc81f54167a1efb",
+    "measurements/deploy-hqq2-vision-action/benchmark/run.json": "aaaec3e539119b89084e399fb115505e5c866fb3d9257d255062d520ccad106d",
+    "measurements/deploy-hqq2-vision-action/benchmark/timings.csv": "b8138595715b09d96785c59b7a7f15f6bb51c534f14a6717cfe12be4862ef982"
+  },
+  "interpretation": "Measured warm inference on RTX 3090. Allocated and allocator-reserved CUDA bytes are distinct, not NVML process memory. Shape priming and initialization are excluded from warmed timing. Packed archives require reconstruction from pinned checkpoint plus recipe. No recipe changes follow reserved outcomes."
+}

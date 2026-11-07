@@ -1,0 +1,11 @@
+{
+  "id": "text_mlp-bnb8",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "text_mlp",
+      "bits": 8
+    }
+  ]
+}

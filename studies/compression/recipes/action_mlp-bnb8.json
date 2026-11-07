@@ -1,0 +1,11 @@
+{
+  "id": "action_mlp-bnb8",
+  "family": "quantization",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "action_mlp",
+      "bits": 8
+    }
+  ]
+}
