@@ -189,7 +189,7 @@ def success_summary(record, rows):
 
 def checkpoint_step(record):
     """Optimizer step of an S500 checkpoint path (.../checkpoints/<step>/pretrained_model)."""
-    checkpoint = record["arguments"].get("checkpoint")
+    checkpoint = record.get("arguments", {}).get("checkpoint")
     return int(Path(checkpoint).parent.name) if checkpoint else None
 
 
