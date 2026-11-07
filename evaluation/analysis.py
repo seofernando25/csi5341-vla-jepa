@@ -189,7 +189,7 @@ def success_summary(record, rows):
 
 def checkpoint_step(record):
     """Optimizer step of an S500 checkpoint path (.../checkpoints/<step>/pretrained_model)."""
-    checkpoint = record.get("arguments", {}).get("checkpoint")
+    checkpoint = record.get("checkpoint") or record.get("arguments", {}).get("checkpoint")
     return int(Path(checkpoint).parent.name) if checkpoint else None
 
 
@@ -298,7 +298,7 @@ def main():
             result[key] = success_summary(record, rows)
             episodes[variant] = rows
             phases.add(record["phase"])
-        if variant == "S500":
+        if variant == "S500" and checkpoint_step(record) is not None:
             s500_step = checkpoint_step(record)
     if len(phases) > 1:
         raise ValueError("Development and final rollouts cannot be pooled")
