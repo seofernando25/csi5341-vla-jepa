@@ -1,1 +1,1 @@
-"""Matched CSI 5341 evaluation and publication artifacts; independent of Dream-RSI."""
+"""Evaluation, timing, S500 training and post-training compression of VLA-JEPA on LIBERO."""

@@ -12,7 +12,7 @@ import torch
 import torch._inductor.config as inductor_config
 from torch.nn import functional as F
 
-from evaluation.compression.transforms import selected_linears
+from evaluation.compression.topology import selected_linears
 
 
 def linear_operation(inputs, weight, bias):
@@ -23,7 +23,7 @@ def compiled_forward(operation, module, input):
     return operation(input, module.weight, module.bias)
 
 
-def compile_linears(policy, change):
+def compile_linears(policy, change, calibration):
     gemm_backend = change.get("gemm_backend")
     if gemm_backend not in {None, "triton"}:
         raise ValueError("Unknown compiled GEMM backend")
@@ -70,15 +70,17 @@ def compile_linears(policy, change):
         triton_version = version("triton")
     except PackageNotFoundError:
         triton_version = None
-    return {
-        "method": "compile_linears",
-        "scope": change["scope"],
-        "options": options,
-        "recompile_limit": 128,
-        "inductor_settings": settings,
-        "compiler_versions": {"torch": torch.__version__, "triton": triton_version},
-        "silent_eager_fallback": False,
-        "compiled_modules": list(entries),
-        **({"gemm_backend": gemm_backend} if gemm_backend else {}),
-        "interpretation": "Scoped Linear compilation; remaining policy operations are eager",
-    }
+    return [
+        {
+            "method": "compile_linears",
+            "scope": change["scope"],
+            "options": options,
+            "recompile_limit": 128,
+            "inductor_settings": settings,
+            "compiler_versions": {"torch": torch.__version__, "triton": triton_version},
+            "silent_eager_fallback": False,
+            "compiled_modules": list(entries),
+            **({"gemm_backend": gemm_backend} if gemm_backend else {}),
+            "interpretation": "Scoped Linear compilation; remaining policy operations are eager",
+        }
+    ]

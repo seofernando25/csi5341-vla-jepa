@@ -1,4 +1,4 @@
-"""JSON I/O and run-environment metadata shared by evaluation commands."""
+"""JSON I/O, run records and environment metadata shared by evaluation commands."""
 
 from __future__ import annotations
 
@@ -7,6 +7,8 @@ import json
 import os
 import platform
 import subprocess
+import time
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -25,8 +27,34 @@ def write_json(path, value):
     os.replace(temporary, path)
 
 
-def episode_seed(protocol, task_id, trial, phase):
+PROTOCOL = read_json(ROOT / "evaluation/protocol.json")
+
+
+def run_id(label):
+    return datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + "-" + label
+
+
+@contextmanager
+def recorded_run(path, record):
+    """Keep `record` in `path` as running, then completed, or failed with the error."""
+    record["status"] = "running"
+    write_json(path, record)
+    started = time.perf_counter()
+    try:
+        yield record
+        if record["status"] == "running":
+            record["status"] = "completed"
+    except BaseException as exc:
+        record.update(status="failed", error_type=type(exc).__name__, error=str(exc))
+        raise
+    finally:
+        record["wall_seconds"] = time.perf_counter() - started
+        write_json(path, record)
+
+
+def episode_seed(task_id, trial, phase, protocol=None):
     """Simulator seed of one episode; final trials are offset from development trials."""
+    protocol = protocol or PROTOCOL
     offset = protocol["final_seed_offset"] if phase == "final" else 0
     return protocol["seed"] + task_id * 1000 + trial + offset
 

@@ -4,15 +4,11 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
-from pathlib import Path
 
 import torch
-from huggingface_hub import snapshot_download
 from torch import nn
 
-from evaluation.common import ROOT, read_json
-
-SOURCES = read_json(ROOT / "evaluation/sources.json")
+from evaluation.sources import SOURCES, artifact
 
 
 class OncePerWarning(logging.Filter):
@@ -28,19 +24,6 @@ class OncePerWarning(logging.Filter):
             return False
         self.seen.add(message)
         return True
-
-
-def artifact(name):
-    source = SOURCES["models"][name]
-    return Path(
-        snapshot_download(
-            source["repo"],
-            revision=source["revision"],
-            local_files_only=True,
-            allow_patterns=["*.json", "*.safetensors", "*.txt"],
-            ignore_patterns=["onnx/*", "original/*"],
-        )
-    )
 
 
 def quantize_decoder(decoder, bits):

@@ -239,12 +239,3 @@ def test_real_smol_processor_preserves_unit_range_image_contrast():
     image[:, :, 4:] = 1
     pixels = adapter.build_inputs([[image]], ["pick"], "<a>", "<e>")["pixel_values"]
     assert torch.equal(pixels[0, 0], 2 * image - 1)
-    # Demonstrate the previous call's failure using the actual dependency.
-    legacy = processor(
-        text=["<image>"],
-        images=[[image]],
-        return_tensors="pt",
-        do_rescale=False,
-        images_kwargs={"device": "cpu"},
-    )["pixel_values"]
-    assert legacy.max() - legacy.min() < 0.01

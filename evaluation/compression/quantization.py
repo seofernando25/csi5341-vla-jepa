@@ -1,11 +1,8 @@
-"""Calibrated GPTQ/SparseGPT adapters and packed INT4 deployment.
+"""Weight quantization: bitsandbytes INT8/NF4, packed INT4 (AWQ-style), TorchAO, embeddings.
 
-Upstream algorithms come from evaluation.compression.vendor. No optimizer training is performed.
+Every handler takes (policy, change, calibration) and returns a list of event records.
 """
 
-from __future__ import annotations
-
-import importlib.util
 import math
 import sys
 
@@ -14,8 +11,76 @@ from torch import nn
 from torch.nn import functional as F
 
 from evaluation.common import ROOT
-from evaluation.compression.transforms import replace, selected_linears
-from evaluation.compression.vendor import upstream
+from evaluation.compression.topology import replace, roots, selected_linears
+from evaluation.models import quantize_decoder
+
+ACTION_SCOPES = {"action", "action_interfaces", "all"}
+
+
+def guard_action_dtype(policy, scope):
+    """Keep the action head's timestep encoder in BF16 after its Linear weights are packed.
+
+    The native TimestepEncoder takes its activation dtype from its first parameter, which
+    becomes integer data once quantized. A zero-element BF16 parameter restores the contract.
+    """
+    if scope not in ACTION_SCOPES:
+        return []
+    encoder = roots(policy)["action"].model.timestep_encoder
+    if hasattr(encoder, "_activation_dtype_anchor"):
+        return []
+    device = next(encoder.parameters()).device
+    encoder.register_parameter(
+        "_activation_dtype_anchor",
+        nn.Parameter(torch.empty(0, device=device, dtype=torch.bfloat16), requires_grad=False),
+    )
+    return [
+        {
+            "method": "activation_dtype_guard",
+            "module": "action.model.timestep_encoder",
+            "activation_dtype": "bfloat16",
+            "parameter_elements": 0,
+        }
+    ]
+
+
+class Int8Embedding(nn.Module):
+    """Real row-wise packed INT8 weights, with per-row FP32 scales."""
+
+    def __init__(self, source):
+        super().__init__()
+        weight = source.weight.detach().float()
+        scales = weight.abs().amax(1).clamp_min(1e-8) / 127
+        self.register_buffer(
+            "values", (weight / scales[:, None]).round().clamp(-127, 127).to(torch.int8)
+        )
+        self.register_buffer("scales", scales)
+        self.num_embeddings, self.embedding_dim = weight.shape
+        self.output_dtype = source.weight.dtype
+
+    def forward(self, ids):
+        return (F.embedding(ids, self.values).float() * self.scales[ids, None]).to(
+            self.output_dtype
+        )
+
+
+class CompactEmbedding(nn.Module):
+    """Fixed-task vocabulary pruning; unseen words fail instead of silently remapping."""
+
+    def __init__(self, source, token_ids):
+        super().__init__()
+        ids = torch.unique(token_ids.to(source.weight.device)).sort().values
+        lookup = torch.full((source.num_embeddings,), -1, device=ids.device, dtype=torch.int32)
+        lookup[ids] = torch.arange(len(ids), device=ids.device, dtype=torch.int32)
+        self.register_buffer("lookup", lookup)
+        self.register_buffer("original_ids", ids)
+        self.weight = nn.Parameter(source.weight.detach()[ids].clone(), requires_grad=False)
+        self.num_embeddings, self.embedding_dim = self.weight.shape
+
+    def forward(self, ids):
+        mapped = self.lookup[ids].long()
+        if bool((mapped < 0).any()):
+            raise ValueError("Unseen token ID in restricted LIBERO-Spatial vocabulary")
+        return F.embedding(mapped, self.weight)
 
 
 class PackedInt4(nn.Module):
@@ -78,134 +143,28 @@ def affine_quantize(weight, group_size=128):
     return q.reshape_as(weight).to(torch.uint8), scales, zeros, reconstructed
 
 
-def load_upstream(method):
-    folder, _ = upstream(method)
-    # Both repositories use a top-level quant.py import; isolate that name during loading.
-    previous = sys.modules.pop("quant", None)
-    sys.path.insert(0, str(folder))
-    try:
-        spec = importlib.util.spec_from_file_location(
-            f"compression_upstream_{method}", folder / f"{method}.py"
-        )
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        quant = sys.modules["quant"]
-    finally:
-        sys.path.remove(str(folder))
-        sys.modules.pop("quant", None)
-        if previous is not None:
-            sys.modules["quant"] = previous
-    return module, quant
-
-
-def second_order(policy, change, calibration):
-    """Calibrate one block at a time, including preceding compressed blocks."""
-    from evaluation.compression.study import inputs, observation_bank
-    from evaluation.run import PROTOCOL, processors
-
-    method = change["method"]
-    upstream, quant = load_upstream(method)
-    selected = selected_linears(policy, change["scope"])
-    groups = {}
-    for full, entry in selected.items():
-        parts = full.split(".")
-        # Group complete decoder, vision or DiT blocks; interface linears form their own group.
-        group = ".".join(parts[:3]) if parts[0] != "action" else ".".join(parts[:4])
-        groups.setdefault(group, []).append((full, entry))
-    bank = observation_bank()
-    pipeline = processors(policy)
-    events = []
-    for group, entries in groups.items():
-        helpers, handles = {}, []
-        for full, (_, _, linear) in entries:
-            helper = upstream.GPTQ(linear) if method == "gptq" else upstream.SparseGPT(linear)
-            if method == "gptq":
-                helper.quantizer = quant.Quantizer()
-                helper.quantizer.configure(4, perchannel=True, sym=False, mse=False)
-            helpers[full] = helper
-
-            def hook(module, args, output, helper=helper):
-                # Calibration outer autocast must not turn Hessian products into BF16.
-                with torch.autocast("cuda", enabled=False):
-                    helper.add_batch(args[0].detach().float(), output.detach().float())
-
-            handles.append(linear.register_forward_hook(hook))
-        try:
-            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-                for index in calibration["bank_indices"]:
-                    torch.manual_seed(PROTOCOL["seed"] + index)
-                    policy.predict_action_chunk(inputs(bank[index], pipeline))
-        finally:
-            for handle in handles:
-                handle.remove()
-        for full, (root, name, linear) in entries:
-            helper = helpers[full]
-            if method == "gptq":
-                scales, zeros = [], []
-                original = helper.quantizer.find_params
-
-                def save_qparams(
-                    x, weight=False, original=original, scales=scales, zeros=zeros, helper=helper
-                ):
-                    original(x, weight=weight)
-                    if x.shape[-1] == 128:
-                        scales.append(helper.quantizer.scale.detach().clone().flatten())
-                        zeros.append(helper.quantizer.zero.detach().clone().flatten())
-
-                helper.quantizer.find_params = save_qparams
-                helper.fasterquant(blocksize=128, percdamp=0.01, groupsize=128, actorder=False)
-                scale = torch.stack(scales, 1)
-                zero = torch.stack(zeros, 1)
-                q = (
-                    (
-                        linear.weight.detach().float().reshape(linear.out_features, -1, 128)
-                        / scale[..., None]
-                        + zero[..., None]
-                    )
-                    .round()
-                    .clamp(0, 15)
-                )
-                replace(root, name, PackedInt4(linear, q.reshape_as(linear.weight), scale, zero))
-                events.append(
-                    {
-                        "method": "GPTQ",
-                        "module": full,
-                        "bits": 4,
-                        "group_size": 128,
-                        "act_order": False,
-                        "damping": 0.01,
-                        "packed_kernel": "aten tinygemm",
-                    }
-                )
-            else:
-                pattern = change.get("pattern")
-                helper.fasterprune(
-                    change.get("fraction", 0.5),
-                    prunen=2 if pattern == "2:4" else 0,
-                    prunem=4 if pattern == "2:4" else 0,
-                    percdamp=0.01,
-                )
-                removed = int((linear.weight == 0).sum())
-                if change.get("sparse_kernel"):
-                    if pattern != "2:4":
-                        raise ValueError("Packed sparse deployment requires a 2:4 pattern")
-                    linear.weight = nn.Parameter(
-                        torch.sparse.to_sparse_semi_structured(linear.weight),
-                        requires_grad=False,
-                    )
-                events.append(
-                    {
-                        "method": "SparseGPT",
-                        "module": full,
-                        "fraction": change.get("fraction", 0.5),
-                        "pattern": pattern,
-                        "removed_weights": removed,
-                        "storage": "2:4 packed" if change.get("sparse_kernel") else "dense zeros",
-                    }
-                )
-            helper.free()
-        print(f"{method} completed {group}", flush=True)
+def bitsandbytes(policy, change, calibration):
+    """LLM.int8 (bits=8) or NF4 (bits=4) on every Linear in `scope`."""
+    events = guard_action_dtype(policy, change["scope"])
+    for full, (root, name, module) in selected_linears(policy, change["scope"]).items():
+        holder = nn.Module()
+        holder.add_module("linear", module)
+        converted = quantize_decoder(holder, change["bits"])
+        replace(root, name, holder.linear)
+        events.append({"method": "bnb", **converted[0], "module": full})
     return events
+
+
+def embedding(policy, change, calibration):
+    """INT8 rows for the full vocabulary, or BF16 rows for LIBERO's prompt tokens only."""
+    text = roots(policy)["text"]
+    # The policy calls the inner model, so the tied vocabulary output head is unused.
+    policy.model.qwen.model.lm_head = nn.Identity()
+    if change["method"] == "int8_embedding":
+        text.embed_tokens = Int8Embedding(text.embed_tokens)
+    else:
+        text.embed_tokens = CompactEmbedding(text.embed_tokens, calibration["token_ids"])
+    return [{"method": change["method"], "stored_rows": text.embed_tokens.num_embeddings}]
 
 
 def activation_scaled_int4(policy, change, calibration):
@@ -214,7 +173,7 @@ def activation_scaled_int4(policy, change, calibration):
     This adaptation searches diagonal input-energy reconstruction, rather than
     the original AWQ block-output objective; label that distinction in results.
     """
-    events = []
+    events = guard_action_dtype(policy, change["scope"])
     for full, (root, name, linear) in selected_linears(policy, change["scope"]).items():
         if linear.in_features % 128:
             raise ValueError(f"INT4 group alignment unsupported: {full}")
@@ -244,7 +203,7 @@ def activation_scaled_int4(policy, change, calibration):
     return events
 
 
-def torchao_quantize(policy, change):
+def torchao_quantize(policy, change, calibration):
     folder = ROOT / "outputs/compression/vendor_packages"
     if str(folder) not in sys.path:
         sys.path.insert(0, str(folder))
@@ -262,6 +221,7 @@ def torchao_quantize(policy, change):
         if change["bits"] == 4
         else Int8DynamicActivationInt8WeightConfig()
     )
+    guard = guard_action_dtype(policy, change["scope"])
     entries = selected_linears(policy, change["scope"])
     converted, skipped = {}, []
     for full, (root, name, linear) in entries.items():
@@ -281,7 +241,7 @@ def torchao_quantize(policy, change):
             )
     if not converted:
         raise ValueError("torchao converted no weights; refusing mislabeled quantization")
-    return [
+    return guard + [
         {
             "method": "torchao",
             "version": "0.18.0",

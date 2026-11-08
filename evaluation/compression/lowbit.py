@@ -6,7 +6,8 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from evaluation.compression.transforms import replace, selected_linears
+from evaluation.compression.quantization import guard_action_dtype
+from evaluation.compression.topology import replace, selected_linears
 from evaluation.compression.vendor import upstream
 
 
@@ -60,7 +61,7 @@ class GemliteAdapter(nn.Module):
         return self.kernel(x.to(torch.bfloat16))
 
 
-def hqq_quantize(policy, change):
+def hqq_quantize(policy, change, calibration):
     manifest = package("hqq")
     from hqq.core.quantize import Quantizer
 
@@ -74,7 +75,7 @@ def hqq_quantize(policy, change):
         if axis != 1 or bits not in {2, 4}:
             raise ValueError("GemLite supports this HQQ deployment for axis=1, 2/4 bits")
         gemlite.set_autotune("fast")
-    events = []
+    events = guard_action_dtype(policy, change["scope"])
     for full, (root, name, linear) in selected_linears(policy, change["scope"]).items():
         group_size = change.get("group_size", 64)
         if linear.in_features % group_size:
@@ -129,6 +130,6 @@ def hqq_quantize(policy, change):
                 "metadata_offload": False,
             }
         )
-    if not any(event["converted"] for event in events):
+    if not any(event.get("converted") for event in events):
         raise ValueError("HQQ converted no weights")
     return events

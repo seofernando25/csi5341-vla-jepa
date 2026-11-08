@@ -1,14 +1,18 @@
-"""Centered-kernel-alignment depth profiling of the frozen calibration states."""
+"""Linear CKA between each block's input and output on the calibration states.
+
+Example: python -m evaluation.compression.cka   # writes studies/compression/cka.json
+Layer pruning with criterion "cka" removes the blocks whose output most resembles their input.
+"""
 
 from collections import defaultdict
 
 import torch
 
 from evaluation.common import ROOT, write_json
-from evaluation.compression.study import inputs, observation_bank, setup
-from evaluation.compression.transforms import roots
+from evaluation.compression.calibration import load, predict_bank, setup
+from evaluation.compression.topology import blocks, roots
 from evaluation.models import load_policy
-from evaluation.run import PROTOCOL, processors
+from evaluation.pipeline import Pipeline, observation_bank
 
 
 def linear_cka(x, y):
@@ -25,14 +29,13 @@ def main():
         raise FileExistsError("Preserve earlier CKA profile")
     setup()
     bank = observation_bank()
-    calibration = torch.load(ROOT / "outputs/compression/calibration.pt", weights_only=True)
+    calibration = load()
     policy, _ = load_policy("B16")
-    pipeline = processors(policy)
+    pipeline = Pipeline(policy)
     features = defaultdict(list)
     handles = []
-    for scope, root in roots(policy).items():
-        path = {"text": "layers", "vision": "blocks", "action": "model.transformer_blocks"}[scope]
-        for index, block in enumerate(root.get_submodule(path)):
+    for scope in roots(policy):
+        for index, block in enumerate(blocks(policy, scope)):
 
             def hook(module, args, kwargs, output, name=f"{scope}.{index}"):
                 x = args[0] if args else kwargs["hidden_states"]
@@ -48,10 +51,7 @@ def main():
 
             handles.append(block.register_forward_hook(hook, with_kwargs=True))
     try:
-        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-            for index in calibration["bank_indices"]:
-                torch.manual_seed(PROTOCOL["seed"] + index)
-                policy.predict_action_chunk(inputs(bank[index], pipeline))
+        predict_bank(policy, pipeline, bank, calibration["bank_indices"])
     finally:
         for handle in handles:
             handle.remove()

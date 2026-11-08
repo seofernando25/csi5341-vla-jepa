@@ -1,7 +1,7 @@
 # Studies
 
 Compact evidence for every experiment. The [final report](../report/main.pdf) summarizes them;
-`report/figures.py` reads its numbers from here.
+`report/plots/` reads its numbers from here.
 
 | Study | Question | Status and headline | Folder |
 |---|---|---|---|

@@ -1,4 +1,7 @@
-"""Create local simulator configuration and freeze disjoint initial-state manifests."""
+"""LIBERO-Spatial environments with the frozen initial-state manifest.
+
+Example: python -m evaluation.simulator   # rewrites studies/evaluation/initial_states.json
+"""
 
 import hashlib
 import importlib.util
@@ -9,10 +12,14 @@ import numpy as np
 import torch
 import yaml
 
-from evaluation.common import ROOT, write_json
+from evaluation.common import PROTOCOL, ROOT, read_json, write_json
+from evaluation.sources import artifact
+
+MANIFEST = ROOT / "studies/evaluation/initial_states.json"
 
 
 def configure():
+    """Point LIBERO at its installed files and select headless rendering."""
     root = (
         Path(next(iter(importlib.util.find_spec("libero").submodule_search_locations))) / "libero"
     )
@@ -36,7 +43,49 @@ def state_hash(row):
     return hashlib.sha256(np.asarray(row, dtype="<f8").tobytes()).hexdigest()
 
 
+def make_environment(task_id, phase):
+    """Environment whose resets walk the manifest's states for `phase`, in order."""
+    root = configure()
+    import libero.libero
+    from lerobot.envs.libero import LiberoEnv
+    from libero.libero import benchmark
+
+    libero.libero._assets_path_cache = artifact("simulator_assets")
+    suite = benchmark.get_benchmark_dict()["libero_spatial"]()
+    env = LiberoEnv(
+        suite,
+        task_id,
+        "libero_spatial",
+        obs_type="pixels_agent_pos",
+        observation_height=PROTOCOL["observation_height"],
+        observation_width=PROTOCOL["observation_width"],
+    )
+    task = read_json(MANIFEST)["tasks"][task_id]
+    states = np.asarray(torch.load(root / task[f"{phase}_file"], weights_only=False))
+    env._init_states = states[task[f"{phase}_indices"]]
+    return env, task
+
+
+def batch_raw(raw):
+    if isinstance(raw, dict):
+        return {k: batch_raw(v) for k, v in raw.items()}
+    return np.expand_dims(raw, 0)
+
+
+def tensor_raw(raw):
+    if isinstance(raw, dict):
+        return {k: tensor_raw(v) for k, v in raw.items()}
+    return torch.from_numpy(np.asarray(raw).copy())
+
+
+def numpy_raw(raw):
+    if isinstance(raw, dict):
+        return {k: numpy_raw(v) for k, v in raw.items()}
+    return raw.numpy()
+
+
 def manifest():
+    """Development states: the first 10 original states absent from the official 50 per task."""
     root = configure()
     from libero.libero import benchmark
 
@@ -49,13 +98,10 @@ def manifest():
         final = np.asarray(torch.load(final_path, weights_only=False))
         original = np.asarray(torch.load(original_path, weights_only=False))
         final_hashes = [state_hash(row) for row in final]
-        development = [i for i, row in enumerate(original) if state_hash(row) not in final_hashes][
-            :10
-        ]
+        development = [i for i, row in enumerate(original) if state_hash(row) not in final_hashes]
+        development = development[:10]
         if len(development) != 10 or len(final) != 50:
-            raise ValueError(
-                "Unexpected LIBERO state counts; review protocol instead of silently changing it"
-            )
+            raise ValueError("Unexpected LIBERO state counts")
         tasks.append(
             {
                 "task_id": task_id,
@@ -72,13 +118,12 @@ def manifest():
     return {
         "suite": "libero_spatial",
         "task_order_index": 0,
-        "development": "10 original states/task, exact state vectors excluded from official pruned set",
+        "development": "10 original states/task, exact state vectors excluded from official set",
         "final": "all 50 official pruned states/task",
         "tasks": tasks,
     }
 
 
 if __name__ == "__main__":
-    output = ROOT / "studies/evaluation/initial_states.json"
-    write_json(output, manifest())
-    print(output.relative_to(ROOT))
+    write_json(MANIFEST, manifest())
+    print(MANIFEST.relative_to(ROOT))

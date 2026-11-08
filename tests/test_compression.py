@@ -1,4 +1,4 @@
-"""Check compression math, attention geometry and selection without robot rollouts."""
+"""Compression methods preserve the computation they claim to preserve; CPU only."""
 
 from types import SimpleNamespace
 
@@ -6,22 +6,16 @@ import pytest
 import torch
 from torch import nn
 
-from evaluation.compression.transforms import (
-    CompactEmbedding,
-    Int8Embedding,
-    SkipBlock,
-    independent_heads,
-    keep_channels,
-    prune_mask,
-    slice_linear,
-    storage_inventory,
-)
+from evaluation.compression.inventory import packed_state, storage_inventory
+from evaluation.compression.pruning import independent_heads, keep_channels, prune_mask
+from evaluation.compression.quantization import CompactEmbedding, Int8Embedding, affine_quantize
+from evaluation.compression.recipes import apply
+from evaluation.compression.topology import SkipBlock, slice_linear
 
 
 @pytest.mark.parametrize("gemm_backend", [None, "triton"])
 def test_compiled_linears_preserve_payload_hooks_and_module_binding(monkeypatch, gemm_backend):
     from evaluation.compression import compiled
-    from evaluation.compression.artifacts import packed_state
 
     model = nn.Sequential(nn.Linear(3, 5), nn.Linear(5, 2, bias=False)).eval()
     first = torch.randn(2, 3)
@@ -48,7 +42,7 @@ def test_compiled_linears_preserve_payload_hooks_and_module_binding(monkeypatch,
     monkeypatch.setattr(torch._dynamo.config, "suppress_errors", False)
     monkeypatch.setattr(compiled.inductor_config, "max_autotune_gemm_backends", "ATEN,TRITON")
     change = {"scope": "text", **({"gemm_backend": gemm_backend} if gemm_backend else {})}
-    event = compiled.compile_linears(model, change)
+    (event,) = compiled.compile_linears(model, change, {})
     torch.testing.assert_close(model[0](input=first), expected[0], rtol=0, atol=0)
     torch.testing.assert_close(model[1](second), expected[1], rtol=0, atol=0)
     assert hooks == [torch.Size([2, 5])]
@@ -69,14 +63,14 @@ def test_compiled_linears_preserve_payload_hooks_and_module_binding(monkeypatch,
         assert event["inductor_settings"]["max_autotune_gemm_backends"] == "TRITON"
     assert event["silent_eager_fallback"] is False
     with pytest.raises(ValueError, match="already applied"):
-        compiled.compile_linears(model, {"scope": "text"})
+        compiled.compile_linears(model, {"scope": "text"}, {})
 
 
 def test_compiled_linears_reject_unknown_backend():
     from evaluation.compression.compiled import compile_linears
 
     with pytest.raises(ValueError, match="Unknown compiled GEMM backend"):
-        compile_linears(None, {"scope": "action", "gemm_backend": "unknown"})
+        compile_linears(None, {"scope": "action", "gemm_backend": "unknown"}, {})
 
 
 def test_compiled_linear_backend_errors_are_propagated(monkeypatch):
@@ -96,40 +90,9 @@ def test_compiled_linear_backend_errors_are_propagated(monkeypatch):
     monkeypatch.setattr(torch, "compile", failing_backend)
     monkeypatch.setattr(torch._dynamo.config, "recompile_limit", 8)
     monkeypatch.setattr(torch._dynamo.config, "suppress_errors", False)
-    compiled.compile_linears(model, {"scope": "text"})
+    compiled.compile_linears(model, {"scope": "text"}, {})
     with pytest.raises(RuntimeError, match="compiler failure"):
         model(torch.randn(1, 3))
-
-
-def test_compiled_screen_shape_priming_resets_each_observation_seed(monkeypatch):
-    from contextlib import nullcontext
-
-    from evaluation.compression import study
-
-    bank = [{"index": index} for index in range(20)]
-    calls, resets = [], []
-
-    class Policy:
-        def reset(self):
-            resets.append(True)
-
-        def predict_action_chunk(self, index):
-            calls.append((index, torch.initial_seed()))
-            return torch.ones(1, 7, 7)
-
-    monkeypatch.setattr(study, "inputs", lambda sample, pipeline: sample["index"])
-    monkeypatch.setattr(torch, "autocast", lambda *args, **kwargs: nullcontext())
-    monkeypatch.setattr(torch.cuda, "synchronize", lambda: None)
-    monkeypatch.setattr(torch.cuda, "reset_peak_memory_stats", lambda: None)
-    monkeypatch.setattr(torch.cuda, "max_memory_allocated", lambda: 100)
-    monkeypatch.setattr(torch.cuda, "max_memory_reserved", lambda: 200)
-    result = study.prime_screen_shapes(Policy(), bank, None)
-    assert calls == [(index, study.PROTOCOL["seed"] + index) for index in range(20)]
-    assert len(resets) == len(bank)
-    assert result["observations"] == len(bank)
-    assert result["included_in_diagnostic_rows"] is False
-    assert result["peak_allocated_bytes"] == 100
-    assert result["peak_reserved_bytes"] == 200
 
 
 def test_wanda_uses_activation_energy_and_exact_per_row_counts():
@@ -203,8 +166,6 @@ def test_storage_deduplicates_tied_weights():
 
 
 def test_affine_int4_includes_zero_and_bounds_reconstruction_error():
-    from evaluation.compression.advanced import affine_quantize
-
     torch.manual_seed(11)
     weight = torch.randn(8, 256)
     weight[0, :128] = 0
@@ -239,8 +200,6 @@ def test_attention_matching_ratios_use_published_clamps_and_neutral_ranges():
 
 
 def test_packed_archive_keeps_quantized_embedding_metadata_and_tied_aliases():
-    from evaluation.compression.artifacts import packed_state
-
     m = nn.Module()
     m.embedding = Int8Embedding(nn.Embedding(50, 16))
     m.a = nn.Linear(16, 4, bias=False)
@@ -342,7 +301,7 @@ def test_visual_compaction_preserves_both_views_positions_fusion_and_conditionin
             )
         )
     )
-    visual_token_pruning(policy, fraction, "uniform")
+    visual_token_pruning(policy, {"fraction": fraction, "criterion": "uniform"}, {})
     x = torch.arange(36).float().reshape(1, 12, 3)
     mask = torch.tensor(
         [[False, True, True, True, True, False, True, True, True, True, False, False]]
@@ -366,3 +325,22 @@ def test_visual_compaction_preserves_both_views_positions_fusion_and_conditionin
     assert torch.equal(result[:, kept], fused[:, kept])
     assert language.compact_attention.shape[-1] == len(kept)
     assert torch.equal(language.compact_mask, mask[:, kept])
+
+
+def test_unknown_recipe_method_is_rejected():
+    with pytest.raises(ValueError, match="Unknown compression method"):
+        apply(None, {"changes": [{"method": "not_a_method"}]})
+
+
+def test_every_committed_recipe_uses_a_known_method():
+    from evaluation.common import ROOT, read_json
+    from evaluation.compression.recipes import METHODS
+
+    recipes = sorted((ROOT / "studies/compression/recipes").glob("*.json"))
+    assert recipes
+    for path in recipes:
+        for change in read_json(path)["changes"]:
+            assert change["method"] in METHODS, (path.name, change["method"])
+            quantizer = change.get("quantizer")
+            if quantizer:
+                assert quantizer["method"] in METHODS, (path.name, quantizer["method"])

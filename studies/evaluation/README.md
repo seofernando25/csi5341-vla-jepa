@@ -39,8 +39,7 @@ Run from the repository root on a Linux NVIDIA host. GPU jobs run one at a time 
 
 ```bash
 uv sync --frozen --extra dev --extra eval --extra report && source .venv/bin/activate
-python -m evaluation.prepare baseline qwen smolvlm world_model pretrain simulator_assets
-python -m evaluation.libero_setup
+python -m evaluation.sources baseline qwen smolvlm world_model pretrain simulator_assets
 python -m evaluation.run collect                                   # observation bank
 python -m evaluation.run benchmark --variant B16                   # repeat for Q8, Q4
 python -m evaluation.core_benchmark --variant B16                  # neural-only timing

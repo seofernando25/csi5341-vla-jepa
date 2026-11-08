@@ -1,4 +1,13 @@
-"""Calibration, component screens and matched LIBERO trials for compression."""
+"""Measure one compression recipe in one phase.
+
+Examples:
+  python -m evaluation.compression.study calibrate
+  python -m evaluation.compression.study run --recipe studies/compression/recipes/deploy-hqq2-vision-action.json --phase smoke
+
+Phases: screen (action change on 80 fixed frames), smoke/development/final (1/10/50 rollouts
+per task), size (packed archive bytes), benchmark (latency and memory). Results go to
+studies/compression/measurements/<recipe>/<phase>/.
+"""
 
 from __future__ import annotations
 
@@ -6,216 +15,76 @@ import argparse
 import gc
 import json
 import time
-import traceback
-from collections import defaultdict
 from pathlib import Path
-from types import SimpleNamespace
 
 import numpy as np
 import torch
 
-from evaluation.common import ROOT, environment, read_json, write_json
-from evaluation.compression.transforms import apply, roots, selected_linears, storage_inventory
+from evaluation.common import PROTOCOL, environment, read_json, recorded_run, write_json
+from evaluation.compression import calibration as calib
+from evaluation.compression.inventory import serialize, storage_inventory
+from evaluation.compression.recipes import apply
 from evaluation.models import load_policy
-from evaluation.run import PROTOCOL, numpy_raw, prepare, processors, rollout
+from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
+from evaluation.rollout import rollout
+from evaluation.timing import prime_shapes, time_predictions
 
-STUDY = ROOT / "studies/compression"
-RUNTIME = ROOT / "outputs/compression"
-
-
-def setup():
-    torch.set_num_threads(4)
-    torch.backends.cudnn.benchmark = False
-    torch.backends.cuda.matmul.allow_tf32 = False
-    torch.backends.cudnn.allow_tf32 = False
-
-
-def observation_bank():
-    return torch.load(ROOT / "outputs/evaluation/observations.pt", weights_only=True)
-
-
-def calibration_indices(bank):
-    seen, result = defaultdict(int), []
-    for index, sample in enumerate(bank):
-        task = sample["task_id"]
-        if seen[task] < 2:
-            result.append(index)
-        seen[task] += 1
-    if len(result) != 20:
-        raise ValueError("Expected exactly two calibration states per task")
-    return result
-
-
-def inputs(sample, pipeline):
-    env_pre, pre, post = pipeline
-    env_pre.reset()
-    pre.reset()
-    post.reset()
-    return prepare(numpy_raw(sample["raw"]), sample["instruction"], env_pre, pre)
-
-
-def calibrate():
-    destination = RUNTIME / "calibration.pt"
-    if destination.exists():
-        raise FileExistsError("Preserve frozen calibration")
-    setup()
-    bank = observation_bank()
-    indices = calibration_indices(bank)
-    policy, metadata = load_policy("B16")
-    pipeline = processors(policy)
-    sums, counts, influence, token_ids, handles = {}, defaultdict(int), defaultdict(list), [], []
-    from evaluation.core_benchmark import prepared_inputs
-
-    def linear_hook(name):
-        def hook(module, args):
-            x = args[0].detach().reshape(-1, module.in_features).float()
-            values = x.square().sum(0)
-            sums[name] = sums.get(name, torch.zeros_like(values)) + values
-            counts[name] += len(x)
-
-        return hook
-
-    def block_hook(name):
-        def hook(module, args, kwargs, output):
-            x = args[0] if args else kwargs["hidden_states"]
-            y = output[0] if isinstance(output, tuple) else output
-            influence[name].append(
-                float(
-                    (y.float() - x.float()).square().mean()
-                    / x.float().square().mean().clamp_min(1e-8)
-                )
-            )
-
-        return hook
-
-    for full, (_, _, module) in selected_linears(policy, "all").items():
-        handles.append(module.register_forward_pre_hook(linear_hook(full)))
-    for scope, root in roots(policy).items():
-        layers = {"text": "layers", "vision": "blocks", "action": "model.transformer_blocks"}[scope]
-        for index, block in enumerate(root.get_submodule(layers)):
-            handles.append(
-                block.register_forward_hook(block_hook(f"{scope}.{index}"), with_kwargs=True)
-            )
-    try:
-        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-            for index in indices:
-                batch = inputs(bank[index], pipeline)
-                encoded, _ = prepared_inputs(policy, batch)
-                token_ids.append(encoded["input_ids"].detach().cpu().flatten())
-                torch.manual_seed(PROTOCOL["seed"] + index)
-                output = policy.predict_action_chunk(batch)
-                if not torch.isfinite(output).all():
-                    raise ValueError("Nonfinite baseline during calibration")
-                print(f"calibration bank_index={index}", flush=True)
-    finally:
-        for handle in handles:
-            handle.remove()
-    calibration = {
-        "linear_inputs": {k: (v / counts[k]).cpu() for k, v in sums.items()},
-        "block_influence": {k: float(np.mean(v)) for k, v in influence.items()},
-        "token_ids": torch.unique(torch.cat(token_ids)),
-        "bank_indices": indices,
-    }
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(calibration, destination)
-    write_json(
-        STUDY / "calibration.json",
-        {
-            "purpose": "Unlabeled calibration; no optimizer updates or robot outcomes",
-            "bank_indices": indices,
-            "states_per_task": 2,
-            "linear_modules": len(sums),
-            "token_count": len(calibration["token_ids"]),
-            "block_influence": calibration["block_influence"],
-            "model": metadata,
-            "environment": environment(),
-        },
-    )
-    references = []
-    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-        for index, sample in enumerate(bank):
-            policy.reset()
-            torch.manual_seed(PROTOCOL["seed"] + index)
-            references.append(policy.predict_action_chunk(inputs(sample, pipeline)).float().cpu())
-    torch.save(torch.cat(references), RUNTIME / "references.pt")
-    print("Calibration and 100 matched reference action chunks frozen", flush=True)
-
-
-def prime_screen_shapes(policy, bank, pipeline):
-    """Prime compiled projections without changing diagnostic seeds or rows."""
-    torch.cuda.synchronize()
-    torch.cuda.reset_peak_memory_stats()
-    started = time.perf_counter()
-    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-        for index, sample in enumerate(bank):
-            policy.reset()
-            torch.manual_seed(PROTOCOL["seed"] + index)
-            predicted = policy.predict_action_chunk(inputs(sample, pipeline))
-            if not torch.isfinite(predicted).all():
-                raise ValueError(f"Nonfinite actions during shape priming at bank_index={index}")
-    torch.cuda.synchronize()
-    return {
-        "observations": len(bank),
-        "included_in_diagnostic_rows": False,
-        "wall_seconds": time.perf_counter() - started,
-        "peak_allocated_bytes": torch.cuda.max_memory_allocated(),
-        "peak_reserved_bytes": torch.cuda.max_memory_reserved(),
-        "purpose": "Compile bank input shapes before warmed screen measurements",
-    }
+ROLLOUT_EPISODES = {"smoke": 1, "development": 10, "final": 50}
+SCREEN_WARMUP = 10
 
 
 def screen(recipe, policy, calibration, predictions=80):
+    """Latency, memory and action change against B16 on bank frames outside calibration."""
     bank = observation_bank()
-    references = torch.load(RUNTIME / "references.pt", weights_only=True)
-    pipeline = processors(policy)
+    references = torch.load(calib.REFERENCES, weights_only=True)
+    pipeline = Pipeline(policy)
     test_indices = [i for i in range(len(bank)) if i not in calibration["bank_indices"]]
-    errors, latency, records = [], [], []
-    priming = (
-        prime_screen_shapes(policy, bank, pipeline)
-        if any(change["method"] == "compile_linears" for change in recipe["changes"])
-        else None
-    )
+    compiled = any(change["method"] == "compile_linears" for change in recipe["changes"])
+    priming = prime_shapes(policy, pipeline, bank) if compiled else None
     gc.collect()
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
-    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-        for iteration in range(10 + predictions):
+    records = []
+    with torch.inference_mode(), inference_autocast():
+        for iteration in range(SCREEN_WARMUP + predictions):
             index = test_indices[iteration % len(test_indices)]
             policy.reset()
             torch.manual_seed(PROTOCOL["seed"] + index)
             torch.cuda.synchronize()
             started = time.perf_counter()
-            batch = inputs(bank[index], pipeline)
-            predicted = policy.predict_action_chunk(batch).float()
-            physical = pipeline[2](predicted.clone()).float()
+            predicted = policy.predict_action_chunk(pipeline.sample(bank[index])).float()
+            physical = pipeline.post(predicted.clone()).float()
             torch.cuda.synchronize()
             ms = (time.perf_counter() - started) * 1000
             if not torch.isfinite(predicted).all():
                 raise ValueError(f"Nonfinite actions at bank_index={index}")
-            if iteration >= 10:
-                reference = references[index : index + 1].to("cuda")
-                reference = reference[:, : predicted.shape[1]]
-                physical_ref = pipeline[2](reference.clone()).float()
-                arm = float((physical[..., :6] - physical_ref[..., :6]).square().mean())
-                grip = float((physical[..., 6] != physical_ref[..., 6]).float().mean())
-                row = {
+            if iteration < SCREEN_WARMUP:
+                continue
+            reference = references[index : index + 1].to("cuda")[:, : predicted.shape[1]]
+            physical_ref = pipeline.post(reference.clone()).float()
+            records.append(
+                {
                     "bank_index": index,
                     "task_id": bank[index]["task_id"],
                     "latency_ms": ms,
-                    "physical_arm_change_mse": arm,
-                    "gripper_disagreement": grip,
+                    "physical_arm_change_mse": float(
+                        (physical[..., :6] - physical_ref[..., :6]).square().mean()
+                    ),
+                    "gripper_disagreement": float(
+                        (physical[..., 6] != physical_ref[..., 6]).float().mean()
+                    ),
                     "maximum_normalized_action_difference": float(
                         (predicted - reference).abs().max()
                     ),
                 }
-                errors.append(arm)
-                latency.append(ms)
-                records.append(row)
-    return {
+            )
+    arm = [r["physical_arm_change_mse"] for r in records]
+    latency = [r["latency_ms"] for r in records]
+    summary = {
         "diagnostic_observations": predictions,
-        "warmup": 10,
-        "mean_physical_arm_change_mse": float(np.mean(errors)),
-        "maximum_physical_arm_change_mse": float(np.max(errors)),
+        "warmup": SCREEN_WARMUP,
+        "mean_physical_arm_change_mse": float(np.mean(arm)),
+        "maximum_physical_arm_change_mse": float(np.max(arm)),
         "mean_gripper_disagreement": float(np.mean([r["gripper_disagreement"] for r in records])),
         "maximum_normalized_action_difference": max(
             r["maximum_normalized_action_difference"] for r in records
@@ -228,90 +97,90 @@ def screen(recipe, policy, calibration, predictions=80):
         "executed_before_replanning": policy.config.n_action_steps,
         **({"backend_shape_priming": priming} if priming is not None else {}),
         **storage_inventory(policy),
-    }, records
+    }
+    return summary, records
 
 
-def run(args):
-    setup()
-    recipe = read_json(args.recipe)
-    phase = args.phase
-    folder = STUDY / "measurements" / recipe["id"] / phase
+def benchmark(policy, recipe_id, folder):
+    bank = observation_bank()
+    pipeline = Pipeline(policy)
+    priming = prime_shapes(policy, pipeline, bank)
+    summary = time_predictions(
+        policy,
+        pipeline,
+        bank,
+        recipe_id,
+        folder / "timings.csv",
+        predictions=500,
+        repetitions=3,
+    )
+    return {
+        **summary,
+        "backend_shape_priming": priming,
+        **storage_inventory(policy),
+        "predicted_actions": policy.model.action_model.action_horizon,
+        "executed_before_replanning": policy.config.n_action_steps,
+        "serialized_weights": serialize(policy, recipe_id, folder),
+    }
+
+
+def deployed_architecture(policy):
+    model = policy.model
+    return {
+        "predicted_actions": model.action_model.action_horizon,
+        "executed_before_replanning": policy.config.n_action_steps,
+        "denoising_steps": model.action_model.num_inference_timesteps,
+        "world_encoder_resident": model.video_encoder is not None,
+        "world_predictor_resident": model.video_predictor is not None,
+        "embodied_conditioning_tokens": model.embodied_replace_prompt.count(
+            policy.config.embodied_action_token
+        ),
+        "latent_prompt_tokens": sum(model.replace_prompt.count(t) for t in model.action_tokens),
+    }
+
+
+def run(recipe_path, phase, predictions):
+    calib.setup()
+    recipe = read_json(recipe_path)
+    folder = calib.STUDY / "measurements" / recipe["id"] / phase
     if folder.exists():
         raise FileExistsError(f"Preserve previous {recipe['id']}/{phase}")
     folder.mkdir(parents=True)
     record = {
         "candidate": recipe,
         "phase": phase,
-        "status": "running",
         "environment": environment(),
         "original_protocol": PROTOCOL,
     }
-    write_json(folder / "run.json", record)
-    started = time.perf_counter()
-    try:
-        calibration = torch.load(RUNTIME / "calibration.pt", weights_only=True)
+    with recorded_run(folder / "run.json", record):
+        calibration = calib.load()
         policy, record["model"] = load_policy("B16")
         record["transformations"] = apply(policy, recipe, calibration)
-        record["deployed_architecture"] = {
-            "predicted_actions": policy.model.action_model.action_horizon,
-            "executed_before_replanning": policy.config.n_action_steps,
-            "denoising_steps": policy.model.action_model.num_inference_timesteps,
-            "world_encoder_resident": policy.model.video_encoder is not None,
-            "world_predictor_resident": policy.model.video_predictor is not None,
-            "embodied_conditioning_tokens": policy.model.embodied_replace_prompt.count(
-                policy.config.embodied_action_token
-            ),
-            "latent_prompt_tokens": sum(
-                policy.model.replace_prompt.count(token) for token in policy.model.action_tokens
-            ),
-            "parameters_require_grad": any(
-                parameter.requires_grad for parameter in policy.parameters()
-            ),
-        }
+        record["deployed_architecture"] = deployed_architecture(policy)
         gc.collect()
         torch.cuda.empty_cache()
         write_json(folder / "run.json", record)
         if phase == "screen":
-            record["summary"], rows = screen(recipe, policy, calibration, args.predictions)
+            record["summary"], rows = screen(recipe, policy, calibration, predictions)
             write_json(folder / "observations.json", rows)
         elif phase == "benchmark":
-            from evaluation.compression.artifacts import benchmark
-
             record["summary"] = benchmark(policy, recipe["id"], folder)
         elif phase == "size":
-            from evaluation.compression.artifacts import serialize
-
             record["summary"] = {
                 **storage_inventory(policy),
                 "serialized_weights": serialize(policy, recipe["id"], folder),
             }
         else:
-            evaluation_phase = "final" if phase == "final" else "development"
-            episodes = {"smoke": 1, "development": 10, "final": 50}[phase]
-            arguments = SimpleNamespace(
-                variant=recipe["id"],
-                checkpoint=None,
-                tasks=list(range(10)),
-                phase=evaluation_phase,
-                episodes=episodes,
+            record["summary"] = rollout(
+                recipe["id"],
+                list(range(10)),
+                "final" if phase == "final" else "development",
+                ROLLOUT_EPISODES[phase],
+                policy,
+                Pipeline(policy),
+                folder,
             )
-            record["summary"] = rollout(arguments, policy, record["model"], folder)
-        record.update(status="completed", wall_seconds=time.perf_counter() - started)
-        print(
-            json.dumps({"candidate": recipe["id"], "phase": phase, "summary": record["summary"]}),
-            flush=True,
-        )
-    except BaseException as exc:
-        record.update(
-            status="failed",
-            error_type=type(exc).__name__,
-            error=str(exc),
-            wall_seconds=time.perf_counter() - started,
-        )
-        traceback.print_exc()
-        raise
-    finally:
-        write_json(folder / "run.json", record)
+    print(json.dumps({"candidate": recipe["id"], "phase": phase, "summary": record["summary"]}))
 
 
 def main():
@@ -321,16 +190,14 @@ def main():
     run_parser = commands.add_parser("run")
     run_parser.add_argument("--recipe", type=Path, required=True)
     run_parser.add_argument(
-        "--phase",
-        choices=["screen", "smoke", "development", "size", "final", "benchmark"],
-        default="screen",
+        "--phase", choices=["screen", *ROLLOUT_EPISODES, "size", "benchmark"], default="screen"
     )
     run_parser.add_argument("--predictions", type=int, default=80)
     args = parser.parse_args()
     if args.command == "calibrate":
-        calibrate()
+        calib.calibrate()
     else:
-        run(args)
+        run(args.recipe, args.phase, args.predictions)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,9 @@ from collections import defaultdict
 
 import torch
 
+from evaluation.compression.calibration import predict_bank
 from evaluation.compression.vendor import upstream as vendor_source
+from evaluation.pipeline import Pipeline, observation_bank
 
 
 def alpha_ratio(teacher, compressed):
@@ -28,9 +30,7 @@ def beta_ratio(teacher, compressed):
 
 
 def matching(policy, change, calibration):
-    from evaluation.compression.study import inputs, observation_bank
-    from evaluation.compression.transforms import apply
-    from evaluation.run import PROTOCOL, processors
+    from evaluation.compression.recipes import apply
 
     folder, manifest = vendor_source("quantvla")
     name = "gr00t/atm/dit_atm.py"
@@ -51,18 +51,14 @@ def matching(policy, change, calibration):
     ]
     if change.get("control"):
         return events
-    bank, pipeline = observation_bank(), processors(policy)
+    bank, pipeline = observation_bank(), Pipeline(policy)
 
     def capture():
         logits, outputs = defaultdict(list), defaultdict(list)
         atm.register_atm_capture(root, lambda name, x: logits[name].append(x.float().cpu()), "all")
         atm.register_ohb_capture(root, lambda name, x: outputs[name].append(x.float().cpu()), "all")
         try:
-            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-                for index in calibration["bank_indices"]:
-                    policy.reset()
-                    torch.manual_seed(PROTOCOL["seed"] + index)
-                    policy.predict_action_chunk(inputs(bank[index], pipeline))
+            predict_bank(policy, pipeline, bank, calibration["bank_indices"])
         finally:
             atm.clear_atm_capture(root)
         return (

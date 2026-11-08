@@ -22,7 +22,7 @@ records follows the user's communication authorization; never rewrite old record
 
 ## Where things live
 
-- Final report: `report/main.tex`. Figures and every quoted number come from `report/figures.py`,
+- Final report: `report/main.tex`. Figures and every quoted number come from `report/plots/`,
   which reads committed evidence under `studies/`. Rebuild both after any evidence change.
 - Study evidence: `studies/<study>/`, indexed in `studies/README.md`. Each study README states
   its question, result, evidence and reproduction command.

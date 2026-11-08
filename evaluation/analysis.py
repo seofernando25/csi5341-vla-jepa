@@ -79,7 +79,7 @@ def load_run(path):
             if (
                 not 0 <= trial < len(hashes)
                 or row["initial_state_hash"] != hashes[trial]
-                or int(row["seed"]) != episode_seed(protocol, task, trial, phase)
+                or int(row["seed"]) != episode_seed(task, trial, phase, protocol)
             ):
                 raise ValueError("Rollout state/seed does not match the frozen manifest")
     return record, rows

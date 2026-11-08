@@ -35,7 +35,7 @@ paired against B16 on identical initial states and seeds.
 
 | Path | Contents |
 |---|---|
-| `report/` | Final IEEE report: `main.tex`, `figures.py` (all figures from committed evidence), `data/numbers.json` |
+| `report/` | Final IEEE report: `main.tex`, `plots/` (all figures from committed evidence), `data/numbers.json` |
 | `studies/` | Compact evidence for every experiment: run records, per-episode CSVs, milestones |
 | `evaluation/` | Rollouts, timing, S500 training, analysis; compression recipes and transforms in `evaluation/compression/` |
 | `src/lerobot_policy_vla_jepa_smolvlm/` | LeRobot plugin for the SmolVLM2 backbone (S500) |
@@ -49,7 +49,7 @@ Linux with an NVIDIA GPU for rollouts and timing; any machine for tests and the 
 ```bash
 CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval --extra report
 uv run --no-sync pytest
-uv run --no-sync python -m report.figures   # rebuild figures and numbers.json
+uv run --no-sync python -m report.plots     # rebuild figures and numbers.json
 cd report && latexmk -pdf main.tex           # rebuild the PDF
 ```
 

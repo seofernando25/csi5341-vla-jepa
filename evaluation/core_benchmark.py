@@ -9,16 +9,16 @@ from __future__ import annotations
 import argparse
 import csv
 import time
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import torch
 from torch.nn import functional as F
 
-from evaluation.common import ROOT, environment, write_json
+from evaluation.common import PROTOCOL, ROOT, environment, recorded_run, run_id, write_json
 from evaluation.models import load_policy
-from evaluation.run import PROTOCOL, numpy_raw, prepare, processors
+from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
+from evaluation.timing import FIELDS
 
 
 def prepared_inputs(policy, batch):
@@ -56,6 +56,73 @@ def neural_forward(policy, encoded, state):
     ).float()
 
 
+def check_equivalence(policy, pipeline, bank):
+    """Prepared-input execution must reproduce the native policy on every bank observation."""
+    errors = []
+    for index, sample in enumerate(bank):
+        policy.reset()
+        batch = pipeline.sample(sample)
+        encoded, state = prepared_inputs(policy, batch)
+        torch.manual_seed(PROTOCOL["seed"] + index)
+        reference = policy.predict_action_chunk(batch)
+        torch.manual_seed(PROTOCOL["seed"] + index)
+        candidate = neural_forward(policy, encoded, state)
+        error = float((reference - candidate).abs().max())
+        if not torch.isfinite(candidate).all() or not torch.allclose(
+            reference, candidate, rtol=1e-5, atol=1e-5
+        ):
+            raise ValueError(f"Prepared-input execution differs at observation {index}: {error}")
+        errors.append(error)
+    return {
+        "observations": len(errors),
+        "maximum_absolute_error": max(errors),
+        "rtol": 1e-5,
+        "atol": 1e-5,
+        "identical_flow_noise_seeds": True,
+    }
+
+
+def time_neural(policy, pipeline, bank, variant, csv_path, predictions, repetitions):
+    warmup = PROTOCOL["timing"]["warmup"]
+    measured = []
+    with csv_path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=FIELDS)
+        writer.writeheader()
+        for repetition in range(repetitions):
+            torch.manual_seed(PROTOCOL["seed"] + repetition)
+            for iteration in range(warmup + predictions):
+                index = iteration % len(bank)
+                policy.reset()
+                encoded, state = prepared_inputs(policy, pipeline.sample(bank[index]))
+                torch.cuda.synchronize()
+                started = time.perf_counter()
+                action = neural_forward(policy, encoded, state)
+                torch.cuda.synchronize()
+                elapsed = 1000 * (time.perf_counter() - started)
+                if not torch.isfinite(action).all():
+                    raise ValueError("Nonfinite prediction")
+                if iteration >= warmup:
+                    writer.writerow(
+                        {
+                            "variant": variant,
+                            "mode": "neural",
+                            "repetition": repetition,
+                            "prediction": iteration - warmup,
+                            "task_id": bank[index]["task_id"],
+                            "bank_index": index,
+                            "latency_ms": elapsed,
+                        }
+                    )
+                    measured.append(elapsed)
+            handle.flush()
+            print(f"{variant} neural repetition {repetition} complete", flush=True)
+    return {
+        "median_ms": float(np.median(measured)),
+        "p95_ms": float(np.percentile(measured, 95)),
+        "predictions": len(measured),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--variant", choices=["B16", "Q8", "Q4", "S500"], required=True)
@@ -67,120 +134,40 @@ def main():
         parser.error("Prediction/repetition counts must be positive")
     if args.variant == "S500" and args.checkpoint is None:
         parser.error("S500 requires a trained checkpoint")
-    run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ") + f"-{args.variant}-core"
-    directory = ROOT / "studies/evaluation/runs" / run_id
+    name = run_id(f"{args.variant}-core")
+    directory = ROOT / "studies/evaluation/runs" / name
     directory.mkdir(parents=True)
-    bank = torch.load(ROOT / "outputs/evaluation/observations.pt", weights_only=True)
+    bank = observation_bank()
     record = {
-        "run_id": run_id,
+        "run_id": name,
         "variant": args.variant,
         "experiment": "core_benchmark",
         "phase": "development",
-        "status": "running",
         "protocol": PROTOCOL,
         "environment": environment(),
         "predictions_per_repetition": args.predictions,
         "repetitions": args.repetitions,
-        "timing_scope": "VLM neural forward, token gathering, adapter if present, flow-matching head; excludes all image/token/outer processing",
+        "checkpoint": str(args.checkpoint) if args.checkpoint else None,
+        "timing_scope": "decoder, token gathering, adapter and flow-matching head; "
+        "excludes image, token and outer processing",
     }
-    if args.checkpoint:
-        record["checkpoint"] = str(args.checkpoint)
-    write_json(directory / "run.json", record)
-    try:
+    with recorded_run(directory / "run.json", record):
         torch.backends.cudnn.benchmark = False
         torch.backends.cuda.matmul.allow_tf32 = False
-        policy, metadata = load_policy(args.variant, args.checkpoint)
-        record["model"] = metadata
-        env_pre, pre, post = processors(policy, args.checkpoint)
-
-        def inputs(sample):
-            policy.reset()
-            env_pre.reset()
-            pre.reset()
-            post.reset()
-            return prepare(numpy_raw(sample["raw"]), sample["instruction"], env_pre, pre)
-
-        errors = []
-        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-            for index, sample in enumerate(bank):
-                batch = inputs(sample)
-                encoded, state = prepared_inputs(policy, batch)
-                torch.manual_seed(PROTOCOL["seed"] + index)
-                reference = policy.predict_action_chunk(batch)
-                torch.manual_seed(PROTOCOL["seed"] + index)
-                candidate = neural_forward(policy, encoded, state)
-                error = float((reference - candidate).abs().max())
-                if not torch.isfinite(candidate).all() or not torch.allclose(
-                    reference, candidate, rtol=1e-5, atol=1e-5
-                ):
-                    raise ValueError(
-                        f"Prepared-input execution differs from native policy at observation {index}: {error}"
-                    )
-                errors.append(error)
-            record["equivalence"] = {
-                "observations": len(errors),
-                "maximum_absolute_error": max(errors),
-                "rtol": 1e-5,
-                "atol": 1e-5,
-                "identical_flow_noise_seeds": True,
-            }
+        policy, record["model"] = load_policy(args.variant, args.checkpoint)
+        pipeline = Pipeline(policy, args.checkpoint)
+        with torch.inference_mode(), inference_autocast():
+            record["equivalence"] = check_equivalence(policy, pipeline, bank)
             write_json(directory / "run.json", record)
-            measured = []
-            with (directory / "timings.csv").open("w", newline="") as handle:
-                writer = csv.DictWriter(
-                    handle,
-                    fieldnames=[
-                        "variant",
-                        "mode",
-                        "repetition",
-                        "prediction",
-                        "task_id",
-                        "bank_index",
-                        "latency_ms",
-                    ],
-                )
-                writer.writeheader()
-                for repetition in range(args.repetitions):
-                    torch.manual_seed(PROTOCOL["seed"] + repetition)
-                    for index in range(PROTOCOL["timing"]["warmup"] + args.predictions):
-                        bank_index = index % len(bank)
-                        sample = bank[bank_index]
-                        encoded, state = prepared_inputs(policy, inputs(sample))
-                        torch.cuda.synchronize()
-                        started = time.perf_counter()
-                        action = neural_forward(policy, encoded, state)
-                        torch.cuda.synchronize()
-                        elapsed = 1000 * (time.perf_counter() - started)
-                        if not torch.isfinite(action).all():
-                            raise ValueError("Nonfinite prediction")
-                        if index >= PROTOCOL["timing"]["warmup"]:
-                            writer.writerow(
-                                {
-                                    "variant": args.variant,
-                                    "mode": "neural",
-                                    "repetition": repetition,
-                                    "prediction": index - PROTOCOL["timing"]["warmup"],
-                                    "task_id": sample["task_id"],
-                                    "bank_index": bank_index,
-                                    "latency_ms": elapsed,
-                                }
-                            )
-                            measured.append(elapsed)
-                    handle.flush()
-                    print(f"{args.variant} neural repetition {repetition} complete", flush=True)
-        record.update(
-            status="completed",
-            summary={
-                "median_ms": float(np.median(measured)),
-                "p95_ms": float(np.percentile(measured, 95)),
-                "predictions": len(measured),
-            },
-        )
-    except BaseException as exc:
-        record.update(status="failed", error_type=type(exc).__name__, error=str(exc))
-        raise
-    finally:
-        write_json(directory / "run.json", record)
+            record["summary"] = time_neural(
+                policy,
+                pipeline,
+                bank,
+                args.variant,
+                directory / "timings.csv",
+                args.predictions,
+                args.repetitions,
+            )
     print(directory.relative_to(ROOT), flush=True)
 
 

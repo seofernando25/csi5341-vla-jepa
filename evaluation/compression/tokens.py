@@ -6,7 +6,9 @@ from itertools import pairwise
 import torch
 
 
-def visual_token_pruning(policy, fraction, criterion="magnitude"):
+def visual_token_pruning(policy, change, calibration):
+    """Drop a fraction of visual tokens per camera before the decoder, keeping M-RoPE positions."""
+    fraction, criterion = change.get("fraction", 0), change.get("criterion", "magnitude")
     language = policy.model.qwen.model.model.language_model
     current = {}
 
@@ -17,7 +19,6 @@ def visual_token_pruning(policy, fraction, criterion="magnitude"):
             raise ValueError("Visual-token pruning requires a single two-view observation")
         visual = mask[0].nonzero().flatten()
         selected = []
-        # Select separately in contiguous image spans, retaining both camera views.
         boundaries = (
             [0] + (visual[1:] - visual[:-1] > 1).nonzero().flatten().add(1).tolist() + [len(visual)]
         )
@@ -60,12 +61,14 @@ def visual_token_pruning(policy, fraction, criterion="magnitude"):
 
     language.register_forward_pre_hook(compact, with_kwargs=True)
     language.layers[-1].register_forward_hook(restore)
-    return {
-        "method": "visual token compaction",
-        "fraction_removed": fraction,
-        "criterion": criterion,
-        "original_mrope_positions_preserved": True,
-        "selection_per_camera": True,
-        "weight_storage_reduction": False,
-        "vision_encoder_compute_reduction": False,
-    }
+    return [
+        {
+            "method": "visual token compaction",
+            "fraction_removed": fraction,
+            "criterion": criterion,
+            "original_mrope_positions_preserved": True,
+            "selection_per_camera": True,
+            "weight_storage_reduction": False,
+            "vision_encoder_compute_reduction": False,
+        }
+    ]
