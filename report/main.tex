@@ -27,7 +27,7 @@
 \maketitle
 
 \begin{abstract}
-VLA-JEPA couples a 2B-parameter vision--language model with a flow-matching action head and reaches 95\% success on LIBERO-Spatial, with a measured peak of 5.6\,GB allocated GPU memory at batch size one. We test whether post-training compression keeps that success on this suite. Quantizing only the language-decoder linear layers to NF4 cuts peak memory by 36.9\% with a paired success change of $+0.8$ points (95\% CI $-0.6$ to $+2.2$, 500 trials). LLM.int8 cuts 23.3\% and misses our 25\% target, which equals the ideal INT8 saving for the decoder weights. A sweep of 201 compression recipes finds that the language decoder is the precision bottleneck, while vision and action weights survive 2-bit quantization. Three joint recipes keep 93.4--98.0\% success at 0.94--1.38\,GB (75--83\% less memory), but under the stock execution path every compressed policy is 1.2--2.0$\times$ slower, because that path is launch-bound. A CUDA-graph engine with one denoising step runs the smallest recipe at 28.8\,ms and 95.2\% success in 1.02\,GB, or at 20.0\,ms and 95.4\% when NF4-rounded weights stay dense in memory (4.28\,GB); stock B16 takes 77.5\,ms. Offline action divergence on fixed frames predicts gross failure ($\rho=-0.67$, 163 recipes) but cannot rank near-lossless ones. Replacing the backbone with SmolVLM2-500M failed (2.2\%).
+VLA-JEPA couples a 2B-parameter vision--language model with a flow-matching action head and reaches 95\% success on LIBERO-Spatial, with a measured peak of 5.6\,GB allocated GPU memory at batch size one. We test whether post-training compression keeps that success on this suite. Quantizing only the language-decoder linear layers to NF4 cuts peak memory by 36.9\% with a paired success change of $+0.8$ points (95\% CI $-0.6$ to $+2.2$, 500 trials). LLM.int8 cuts 23.3\% and misses our 25\% target, which equals the ideal INT8 saving for the decoder weights. A sweep of 201 compression recipes finds that the language decoder is the precision bottleneck, while vision and action weights survive 2-bit quantization. Four joint recipes keep 93.4--98.0\% success at 0.94--1.51\,GB (73--83\% less memory). Two (C1, C2) use a vocabulary restricted to the test prompts, so we flag them and draw no conclusion from them; C3 and C4 use neither that nor any calibration data. Under the stock execution path every compressed policy is 1.2--2.0$\times$ slower, because that path is launch-bound. A CUDA-graph engine speeds up B16 itself from 77.5 to 28.5\,ms; the data-free NF4 policy C4 then runs at 31.6\,ms in 1.51\,GB with 98.0\% success. Offline action divergence on fixed frames predicts gross failure ($\rho=-0.67$, 163 recipes) but cannot rank near-lossless ones. Replacing the backbone with SmolVLM2-500M failed (2.2\%).
 \end{abstract}
 
 \section{Introduction}
@@ -59,7 +59,7 @@ E3 & Do joint recipes hold on reserved trials? & Three frozen joint recipes & 50
 E4 (\h3) & Does lower memory mean faster? & All E1/E3 arms & $3\times500$ timed predictions & Median and p95 latency vs.\ peak memory \\
 E5 (\h4) & Where and why do arms fail? & --- & Per-episode outcomes; 80-frame action change & Paired transitions per task; Spearman $\rho$ \\
 E6 & Can a smaller backbone replace Qwen? & SmolVLM2-500M + adapter, 10k fine-tuning steps & 500 reserved rollouts & Same as E1 \\
-E7 (\h3) & Is the slowdown intrinsic to quantization? & C1 recipe with one flow step, run in a CUDA-graph engine; dense or packed weights & 500 reserved rollouts and $3\times500$ timed predictions per arm & Same as E1; chosen on 100 development trials \\
+E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock or CUDA graph), flow steps (4 or 1), dense or packed NF4 weights & $3\times500$ timed predictions per variant; 500 reserved rollouts for C4 & Same as E1; the one-step setting comes from the E2 smoke screen \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -126,16 +126,15 @@ E7 (\h3) & Is the slowdown intrinsic to quantization? & C1 recipe with one flow 
 & Q8: LLM.int8 decoder & 94.8 [92.5, 96.4] & $-0.2$ [$-1.2$, $+0.8$] & 3/4 & 4.30 (23.3) & 4.13 & 157.4 (161.4) & \fail \\
 & Q4: NF4 decoder & 95.8 [93.7, 97.2] & $+0.8$ [$-0.6$, $+2.2$] & 8/4 & 3.54 (36.9) & 3.44 & 93.6 (97.9) & \pass \\
 \midrule
-\multirow{5}{*}{B} & C1: NF4 + lang./vision MLP $-$25/50\%$^\dagger$ & 93.4 [90.9, 95.3] & $-1.6$ [$-3.2$, $0.0$] & 5/13 & 0.94 (83.2) & 0.84 & 135.1 (138.0) & \pass \\
+\multirow{4}{*}{B} & C1: NF4 + lang./vision MLP $-$25/50\%$^\dagger$ & 93.4 [90.9, 95.3] & $-1.6$ [$-3.2$, $0.0$] & 5/13 & 0.94 (83.2) & 0.84 & 135.1 (138.0) & \pass \\
 & C2: NF4 lang., HQQ2 vision/action$^\dagger$ & 98.0 [96.4, 98.9] & $+3.0$ [$+1.2$, $+5.0$] & 22/7 & 1.07 (81.0) & 0.98 & 143.5 (146.1) & \pass \\
 & C3: C2, full vocabulary (INT8 emb.) & 96.8 [94.9, 98.0] & $+1.8$ [$-0.2$, $+3.8$] & 19/10 & 1.38 (75.4) & 1.29 & 142.9 (145.5) & \pass \\
-& C4: C1, 1 step, graph, dense$^\ddagger$ & 95.4 [93.2, 96.9] & $+0.4$ [$-1.8$, $+2.6$] & 17/15 & 4.28 (23.6) & 0.84 & 20.0 (20.6) & \fail \\
-& C5: C4, packed weights$^\ddagger$ & 95.2 [93.0, 96.8] & $+0.2$ [$-1.8$, $+2.2$] & 14/13 & 1.02 (81.8) & 0.84 & 28.8 (30.6) & \pass \\
+& C4: NF4 all, 1 step, graph$^\ddagger$ & 98.0 [96.4, 98.9] & $+3.0$ [$+1.4$, $+4.8$] & 18/3 & 1.51 (73.1) & 1.34 & 31.6 (32.0) & \pass \\
 \midrule
 & S500: SmolVLM2-500M & 2.2 [1.2, 3.9] & $-92.8$ [$-94.8$, $-90.6$] & --- & 3.30 (41.1) & 2.30 & 1269.7 (1277.8) & \fail \\
 \bottomrule
-\multicolumn{9}{@{}p{\textwidth}@{}}{\footnotesize $^\dagger$Embedding table restricted to the 53 token IDs in LIBERO prompts; unseen tokens are rejected. C1--C5 also remove the unused world model.}\\
-\multicolumn{9}{@{}p{\textwidth}@{}}{\footnotesize $^\ddagger$One flow step instead of four, CUDA-graph engine with fused kernels. C4 keeps NF4-rounded weights dense in bf16 beside the packed ones, so it misses \h1's memory target. Peak is allocated memory; the allocator reserved 4.50 and 2.55\,GB.}
+\multicolumn{9}{@{}p{\textwidth}@{}}{\footnotesize $^\dagger$Task-specific: the embedding table is restricted to the 53 token IDs of the LIBERO-Spatial test prompts (unseen tokens are rejected), and C1's channel pruning is calibrated on 20 development observations of the same tasks. C1--C4 also remove the unused world model.}\\
+\multicolumn{9}{@{}p{\textwidth}@{}}{\footnotesize $^\ddagger$No pruning and no calibration data; INT8 embedding table (full vocabulary); one flow step instead of four; CUDA-graph engine with fused kernels and packed weights. Peak is allocated memory; the allocator reserved 2.71\,GB.}
 \end{tabular}
 \end{table*}
 
@@ -147,7 +146,7 @@ Our B16 reaches 95.0\%, against 96.2\% reported for LIBERO-Spatial~\cite{vlajepa
 
 \begin{figure*}[t]
 \centering\includegraphics[width=\textwidth]{figures/tradeoff.pdf}
-\caption{Reserved-trial trade-offs. (a) Success with 95\% Wilson intervals; the green region meets \h1's memory and success targets. (b) Median latency with p95 tick. Q8/Q4 come from Study A, C1--C5 from Study B (C4--C5 with the graph engine); both B16 controls produce identical outcomes.}
+\caption{Reserved-trial trade-offs. (a) Success with 95\% Wilson intervals; the green region meets \h1's memory and success targets. (b) Median latency with p95 tick. Q8/Q4 come from Study A, C1--C4 from Study B (C4 with the graph engine); both B16 controls produce identical outcomes.}
 \label{fig:tradeoff}
 \end{figure*}
 
@@ -160,17 +159,37 @@ Fig.~\ref{fig:sens} shows 10-trial smoke results; B16 scores 8/10 on the same st
 \label{fig:sens}
 \end{figure*}
 
-These results guided the joint recipes. C2 keeps NF4 in the language decoder and uses 2-bit HQQ in the vision and action modules: 0.98\,GB of weights and 1.07\,GB peak memory. C1 adds MLP channel removal and reaches the smallest footprint, 0.84\,GB. All three joint recipes pass \h1 by a wide margin on reserved trials (Fig.~\ref{fig:tradeoff}a).
+These results guided the joint recipes. C2 keeps NF4 in the language decoder and uses 2-bit HQQ in the vision and action modules: 0.98\,GB of weights and 1.07\,GB peak memory. C1 adds MLP channel removal and reaches the smallest footprint, 0.84\,GB. All four joint recipes pass \h1 by a wide margin on reserved trials (Fig.~\ref{fig:tradeoff}a).
 
 \subsection{Memory is not speed (\h3)}
-Under the stock execution path every compressed policy is slower than B16 (Fig.~\ref{fig:tradeoff}b). Q8 doubles latency (1.99$\times$), Q4 costs 1.18$\times$, and C1--C3 cost 1.74--1.85$\times$. The cause is launch overhead, not arithmetic. A profile of one stock prediction (10 calls, \texttt{launch\_profile.json}) shows B16 launching 4{,}989 kernels while the GPU is busy 36\,ms of a 79\,ms pipeline. Q4 adds one dequantization kernel per linear layer: 5{,}576 launches and 42\,ms of GPU time for 94\,ms. LLM.int8 detects outliers on every layer: 9{,}302 launches, 691 host synchronizations (B16: 118) and 64\,ms of GPU time for 157\,ms, its 192 \texttt{nonzero} calls (B16: 11) force the host to wait for the GPU.
+Under the stock execution path every compressed policy is slower than B16 (Fig.~\ref{fig:tradeoff}b). Q8 doubles latency (1.99$\times$), Q4 costs 1.18$\times$, and C1--C3 cost 1.74--1.85$\times$. The cause is launch overhead, not arithmetic. A profile of one stock prediction (\texttt{launch\_profile.json}) shows B16 launching 4{,}989 kernels with the GPU busy 36\,ms of 79\,ms. Q4 adds a dequantization kernel per linear layer (5{,}576 launches). LLM.int8 launches 9{,}302 kernels and synchronizes with the host 691 times (B16: 118): its 192 \texttt{nonzero} calls (B16: 11) force the host to wait for the GPU.
 
-We therefore wrote a CUDA-graph engine (\texttt{evaluation/fastpath.py}). It precomputes everything that depends only on the instruction, captures one graph per prompt, fuses elementwise kernels with \texttt{torch.compile}, and dequantizes NF4 with one Triton kernel that matches bitsandbytes bit for bit. Run on C1's recipe with one flow step instead of four, it brings the median to 20.0\,ms with NF4-rounded weights kept dense in bf16 (C4) and 28.8\,ms with packed weights (C5), against 77.5\,ms for stock B16, with unchanged success (Table~\ref{tab:results}). The recipe and step count were chosen on 100 development trials, after one combination (vision $-$12 and action $-$8 layers) failed at 65/100. Dense weights remove the per-call dequantization (8.8\,ms) but add 3.3\,GB, so C4 saves only 23.6\% of peak memory and misses \h1's target; C5 keeps 1.02\,GB allocated. \h3 holds for the stock path: memory and latency are independent, and execution sets latency. Pruning to reach 20\,ms at 1\,GB would need further cuts that our development trials show lose success, or a fused 4-bit GEMM that beats cuBLAS at 234--512 rows.
+We therefore wrote a CUDA-graph engine (\texttt{evaluation/fastpath.py}). It precomputes everything that depends only on the instruction, captures one graph per prompt, fuses elementwise kernels with \texttt{torch.compile}, and dequantizes NF4 with one Triton kernel that matches bitsandbytes bit for bit. Table~\ref{tab:ladder} separates its effect from the compression. The engine alone takes B16 from 77.5 to 28.5\,ms. On that fair baseline NF4 weights cost latency: 36.8\,ms with four flow steps against 28.5\,ms, in exchange for 3.8$\times$ less peak memory (1.51 versus 5.70\,GB). Dense bf16 copies of the NF4-rounded weights remove the dequantization (24.7\,ms) at 5.45\,GB. C4 combines NF4 on all modules, an INT8 embedding table, no pruning, no calibration data and one flow step; we chose these to remove task-specific components, not by tuning on outcomes. It runs at 31.6\,ms in 1.51\,GB. The engine captures one graph per instruction; priming ten prompts took 109\,s, which the latencies exclude. \h3 holds for the stock path: memory and latency are independent, and execution sets latency.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Latency attribution (pipeline median, p95 in parentheses; $3\times500$ predictions). Peak is allocated GPU memory. Success: of 500 reserved trials; dashes were not run.}
+\label{tab:ladder}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Variant & Steps & Median (p95) ms & Peak GB & Success \\
+\midrule
+B16, stock path & 4 & 77.5 (80.5) & 5.61 & 475 \\
+B16, graph engine & 4 & 28.5 (28.9) & 5.70 & 474 \\
+B16, graph engine & 1 & 24.8 (25.1) & 5.70 & --- \\
+NF4 all, graph, packed & 4 & 36.8 (37.7) & 1.51 & 486 \\
+NF4 all, graph, dense & 1 & 24.7 (24.9) & 5.45 & --- \\
+NF4 all, graph, packed (C4) & 1 & 31.6 (32.0) & 1.51 & 490 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Failure analysis (\h4)}
 \textbf{Failures are timeouts in one task.} Rollouts are deterministic given state and seed: the two B16 runs agree on all 500 episodes. All 25 B16 failures hit the 280-step limit; none crashed. Seventeen occur in task~5, ``pick up the black bowl on the ramekin'' (Fig.~\ref{fig:tasks}). Quantization mostly inherits these failures: 22 of Q8's 26 and 17 of Q4's 21 failed states also fail under B16.
 
 \textbf{Task 5 decides the aggregate.} C2's net gain of 15 successes comes entirely from task~5 (33$\rightarrow$48/50); changes in the other nine tasks cancel out. C1 loses 4 of its net 8 in task~5. A task where small action perturbations flip outcomes can create apparent ``improvements'' from compression. C2's $+3.0$-point gain is therefore not evidence that 2-bit weights improve the policy.
+
+C4 shows the same pattern: 11 of its net 15 successes come from task~5 (33$\rightarrow$44/50), and four more from three other tasks. Two controls locate the effect (Table~\ref{tab:ladder}). B16 through the graph engine scores 474/500 ($-0.2$ points, 95\% CI $-1.2$ to $+0.8$), so the engine does not change success. The same NF4 weights with four flow steps score 486/500 ($+2.2$, $+0.8$ to $+3.8$), and one step adds four successes, within noise. The gain therefore appears with quantized weights, not with the engine or the solver. We report it as unexplained and make no claim that quantization improves the policy.
 
 \begin{figure}[t]
 \centering\includegraphics[width=\columnwidth]{figures/tasks.pdf}
@@ -187,22 +206,22 @@ We therefore wrote a CUDA-graph engine (\texttt{evaluation/fastpath.py}). It pre
 \textbf{Offline divergence screens, but does not rank.} For each recipe we measured the mean squared change in physical arm commands against B16 on 80 fixed frames, which needs no simulator. Across 163 recipes it correlates with smoke success ($\rho=-0.67$, $p<10^{-21}$; Fig.~\ref{fig:div}). Below $10^{-4}$, 64 of 65 recipes score $\geq$7/10; above $10^{-3}$, only 30 of 62 do. Among the 24 recipes that reached development trials, the correlation is weak and not significant ($\rho=-0.27$, $p=0.21$). \h4 holds for screening but not for ranking: closed-loop trials remain necessary among near-lossless recipes.
 
 \subsection{Negative result: smaller backbone}
-We replaced Qwen with SmolVLM2-500M~\cite{smolvlm} plus a trained adapter and fine-tuned the adapter, action head and predictor for 10{,}000 steps (7.1 GPU-hours, frozen backbone). It reached 2.2\% on reserved trials and was 16$\times$ slower than B16, because SmolVLM tiles each image into 17 crops of 512 pixels. A later study fixed an image-scaling bug and adapted all decoder layers. It reached 31/100 development successes against 82/100 for B16. Within our budget, compressing the trained policy beats replacing its backbone.
+We replaced Qwen with SmolVLM2-500M~\cite{smolvlm} plus a trained adapter and fine-tuned the adapter, action head and predictor for 10{,}000 steps. It reached 2.2\% on reserved trials and was 16$\times$ slower than B16, because SmolVLM tiles each image into 17 crops of 512 pixels. A later study fixed an image-scaling bug and adapted all decoder layers. It reached 31/100 development successes against 82/100 for B16. Within our budget, compressing the trained policy beats replacing its backbone.
 
 \section{Recommendations}
 \begin{enumerate}
 \item \textbf{For a single-GPU deployment with a memory limit, start with Q4.} It uses a standard bitsandbytes configuration, saves 37\% of peak memory, shows no detectable success loss, and costs 18\% latency on the stock path.
-\item \textbf{For latency, run a CUDA-graph engine.} C4 takes 20\,ms at 4.28\,GB; C5 takes 29\,ms at 1.02\,GB. Both keep 95\% success.
-\item \textbf{Below 1.5\,GB, use C3.} It keeps the full vocabulary. C1 and C2 are smaller but accept only the 53 token IDs in LIBERO prompts.
+\item \textbf{For latency, run a CUDA-graph engine.} It makes B16 itself 2.7$\times$ faster (28.5\,ms). C4 runs at 31.6\,ms in 1.51\,GB; B16 with one flow step runs at 24.8\,ms in 5.7\,GB.
+\item \textbf{Below 1.6\,GB, use C3 or C4.} Both keep the full vocabulary and use no calibration data. C1 and C2 are smaller but accept only the 53 token IDs in the LIBERO prompts.
 \item \textbf{Avoid LLM.int8 at batch size one.} It is slower than NF4 and saves less memory.
 \item \textbf{Spend precision on the language decoder}, and compress vision and action modules first.
 \item \textbf{Screen with offline action change, confirm with $\geq$500 paired trials.} Ten or even 100 trials cannot rank near-lossless recipes, and per-task paired transitions expose single-task effects such as task~5.
 \end{enumerate}
 
 \section{Limitations and Conclusion}
-We evaluated one suite (LIBERO-Spatial), one checkpoint, one GPU and one seed per state. Success on Object, Goal or Long suites, on other hardware, and on a real robot is untested. Development and smoke selection used 10--100 trials, so sensitivity curves are coarse. We did not analyze attention maps; the failure analysis relies on action outputs and outcomes. The graph engine assumes one observation, two equal-size images and unpadded prompts per call, and its fused kernels change bf16 rounding, so we measured success through the engine. Compressed archives are rebuilt from the original checkpoint plus a recipe and are not standalone Hugging Face checkpoints.
+We evaluated one suite (LIBERO-Spatial), one checkpoint, one GPU and one seed per state. Success on Object, Goal or Long suites, on other hardware, and on a real robot is untested. Development and smoke selection used 10--100 trials, so sensitivity curves are coarse. C1 and C2 depend on the test prompts' vocabulary, and C1's pruning on development observations of the same tasks; C3 and C4 use neither. We chose every arm on smoke and development states, never on reserved trials, but the same 500 reserved states score all arms with no multiple-comparison correction. The graph engine assumes one observation, two equal-size images and unpadded prompts per call, and its fused kernels change bf16 rounding, so we measured success through the engine. Compressed archives are rebuilt from the original checkpoint plus a recipe and are not standalone Hugging Face checkpoints.
 
-Post-training compression is effective for VLA-JEPA. NF4 decoder quantization meets our memory and success targets. Joint recipes keep $\geq$93\% success in under 1.4\,GB, a 4--6$\times$ reduction. The language decoder limits further compression, and a single hard task drives most differences between arms. Latency rises under the stock path but falls under a graph engine, to 20\,ms at 4.3\,GB or 29\,ms at 1.0\,GB. Fused 4-bit GEMM kernels and evaluation on longer-horizon suites are the next steps.
+Post-training compression is effective for VLA-JEPA. NF4 decoder quantization meets our memory and success targets. Joint recipes keep $\geq$93\% success in under 1.6\,GB, a 3.5--6$\times$ reduction. The language decoder limits further compression, and a single hard task drives most differences between arms. Latency rises under the stock path; a graph engine removes the overhead for every variant, and C4 runs at 31.6\,ms in 1.51\,GB. Fused 4-bit GEMM kernels and evaluation on longer-horizon suites are the next steps.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}

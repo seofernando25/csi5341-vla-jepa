@@ -24,10 +24,21 @@ FINAL = {  # compression-study reserved configurations, in report order
     "C1": "deploy-nf4-vision-text-channels-restricted",
     "C2": "deploy-hqq2-vision-action-restricted",
     "C3": "deploy-hqq2-vision-action",
-    "C4": "fast-nf4-solver1",  # graph engine, dense NF4-rounded weights
-    "C5": "fast-nf4-solver1-packed",  # graph engine, packed weights
+    "C4": "fast-nf4-all-solver1-packed",  # data-free NF4, full vocabulary, graph engine
 }
-MEASURED = {"C4", "C5"}  # reserved results computed from episodes.csv, not the milestone file
+EXTRA = {  # attribution arms: reported in the text, not plotted
+    "N4": "fast-nf4-all-packed",  # C4 with four flow steps
+    "B16g": "fast-b16-graph",  # B16 through the graph engine
+}
+MEASURED = {"C4", *EXTRA}  # reserved results computed from episodes.csv, not the milestone file
+LADDER = {  # latency attribution, benchmark phase only, in report order
+    "B16 stock": "B16",
+    "B16 graph, 4 steps": "fast-b16-graph",
+    "B16 graph, 1 step": "fast-b16-graph-solver1",
+    "NF4 graph, 4 steps": "fast-nf4-all-packed",
+    "NF4 graph, 1 step, dense": "fast-nf4-all-solver1",
+    "NF4 graph, 1 step, packed (C4)": "fast-nf4-all-solver1-packed",
+}
 GB = 1e9
 
 
@@ -110,6 +121,18 @@ def measured_reserved(candidate: str) -> dict:
     }
 
 
+def latency_ladder(comp: pd.DataFrame) -> dict:
+    """Median latency and peak memory per execution variant, from benchmark-phase summaries."""
+    return {
+        label: {
+            "median_ms": float(comp.loc[cand, "benchmark_pipeline_median_ms"]),
+            "p95_ms": float(comp.loc[cand, "benchmark_pipeline_p95_ms"]),
+            "peak_allocated_gb": float(comp.loc[cand, "benchmark_peak_allocated_bytes"]) / GB,
+        }
+        for label, cand in LADDER.items()
+    }
+
+
 def collect() -> dict:
     summary = load_json(EVAL / "analysis" / "summary.json")["results"]
     t1 = pd.read_csv(EVAL / "analysis" / "T1_summary.csv").set_index("variant")
@@ -136,7 +159,7 @@ def collect() -> dict:
         }
     for variant in ["Q8", "Q4"]:
         rows[variant]["transitions"] = paired(base_eps, episodes(variant))
-    for label, cand in [("B16c", "B16"), *FINAL.items()]:
+    for label, cand in [("B16c", "B16"), *FINAL.items(), *EXTRA.items()]:
         r = comp.loc[cand]
         res = measured_reserved(cand) if label in MEASURED else reserved[cand]
         rows[label] = {
@@ -145,7 +168,7 @@ def collect() -> dict:
             "successes": int(res["successes"]),
             "per_task": [int(res["task_successes"][str(t)]) for t in range(10)],
             "peak_allocated_gb": r.benchmark_peak_allocated_bytes / GB,
-            "weights_gb": r.packed_archive_bytes / GB,
+            "weights_gb": None if pd.isna(r.packed_archive_bytes) else r.packed_archive_bytes / GB,
             "median_ms": r.benchmark_pipeline_median_ms,
             "p95_ms": r.benchmark_pipeline_p95_ms,
         }
@@ -162,6 +185,7 @@ def collect() -> dict:
     failures = base_eps[base_eps.success == 0]
     return {
         "rows": rows,
+        "latency_ladder": latency_ladder(comp),
         "b16_repeat_agreement": float((m.success_x == m.success_y).mean()),
         "b16_failures_at_step_cap": int((failures.steps == failures.steps.max()).sum()),
         "b16_step_cap": int(base_eps.steps.max()),

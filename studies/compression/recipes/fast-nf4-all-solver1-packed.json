@@ -1,0 +1,40 @@
+{
+  "id": "fast-nf4-all-solver1-packed",
+  "family": "graph execution",
+  "engine": "graph",
+  "changes": [
+    {
+      "method": "world_remove"
+    },
+    {
+      "method": "int8_embedding"
+    },
+    {
+      "method": "solver_steps",
+      "count": 1
+    },
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "merger",
+      "bits": 4
+    },
+    {
+      "method": "bnb",
+      "scope": "action",
+      "bits": 4
+    }
+  ],
+  "engine_options": {
+    "dense": false
+  }
+}

@@ -32,28 +32,40 @@ Evidence: [per-task counts and transitions](reserved_confirmation_milestone.json
 [benchmarks](final_benchmark_milestone.json), [frozen selection](final_selection.json).
 Figures: [final report](../../report/main.pdf).
 
-## Graph execution (C4, C5)
+## Graph execution (C4)
 
 The slowdown above comes from launch overhead, not arithmetic: the stock path launches about 5,000
 kernels per prediction and synchronizes with the host inside the vision tower and decoder
 ([launch profile](../evaluation/launch_profile.json)). `evaluation/fastpath.py` captures one CUDA
 graph per instruction, fuses elementwise kernels with `torch.compile`, and dequantizes NF4 with one
-Triton kernel (`evaluation/nf4.py`) that is bit-identical to bitsandbytes. C4 and C5 are C1 with one
-denoising step instead of four, run through this engine. C4 keeps NF4-rounded weights dense in bf16
-beside the packed ones; C5 keeps only the packed weights and dequantizes before each GEMM.
+Triton kernel (`evaluation/nf4.py`) that is bit-identical to bitsandbytes. The first call per
+instruction captures and compiles (about 11 s each; priming ten prompts took 109 s), which the
+latencies exclude.
 
-| | Success [Wilson 95%] | Δ pp [paired 95%] | Gain/loss | Peak GB (alloc. / reserved) | Median / p95 ms |
+**C4** (`fast-nf4-all-solver1-packed`) is data-free: NF4 on every module, INT8 embedding table (full
+vocabulary), no pruning, no calibration data, one flow step instead of four, packed weights.
+
+| Arm | Success /500 | Δ vs B16 pp [paired 95%] | Gain/loss | Median / p95 ms | Peak GB (alloc. / reserved) |
 |---|---:|---:|---:|---:|---:|
-| B16 (stock) | 475/500 | — | — | 5.61 / — | 77.5 / 80.5 |
-| C4 `fast-nf4-solver1` | 477/500 | +0.4 [−1.8, +2.6] | 17/15 | 4.28 / 4.50 | 20.0 / 20.6 |
-| C5 `fast-nf4-solver1-packed` | 476/500 | +0.2 [−1.8, +2.2] | 14/13 | 1.02 / 2.55 | 28.8 / 30.6 |
+| B16, stock | 475 | — | — | 77.5 / 80.5 | 5.61 / — |
+| B16, graph engine (`fast-b16-graph`) | 474 | −0.2 [−1.2, +0.8] | 3/4 | 28.5 / 28.9 | 5.70 / — |
+| NF4 all, 4 steps (`fast-nf4-all-packed`) | 486 | +2.2 [+0.8, +3.8] | 14/3 | 36.8 / 37.7 | 1.51 / — |
+| **C4**, NF4 all, 1 step | 490 | +3.0 [+1.4, +4.8] | 18/3 | 31.6 / 32.0 | 1.51 / 2.71 |
 
-Latency is the full pipeline (observation preparation, prediction, post-processing). Smoke 8/10 for
-both; development 83/100 (C4) and 86/100 (C5) against 82 for B16. The recipe was picked on
-development after one failed combination (vision −12 and action −8 layers: 65/100). Compile changes
-bf16 rounding, so success was measured through the engine. Dense weights save 8.8 ms and cost 3.3 GB;
-C4 therefore misses the 25% memory target. The remaining gap to 20 ms at 1 GB is dequantization (about 9 ms). A first Triton fused 4-bit GEMM
-was slower than cuBLAS plus a separate dequantize at 234–512 rows; that microbenchmark is not archived.
+Timing-only controls (benchmark phase): B16 graph with one step 24.8 ms; NF4 all, one step, with
+dense bf16 copies of the weights (`fast-nf4-all-solver1`) 24.7 ms at 5.45 GB. Development scores:
+C4 88/100, four-step NF4 83, engine-B16 81 (stock B16: 82).
+
+The engine does not change success (engine-B16 vs stock B16). The +2.2 to +3.0 points appear with
+quantized weights and are concentrated in task 5 (C4: 11 of a net 15 successes), as they were for
+C2 and C3. We report this as unexplained; it is not evidence that quantization improves the policy.
+
+**Task-specific variants (not used in the report).** `fast-nf4-solver1` (dense weights: 477/500,
+20.0 ms, 4.28 GB) and `fast-nf4-solver1-packed` (476/500, 28.8 ms, 1.02 GB) run C1's recipe with one
+flow step. C1's embedding table keeps only the 53 token IDs of the test prompts and rejects every
+other word, and its channel pruning is calibrated on 20 development observations of the same tasks.
+They are kept as evidence. The 1.02 GB figure depends on that restricted vocabulary.
+
 Reproduce: `python -m evaluation.compression.study run --recipe studies/compression/recipes/<id>.json --phase <phase>`.
 
 ## Selection pipeline
