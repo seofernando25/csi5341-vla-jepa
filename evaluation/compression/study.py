@@ -24,6 +24,7 @@ from evaluation.common import PROTOCOL, environment, read_json, recorded_run, wr
 from evaluation.compression import calibration as calib
 from evaluation.compression.inventory import serialize, storage_inventory
 from evaluation.compression.recipes import apply
+from evaluation.fastpath import attach
 from evaluation.models import load_policy
 from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
 from evaluation.rollout import rollout
@@ -156,6 +157,8 @@ def run(recipe_path, phase, predictions):
         calibration = calib.load()
         policy, record["model"] = load_policy("B16")
         record["transformations"] = apply(policy, recipe, calibration)
+        if recipe.get("engine") == "graph":
+            record["execution_engine"] = attach(policy, **recipe.get("engine_options", {}))
         record["deployed_architecture"] = deployed_architecture(policy)
         gc.collect()
         torch.cuda.empty_cache()

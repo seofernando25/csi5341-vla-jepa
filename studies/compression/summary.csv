@@ -85,6 +85,8 @@ deploy-nf4-text-vision,joint compression,full vocabulary,completed,1676643840,98
 deploy-nf4-text,joint compression,full vocabulary,completed,2257624064,90.66741649985488,0.0002017226895532076,2163521054,8,10,0.0,,,,,,,,,,,
 deploy-nf4-vision-text-channels-heads-restricted,joint compression,restricted LIBERO-Spatial vocabulary,completed,879281664,134.30357899778755,0.031201481027528642,766521074,2,10,-60.0,,,,,,,,,,,
 deploy-nf4-vision-text-channels-restricted,joint compression,restricted LIBERO-Spatial vocabulary,completed,940727808,134.37123150288244,0.0008100367926090257,837997298,7,10,-10.0,82,100,0.0,467,500,-1.6,838493279,940727296,135.1303774972621,137.998395847535,1606704391
+fast-nf4-solver1-packed,graph execution,restricted LIBERO-Spatial vocabulary,,,,,,8,10,0.0,86,100,4.0,476,500,0.19999999999999996,838493279,1017691648,28.77462698961608,30.577056013862602,1606704391
+fast-nf4-solver1,graph execution,restricted LIBERO-Spatial vocabulary,,,,,,8,10,0.0,83,100,0.9999999999999996,477,500,0.39999999999999986,838493279,4280459264,20.020581519929692,20.638995451736264,1606704391
 int8_embedding,embedding,full vocabulary,completed,5293371904,76.59762699950079,2.60014664377195e-06,5221719310,7,10,-10.0,,,,,,,,,,,
 latent-prompt-remove,conditioning_tokens,full vocabulary,completed,5601974784,75.97646850081219,0.000548207007432211,5532276494,8,10,0.0,,,,,,,,,,,
 merger-bnb4,quantization,full vocabulary,completed,5460345856,77.5208749992089,5.29771797914691e-06,5382887726,8,10,0.0,,,,,,,,,,,

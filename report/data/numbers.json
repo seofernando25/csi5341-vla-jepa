@@ -270,6 +270,76 @@
         94.86551309545582,
         98.0208486373429
       ]
+    },
+    "C4": {
+      "study": "compression",
+      "candidate": "fast-nf4-solver1",
+      "successes": 477,
+      "per_task": [
+        49,
+        48,
+        49,
+        48,
+        46,
+        39,
+        50,
+        50,
+        49,
+        49
+      ],
+      "peak_allocated_gb": 4.280459264,
+      "weights_gb": 0.838493279,
+      "median_ms": 20.02058151992969,
+      "p95_ms": 20.638995451736264,
+      "paired_pp": [
+        0.39999999999999986,
+        -1.7999999999999998,
+        2.6
+      ],
+      "transitions": {
+        "gained_success": 17,
+        "lost_success": 15
+      },
+      "success_pct": 95.4,
+      "wilson_pct": [
+        93.19222072317267,
+        96.91548916291838
+      ]
+    },
+    "C5": {
+      "study": "compression",
+      "candidate": "fast-nf4-solver1-packed",
+      "successes": 476,
+      "per_task": [
+        50,
+        49,
+        50,
+        47,
+        46,
+        37,
+        49,
+        49,
+        50,
+        49
+      ],
+      "peak_allocated_gb": 1.017691648,
+      "weights_gb": 0.838493279,
+      "median_ms": 28.77462698961608,
+      "p95_ms": 30.5770560138626,
+      "paired_pp": [
+        0.19999999999999996,
+        -1.7999999999999998,
+        2.1999999999999997
+      ],
+      "transitions": {
+        "gained_success": 14,
+        "lost_success": 13
+      },
+      "success_pct": 95.2,
+      "wilson_pct": [
+        92.957280316411,
+        96.75347930586469
+      ]
     }
   },
   "b16_repeat_agreement": 1.0,

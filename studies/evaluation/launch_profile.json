@@ -1,0 +1,30 @@
+{
+  "observation": "bank index 0",
+  "profiled_calls": 10,
+  "variants": {
+    "B16": {
+      "wall_median_ms": 71.57303701387718,
+      "gpu_busy_ms": 35.95355570000004,
+      "kernel_launches": 4989.0,
+      "host_syncs": 118.0,
+      "nonzero_calls": 11.0,
+      "item_calls": 20.0
+    },
+    "Q8": {
+      "wall_median_ms": 170.78643952845596,
+      "gpu_busy_ms": 64.20403940000236,
+      "kernel_launches": 9301.7,
+      "host_syncs": 691.0,
+      "nonzero_calls": 192.0,
+      "item_calls": 216.0
+    },
+    "Q4": {
+      "wall_median_ms": 100.85520701250061,
+      "gpu_busy_ms": 41.5859574999992,
+      "kernel_launches": 5576.4,
+      "host_syncs": 118.0,
+      "nonzero_calls": 11.0,
+      "item_calls": 20.0
+    }
+  }
+}

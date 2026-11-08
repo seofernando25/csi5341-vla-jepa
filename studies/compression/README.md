@@ -32,6 +32,30 @@ Evidence: [per-task counts and transitions](reserved_confirmation_milestone.json
 [benchmarks](final_benchmark_milestone.json), [frozen selection](final_selection.json).
 Figures: [final report](../../report/main.pdf).
 
+## Graph execution (C4, C5)
+
+The slowdown above comes from launch overhead, not arithmetic: the stock path launches about 5,000
+kernels per prediction and synchronizes with the host inside the vision tower and decoder
+([launch profile](../evaluation/launch_profile.json)). `evaluation/fastpath.py` captures one CUDA
+graph per instruction, fuses elementwise kernels with `torch.compile`, and dequantizes NF4 with one
+Triton kernel (`evaluation/nf4.py`) that is bit-identical to bitsandbytes. C4 and C5 are C1 with one
+denoising step instead of four, run through this engine. C4 keeps NF4-rounded weights dense in bf16
+beside the packed ones; C5 keeps only the packed weights and dequantizes before each GEMM.
+
+| | Success [Wilson 95%] | Δ pp [paired 95%] | Gain/loss | Peak GB (alloc. / reserved) | Median / p95 ms |
+|---|---:|---:|---:|---:|---:|
+| B16 (stock) | 475/500 | — | — | 5.61 / — | 77.5 / 80.5 |
+| C4 `fast-nf4-solver1` | 477/500 | +0.4 [−1.8, +2.6] | 17/15 | 4.28 / 4.50 | 20.0 / 20.6 |
+| C5 `fast-nf4-solver1-packed` | 476/500 | +0.2 [−1.8, +2.2] | 14/13 | 1.02 / 2.55 | 28.8 / 30.6 |
+
+Latency is the full pipeline (observation preparation, prediction, post-processing). Smoke 8/10 for
+both; development 83/100 (C4) and 86/100 (C5) against 82 for B16. The recipe was picked on
+development after one failed combination (vision −12 and action −8 layers: 65/100). Compile changes
+bf16 rounding, so success was measured through the engine. Dense weights save 8.8 ms and cost 3.3 GB;
+C4 therefore misses the 25% memory target. The remaining gap to 20 ms at 1 GB is dequantization (about 9 ms). A first Triton fused 4-bit GEMM
+was slower than cuBLAS plus a separate dequantize at 234–512 rows; that microbenchmark is not archived.
+Reproduce: `python -m evaluation.compression.study run --recipe studies/compression/recipes/<id>.json --phase <phase>`.
+
 ## Selection pipeline
 
 | Phase | Trials | Configurations | Purpose |

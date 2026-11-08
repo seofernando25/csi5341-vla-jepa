@@ -26,7 +26,7 @@ records follows the user's communication authorization; never rewrite old record
   which reads committed evidence under `studies/`. Rebuild both after any evidence change.
 - Study evidence: `studies/<study>/`, indexed in `studies/README.md`. Each study README states
   its question, result, evidence and reproduction command.
-- Code: `evaluation/` (rollouts, timing, S500 training, analysis), `evaluation/compression/`
+- Code: `evaluation/` (rollouts, timing, S500 training, analysis, `fastpath.py` CUDA-graph engine, `nf4.py`), `evaluation/compression/`
   (recipes → transforms → measurements), `src/` (SmolVLM plugin). Closed arms keep only their
   results; their code is in Git history at commit `82df05d`.
 - Checks: `uv run --no-sync ruff check .`, `uv run --no-sync ruff format --check .` and

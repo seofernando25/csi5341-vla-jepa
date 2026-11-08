@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from evaluation.analysis import wilson
+from evaluation.analysis import paired_difference, wilson
 from evaluation.common import ROOT
 
 DATA = ROOT / "report" / "data"
@@ -24,7 +24,10 @@ FINAL = {  # compression-study reserved configurations, in report order
     "C1": "deploy-nf4-vision-text-channels-restricted",
     "C2": "deploy-hqq2-vision-action-restricted",
     "C3": "deploy-hqq2-vision-action",
+    "C4": "fast-nf4-solver1",  # graph engine, dense NF4-rounded weights
+    "C5": "fast-nf4-solver1-packed",  # graph engine, packed weights
 }
+MEASURED = {"C4", "C5"}  # reserved results computed from episodes.csv, not the milestone file
 GB = 1e9
 
 
@@ -88,6 +91,25 @@ def paired(base: pd.DataFrame, other: pd.DataFrame) -> dict:
     }
 
 
+def measured_reserved(candidate: str) -> dict:
+    """Reserved-trial summary of a candidate from its committed episodes, paired with B16."""
+    base = pd.read_csv(COMP / "measurements" / "B16" / "final" / "episodes.csv")
+    other = pd.read_csv(COMP / "measurements" / candidate / "final" / "episodes.csv")
+    moves = paired(base, other)
+    diff = paired_difference(base.to_dict("records"), other.to_dict("records"))
+    return {
+        "successes": int(other.success.sum()),
+        "task_successes": {str(t): int(g.success.sum()) for t, g in other.groupby("task_id")},
+        "paired_vs_B16": {
+            **diff,
+            "transitions": {
+                "gained_success": moves["gained"],
+                "lost_success": moves["lost"],
+            },
+        },
+    }
+
+
 def collect() -> dict:
     summary = load_json(EVAL / "analysis" / "summary.json")["results"]
     t1 = pd.read_csv(EVAL / "analysis" / "T1_summary.csv").set_index("variant")
@@ -115,7 +137,8 @@ def collect() -> dict:
     for variant in ["Q8", "Q4"]:
         rows[variant]["transitions"] = paired(base_eps, episodes(variant))
     for label, cand in [("B16c", "B16"), *FINAL.items()]:
-        r, res = comp.loc[cand], reserved[cand]
+        r = comp.loc[cand]
+        res = measured_reserved(cand) if label in MEASURED else reserved[cand]
         rows[label] = {
             "study": "compression",
             "candidate": cand,
