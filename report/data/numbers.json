@@ -162,80 +162,6 @@
     },
     "C1": {
       "study": "compression",
-      "candidate": "deploy-nf4-vision-text-channels-restricted",
-      "successes": 467,
-      "per_task": [
-        50,
-        49,
-        50,
-        50,
-        45,
-        29,
-        49,
-        50,
-        46,
-        49
-      ],
-      "peak_allocated_gb": 0.940727296,
-      "weights_gb": 0.838493279,
-      "median_ms": 135.1303774972621,
-      "p95_ms": 137.998395847535,
-      "paired_pp": [
-        -1.6,
-        -3.2000000000000006,
-        0.0
-      ],
-      "transitions": {
-        "both_success": 462,
-        "both_failure": 20,
-        "gained_success": 5,
-        "lost_success": 13
-      },
-      "success_pct": 93.4,
-      "wilson_pct": [
-        90.87605988391466,
-        95.26214736402262
-      ]
-    },
-    "C2": {
-      "study": "compression",
-      "candidate": "deploy-hqq2-vision-action-restricted",
-      "successes": 490,
-      "per_task": [
-        50,
-        50,
-        49,
-        50,
-        45,
-        48,
-        50,
-        49,
-        49,
-        50
-      ],
-      "peak_allocated_gb": 1.065880576,
-      "weights_gb": 0.977829582,
-      "median_ms": 143.51764399907552,
-      "p95_ms": 146.06975524875452,
-      "paired_pp": [
-        3.0,
-        1.2,
-        5.0
-      ],
-      "transitions": {
-        "both_success": 468,
-        "both_failure": 3,
-        "gained_success": 22,
-        "lost_success": 7
-      },
-      "success_pct": 98.0,
-      "wilson_pct": [
-        96.35798167531208,
-        98.91008164037892
-      ]
-    },
-    "C3": {
-      "study": "compression",
       "candidate": "deploy-hqq2-vision-action",
       "successes": 484,
       "per_task": [
@@ -271,7 +197,7 @@
         98.0208486373429
       ]
     },
-    "C4": {
+    "C2": {
       "study": "compression",
       "candidate": "fast-nf4-all-solver1-packed",
       "successes": 490,
@@ -403,7 +329,7 @@
       "p95_ms": 24.9177124875132,
       "peak_allocated_gb": 5.45177344
     },
-    "NF4 graph, 1 step, packed (C4)": {
+    "NF4 graph, 1 step, packed (C2)": {
       "median_ms": 31.5919074928388,
       "p95_ms": 31.97868042916525,
       "peak_allocated_gb": 1.508324352

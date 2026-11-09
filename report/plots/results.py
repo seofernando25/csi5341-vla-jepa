@@ -9,7 +9,7 @@ from report.plots.style import COL, COLORS, FULL, INK, MUTED, OUT
 
 def fig_tradeoff(n: dict) -> None:
     rows = n["rows"]
-    keys = ["B16", "Q8", "Q4", "C3", "C2", "C1", "C4"]
+    keys = ["B16", "Q8", "Q4", "C1", "C2"]
     fig, (a, b) = plt.subplots(1, 2, figsize=(FULL, 2.25), gridspec_kw={"wspace": 0.28})
     base = rows["B16"]
     xmax = 0.75 * base["peak_allocated_gb"]
@@ -44,10 +44,8 @@ def fig_tradeoff(n: dict) -> None:
             "B16": (-0.12, 0.5, "right"),
             "Q8": (0.12, -1.3, "left"),
             "Q4": (0.12, 0.35, "left"),
-            "C1": (0.14, -1.6, "left"),
-            "C2": (0.14, 0.25, "left"),
-            "C3": (0.14, -1.25, "left"),
-            "C4": (0.12, 0.45, "left"),
+            "C1": (0.14, -1.25, "left"),
+            "C2": (0.12, 0.45, "left"),
         }[k]
         a.text(
             r["peak_allocated_gb"] + dx,
@@ -64,7 +62,7 @@ def fig_tradeoff(n: dict) -> None:
         xlabel="Peak allocated GPU memory (GB)",
         ylabel="LIBERO-Spatial success (%, 500 trials)",
     )
-    a.set_title("(a) Success is retained down to 0.94 GB", loc="left")
+    a.set_title("(a) Success is retained down to 1.4 GB", loc="left")
     for k in keys:
         r = rows[k]
         b.plot([r["peak_allocated_gb"]] * 2, [r["median_ms"], r["p95_ms"]], color=COLORS[k], lw=1)
@@ -73,10 +71,8 @@ def fig_tradeoff(n: dict) -> None:
             "B16": (-0.15, 6),
             "Q8": (0.15, -2),
             "Q4": (0.15, -5),
-            "C1": (-0.07, -12),
+            "C1": (0.13, -3),
             "C2": (0.12, 6),
-            "C3": (0.13, -3),
-            "C4": (0.12, 6),
         }[k]
         b.text(
             r["peak_allocated_gb"] + dx,
@@ -93,16 +89,16 @@ def fig_tradeoff(n: dict) -> None:
         xlabel="Peak allocated GPU memory (GB)",
         ylabel="Observation-to-action latency (ms)",
     )
-    b.set_title("(b) Latency: stock paths slower, graph engine (C4) faster", loc="left")
+    b.set_title("(b) Latency: stock paths slower, graph engine (C2) faster", loc="left")
     fig.savefig(OUT / "tradeoff.pdf")
     plt.close(fig)
 
 
 def fig_tasks(n: dict) -> None:
     rows = n["rows"]
-    keys = ["B16", "Q8", "Q4", "C1", "C2", "C3", "C4"]
+    keys = ["B16", "Q8", "Q4", "C1", "C2"]
     mat = np.array([rows[k]["per_task"] for k in keys]).T * 2  # percent of 50 trials
-    fig, ax = plt.subplots(figsize=(COL, 1.8))
+    fig, ax = plt.subplots(figsize=(COL, 1.6))
     cmap = mpl.colors.LinearSegmentedColormap.from_list("s", ["#b91c1c", "#fde68a", "#f8fafc"])
     ax.imshow(mat.T, aspect="auto", cmap=cmap, vmin=55, vmax=100)
     for i in range(mat.shape[0]):

@@ -6,7 +6,7 @@ Compact evidence for every experiment. The [final report](../report/main.pdf) su
 | Study | Question | Status and headline | Folder |
 |---|---|---|---|
 | Quantization (A) | Does INT8/NF4 decoder quantization keep success? | Done. Q4 −37% memory, +0.8 pp; Q8 −23%, −0.2 pp (500 trials each) | [evaluation/](evaluation/README.md) |
-| Compression (B) | How far can post-training compression go, and what breaks first? | Done. 201 recipes; C1–C3 keep 93–98% success at 0.94–1.38 GB | [compression/](compression/README.md) |
+| Compression (B) | How far can post-training compression go, and what breaks first? | Done. 201 recipes; two joint recipes keep 96.8–98.0% success at 1.38–1.51 GB (73–75% less) | [compression/](compression/README.md) |
 | SmolVLM backbone (S500) | Can SmolVLM2-500M replace Qwen with limited fine-tuning? | Negative. 2.2% after 10k steps | [evaluation/](evaluation/README.md) |
 | SmolVLM recovery | Do corrected inputs and wider adaptation recover S500? | Closed. 31/100 development vs B16 82/100 | [recovery/](recovery/README.md) |
 | Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Closed (SmolVLM: 0/10 dev). Dream-RSI replay + Qwen Stage 2 (`s2-c2-t10-v25`: 85/100 dev, 904.8 MB) done | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |

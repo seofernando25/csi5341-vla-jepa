@@ -21,23 +21,21 @@ RUNS = {
     "Q4": "20260924T183120067911Z-Q4-rollout",
 }
 FINAL = {  # compression-study reserved configurations, in report order
-    "C1": "deploy-nf4-vision-text-channels-restricted",
-    "C2": "deploy-hqq2-vision-action-restricted",
-    "C3": "deploy-hqq2-vision-action",
-    "C4": "fast-nf4-all-solver1-packed",  # data-free NF4, full vocabulary, graph engine
+    "C1": "deploy-hqq2-vision-action",
+    "C2": "fast-nf4-all-solver1-packed",  # NF4 everywhere, full vocabulary, graph engine
 }
 EXTRA = {  # attribution arms: reported in the text, not plotted
-    "N4": "fast-nf4-all-packed",  # C4 with four flow steps
+    "N4": "fast-nf4-all-packed",  # C2 with four flow steps
     "B16g": "fast-b16-graph",  # B16 through the graph engine
 }
-MEASURED = {"C4", *EXTRA}  # reserved results computed from episodes.csv, not the milestone file
+MEASURED = {"C2", *EXTRA}  # reserved results computed from episodes.csv, not the milestone file
 LADDER = {  # latency attribution, benchmark phase only, in report order
     "B16 stock": "B16",
     "B16 graph, 4 steps": "fast-b16-graph",
     "B16 graph, 1 step": "fast-b16-graph-solver1",
     "NF4 graph, 4 steps": "fast-nf4-all-packed",
     "NF4 graph, 1 step, dense": "fast-nf4-all-solver1",
-    "NF4 graph, 1 step, packed (C4)": "fast-nf4-all-solver1-packed",
+    "NF4 graph, 1 step, packed (C2)": "fast-nf4-all-solver1-packed",
 }
 GB = 1e9
 
