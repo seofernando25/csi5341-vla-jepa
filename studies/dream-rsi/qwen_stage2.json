@@ -1,0 +1,93 @@
+{
+  "protocol": "dream-rsi-qwen-stage2",
+  "beta": 1.0,
+  "smoke_budget": 10,
+  "probes_used": 8,
+  "decision_rounds": 2,
+  "best_smoke_reduction": 0.8364418663851403,
+  "smoke_results": [
+    {
+      "candidate": "s2-c2-tmlp10",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 7,
+      "episodes": 10,
+      "resident_bytes": 920626610.0,
+      "wall_seconds": 81.36
+    },
+    {
+      "candidate": "s2-c2-vmlp25",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 8,
+      "episodes": 10,
+      "resident_bytes": 961646258.0,
+      "wall_seconds": 70.98
+    },
+    {
+      "candidate": "s2-c2-t10-v25",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 8,
+      "episodes": 10,
+      "resident_bytes": 904848818.0,
+      "wall_seconds": 70.1
+    },
+    {
+      "candidate": "s2-c2-t15-v35",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 7,
+      "episodes": 10,
+      "resident_bytes": 869547314.0,
+      "wall_seconds": 72.19
+    },
+    {
+      "candidate": "s2-c2-vmlp50",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 6,
+      "episodes": 10,
+      "resident_bytes": 945868466.0,
+      "wall_seconds": 73.99
+    },
+    {
+      "candidate": "s2-c2-tlay2",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 8,
+      "episodes": 10,
+      "resident_bytes": 925462266.0,
+      "wall_seconds": 66.18
+    },
+    {
+      "candidate": "s2-c1-hqq2-act",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 7,
+      "episodes": 10,
+      "resident_bytes": 850603058.0,
+      "wall_seconds": 66.6
+    },
+    {
+      "candidate": "s2-c2-tlay4",
+      "phase": "smoke",
+      "status": "completed",
+      "successes": 7,
+      "episodes": 10,
+      "resident_bytes": 873500482.0,
+      "wall_seconds": 69.43
+    }
+  ],
+  "development_promotions": [
+    {
+      "candidate": "s2-c2-t10-v25",
+      "phase": "development",
+      "status": "completed",
+      "successes": 85,
+      "episodes": 100,
+      "resident_bytes": 904848818.0,
+      "wall_seconds": 402.74
+    }
+  ]
+}

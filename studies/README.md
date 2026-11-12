@@ -9,7 +9,7 @@ Compact evidence for every experiment. The [final report](../report/main.pdf) su
 | Compression (B) | How far can post-training compression go, and what breaks first? | Done. 201 recipes; C1–C3 keep 93–98% success at 0.94–1.38 GB | [compression/](compression/README.md) |
 | SmolVLM backbone (S500) | Can SmolVLM2-500M replace Qwen with limited fine-tuning? | Negative. 2.2% after 10k steps | [evaluation/](evaluation/README.md) |
 | SmolVLM recovery | Do corrected inputs and wider adaptation recover S500? | Closed. 31/100 development vs B16 82/100 | [recovery/](recovery/README.md) |
-| Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Closed. Lower loss, 0/10 development successes | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |
+| Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Closed (SmolVLM: 0/10 dev). Dream-RSI replay + Qwen Stage 2 (`s2-c2-t10-v25`: 85/100 dev, 904.8 MB) done | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |
 | SmolVLA check | How does the complete pretrained SmolVLA policy do? | Quick check: 7/10, one trial per task | [smolvla/](smolvla/README.md) |
 
 Hardware for all local runs: [HARDWARE.md](HARDWARE.md).

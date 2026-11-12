@@ -1,0 +1,4885 @@
+{
+  "attempts_count": 27,
+  "attempts_source": "studies/dream-rsi/attempts.jsonl",
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "elapsed_ms": 15.99,
+  "grid_plan_example": {
+    "max_attempts_per_branch": 4,
+    "max_branches": 6,
+    "max_parallelism": 4,
+    "rationale": "Iter 3: branches=6, depth=4, W=4.",
+    "recommended_next_beta": 0.6,
+    "rounds_cap": 6
+  },
+  "host": {
+    "machine": "x86_64",
+    "python": "3.12.13"
+  },
+  "lambda_parallel": 0.05,
+  "protocol": "dream-rsi-arxiv-2609.14858v2",
+  "suites": {
+    "qwen_compression": {
+      "W=1": {
+        "delta_auc": 0.13742259396204531,
+        "delta_penalty": 0.0,
+        "delta_reward": 0.13742259396204531,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.2449229491804213,
+            "parallel_penalty": 1.0,
+            "reward": 0.1949229491804213
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5,
+              "mean_probes": 7.5,
+              "mean_rounds": 7.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 12.5,
+              "mean_rounds": 12.5
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 13.0,
+              "mean_rounds": 13.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.75,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.055063289665190446,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.0
+                ],
+                [
+                  8,
+                  0.04424722567368421
+                ],
+                [
+                  9,
+                  0.058013109150896525
+                ]
+              ],
+              "reward": 0.005063289665190443,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.0,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 15,
+                  "effective_sequential_rounds": 15,
+                  "probes": 15
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 17,
+                  "effective_sequential_rounds": 17,
+                  "probes": 17
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.43478260869565216,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.3847826086956522,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.3823455431424666,
+            "parallel_penalty": 1.0,
+            "reward": 0.3323455431424666
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.042891355966122625,
+              "mean_probes": 1.5,
+              "mean_rounds": 1.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 11.5,
+              "mean_rounds": 11.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 12.0,
+              "mean_rounds": 12.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.6543868831418065,
+              "mean_probes": 14.5,
+              "mean_rounds": 14.5
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 0.75,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.3087737662836131,
+                  "best_score": 0.25422065320222587,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.2888819631869029,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  8,
+                  0.058013109150896525
+                ],
+                [
+                  11,
+                  0.3087737662836131
+                ]
+              ],
+              "reward": 0.2388819631869029,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.08578271193224525,
+                  "best_score": 0.07278884206831182,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 14,
+                  "effective_sequential_rounds": 14,
+                  "probes": 14
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 16,
+                  "effective_sequential_rounds": 16,
+                  "probes": 16
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 18,
+                  "effective_sequential_rounds": 18,
+                  "probes": 18
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.4758091230980303,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.08578271193224525
+                ],
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.4258091230980303,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=2": {
+        "delta_auc": 0.13324631604461906,
+        "delta_penalty": -0.2622298534798535,
+        "delta_reward": 0.1463578087186117,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.2449229491804213,
+            "parallel_penalty": 1.0,
+            "reward": 0.1949229491804213
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5,
+              "mean_probes": 7.5,
+              "mean_rounds": 7.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 12.5,
+              "mean_rounds": 12.5
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 13.0,
+              "mean_rounds": 13.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.75,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.055063289665190446,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.0
+                ],
+                [
+                  8,
+                  0.04424722567368421
+                ],
+                [
+                  9,
+                  0.058013109150896525
+                ]
+              ],
+              "reward": 0.005063289665190443,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.0,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 15,
+                  "effective_sequential_rounds": 15,
+                  "probes": 15
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 17,
+                  "effective_sequential_rounds": 17,
+                  "probes": 17
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.43478260869565216,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.3847826086956522,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.37816926522504035,
+            "parallel_penalty": 0.7377701465201465,
+            "reward": 0.341280757899033
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.042891355966122625,
+              "mean_probes": 1.5,
+              "mean_rounds": 1.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 11.0,
+              "mean_rounds": 8.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 12.0,
+              "mean_rounds": 8.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 14.0,
+              "mean_rounds": 9.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.6543868831418065,
+              "mean_probes": 17.0,
+              "mean_rounds": 10.5
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 9
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 10
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 12
+                },
+                {
+                  "attainment": 0.3087737662836131,
+                  "best_score": 0.25422065320222587,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 16
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.28052940735205034,
+              "parallel_penalty": 0.6658333333333333,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  9,
+                  0.04424722567368421
+                ],
+                [
+                  12,
+                  0.058013109150896525
+                ],
+                [
+                  16,
+                  0.3087737662836131
+                ]
+              ],
+              "reward": 0.24723774068538368,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.08578271193224525,
+                  "best_score": 0.07278884206831182,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 14
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 12,
+                  "effective_sequential_rounds": 12,
+                  "probes": 16
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 12,
+                  "effective_sequential_rounds": 12,
+                  "probes": 18
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.4758091230980303,
+              "parallel_penalty": 0.8097069597069597,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.08578271193224525
+                ],
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.43532377511268233,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=4": {
+        "delta_auc": 0.13324631604461906,
+        "delta_penalty": -0.3011187423687425,
+        "delta_reward": 0.14830225316305617,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.2449229491804213,
+            "parallel_penalty": 1.0,
+            "reward": 0.1949229491804213
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5,
+              "mean_probes": 7.5,
+              "mean_rounds": 7.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 10.5,
+              "mean_rounds": 10.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 12.5,
+              "mean_rounds": 12.5
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 13.0,
+              "mean_rounds": 13.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.75,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.055063289665190446,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.0
+                ],
+                [
+                  8,
+                  0.04424722567368421
+                ],
+                [
+                  9,
+                  0.058013109150896525
+                ]
+              ],
+              "reward": 0.005063289665190443,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.0,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 15,
+                  "effective_sequential_rounds": 15,
+                  "probes": 15
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 17,
+                  "effective_sequential_rounds": 17,
+                  "probes": 17
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.43478260869565216,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.3847826086956522,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 2,
+          "pareto": {
+            "auc": 0.37816926522504035,
+            "parallel_penalty": 0.6988812576312575,
+            "reward": 0.3432252023434775
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.042891355966122625,
+              "mean_probes": 1.5,
+              "mean_rounds": 1.5
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 11.0,
+              "mean_rounds": 8.5
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.522123612836842,
+              "mean_probes": 12.0,
+              "mean_rounds": 8.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.5290065545754483,
+              "mean_probes": 14.0,
+              "mean_rounds": 8.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.6543868831418065,
+              "mean_probes": 17.0,
+              "mean_rounds": 8.5
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.25,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 9
+                },
+                {
+                  "attainment": 0.04424722567368421,
+                  "best_score": 0.036429774292477735,
+                  "beta": 0.5,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 10
+                },
+                {
+                  "attainment": 0.058013109150896525,
+                  "best_score": 0.04776354766190394,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 12
+                },
+                {
+                  "attainment": 0.3087737662836131,
+                  "best_score": 0.25422065320222587,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 16
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8233233550311414,
+              "normalized_hypervolume": 0.28052940735205034,
+              "parallel_penalty": 0.6116666666666666,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  9,
+                  0.04424722567368421
+                ],
+                [
+                  12,
+                  0.058013109150896525
+                ],
+                [
+                  16,
+                  0.3087737662836131
+                ]
+              ],
+              "reward": 0.24994607401871702,
+              "total_nodes": 162,
+              "world_id": "qwen-compression-smoke"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.08578271193224525,
+                  "best_score": 0.07278884206831182,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.25,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.5,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 14
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 0.75,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 16
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.8485257743518703,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 18
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.8485257743518703,
+              "normalized_hypervolume": 0.4758091230980303,
+              "parallel_penalty": 0.7860958485958486,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.08578271193224525
+                ],
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.4365043306682379,
+              "total_nodes": 23,
+              "world_id": "qwen-compression-dev"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      }
+    },
+    "smolvlm_cycles": {
+      "W=1": {
+        "delta_auc": 0.1548831070889891,
+        "delta_penalty": 0.0,
+        "delta_reward": 0.15488310708898906,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.525,
+            "parallel_penalty": 1.0,
+            "reward": 0.47500000000000003
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.666666666666667,
+              "mean_rounds": 4.666666666666667
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.333333333333333,
+              "mean_rounds": 5.333333333333333
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.825,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.5,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.45,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.2,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  4,
+                  1.0
+                ]
+              ],
+              "reward": 0.15000000000000002,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.6798831070889891,
+            "parallel_penalty": 1.0,
+            "reward": 0.6298831070889891
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5934577677224727,
+              "mean_probes": 1.3333333333333333,
+              "mean_rounds": 1.3333333333333333
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.6666666666666665,
+              "mean_rounds": 3.6666666666666665
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.666666666666667,
+              "mean_rounds": 4.666666666666667
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.333333333333333,
+              "mean_rounds": 5.333333333333333
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.825,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.7124999999999972,
+                  "best_score": -0.4017,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.737499999999999,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.7124999999999972
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.687499999999999,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06787330316742089,
+                  "best_score": -0.4014,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.4271493212669683,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.06787330316742089
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.3771493212669683,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=2": {
+        "delta_auc": 0.1548831070889891,
+        "delta_penalty": -0.3252380952380953,
+        "delta_reward": 0.17114501185089387,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.525,
+            "parallel_penalty": 1.0,
+            "reward": 0.47500000000000003
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.666666666666667,
+              "mean_rounds": 4.666666666666667
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.333333333333333,
+              "mean_rounds": 5.333333333333333
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.825,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.5,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.45,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.2,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  4,
+                  1.0
+                ]
+              ],
+              "reward": 0.15000000000000002,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.6798831070889891,
+            "parallel_penalty": 0.6747619047619047,
+            "reward": 0.6461450118508939
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5934577677224727,
+              "mean_probes": 1.3333333333333333,
+              "mean_rounds": 1.3333333333333333
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.3333333333333335,
+              "mean_rounds": 2.3333333333333335
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.333333333333333,
+              "mean_rounds": 2.3333333333333335
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.666666666666667,
+              "mean_rounds": 3.3333333333333335
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 6.0,
+              "mean_rounds": 3.3333333333333335
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 0.7176190476190476,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8391190476190477,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.7124999999999972,
+                  "best_score": -0.4017,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.737499999999999,
+              "parallel_penalty": 0.6333333333333333,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.7124999999999972
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.7058333333333324,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06787330316742089,
+                  "best_score": -0.4014,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.4271493212669683,
+              "parallel_penalty": 0.6733333333333333,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.06787330316742089
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.39348265460030163,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=4": {
+        "delta_auc": 0.1548831070889891,
+        "delta_penalty": -0.39476190476190476,
+        "delta_reward": 0.17462120232708428,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.525,
+            "parallel_penalty": 1.0,
+            "reward": 0.47500000000000003
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.666666666666667,
+              "mean_rounds": 4.666666666666667
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.333333333333333,
+              "mean_rounds": 5.333333333333333
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.825,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.5,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.45,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.2,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  4,
+                  1.0
+                ]
+              ],
+              "reward": 0.15000000000000002,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 3,
+          "pareto": {
+            "auc": 0.6798831070889891,
+            "parallel_penalty": 0.6052380952380952,
+            "reward": 0.6496212023270843
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.5934577677224727,
+              "mean_probes": 1.3333333333333333,
+              "mean_rounds": 1.3333333333333333
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.3333333333333335,
+              "mean_rounds": 2.3333333333333335
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.333333333333333,
+              "mean_rounds": 2.3333333333333335
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.666666666666667,
+              "mean_rounds": 2.3333333333333335
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 6.0,
+              "mean_rounds": 2.3333333333333335
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.875,
+              "parallel_penalty": 0.6557142857142857,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8422142857142857,
+              "total_nodes": 16,
+              "world_id": "libero-smolvlm-cycle0"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.7124999999999972,
+                  "best_score": -0.4017,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.5,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 0.75,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3994,
+                  "beta": 1.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 6
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.008000000000000007,
+              "normalized_hypervolume": 0.737499999999999,
+              "parallel_penalty": 0.5666666666666667,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.7124999999999972
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.7091666666666657,
+              "total_nodes": 6,
+              "world_id": "libero-smolvlm-cycle1"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06787330316742089,
+                  "best_score": -0.4014,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.5,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 0.75,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.319,
+                  "beta": 1.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.08839999999999998,
+              "normalized_hypervolume": 0.4271493212669683,
+              "parallel_penalty": 0.5933333333333334,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.06787330316742089
+                ],
+                [
+                  3,
+                  1.0
+                ]
+              ],
+              "reward": 0.39748265460030163,
+              "total_nodes": 5,
+              "world_id": "libero-smolvlm-cycle2"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      }
+    },
+    "smolvlm_full": {
+      "W=1": {
+        "delta_auc": 0.0,
+        "delta_penalty": 0.0,
+        "delta_reward": 0.0,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 1.0,
+            "reward": 0.8759259259259259
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 5.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8759259259259259,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 1.0,
+            "reward": 0.8759259259259259
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 5.0
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8759259259259259,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "selected_policy": "InitialPolicy"
+      },
+      "W=2": {
+        "delta_auc": 0.0,
+        "delta_penalty": -0.2823809523809524,
+        "delta_reward": 0.014119047619047698,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 1.0,
+            "reward": 0.8759259259259259
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 5.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8759259259259259,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 0.7176190476190476,
+            "reward": 0.8900449735449736
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 6.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 7.0,
+              "mean_rounds": 4.0
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 0.7176190476190476,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8900449735449736,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=4": {
+        "delta_auc": 0.0,
+        "delta_penalty": -0.3442857142857143,
+        "delta_reward": 0.017214285714285738,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 1.0,
+            "reward": 0.8759259259259259
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 3.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 5.0
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8759259259259259,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 1,
+          "pareto": {
+            "auc": 0.9259259259259259,
+            "parallel_penalty": 0.6557142857142857,
+            "reward": 0.8931402116402116
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 1.0,
+              "mean_probes": 4.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 1.0,
+              "mean_probes": 5.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 6.0,
+              "mean_rounds": 3.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 7.0,
+              "mean_rounds": 3.0
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 0.75,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": -0.3148,
+                  "beta": 1.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.09259999999999996,
+              "normalized_hypervolume": 0.9259259259259259,
+              "parallel_penalty": 0.6557142857142857,
+              "pareto_frontier": [
+                [
+                  2,
+                  1.0
+                ]
+              ],
+              "reward": 0.8931402116402116,
+              "total_nodes": 27,
+              "world_id": "libero-smolvlm-full"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      }
+    },
+    "synthetic_suite": {
+      "W=1": {
+        "delta_auc": -0.01013591580616463,
+        "delta_penalty": 0.0,
+        "delta_reward": -0.010135915806164686,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.33550119186997013,
+            "parallel_penalty": 1.0,
+            "reward": 0.28550119186997014
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.358842383107089,
+              "mean_probes": 5.75,
+              "mean_rounds": 5.75
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.8001923076923076,
+              "mean_probes": 9.25,
+              "mean_rounds": 9.25
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.4807692307692307,
+                  "best_score": 0.25,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.31656804733727806,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  4,
+                  0.34615384615384615
+                ],
+                [
+                  9,
+                  0.4807692307692307
+                ]
+              ],
+              "reward": 0.26656804733727807,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.24,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  6,
+                  0.13333333333333333
+                ],
+                [
+                  10,
+                  1.0
+                ]
+              ],
+              "reward": 0.19,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.75,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.38725490196078427,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  11,
+                  1.0
+                ]
+              ],
+              "reward": 0.3372549019607843,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.72,
+                  "best_score": 0.36,
+                  "beta": 1.0,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.3981818181818182,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  4,
+                  0.5
+                ],
+                [
+                  7,
+                  0.72
+                ]
+              ],
+              "reward": 0.3481818181818182,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 1,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.3253652760638055,
+            "parallel_penalty": 1.0,
+            "reward": 0.27536527606380545
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.35516591251885365,
+              "mean_probes": 4.0,
+              "mean_rounds": 4.0
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.7304864253393665,
+              "mean_probes": 8.0,
+              "mean_rounds": 8.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 11.75,
+              "mean_rounds": 11.75
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.4807692307692307,
+                  "best_score": 0.25,
+                  "beta": 0.75,
+                  "decision_rounds": 8,
+                  "effective_sequential_rounds": 8,
+                  "probes": 8
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 1.0,
+                  "decision_rounds": 13,
+                  "effective_sequential_rounds": 13,
+                  "probes": 13
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.3269230769230769,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  4,
+                  0.34615384615384615
+                ],
+                [
+                  8,
+                  0.4807692307692307
+                ],
+                [
+                  13,
+                  1.0
+                ]
+              ],
+              "reward": 0.27692307692307694,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 0.75,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.31444444444444447,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  5,
+                  0.13333333333333333
+                ],
+                [
+                  9,
+                  1.0
+                ]
+              ],
+              "reward": 0.2644444444444445,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.4411764705882352,
+                  "best_score": 0.3,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 0.4411764705882352,
+                  "best_score": 0.3,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 12,
+                  "effective_sequential_rounds": 12,
+                  "probes": 12
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.3419117647058823,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  12,
+                  1.0
+                ]
+              ],
+              "reward": 0.2919117647058823,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.75,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.3181818181818182,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  4,
+                  0.5
+                ],
+                [
+                  11,
+                  1.0
+                ]
+              ],
+              "reward": 0.2681818181818182,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "selected_policy": "InitialPolicy"
+      },
+      "W=2": {
+        "delta_auc": 0.13814048947533114,
+        "delta_penalty": -0.3766372516372517,
+        "delta_reward": 0.15697235205719373,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.33550119186997013,
+            "parallel_penalty": 1.0,
+            "reward": 0.28550119186997014
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.358842383107089,
+              "mean_probes": 5.75,
+              "mean_rounds": 5.75
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.8001923076923076,
+              "mean_probes": 9.25,
+              "mean_rounds": 9.25
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.4807692307692307,
+                  "best_score": 0.25,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.31656804733727806,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  4,
+                  0.34615384615384615
+                ],
+                [
+                  9,
+                  0.4807692307692307
+                ]
+              ],
+              "reward": 0.26656804733727807,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.24,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  6,
+                  0.13333333333333333
+                ],
+                [
+                  10,
+                  1.0
+                ]
+              ],
+              "reward": 0.19,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.75,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.38725490196078427,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  11,
+                  1.0
+                ]
+              ],
+              "reward": 0.3372549019607843,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.72,
+                  "best_score": 0.36,
+                  "beta": 1.0,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.3981818181818182,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  4,
+                  0.5
+                ],
+                [
+                  7,
+                  0.72
+                ]
+              ],
+              "reward": 0.3481818181818182,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 2,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.47364168134530127,
+            "parallel_penalty": 0.6233627483627483,
+            "reward": 0.44247354392716387
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.7766666666666666,
+              "mean_probes": 6.0,
+              "mean_rounds": 3.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.483842383107089,
+              "mean_probes": 7.25,
+              "mean_rounds": 3.75
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 11.25,
+              "mean_rounds": 6.0
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 11.75,
+              "mean_rounds": 6.25
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 0.75,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 1.0,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 13
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.5591715976331361,
+              "parallel_penalty": 0.6296703296703297,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  6,
+                  0.34615384615384615
+                ],
+                [
+                  7,
+                  1.0
+                ]
+              ],
+              "reward": 0.5276880811496196,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.5,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 9
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.31222222222222223,
+              "parallel_penalty": 0.6202020202020202,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  6,
+                  0.13333333333333333
+                ],
+                [
+                  9,
+                  1.0
+                ]
+              ],
+              "reward": 0.28121212121212125,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 8
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 12
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 12
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.5686274509803921,
+              "parallel_penalty": 0.6142857142857142,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  7,
+                  1.0
+                ]
+              ],
+              "reward": 0.5379131652661064,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 9
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 11
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 1.0,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.45454545454545453,
+              "parallel_penalty": 0.6292929292929292,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  6,
+                  1.0
+                ]
+              ],
+              "reward": 0.42308080808080806,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=4": {
+        "delta_auc": 0.13592155456408855,
+        "delta_penalty": -0.4831990231990232,
+        "delta_reward": 0.16008150572403967,
+        "initial": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.33550119186997013,
+            "parallel_penalty": 1.0,
+            "reward": 0.28550119186997014
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.35217571644042234,
+              "mean_probes": 4.25,
+              "mean_rounds": 4.25
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 0.358842383107089,
+              "mean_probes": 5.75,
+              "mean_rounds": 5.75
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 0.8001923076923076,
+              "mean_probes": 9.25,
+              "mean_rounds": 9.25
+            }
+          ],
+          "policy": "InitialPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.34615384615384615,
+                  "best_score": 0.18,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.4807692307692307,
+                  "best_score": 0.25,
+                  "beta": 1.0,
+                  "decision_rounds": 9,
+                  "effective_sequential_rounds": 9,
+                  "probes": 9
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.31656804733727806,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  4,
+                  0.34615384615384615
+                ],
+                [
+                  9,
+                  0.4807692307692307
+                ]
+              ],
+              "reward": 0.26656804733727807,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.75,
+                  "decision_rounds": 6,
+                  "effective_sequential_rounds": 6,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 10,
+                  "effective_sequential_rounds": 10,
+                  "probes": 10
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.24,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  6,
+                  0.13333333333333333
+                ],
+                [
+                  10,
+                  1.0
+                ]
+              ],
+              "reward": 0.19,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.25,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.5,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.75,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 11,
+                  "effective_sequential_rounds": 11,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.38725490196078427,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  11,
+                  1.0
+                ]
+              ],
+              "reward": 0.3372549019607843,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.5,
+                  "best_score": 0.25,
+                  "beta": 0.75,
+                  "decision_rounds": 5,
+                  "effective_sequential_rounds": 5,
+                  "probes": 5
+                },
+                {
+                  "attainment": 0.72,
+                  "best_score": 0.36,
+                  "beta": 1.0,
+                  "decision_rounds": 7,
+                  "effective_sequential_rounds": 7,
+                  "probes": 7
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.3981818181818182,
+              "parallel_penalty": 1.0,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  4,
+                  0.5
+                ],
+                [
+                  7,
+                  0.72
+                ]
+              ],
+              "reward": 0.3481818181818182,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "optimal": {
+          "lambda_parallel": 0.05,
+          "max_parallelism": 4,
+          "num_worlds": 4,
+          "pareto": {
+            "auc": 0.4714227464340587,
+            "parallel_penalty": 0.5168009768009768,
+            "reward": 0.4455826975940098
+          },
+          "per_beta": [
+            {
+              "beta": 0.0,
+              "mean_attainment": 0.18832956259426847,
+              "mean_probes": 2.0,
+              "mean_rounds": 2.0
+            },
+            {
+              "beta": 0.25,
+              "mean_attainment": 0.7766666666666666,
+              "mean_probes": 6.0,
+              "mean_rounds": 3.25
+            },
+            {
+              "beta": 0.5,
+              "mean_attainment": 0.7833333333333333,
+              "mean_probes": 8.75,
+              "mean_rounds": 3.5
+            },
+            {
+              "beta": 0.75,
+              "mean_attainment": 1.0,
+              "mean_probes": 11.25,
+              "mean_rounds": 3.75
+            },
+            {
+              "beta": 1.0,
+              "mean_attainment": 1.0,
+              "mean_probes": 11.75,
+              "mean_rounds": 3.75
+            }
+          ],
+          "policy": "OptimalPolicy",
+          "worlds": [
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.23076923076923075,
+                  "best_score": 0.12,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 10
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 13
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.52,
+                  "beta": 1.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 13
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.52,
+              "normalized_hypervolume": 0.5502958579881657,
+              "parallel_penalty": 0.5173626373626374,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.23076923076923075
+                ],
+                [
+                  7,
+                  1.0
+                ]
+              ],
+              "reward": 0.5244277261200339,
+              "total_nodes": 13,
+              "world_id": "synth-recovery-depth"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.06666666666666667,
+                  "best_score": 0.05,
+                  "beta": 0.0,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 2
+                },
+                {
+                  "attainment": 0.10666666666666667,
+                  "best_score": 0.08,
+                  "beta": 0.25,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 4
+                },
+                {
+                  "attainment": 0.13333333333333333,
+                  "best_score": 0.1,
+                  "beta": 0.5,
+                  "decision_rounds": 2,
+                  "effective_sequential_rounds": 2,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 0.75,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 9
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.75,
+                  "beta": 1.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.75,
+              "normalized_hypervolume": 0.31222222222222223,
+              "parallel_penalty": 0.4878787878787879,
+              "pareto_frontier": [
+                [
+                  2,
+                  0.06666666666666667
+                ],
+                [
+                  4,
+                  0.10666666666666667
+                ],
+                [
+                  6,
+                  0.13333333333333333
+                ],
+                [
+                  9,
+                  1.0
+                ]
+              ],
+              "reward": 0.2878282828282828,
+              "total_nodes": 12,
+              "world_id": "synth-wide-needle"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.45588235294117646,
+                  "best_score": 0.31,
+                  "beta": 0.0,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 3
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 0.25,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 7
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 10
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 12
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.68,
+                  "beta": 1.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 12
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.68,
+              "normalized_hypervolume": 0.5686274509803921,
+              "parallel_penalty": 0.5276190476190477,
+              "pareto_frontier": [
+                [
+                  3,
+                  0.45588235294117646
+                ],
+                [
+                  7,
+                  1.0
+                ]
+              ],
+              "reward": 0.5422464985994397,
+              "total_nodes": 12,
+              "world_id": "synth-late-bloomer"
+            },
+            {
+              "beta_points": [
+                {
+                  "attainment": 0.0,
+                  "best_score": 0.0,
+                  "beta": 0.0,
+                  "decision_rounds": 1,
+                  "effective_sequential_rounds": 1,
+                  "probes": 1
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.25,
+                  "decision_rounds": 3,
+                  "effective_sequential_rounds": 3,
+                  "probes": 6
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.5,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 9
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 0.75,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 11
+                },
+                {
+                  "attainment": 1.0,
+                  "best_score": 0.5,
+                  "beta": 1.0,
+                  "decision_rounds": 4,
+                  "effective_sequential_rounds": 4,
+                  "probes": 11
+                }
+              ],
+              "lambda_parallel": 0.05,
+              "max_gain": 0.5,
+              "normalized_hypervolume": 0.45454545454545453,
+              "parallel_penalty": 0.5343434343434343,
+              "pareto_frontier": [
+                [
+                  1,
+                  0.0
+                ],
+                [
+                  6,
+                  1.0
+                ]
+              ],
+              "reward": 0.42782828282828284,
+              "total_nodes": 11,
+              "world_id": "synth-multi-failure"
+            }
+          ]
+        },
+        "selected_policy": "OptimalPolicy"
+      }
+    }
+  },
+  "timestamp_utc": "2026-11-12T18:14:51.725151+00:00"
+}
