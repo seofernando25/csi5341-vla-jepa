@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import csv
 import multiprocessing as mp
-import os
 import subprocess
 import time
 from pathlib import Path
@@ -118,7 +117,6 @@ def profile_episode(policy, pipeline, env, task, seed) -> tuple[bool, int, dict[
 
 def _worker_main(conn, task_ids: list[int], phase: str, episodes: int):
     """Own whole tasks: reset/step envs, ask the server for each action."""
-    os.environ["CUDA_VISIBLE_DEVICES"] = ""
     from lerobot.utils.random_utils import set_seed
 
     from evaluation.simulator import make_environment
@@ -145,9 +143,11 @@ def _worker_main(conn, task_ids: list[int], phase: str, episodes: int):
             finally:
                 env.close()
         conn.send(("exhausted",))
-    except BaseException as exc:  # noqa: BLE001 - any worker fault must reach the server
+    except BaseException:  # noqa: BLE001 - any worker fault must reach the server
+        import traceback
+
         try:
-            conn.send(("worker_error", repr(exc)))
+            conn.send(("worker_error", traceback.format_exc()))
         except OSError:
             pass
     finally:
