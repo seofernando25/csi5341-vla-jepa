@@ -67,6 +67,10 @@ def stack_batches(batches: list[dict]) -> dict:
     stacked = {}
     for key in batches[0]:
         values = [b[key] for b in batches]
+        if all(v is None for v in values):
+            continue  # inference placeholder (e.g. `action`); the model skips it
+        if any(v is None for v in values):
+            raise TypeError(f"Mixed None batch for prepared key {key!r}")
         if isinstance(values[0], torch.Tensor):
             stacked[key] = torch.cat(values, dim=0)
         elif isinstance(values[0], list):

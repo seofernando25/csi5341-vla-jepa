@@ -29,6 +29,16 @@ def test_stack_batches_concatenates_rows():
     assert stacked["observation.image"][1, 0, 0, 0].item() == 2.0
 
 
+def test_stack_batches_skips_all_none_keys():
+    a = _batch(1.0)
+    b = _batch(2.0)
+    a["action"] = None
+    b["action"] = None
+    stacked = stack_batches([a, b])
+    assert "action" not in stacked
+    assert stacked["observation.state"].shape == (2, 8)
+
+
 def test_stack_batches_rejects_unbatchable_keys():
     with pytest.raises(TypeError):
         stack_batches([{"n": 1}, {"n": 2}])
