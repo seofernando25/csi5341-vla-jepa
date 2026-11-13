@@ -305,7 +305,10 @@ def parallel_rollout(
                         for wid in needy
                     ]
                     with torch.inference_mode(), inference_autocast():
+                        started = time.perf_counter()
                         chunk = policy.predict_action_chunk(stack_batches(batches))
+                        infer_ms = (time.perf_counter() - started) * 1000
+                    print(f"batch infer n={len(needy)} {infer_ms:.0f}ms", flush=True)
                     if not torch.isfinite(chunk).all():
                         raise ValueError("Nonfinite actions during parallel rollout")
                     # Match select_action: queue the first n_action_steps rows per env.
