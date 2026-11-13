@@ -44,14 +44,14 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
   Leave-one-world-out $V$ selects on the other worlds of the suite and scores the held-out
   world. Smoke and development never share a $V$; the development world is in-sample only
   (one world cannot leave-one-out).
-- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_coarse` (9 worlds: 3 SmolVLM cycles,
-  Qwen smoke, Stage 2 smoke, live R1, R2, R3, R5) mean selected $V=0.3648$ vs incumbent
-  $0.2049$, selected beats incumbent in 9/9 folds, unanimous
+- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_coarse` (10 worlds: 3 SmolVLM cycles,
+  Qwen smoke, Stage 2 smoke, live R1, R2, R3, R4, R5) mean selected $V=0.3854$ vs incumbent
+  $0.2192$, selected beats incumbent in 10/10 folds, unanimous
   `OptimalPolicy[no-gate-retry]`; `real_smoke_fine` (22
   worlds: 6 SmolVLM branch + 3 fragment + 13 Qwen family) $0.1361$ vs $0.0344$, beats
   incumbent in 6/22 folds with 16 ties on single-chain worlds, always `OptimalPolicy`;
-  `live_rounds` (R1+R2+R3+R5) $0.1130$ vs $0.0333$, selected beats incumbent in 4/4 folds
-  (at $W=1$ all 4 folds tie); `synthetic` (4 worlds) $0.4456$ vs $0.2855$,
+  `live_rounds` (R1+R2+R3+R4+R5) $0.2047$ vs $0.0964$, selected beats incumbent in 5/5 folds
+  (at $W=1$ 2/5 beat, rest tie); `synthetic` (4 worlds) $0.4456$ vs $0.2855$,
   4/4 folds, always `OptimalPolicy`. Flips: on held-out `qwen-compression-smoke` the
   best replay is `RandomPolicy[seed=2]`, not the selection; at $W=1$ synthetic folds
   split 2/2 and `synth-late-bloomer` favors the incumbent. Single-suite in-sample $V$
@@ -89,10 +89,10 @@ Pre-stated gates: $\ge 8/10$ smoke promotes the smallest passing cell to develop
 trials); development gate $\ge 77/100$. Stage journals record phase, $n$, bytes and machine
 (`outputs/compression/r*/`, not committed); compact evidence in
 [live_round1.json](live_round1.json), [live_round2.json](live_round2.json),
-[live_round3.json](live_round3.json) and [live_round5.json](live_round5.json) with committed
-measurement `run.json` files. (`live_round4.json` holds only launcher-environment
-`runtime_failure` records with zero world records, so no `qwen-live-r4` world is
-registered; its owner re-runs.) Bases are the restricted-vocabulary `T1`/`T2`, not report C1/C2.
+[live_round3.json](live_round3.json), [live_round4.json](live_round4.json) and
+[live_round5.json](live_round5.json) with committed
+measurement `run.json` files. Rounds 1/2/3/5 use the restricted-vocabulary `T1`/`T2`
+bases; Round 4 uses the report's full-vocabulary `C1` base (not the report's C1/C2).
 
 - **Round 1** (9 fresh cells around the Stage 2 winner, budget 6 each): control probed 2
   cells, 0 passes (`6/10`, `7/10`); selected probed 5, 3 passes on the new `group_size=32`
@@ -110,6 +110,18 @@ registered; its owner re-runs.) Bases are the restricted-vocabulary `T1`/`T2`, n
   `[80.2, 93.0]`, `737.9 s`), beating the `77/100` gate and saving `92.7 MB` vs `T2`
   (`977.8 MB`), but `32.0 MB` larger than the R1 winner at nominally higher success
   (`88/100` vs `83/100`; separate cells, no significance claimed).
+- **Round 4** (6 fresh cells on the full-vocabulary `C1` base (`int8_embedding`, no
+  `compact_embedding`): 1-step solver, `group_size=32` cuts, BF16 action-attention; budget
+  5 each): control and selected probed the same 5 cells, all `8/10` (Wilson 95%
+  `[49.0, 94.3]`); `r4-c1-act-bf16attn-solver1` stayed unprobed. Both arms promoted the
+  smallest passer, so one shared measurement covers both: `r4-c1-t15-v35-g32`
+  (`C1` + `12.5%` `text_mlp` + `25%` `vision_mlp` + `group_size=32`) scored **86/100**
+  (Wilson 95% `[77.9, 91.5]`, `877.3 s`) at **1199.6 MB**, beating the `77/100` gate and
+  saving `88.8 MB` vs `C1` (`1288.4 MB`, `87/100`) at `-1`pp (noise). `solver_steps=1`
+  verified in `deployed_architecture` (`denoising_steps` 1 vs 4) with byte-identical
+  residency to `C1`; screen latency of the promoted cell is `161.6 ms` median /
+  `231.9 ms` p95 (simulator excluded). Development per-task is 5/10 on task 0 and 4/10
+  on task 8, the same hard tasks as R5.
 - **Round 5** (6 fresh cells on untouched axes: BF16 action-attention + `solver_steps=1`,
   3-bit axis-1 HQQ vision, 12.5% attention-head pruning, 15% uniform visual tokens; budget
   5 each): control and selected probed the same 4 cells with identical scores (`r5-a15-s1`
@@ -123,7 +135,7 @@ registered; its owner re-runs.) Bases are the restricted-vocabulary `T1`/`T2`, n
   HQQ3 vision passes smoke and matches R1/R3 development within noise; BF16
   action-attention + solver1 (7/10) and 12.5% head pruning (6/10) do not pass; visual
   tokens remain untested live.
-- **Totals:** 25 smoke runs + 3 shared development measurements on `NVIDIA GeForce RTX 3090`
+- **Totals:** 35 smoke runs + 4 shared development measurements on `NVIDIA GeForce RTX 3090`
   (plus 1 pre-flight smoke); reserved 500 trials untouched; phases never pooled. Replay $V$
   is not LIBERO success, and the `83/100`/`88/100` promotions do not claim a general selection gain.
 
