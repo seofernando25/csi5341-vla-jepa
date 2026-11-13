@@ -304,6 +304,128 @@ def _g64_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     ]
 
 
+def _c1_base_changes(group_size: int = 64) -> list[dict[str, Any]]:
+    """Full-vocabulary C1 base (`deploy-hqq2-vision-action`): world removed, int8
+    embedding, NF4 text, HQQ2 vision blocks + action MLP, NF4 action attention,
+    interfaces and merger. No `compact_embedding` (report dropped Nov 9)."""
+    return [
+        {"method": "world_remove"},
+        {"method": "int8_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": group_size,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": group_size,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "action_attention", "bits": 4},
+        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
+        {"method": "bnb", "scope": "merger", "bits": 4},
+    ]
+
+
+def _c1_g32_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """C1 base with finer HQQ group size plus mild structured cuts."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        *_c1_base_changes(group_size=32),
+    ]
+
+
+def _c1_bf16attn_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """C1 base with action attention/interfaces left in BF16 (no NF4) to protect the
+    fragile action attention heads; action MLP stays HQQ2."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "int8_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 64,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 64,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "merger", "bits": 4},
+    ]
+
+
+def _c1_solver1_changes(extra: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
+    """C1 base with the C2 1-step flow-matching solver trick appended."""
+    return [*(extra or []), *_c1_base_changes(), {"method": "solver_steps", "count": 1}]
+
+
+def build_round4_candidates() -> list[Stage2Candidate]:
+    """Round 4 grid on the full-vocabulary C1 base (`int8_embedding`, 87/100 dev).
+
+    Rounds 1-3 searched the restricted-vocabulary T-base (`compact_embedding`),
+    which the report dropped on Nov 9. Round 4 jumps to the report's C1 base and
+    tests the C2 1-step solver trick plus mild structured cuts on top. Three
+    roots plus one child each; all cell IDs are new (`r4-*`).
+    """
+    return _chain(
+        [
+            (
+                "r4_solver",
+                [
+                    ("r4-c1-solver1", _c1_solver1_changes()),
+                    (
+                        "r4-c1-solver1-t10-v25",
+                        _c1_solver1_changes(
+                            [
+                                {"method": "channels", "scope": "text_mlp", "fraction": 0.10},
+                                {"method": "channels", "scope": "vision_mlp", "fraction": 0.25},
+                            ]
+                        ),
+                    ),
+                ],
+            ),
+            (
+                "r4_g32",
+                [
+                    ("r4-c1-t12-v25-g32", _c1_g32_changes(0.125, 0.25)),
+                    ("r4-c1-t15-v35-g32", _c1_g32_changes(0.15, 0.35)),
+                ],
+            ),
+            (
+                "r4_bf16attn",
+                [
+                    ("r4-c1-act-bf16attn", _c1_bf16attn_changes(0.10, 0.25)),
+                    (
+                        "r4-c1-act-bf16attn-solver1",
+                        [
+                            *_c1_bf16attn_changes(0.10, 0.25),
+                            {"method": "solver_steps", "count": 1},
+                        ],
+                    ),
+                ],
+            ),
+        ]
+    )
+
+
 def build_round3_candidates() -> list[Stage2Candidate]:
     """Fresh exploit+explore grid around the Round 1 winner (r1-t20-v45-g32).
 
@@ -362,6 +484,127 @@ def build_round3_candidates() -> list[Stage2Candidate]:
                         ],
                     ),
                     ("r3-t10-v25-g64", _g64_changes(0.10, 0.25)),
+                ],
+            ),
+        ]
+    )
+
+
+def _r5_action_fidelity_solver1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """Root A: fragile action attention/interfaces stay BF16; everything else compressed."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "compact_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "merger", "bits": 4},
+        {"method": "solver_steps", "count": 1},
+    ]
+
+
+def _r5_hqq3_vision(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """Root B: 3-bit axis-1 HQQ vision for spatial fidelity; NF4 text; full T2 action tail."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "compact_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 3,
+            "axis": 1,
+            "group_size": 64,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "action_attention", "bits": 4},
+        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
+        {"method": "bnb", "scope": "merger", "bits": 4},
+    ]
+
+
+def build_round5_candidates() -> list[Stage2Candidate]:
+    """Fresh untouched-axes grid: action-attention fidelity, HQQ3 vision, heads/tokens.
+
+    Rounds 1-3 varied only MLP channel fractions and group size. Round 5 probes
+    orthogonal axes never touched by Dream-RSI: (A) BF16 action attention plus
+    solver_steps=1, (B) 3-bit axis-1 HQQ vision for spatial tasks, (C) mild
+    attention-head pruning and visual-token compaction. All cell IDs are new
+    (`r5-*`); no committed measurements exist for them.
+    """
+    return _chain(
+        [
+            (
+                "r5_action_fidelity",
+                [
+                    ("r5-a15-s1", _r5_action_fidelity_solver1(0.15, 0.35)),
+                    ("r5-a20-s1", _r5_action_fidelity_solver1(0.20, 0.45)),
+                ],
+            ),
+            (
+                "r5_hqq3_vision",
+                [
+                    ("r5-hqq3-t15-v35", _r5_hqq3_vision(0.15, 0.35)),
+                    ("r5-hqq3-t20-v40", _r5_hqq3_vision(0.20, 0.40)),
+                ],
+            ),
+            (
+                "r5_structural",
+                [
+                    (
+                        "r5-heads-t15-v35",
+                        [
+                            {"method": "channels", "scope": "text_mlp", "fraction": 0.15},
+                            {"method": "channels", "scope": "vision_mlp", "fraction": 0.35},
+                            {"method": "heads", "scope": "text_attention", "fraction": 0.125},
+                            {
+                                "method": "heads",
+                                "scope": "vision_attention",
+                                "fraction": 0.125,
+                            },
+                            *_t2_base_changes(),
+                        ],
+                    ),
+                    (
+                        "r5-vtok15-s1",
+                        [
+                            {"method": "channels", "scope": "text_mlp", "fraction": 0.15},
+                            {"method": "channels", "scope": "vision_mlp", "fraction": 0.35},
+                            {
+                                "method": "visual_tokens",
+                                "fraction": 0.15,
+                                "criterion": "uniform",
+                            },
+                            *_t2_base_changes(),
+                            {"method": "solver_steps", "count": 1},
+                        ],
+                    ),
                 ],
             ),
         ]
@@ -427,12 +670,13 @@ def promote_to_development(
     recipes_dir: Path,
     stage_journal: Path,
     top_k: int = 1,
+    smoke_gate: int = SMOKE_GATE,
 ) -> list[dict[str, Any]]:
-    """Promote smoke passes (>=SMOKE_GATE/10) to development (100 trials)."""
+    """Promote smoke passes (>=smoke_gate/10) to development (100 trials)."""
     passing = [
         r
         for r in arm_result["results"]
-        if r.get("status") == "completed" and r.get("successes", 0) >= SMOKE_GATE
+        if r.get("status") == "completed" and r.get("successes", 0) >= smoke_gate
     ]
     passing.sort(key=lambda r: (r["resident_bytes"], -r["successes"]))
     dev_results: list[dict[str, Any]] = []
@@ -445,6 +689,29 @@ def promote_to_development(
             f.write(json.dumps(res) + "\n")
         dev_results.append(res)
     return dev_results
+
+
+def wilson_interval(successes: int, trials: int, z: float = 1.96) -> list[float]:
+    """Wilson 95% score interval for a binomial success count."""
+    if trials <= 0:
+        return [0.0, 1.0]
+    p = successes / trials
+    denom = 1.0 + z * z / trials
+    center = (p + z * z / (2 * trials)) / denom
+    half = z * ((p * (1 - p) + z * z / (4 * trials)) / trials) ** 0.5 / denom
+    return [round(max(0.0, center - half), 4), round(min(1.0, center + half), 4)]
+
+
+def attach_wilson(payload: dict[str, Any]) -> dict[str, Any]:
+    """Add `wilson_95` intervals to every smoke result and development entry."""
+    for arm in ("control", "selected"):
+        for rec in payload.get(arm, {}).get("results", []):
+            if rec.get("status") == "completed" and rec.get("episodes"):
+                rec["wilson_95"] = wilson_interval(int(rec["successes"]), int(rec["episodes"]))
+        for rec in payload.get("development_promotions", {}).get(arm, []):
+            if rec.get("status") == "completed" and rec.get("episodes"):
+                rec["wilson_95"] = wilson_interval(int(rec["successes"]), int(rec["episodes"]))
+    return payload
 
 
 def world_from_stage_journal(

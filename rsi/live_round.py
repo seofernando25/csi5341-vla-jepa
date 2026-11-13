@@ -12,9 +12,12 @@ from rsi.dream import Candidate
 from rsi.live import (
     DEV_GATE,
     SMOKE_GATE,
+    attach_wilson,
     build_round1_candidates,
     build_round2_candidates,
     build_round3_candidates,
+    build_round4_candidates,
+    build_round5_candidates,
     gpu_name,
     journals_for,
     promote_to_development,
@@ -23,11 +26,14 @@ from rsi.live import (
 )
 from rsi.policies import InitialPolicy
 from rsi.policies.optimal import OptimalPolicy
+from rsi.qwen_search import run_compression_subprocess
 
 ROUND_BUILDERS = {
     "r1": build_round1_candidates,
     "r2": build_round2_candidates,
     "r3": build_round3_candidates,
+    "r4": build_round4_candidates,
+    "r5": build_round5_candidates,
 }
 
 
@@ -46,6 +52,8 @@ def run_live_round(
     probe_budget_each: int = 6,
     promote_top_k: int = 1,
     output_path: str | Path = "studies/dream-rsi/live_round1.json",
+    fallback_smoke_gate: int | None = None,
+    screen_promoted: bool = False,
 ) -> dict[str, Any]:
     """Run control (frozen InitialPolicy) then selected on a fresh grid, same budget."""
     candidates = ROUND_BUILDERS[round_id]()
@@ -73,6 +81,40 @@ def run_live_round(
     selected_dev = promote_to_development(
         selected_arm, recipes, recipes_dir, journals["stage"], top_k=promote_top_k
     )
+    fallback_rule = None
+    if fallback_smoke_gate is not None and not control_dev and not selected_dev:
+        fallback_rule = (
+            f"No {SMOKE_GATE}/10 smoke pass; promote the best >={fallback_smoke_gate}/10 "
+            "cell per arm to dev-100 (a 7/10 near-miss is noise-compatible)."
+        )
+        for arm_result, dev_list in ((control, control_dev), (selected_arm, selected_dev)):
+            extra = promote_to_development(
+                arm_result,
+                recipes,
+                recipes_dir,
+                journals["stage"],
+                top_k=promote_top_k,
+                smoke_gate=fallback_smoke_gate,
+            )
+            for rec in extra:
+                rec["via_fallback"] = True
+            dev_list.extend(extra)
+    if screen_promoted:
+        seen: set[str] = set()
+        for dev_list in (control_dev, selected_dev):
+            for rec in dev_list:
+                cid = rec.get("candidate", "")
+                if cid in seen or cid not in recipes:
+                    continue
+                seen.add(cid)
+                run_compression_subprocess(recipes[cid], "screen", recipes_dir)
+                screen_json = Path("studies/compression/measurements") / cid / "screen" / "run.json"
+                if screen_json.exists():
+                    summary = json.loads(screen_json.read_text()).get("summary", {})
+                    rec["latency"] = {
+                        "pipeline_median_ms": summary.get("pipeline_median_ms"),
+                        "pipeline_p95_ms": summary.get("pipeline_p95_ms"),
+                    }
     world, world_records = world_from_stage_journal(
         journals["stage"], candidates, f"qwen-live-{round_id}"
     )
@@ -84,6 +126,7 @@ def run_live_round(
         "probe_budget_each": probe_budget_each,
         "smoke_gate": SMOKE_GATE,
         "dev_gate": DEV_GATE,
+        "fallback_rule": fallback_rule,
         "machine": gpu_name(),
         "code_head": _code_head(),
         "recorded_utc": datetime.now(UTC).isoformat(),
@@ -93,6 +136,7 @@ def run_live_round(
         "world": {"world_id": world.world_id, "nodes": world.num_nonroot},
         "world_records": world_records,
     }
+    attach_wilson(payload)
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
@@ -109,13 +153,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-gate-retry", action="store_true", default=True)
     parser.add_argument("--name", default="OptimalPolicy[r1-retry-flip]")
     parser.add_argument("--output", default="studies/dream-rsi/live_round1.json")
+    parser.add_argument("--fallback-smoke-gate", type=int, default=None)
+    parser.add_argument("--screen-promoted", action="store_true")
     args = parser.parse_args(argv)
     selected = Candidate(
         args.name,
         OptimalPolicy,
         {"beta": args.beta, "gate_retry": not args.no_gate_retry},
     )
-    payload = run_live_round(args.round, selected, args.budget_each, output_path=args.output)
+    payload = run_live_round(
+        args.round,
+        selected,
+        args.budget_each,
+        output_path=args.output,
+        fallback_smoke_gate=args.fallback_smoke_gate,
+        screen_promoted=args.screen_promoted,
+    )
     print(json.dumps({k: payload[k] for k in ("round_id", "machine", "world")}, indent=2))
     for arm in ("control", "selected"):
         r = payload[arm]

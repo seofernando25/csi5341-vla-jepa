@@ -22,10 +22,10 @@
     "RandomPolicy[seed=2]"
   ],
   "code_revision": {
-    "git_head": "659152b3d78f25be78875c1c65af0fc2b82d6766",
+    "git_head": "6b29328661cd4d6de4e91ece0218158166ab7922",
     "rsi_modified": true
   },
-  "elapsed_ms": 1987.9,
+  "elapsed_ms": 2122.09,
   "grid_plan_example": {
     "max_attempts_per_branch": 4,
     "max_branches": 6,
@@ -57,7 +57,7 @@
             },
             "held_out_world": "qwen-round1",
             "incumbent_reward": -0.05,
-            "selected_policy": "InitialPolicy",
+            "selected_policy": "OptimalPolicy",
             "selected_reward": -0.05
           },
           {
@@ -79,7 +79,7 @@
             },
             "held_out_world": "qwen-round2",
             "incumbent_reward": -0.05,
-            "selected_policy": "InitialPolicy",
+            "selected_policy": "OptimalPolicy",
             "selected_reward": -0.05
           },
           {
@@ -101,28 +101,50 @@
             },
             "held_out_world": "qwen-round3",
             "incumbent_reward": 0.2833333333333333,
-            "selected_policy": "TwoStageGatePolicy",
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.2833333333333333
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.2,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.05,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.2,
+              "OptimalPolicy[no-gate-retry]": 0.2,
+              "RandomPolicy[seed=0]": -0.05,
+              "RandomPolicy[seed=1]": -0.05,
+              "RandomPolicy[seed=2]": -0.05,
+              "RoundRobinPolicy": -0.05,
+              "ShallowFirstPolicy": -0.05,
+              "TwoStageGatePolicy": -0.05
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "InitialPolicy",
             "selected_reward": -0.05
           }
         ],
         "folds_selected_beats_incumbent": 0,
-        "folds_selected_below_incumbent": 1,
+        "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": 0.06111111111111111,
-          "GreedySerialPolicy": 0.06111111111111111,
-          "IncumbentWithExceptions": -0.05000000000000001,
-          "InitialPolicy": 0.06111111111111111,
-          "OptimalPolicy": 0.06111111111111111,
-          "OptimalPolicy[no-gate-retry]": 0.06111111111111111,
-          "RandomPolicy[seed=0]": 0.06111111111111111,
-          "RandomPolicy[seed=1]": 0.06111111111111111,
-          "RandomPolicy[seed=2]": 0.06111111111111111,
-          "RoundRobinPolicy": 0.06111111111111111,
-          "ShallowFirstPolicy": 0.06111111111111111,
-          "TwoStageGatePolicy": 0.016160947816138665
+          "EpsilonGreedyPolicy[eps=0.2]": 0.033333333333333326,
+          "GreedySerialPolicy": 0.033333333333333326,
+          "IncumbentWithExceptions": -0.05,
+          "InitialPolicy": 0.033333333333333326,
+          "OptimalPolicy": 0.09583333333333333,
+          "OptimalPolicy[no-gate-retry]": 0.09583333333333333,
+          "RandomPolicy[seed=0]": 0.033333333333333326,
+          "RandomPolicy[seed=1]": 0.033333333333333326,
+          "RandomPolicy[seed=2]": 0.033333333333333326,
+          "RoundRobinPolicy": 0.033333333333333326,
+          "ShallowFirstPolicy": 0.033333333333333326,
+          "TwoStageGatePolicy": -0.0003792891378960016
         },
-        "mean_incumbent_reward": 0.06111111111111111,
-        "mean_selected_reward": -0.05000000000000001
+        "mean_incumbent_reward": 0.033333333333333326,
+        "mean_selected_reward": 0.033333333333333326
       },
       "W=2": {
         "folds": [
@@ -189,28 +211,50 @@
             },
             "held_out_world": "qwen-round3",
             "incumbent_reward": 0.2833333333333333,
-            "selected_policy": "TwoStageGatePolicy",
-            "selected_reward": -0.03333333333333333
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.037500000000000006,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.037500000000000006
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 2,
-        "folds_selected_below_incumbent": 1,
+        "folds_selected_beats_incumbent": 4,
+        "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": -0.03177777777777777,
-          "GreedySerialPolicy": 0.06111111111111111,
-          "IncumbentWithExceptions": -0.05000000000000001,
-          "InitialPolicy": 0.06111111111111111,
-          "OptimalPolicy": 0.07588888888888888,
-          "OptimalPolicy[no-gate-retry]": 0.07588888888888888,
-          "RandomPolicy[seed=0]": -0.03177777777777777,
-          "RandomPolicy[seed=1]": -0.03177777777777777,
-          "RandomPolicy[seed=2]": -0.03177777777777777,
-          "RoundRobinPolicy": -0.044444444444444446,
-          "ShallowFirstPolicy": -0.044444444444444446,
-          "TwoStageGatePolicy": 0.034216503371694226
+          "EpsilonGreedyPolicy[eps=0.2]": -0.03320833333333333,
+          "GreedySerialPolicy": 0.033333333333333326,
+          "IncumbentWithExceptions": -0.05,
+          "InitialPolicy": 0.033333333333333326,
+          "OptimalPolicy": 0.11149999999999999,
+          "OptimalPolicy[no-gate-retry]": 0.11149999999999999,
+          "RandomPolicy[seed=0]": -0.030083333333333333,
+          "RandomPolicy[seed=1]": -0.030083333333333333,
+          "RandomPolicy[seed=2]": -0.030083333333333333,
+          "RoundRobinPolicy": -0.043333333333333335,
+          "ShallowFirstPolicy": -0.043333333333333335,
+          "TwoStageGatePolicy": 0.01628737752877067
         },
-        "mean_incumbent_reward": 0.06111111111111111,
-        "mean_selected_reward": -0.03411111111111111
+        "mean_incumbent_reward": 0.033333333333333326,
+        "mean_selected_reward": 0.11149999999999999
       },
       "W=4": {
         "folds": [
@@ -277,28 +321,50 @@
             },
             "held_out_world": "qwen-round3",
             "incumbent_reward": 0.2833333333333333,
-            "selected_policy": "TwoStageGatePolicy",
-            "selected_reward": -0.03333333333333333
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.025,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.025
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 2,
-        "folds_selected_below_incumbent": 1,
+        "folds_selected_beats_incumbent": 4,
+        "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": -0.029444444444444443,
-          "GreedySerialPolicy": 0.06111111111111111,
-          "IncumbentWithExceptions": -0.05000000000000001,
-          "InitialPolicy": 0.06111111111111111,
-          "OptimalPolicy": 0.07788888888888888,
-          "OptimalPolicy[no-gate-retry]": 0.07788888888888888,
-          "RandomPolicy[seed=0]": -0.029444444444444443,
-          "RandomPolicy[seed=1]": -0.029444444444444443,
-          "RandomPolicy[seed=2]": -0.029444444444444443,
-          "RoundRobinPolicy": -0.044444444444444446,
-          "ShallowFirstPolicy": -0.044444444444444446,
-          "TwoStageGatePolicy": 0.0383831700383609
+          "EpsilonGreedyPolicy[eps=0.2]": -0.028333333333333335,
+          "GreedySerialPolicy": 0.033333333333333326,
+          "IncumbentWithExceptions": -0.05,
+          "InitialPolicy": 0.033333333333333326,
+          "OptimalPolicy": 0.11299999999999999,
+          "OptimalPolicy[no-gate-retry]": 0.11299999999999999,
+          "RandomPolicy[seed=0]": -0.028333333333333335,
+          "RandomPolicy[seed=1]": -0.028333333333333335,
+          "RandomPolicy[seed=2]": -0.028333333333333335,
+          "RoundRobinPolicy": -0.043333333333333335,
+          "ShallowFirstPolicy": -0.043333333333333335,
+          "TwoStageGatePolicy": 0.02253737752877067
         },
-        "mean_incumbent_reward": 0.06111111111111111,
-        "mean_selected_reward": -0.03211111111111111
+        "mean_incumbent_reward": 0.033333333333333326,
+        "mean_selected_reward": 0.11299999999999999
       },
       "W=8": {
         "folds": [
@@ -365,28 +431,50 @@
             },
             "held_out_world": "qwen-round3",
             "incumbent_reward": 0.2833333333333333,
-            "selected_policy": "TwoStageGatePolicy",
-            "selected_reward": -0.03333333333333333
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.025,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.025
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 2,
-        "folds_selected_below_incumbent": 1,
+        "folds_selected_beats_incumbent": 4,
+        "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": -0.029444444444444443,
-          "GreedySerialPolicy": 0.06111111111111111,
-          "IncumbentWithExceptions": -0.05000000000000001,
-          "InitialPolicy": 0.06111111111111111,
-          "OptimalPolicy": 0.07788888888888888,
-          "OptimalPolicy[no-gate-retry]": 0.07788888888888888,
-          "RandomPolicy[seed=0]": -0.029444444444444443,
-          "RandomPolicy[seed=1]": -0.029444444444444443,
-          "RandomPolicy[seed=2]": -0.029444444444444443,
-          "RoundRobinPolicy": -0.044444444444444446,
-          "ShallowFirstPolicy": -0.044444444444444446,
-          "TwoStageGatePolicy": 0.0383831700383609
+          "EpsilonGreedyPolicy[eps=0.2]": -0.028333333333333335,
+          "GreedySerialPolicy": 0.033333333333333326,
+          "IncumbentWithExceptions": -0.05,
+          "InitialPolicy": 0.033333333333333326,
+          "OptimalPolicy": 0.11299999999999999,
+          "OptimalPolicy[no-gate-retry]": 0.11299999999999999,
+          "RandomPolicy[seed=0]": -0.028333333333333335,
+          "RandomPolicy[seed=1]": -0.028333333333333335,
+          "RandomPolicy[seed=2]": -0.028333333333333335,
+          "RoundRobinPolicy": -0.043333333333333335,
+          "ShallowFirstPolicy": -0.043333333333333335,
+          "TwoStageGatePolicy": 0.02253737752877067
         },
-        "mean_incumbent_reward": 0.06111111111111111,
-        "mean_selected_reward": -0.03211111111111111
+        "mean_incumbent_reward": 0.033333333333333326,
+        "mean_selected_reward": 0.11299999999999999
       }
     },
     "real_smoke_coarse": {
@@ -567,26 +655,48 @@
             "incumbent_reward": 0.2833333333333333,
             "selected_policy": "OptimalPolicy[no-gate-retry]",
             "selected_reward": 0.2833333333333333
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.2,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.05,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.2,
+              "OptimalPolicy[no-gate-retry]": 0.2,
+              "RandomPolicy[seed=0]": -0.05,
+              "RandomPolicy[seed=1]": -0.05,
+              "RandomPolicy[seed=2]": -0.05,
+              "RoundRobinPolicy": -0.05,
+              "ShallowFirstPolicy": -0.05,
+              "TwoStageGatePolicy": -0.05
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy[no-gate-retry]",
+            "selected_reward": 0.2
           }
         ],
-        "folds_selected_beats_incumbent": 4,
+        "folds_selected_beats_incumbent": 5,
         "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": 0.2636739196994795,
-          "GreedySerialPolicy": 0.2636739196994795,
-          "IncumbentWithExceptions": 0.23585210364548,
-          "InitialPolicy": 0.23672513737963982,
-          "OptimalPolicy": 0.3521775216678449,
-          "OptimalPolicy[no-gate-retry]": 0.3649962451848375,
-          "RandomPolicy[seed=0]": 0.2500263139921353,
-          "RandomPolicy[seed=1]": 0.24998756175834502,
-          "RandomPolicy[seed=2]": 0.26395395511481445,
-          "RoundRobinPolicy": 0.22457692334346915,
-          "ShallowFirstPolicy": 0.22457692334346915,
-          "TwoStageGatePolicy": 0.10005637986973476
+          "EpsilonGreedyPolicy[eps=0.2]": 0.22882126195509286,
+          "GreedySerialPolicy": 0.22882126195509286,
+          "IncumbentWithExceptions": 0.20409075879598226,
+          "InitialPolicy": 0.20486678878190206,
+          "OptimalPolicy": 0.33526890814919547,
+          "OptimalPolicy[no-gate-retry]": 0.34666332905318886,
+          "RandomPolicy[seed=0]": 0.21669005688189805,
+          "RandomPolicy[seed=1]": 0.21665561045186224,
+          "RandomPolicy[seed=2]": 0.22907018232427953,
+          "RoundRobinPolicy": 0.1940683763053059,
+          "ShallowFirstPolicy": 0.1940683763053059,
+          "TwoStageGatePolicy": 0.08338344877309756
         },
-        "mean_incumbent_reward": 0.23672513737963982,
-        "mean_selected_reward": 0.3521775216678449
+        "mean_incumbent_reward": 0.20486678878190206,
+        "mean_selected_reward": 0.33526890814919547
       },
       "W=2": {
         "folds": [
@@ -765,26 +875,48 @@
             "incumbent_reward": 0.2833333333333333,
             "selected_policy": "OptimalPolicy[no-gate-retry]",
             "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.037500000000000006,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.037500000000000006
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy[no-gate-retry]",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 8,
+        "folds_selected_beats_incumbent": 9,
         "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": 0.24742628363596,
-          "GreedySerialPolicy": 0.2636739196994795,
-          "IncumbentWithExceptions": 0.23585210364548,
-          "InitialPolicy": 0.23672513737963982,
-          "OptimalPolicy": 0.3671085790403558,
-          "OptimalPolicy[no-gate-retry]": 0.3797579792769095,
-          "RandomPolicy[seed=0]": 0.15573645844866146,
-          "RandomPolicy[seed=1]": 0.1556875849894663,
-          "RandomPolicy[seed=2]": 0.1558383996458396,
-          "RoundRobinPolicy": 0.1395176169959515,
-          "ShallowFirstPolicy": 0.1397821455339954,
-          "TwoStageGatePolicy": 0.06456664963425873
+          "EpsilonGreedyPolicy[eps=0.2]": 0.21576780767640888,
+          "GreedySerialPolicy": 0.22882126195509286,
+          "IncumbentWithExceptions": 0.20409075879598226,
+          "InitialPolicy": 0.20486678878190206,
+          "OptimalPolicy": 0.35057799618401997,
+          "OptimalPolicy[no-gate-retry]": 0.36182190750540105,
+          "RandomPolicy[seed=0]": 0.1356546297321435,
+          "RandomPolicy[seed=1]": 0.1356111866573034,
+          "RandomPolicy[seed=2]": 0.13574524412963518,
+          "RoundRobinPolicy": 0.11957121510751244,
+          "ShallowFirstPolicy": 0.11980635158577368,
+          "TwoStageGatePolicy": 0.05322591078600777
         },
-        "mean_incumbent_reward": 0.23672513737963982,
-        "mean_selected_reward": 0.3797579792769095
+        "mean_incumbent_reward": 0.20486678878190206,
+        "mean_selected_reward": 0.36182190750540105
       },
       "W=4": {
         "folds": [
@@ -963,26 +1095,48 @@
             "incumbent_reward": 0.2833333333333333,
             "selected_policy": "OptimalPolicy[no-gate-retry]",
             "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.025,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.025
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy[no-gate-retry]",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 8,
+        "folds_selected_beats_incumbent": 9,
         "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": 0.09726538945553491,
-          "GreedySerialPolicy": 0.2636739196994795,
-          "IncumbentWithExceptions": 0.23585210364548,
-          "InitialPolicy": 0.23672513737963982,
-          "OptimalPolicy": 0.36930335533615366,
-          "OptimalPolicy[no-gate-retry]": 0.38306973522929044,
-          "RandomPolicy[seed=0]": 0.11995871765181162,
-          "RandomPolicy[seed=1]": 0.09166741905133094,
-          "RandomPolicy[seed=2]": 0.1095493514637594,
-          "RoundRobinPolicy": 0.16435641496349837,
-          "ShallowFirstPolicy": 0.1654769780226946,
-          "TwoStageGatePolicy": 0.0735613230347527
+          "EpsilonGreedyPolicy[eps=0.2]": 0.08368034618269769,
+          "GreedySerialPolicy": 0.22882126195509286,
+          "IncumbentWithExceptions": 0.20409075879598226,
+          "InitialPolicy": 0.20486678878190206,
+          "OptimalPolicy": 0.3525289084469514,
+          "OptimalPolicy[no-gate-retry]": 0.36476569057418406,
+          "RandomPolicy[seed=0]": 0.103852193468277,
+          "RandomPolicy[seed=1]": 0.07870437249007195,
+          "RandomPolicy[seed=2]": 0.09459942352334168,
+          "RoundRobinPolicy": 0.14165014663422076,
+          "ShallowFirstPolicy": 0.14264620268683964,
+          "TwoStageGatePolicy": 0.06261006491978018
         },
-        "mean_incumbent_reward": 0.23672513737963982,
-        "mean_selected_reward": 0.38306973522929044
+        "mean_incumbent_reward": 0.20486678878190206,
+        "mean_selected_reward": 0.36476569057418406
       },
       "W=8": {
         "folds": [
@@ -1161,26 +1315,48 @@
             "incumbent_reward": 0.2833333333333333,
             "selected_policy": "OptimalPolicy[no-gate-retry]",
             "selected_reward": 0.29666666666666663
+          },
+          {
+            "best_policy_on_held_out": "OptimalPolicy",
+            "best_reward_on_held_out": 0.21833333333333332,
+            "held_out_reward_by_policy": {
+              "EpsilonGreedyPolicy[eps=0.2]": -0.025,
+              "GreedySerialPolicy": -0.05,
+              "IncumbentWithExceptions": -0.05,
+              "InitialPolicy": -0.05,
+              "OptimalPolicy": 0.21833333333333332,
+              "OptimalPolicy[no-gate-retry]": 0.21833333333333332,
+              "RandomPolicy[seed=0]": -0.025,
+              "RandomPolicy[seed=1]": -0.025,
+              "RandomPolicy[seed=2]": -0.025,
+              "RoundRobinPolicy": -0.04000000000000001,
+              "ShallowFirstPolicy": -0.04000000000000001,
+              "TwoStageGatePolicy": -0.025
+            },
+            "held_out_world": "qwen-round5",
+            "incumbent_reward": -0.05,
+            "selected_policy": "OptimalPolicy[no-gate-retry]",
+            "selected_reward": 0.21833333333333332
           }
         ],
-        "folds_selected_beats_incumbent": 8,
+        "folds_selected_beats_incumbent": 9,
         "folds_selected_below_incumbent": 0,
         "mean_held_out_reward_by_policy": {
-          "EpsilonGreedyPolicy[eps=0.2]": 0.06683993156106934,
-          "GreedySerialPolicy": 0.2636739196994795,
-          "IncumbentWithExceptions": 0.23585210364548,
-          "InitialPolicy": 0.23672513737963982,
-          "OptimalPolicy": 0.3696312218924095,
-          "OptimalPolicy[no-gate-retry]": 0.38306973522929044,
-          "RandomPolicy[seed=0]": 0.09429563183996742,
-          "RandomPolicy[seed=1]": 0.08391340671115421,
-          "RandomPolicy[seed=2]": 0.08940297776115182,
-          "RoundRobinPolicy": 0.16509329718739252,
-          "ShallowFirstPolicy": 0.16509329718739252,
-          "TwoStageGatePolicy": 0.07484697333815737
+          "EpsilonGreedyPolicy[eps=0.2]": 0.05663549472095053,
+          "GreedySerialPolicy": 0.22882126195509286,
+          "IncumbentWithExceptions": 0.20409075879598226,
+          "InitialPolicy": 0.20486678878190206,
+          "OptimalPolicy": 0.35282034538584545,
+          "OptimalPolicy[no-gate-retry]": 0.36476569057418406,
+          "RandomPolicy[seed=0]": 0.08104056163552659,
+          "RandomPolicy[seed=1]": 0.07181191707658152,
+          "RandomPolicy[seed=2]": 0.0766915357876905,
+          "RoundRobinPolicy": 0.14230515305546002,
+          "ShallowFirstPolicy": 0.14230515305546002,
+          "TwoStageGatePolicy": 0.06375286518947322
         },
-        "mean_incumbent_reward": 0.23672513737963982,
-        "mean_selected_reward": 0.38306973522929044
+        "mean_incumbent_reward": 0.20486678878190206,
+        "mean_selected_reward": 0.36476569057418406
       }
     },
     "real_smoke_fine": {
@@ -5267,6 +5443,328 @@
         "selected_policy": "OptimalPolicy"
       }
     },
+    "qwen_live_round5": {
+      "W=1": {
+        "delta_reward": 0.25,
+        "policies": {
+          "EpsilonGreedyPolicy[eps=0.2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "GreedySerialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "IncumbentWithExceptions": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "InitialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "OptimalPolicy": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 1.0,
+            "reward": 0.2
+          },
+          "OptimalPolicy[no-gate-retry]": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 1.0,
+            "reward": 0.2
+          },
+          "RandomPolicy[seed=0]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "RandomPolicy[seed=1]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "RandomPolicy[seed=2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "RoundRobinPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "ShallowFirstPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "TwoStageGatePolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          }
+        },
+        "ranking": [
+          "OptimalPolicy",
+          "OptimalPolicy[no-gate-retry]",
+          "InitialPolicy",
+          "GreedySerialPolicy",
+          "RoundRobinPolicy",
+          "EpsilonGreedyPolicy[eps=0.2]",
+          "ShallowFirstPolicy",
+          "TwoStageGatePolicy",
+          "IncumbentWithExceptions",
+          "RandomPolicy[seed=0]",
+          "RandomPolicy[seed=1]",
+          "RandomPolicy[seed=2]"
+        ],
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=2": {
+        "delta_reward": 0.2683333333333333,
+        "policies": {
+          "EpsilonGreedyPolicy[eps=0.2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.75,
+            "reward": -0.037500000000000006
+          },
+          "GreedySerialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "IncumbentWithExceptions": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "InitialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "OptimalPolicy": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "OptimalPolicy[no-gate-retry]": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "RandomPolicy[seed=0]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=1]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RoundRobinPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "ShallowFirstPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "TwoStageGatePolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.75,
+            "reward": -0.037500000000000006
+          }
+        },
+        "ranking": [
+          "OptimalPolicy",
+          "OptimalPolicy[no-gate-retry]",
+          "RandomPolicy[seed=0]",
+          "RandomPolicy[seed=1]",
+          "RandomPolicy[seed=2]",
+          "EpsilonGreedyPolicy[eps=0.2]",
+          "TwoStageGatePolicy",
+          "RoundRobinPolicy",
+          "ShallowFirstPolicy",
+          "InitialPolicy",
+          "GreedySerialPolicy",
+          "IncumbentWithExceptions"
+        ],
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=4": {
+        "delta_reward": 0.2683333333333333,
+        "policies": {
+          "EpsilonGreedyPolicy[eps=0.2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "GreedySerialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "IncumbentWithExceptions": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "InitialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "OptimalPolicy": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "OptimalPolicy[no-gate-retry]": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "RandomPolicy[seed=0]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=1]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RoundRobinPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "ShallowFirstPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "TwoStageGatePolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          }
+        },
+        "ranking": [
+          "OptimalPolicy",
+          "OptimalPolicy[no-gate-retry]",
+          "EpsilonGreedyPolicy[eps=0.2]",
+          "TwoStageGatePolicy",
+          "RandomPolicy[seed=0]",
+          "RandomPolicy[seed=1]",
+          "RandomPolicy[seed=2]",
+          "RoundRobinPolicy",
+          "ShallowFirstPolicy",
+          "InitialPolicy",
+          "GreedySerialPolicy",
+          "IncumbentWithExceptions"
+        ],
+        "selected_policy": "OptimalPolicy"
+      },
+      "W=8": {
+        "delta_reward": 0.2683333333333333,
+        "policies": {
+          "EpsilonGreedyPolicy[eps=0.2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "GreedySerialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "IncumbentWithExceptions": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "InitialPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 1.0,
+            "reward": -0.05
+          },
+          "OptimalPolicy": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "OptimalPolicy[no-gate-retry]": {
+            "hypervolume": 0.25,
+            "parallel_penalty": 0.6333333333333333,
+            "reward": 0.21833333333333332
+          },
+          "RandomPolicy[seed=0]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=1]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RandomPolicy[seed=2]": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          },
+          "RoundRobinPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "ShallowFirstPolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.8,
+            "reward": -0.04000000000000001
+          },
+          "TwoStageGatePolicy": {
+            "hypervolume": 0.0,
+            "parallel_penalty": 0.5,
+            "reward": -0.025
+          }
+        },
+        "ranking": [
+          "OptimalPolicy",
+          "OptimalPolicy[no-gate-retry]",
+          "EpsilonGreedyPolicy[eps=0.2]",
+          "TwoStageGatePolicy",
+          "RandomPolicy[seed=0]",
+          "RandomPolicy[seed=1]",
+          "RandomPolicy[seed=2]",
+          "RoundRobinPolicy",
+          "ShallowFirstPolicy",
+          "InitialPolicy",
+          "GreedySerialPolicy",
+          "IncumbentWithExceptions"
+        ],
+        "selected_policy": "OptimalPolicy"
+      }
+    },
     "qwen_smoke_families": {
       "W=1": {
         "delta_reward": 0.09283342019914219,
@@ -7297,6 +7795,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -7443,6 +7945,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -7586,6 +8092,10 @@
           "parallel_penalty": 1.0
         },
         "qwen-round3": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
@@ -7735,6 +8245,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -7879,6 +8393,10 @@
         },
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
+          "hypervolume": 0.25,
           "parallel_penalty": 1.0
         },
         "qwen-smoke-action-execution-ablation": {
@@ -8027,6 +8545,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -8171,6 +8693,10 @@
         },
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
         "qwen-smoke-action-execution-ablation": {
@@ -8319,6 +8845,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -8463,6 +8993,10 @@
         },
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
         "qwen-smoke-action-execution-ablation": {
@@ -8611,6 +9145,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -8757,6 +9295,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -8900,6 +9442,10 @@
           "parallel_penalty": 1.0
         },
         "qwen-round3": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
@@ -9051,6 +9597,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.75
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -9197,6 +9747,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -9340,6 +9894,10 @@
           "parallel_penalty": 1.0
         },
         "qwen-round3": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
@@ -9489,6 +10047,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -9634,6 +10196,10 @@
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
+        },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -9781,6 +10347,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
         },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -9926,6 +10496,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -10073,6 +10647,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -10218,6 +10796,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -10365,6 +10947,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -10511,6 +11097,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -10656,6 +11246,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.75
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -10805,6 +11399,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -10951,6 +11549,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -11094,6 +11696,10 @@
           "parallel_penalty": 1.0
         },
         "qwen-round3": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
@@ -11243,6 +11849,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -11388,6 +11998,10 @@
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
+        },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -11535,6 +12149,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
         },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -11680,6 +12298,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -11827,6 +12449,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -11972,6 +12598,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -12119,6 +12749,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -12265,6 +12899,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -12410,6 +13048,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -12559,6 +13201,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -12705,6 +13351,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -12848,6 +13498,10 @@
           "parallel_penalty": 1.0
         },
         "qwen-round3": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
+        "qwen-round5": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
         },
@@ -12997,6 +13651,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 1.0
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 1.0
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -13142,6 +13800,10 @@
         "qwen-round3": {
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
+        },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -13289,6 +13951,10 @@
           "hypervolume": 0.3333333333333333,
           "parallel_penalty": 0.7333333333333333
         },
+        "qwen-round5": {
+          "hypervolume": 0.25,
+          "parallel_penalty": 0.6333333333333333
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -13434,6 +14100,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -13581,6 +14251,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -13726,6 +14400,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -13873,6 +14551,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -14018,6 +14700,10 @@
         "qwen-round3": {
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
+        },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.8
         },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
@@ -14165,6 +14851,10 @@
           "hypervolume": 0.0,
           "parallel_penalty": 0.6666666666666666
         },
+        "qwen-round5": {
+          "hypervolume": 0.0,
+          "parallel_penalty": 0.5
+        },
         "qwen-smoke-action-execution-ablation": {
           "hypervolume": 0.0,
           "parallel_penalty": 1.0
@@ -14246,97 +14936,97 @@
         {
           "W": 1,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.0,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
           "W": 1,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.01,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
           "W": 1,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.05,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
           "W": 1,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.1,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
           "W": 1,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.2,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
           "W": 2,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.0,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
@@ -14406,17 +15096,17 @@
         {
           "W": 4,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.0,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
@@ -14486,17 +15176,17 @@
         {
           "W": 8,
           "distinct_winners": [
-            "InitialPolicy"
+            "OptimalPolicy"
           ],
           "lambda": 0.0,
-          "modal_winner": "InitialPolicy",
+          "modal_winner": "OptimalPolicy",
           "unanimous": true,
           "winners_by_seed": {
-            "0": "InitialPolicy",
-            "1": "InitialPolicy",
-            "2": "InitialPolicy",
-            "3": "InitialPolicy",
-            "4": "InitialPolicy"
+            "0": "OptimalPolicy",
+            "1": "OptimalPolicy",
+            "2": "OptimalPolicy",
+            "3": "OptimalPolicy",
+            "4": "OptimalPolicy"
           }
         },
         {
@@ -14565,7 +15255,6 @@
         }
       ],
       "distinct_winners": [
-        "InitialPolicy",
         "OptimalPolicy"
       ],
       "unanimous_fraction": 1.0
@@ -15578,330 +16267,350 @@
     "live_rounds": [
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.1111111111111111,
-        "held_out_mean_selected_reward": 0.0,
+        "held_out_mean_incumbent_reward": 0.08333333333333333,
+        "held_out_mean_selected_reward": 0.08333333333333333,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.1111111111111111,
+        "incumbent_reward": 0.08333333333333333,
         "lambda": 0.0,
-        "selected_hypervolume": 0.1111111111111111,
+        "selected_hypervolume": 0.14583333333333331,
         "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.1111111111111111
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.14583333333333331
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.1011111111111111,
-        "held_out_mean_selected_reward": -0.01,
+        "held_out_mean_incumbent_reward": 0.07333333333333332,
+        "held_out_mean_selected_reward": 0.07333333333333332,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.10111111111111111,
+        "incumbent_reward": 0.07333333333333333,
         "lambda": 0.01,
-        "selected_hypervolume": 0.1111111111111111,
+        "selected_hypervolume": 0.14583333333333331,
         "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.10111111111111111
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.1358333333333333
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.06111111111111111,
-        "held_out_mean_selected_reward": -0.05000000000000001,
+        "held_out_mean_incumbent_reward": 0.033333333333333326,
+        "held_out_mean_selected_reward": 0.033333333333333326,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.0611111111111111,
+        "incumbent_reward": 0.033333333333333326,
         "lambda": 0.05,
-        "selected_hypervolume": 0.1111111111111111,
+        "selected_hypervolume": 0.14583333333333331,
         "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.0611111111111111
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.09583333333333331
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.0111111111111111,
-        "held_out_mean_selected_reward": -0.10000000000000002,
+        "held_out_mean_incumbent_reward": -0.016666666666666677,
+        "held_out_mean_selected_reward": -0.016666666666666677,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.0111111111111111,
+        "incumbent_reward": -0.016666666666666677,
         "lambda": 0.1,
-        "selected_hypervolume": 0.1111111111111111,
+        "selected_hypervolume": 0.14583333333333331,
         "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.0111111111111111
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.04583333333333331
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": -0.0888888888888889,
-        "held_out_mean_selected_reward": -0.20000000000000004,
+        "held_out_mean_incumbent_reward": -0.11666666666666668,
+        "held_out_mean_selected_reward": -0.11666666666666668,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": -0.0888888888888889,
+        "incumbent_reward": -0.11666666666666668,
         "lambda": 0.2,
-        "selected_hypervolume": 0.1111111111111111,
+        "selected_hypervolume": 0.14583333333333331,
         "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": -0.0888888888888889
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": -0.054166666666666696
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.1111111111111111,
-        "held_out_mean_selected_reward": 0.0,
+        "held_out_mean_incumbent_reward": 0.08333333333333333,
+        "held_out_mean_selected_reward": 0.08333333333333333,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.1111111111111111,
+        "incumbent_reward": 0.08333333333333333,
         "lambda": 0.0,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.1111111111111111
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6866666666666666,
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.14583333333333331
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.1011111111111111,
-        "held_out_mean_selected_reward": -0.006822222222222223,
+        "held_out_mean_incumbent_reward": 0.07333333333333332,
+        "held_out_mean_selected_reward": 0.13896666666666666,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.10111111111111111,
+        "incumbent_reward": 0.07333333333333333,
         "lambda": 0.01,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.7044444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6866666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.10406666666666665
+        "selected_reward": 0.13896666666666666
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.06111111111111111,
-        "held_out_mean_selected_reward": -0.03411111111111111,
+        "held_out_mean_incumbent_reward": 0.033333333333333326,
+        "held_out_mean_selected_reward": 0.11149999999999999,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0611111111111111,
+        "incumbent_reward": 0.033333333333333326,
         "lambda": 0.05,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.7044444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6866666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.07588888888888888
+        "selected_reward": 0.11149999999999999
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.0111111111111111,
-        "held_out_mean_selected_reward": -0.06822222222222223,
+        "held_out_mean_incumbent_reward": -0.016666666666666677,
+        "held_out_mean_selected_reward": 0.07716666666666666,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0111111111111111,
+        "incumbent_reward": -0.016666666666666677,
         "lambda": 0.1,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.7044444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6866666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.040666666666666657
+        "selected_reward": 0.07716666666666665
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": -0.0888888888888889,
-        "held_out_mean_selected_reward": -0.13644444444444445,
+        "held_out_mean_incumbent_reward": -0.11666666666666668,
+        "held_out_mean_selected_reward": 0.008499999999999987,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": -0.0888888888888889,
+        "incumbent_reward": -0.11666666666666668,
         "lambda": 0.2,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.7044444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6866666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": -0.029777777777777792
+        "selected_reward": 0.00849999999999998
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.1111111111111111,
-        "held_out_mean_selected_reward": 0.0,
+        "held_out_mean_incumbent_reward": 0.08333333333333333,
+        "held_out_mean_selected_reward": 0.08333333333333333,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.1111111111111111,
+        "incumbent_reward": 0.08333333333333333,
         "lambda": 0.0,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.1111111111111111
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.14583333333333331
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.1011111111111111,
-        "held_out_mean_selected_reward": -0.0064222222222222215,
+        "held_out_mean_incumbent_reward": 0.07333333333333332,
+        "held_out_mean_selected_reward": 0.13926666666666665,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.10111111111111111,
+        "incumbent_reward": 0.07333333333333333,
         "lambda": 0.01,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.10446666666666667
+        "selected_reward": 0.13926666666666665
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.06111111111111111,
-        "held_out_mean_selected_reward": -0.03211111111111111,
+        "held_out_mean_incumbent_reward": 0.033333333333333326,
+        "held_out_mean_selected_reward": 0.11299999999999999,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0611111111111111,
+        "incumbent_reward": 0.033333333333333326,
         "lambda": 0.05,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.07788888888888888
+        "selected_reward": 0.11299999999999999
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.0111111111111111,
-        "held_out_mean_selected_reward": -0.06422222222222222,
+        "held_out_mean_incumbent_reward": -0.016666666666666677,
+        "held_out_mean_selected_reward": 0.08016666666666666,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0111111111111111,
+        "incumbent_reward": -0.016666666666666677,
         "lambda": 0.1,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.04466666666666666
+        "selected_reward": 0.08016666666666665
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": -0.0888888888888889,
-        "held_out_mean_selected_reward": -0.12844444444444444,
+        "held_out_mean_incumbent_reward": -0.11666666666666668,
+        "held_out_mean_selected_reward": -0.0655,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "TwoStageGatePolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": -0.0888888888888889,
+        "incumbent_reward": -0.11666666666666668,
         "lambda": 0.2,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": -0.021777777777777785
+        "selected_reward": 0.014499999999999985
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.1111111111111111,
-        "held_out_mean_selected_reward": 0.0,
+        "held_out_mean_incumbent_reward": 0.08333333333333333,
+        "held_out_mean_selected_reward": 0.08333333333333333,
         "held_out_selected_policies": [
-          "InitialPolicy",
-          "InitialPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "OptimalPolicy",
+          "InitialPolicy"
         ],
-        "incumbent_reward": 0.1111111111111111,
+        "incumbent_reward": 0.08333333333333333,
         "lambda": 0.0,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 1.0,
-        "selected_policy": "InitialPolicy",
-        "selected_reward": 0.1111111111111111
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
+        "selected_policy": "OptimalPolicy",
+        "selected_reward": 0.14583333333333331
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.1011111111111111,
-        "held_out_mean_selected_reward": -0.0064222222222222215,
+        "held_out_mean_incumbent_reward": 0.07333333333333332,
+        "held_out_mean_selected_reward": 0.13926666666666665,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.10111111111111111,
+        "incumbent_reward": 0.07333333333333333,
         "lambda": 0.01,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.10446666666666667
+        "selected_reward": 0.13926666666666665
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.06111111111111111,
-        "held_out_mean_selected_reward": -0.03211111111111111,
+        "held_out_mean_incumbent_reward": 0.033333333333333326,
+        "held_out_mean_selected_reward": 0.11299999999999999,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0611111111111111,
+        "incumbent_reward": 0.033333333333333326,
         "lambda": 0.05,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.07788888888888888
+        "selected_reward": 0.11299999999999999
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.0111111111111111,
-        "held_out_mean_selected_reward": -0.06422222222222222,
+        "held_out_mean_incumbent_reward": -0.016666666666666677,
+        "held_out_mean_selected_reward": 0.08016666666666666,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "OptimalPolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": 0.0111111111111111,
+        "incumbent_reward": -0.016666666666666677,
         "lambda": 0.1,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": 0.04466666666666666
+        "selected_reward": 0.08016666666666665
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": -0.0888888888888889,
-        "held_out_mean_selected_reward": -0.12844444444444444,
+        "held_out_mean_incumbent_reward": -0.11666666666666668,
+        "held_out_mean_selected_reward": -0.0655,
         "held_out_selected_policies": [
           "OptimalPolicy",
           "OptimalPolicy",
-          "TwoStageGatePolicy"
+          "TwoStageGatePolicy",
+          "OptimalPolicy"
         ],
-        "incumbent_reward": -0.0888888888888889,
+        "incumbent_reward": -0.11666666666666668,
         "lambda": 0.2,
-        "selected_hypervolume": 0.1111111111111111,
-        "selected_parallel_penalty": 0.6644444444444444,
+        "selected_hypervolume": 0.14583333333333331,
+        "selected_parallel_penalty": 0.6566666666666666,
         "selected_policy": "OptimalPolicy",
-        "selected_reward": -0.021777777777777785
+        "selected_reward": 0.014499999999999985
       }
     ],
     "real_smoke_coarse": [
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.28672513737963984,
-        "held_out_mean_selected_reward": 0.4021775216678449,
+        "held_out_mean_incumbent_reward": 0.25486678878190205,
+        "held_out_mean_selected_reward": 0.38526890814919545,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -15910,19 +16619,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.28672513737963984,
+        "incumbent_reward": 0.25486678878190205,
         "lambda": 0.0,
-        "selected_hypervolume": 0.4149962451848375,
+        "selected_hypervolume": 0.3966633290531889,
         "selected_parallel_penalty": 1.0,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.4149962451848375
+        "selected_reward": 0.3966633290531889
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.27672513737963983,
-        "held_out_mean_selected_reward": 0.39217752166784486,
+        "held_out_mean_incumbent_reward": 0.24486678878190205,
+        "held_out_mean_selected_reward": 0.37526890814919545,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -15931,19 +16641,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.27672513737963983,
+        "incumbent_reward": 0.24486678878190205,
         "lambda": 0.01,
-        "selected_hypervolume": 0.4149962451848375,
+        "selected_hypervolume": 0.3966633290531889,
         "selected_parallel_penalty": 1.0,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.4049962451848375
+        "selected_reward": 0.3866633290531889
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.23672513737963982,
-        "held_out_mean_selected_reward": 0.3521775216678449,
+        "held_out_mean_incumbent_reward": 0.20486678878190206,
+        "held_out_mean_selected_reward": 0.33526890814919547,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -15952,19 +16663,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.23672513737963985,
+        "incumbent_reward": 0.20486678878190206,
         "lambda": 0.05,
-        "selected_hypervolume": 0.4149962451848375,
+        "selected_hypervolume": 0.3966633290531889,
         "selected_parallel_penalty": 1.0,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.36499624518483753
+        "selected_reward": 0.3466633290531889
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.18672513737963983,
-        "held_out_mean_selected_reward": 0.3021775216678449,
+        "held_out_mean_incumbent_reward": 0.15486678878190208,
+        "held_out_mean_selected_reward": 0.2852689081491955,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -15973,19 +16685,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.18672513737963983,
+        "incumbent_reward": 0.15486678878190205,
         "lambda": 0.1,
-        "selected_hypervolume": 0.4149962451848375,
+        "selected_hypervolume": 0.3966633290531889,
         "selected_parallel_penalty": 1.0,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.3149962451848375
+        "selected_reward": 0.29666332905318893
       },
       {
         "W": 1,
-        "held_out_mean_incumbent_reward": 0.08672513737963981,
-        "held_out_mean_selected_reward": 0.2021775216678449,
+        "held_out_mean_incumbent_reward": 0.054866788781902064,
+        "held_out_mean_selected_reward": 0.18526890814919547,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -15994,20 +16707,22 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.08672513737963983,
+        "incumbent_reward": 0.05486678878190204,
         "lambda": 0.2,
-        "selected_hypervolume": 0.4149962451848375,
+        "selected_hypervolume": 0.3966633290531889,
         "selected_parallel_penalty": 1.0,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.2149962451848375
+        "selected_reward": 0.1966633290531889
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.28672513737963984,
-        "held_out_mean_selected_reward": 0.41395217570548093,
+        "held_out_mean_incumbent_reward": 0.25486678878190205,
+        "held_out_mean_selected_reward": 0.39573526729376085,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16017,18 +16732,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.28672513737963984,
+        "incumbent_reward": 0.25486678878190205,
         "lambda": 0.0,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6838839285714285,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6782671957671957,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.41395217570548093
+        "selected_reward": 0.39573526729376085
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.27672513737963983,
-        "held_out_mean_selected_reward": 0.40711333641976666,
+        "held_out_mean_incumbent_reward": 0.24486678878190205,
+        "held_out_mean_selected_reward": 0.38895259533608884,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16038,18 +16754,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.27672513737963983,
+        "incumbent_reward": 0.24486678878190205,
         "lambda": 0.01,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6838839285714285,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6782671957671957,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.40711333641976666
+        "selected_reward": 0.3889525953360889
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.23672513737963982,
-        "held_out_mean_selected_reward": 0.3797579792769095,
+        "held_out_mean_incumbent_reward": 0.20486678878190206,
+        "held_out_mean_selected_reward": 0.36182190750540105,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16059,17 +16776,17 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.23672513737963985,
+        "incumbent_reward": 0.20486678878190206,
         "lambda": 0.05,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6838839285714285,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6782671957671957,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.3797579792769095
+        "selected_reward": 0.36182190750540105
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.18672513737963983,
-        "held_out_mean_selected_reward": 0.33345140853769467,
+        "held_out_mean_incumbent_reward": 0.15486678878190208,
+        "held_out_mean_selected_reward": 0.3171419927742471,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16078,19 +16795,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.18672513737963983,
+        "incumbent_reward": 0.15486678878190205,
         "lambda": 0.1,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6838839285714285,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6782671957671957,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.34556378284833805
+        "selected_reward": 0.32790854771704125
       },
       {
         "W": 2,
-        "held_out_mean_incumbent_reward": 0.08672513737963981,
-        "held_out_mean_selected_reward": 0.265769364886901,
+        "held_out_mean_incumbent_reward": 0.054866788781902064,
+        "held_out_mean_selected_reward": 0.24994313915872685,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16099,19 +16817,20 @@
           "OptimalPolicy",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.08672513737963983,
+        "incumbent_reward": 0.05486678878190204,
         "lambda": 0.2,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6838839285714285,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6782671957671957,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.2771753899911952
+        "selected_reward": 0.26008182814032166
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.28672513737963984,
-        "held_out_mean_selected_reward": 0.41395217570548093,
+        "held_out_mean_incumbent_reward": 0.25486678878190205,
+        "held_out_mean_selected_reward": 0.39573526729376085,
         "held_out_selected_policies": [
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16120,20 +16839,22 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.28672513737963984,
+        "incumbent_reward": 0.25486678878190205,
         "lambda": 0.0,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.41395217570548093
+        "selected_reward": 0.39573526729376085
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.27672513737963983,
-        "held_out_mean_selected_reward": 0.40777568761024285,
+        "held_out_mean_incumbent_reward": 0.24486678878190205,
+        "held_out_mean_selected_reward": 0.38954135194984546,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16143,18 +16864,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.27672513737963983,
+        "incumbent_reward": 0.24486678878190205,
         "lambda": 0.01,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.40777568761024285
+        "selected_reward": 0.3895413519498455
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.23672513737963982,
-        "held_out_mean_selected_reward": 0.38306973522929044,
+        "held_out_mean_incumbent_reward": 0.20486678878190206,
+        "held_out_mean_selected_reward": 0.36476569057418406,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16164,18 +16886,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.23672513737963985,
+        "incumbent_reward": 0.20486678878190206,
         "lambda": 0.05,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.38306973522929044
+        "selected_reward": 0.3647656905741841
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.18672513737963983,
-        "held_out_mean_selected_reward": 0.3521872947531,
+        "held_out_mean_incumbent_reward": 0.15486678878190208,
+        "held_out_mean_selected_reward": 0.3337961138546074,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16185,18 +16908,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.18672513737963983,
+        "incumbent_reward": 0.15486678878190205,
         "lambda": 0.1,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.35218729475309996
+        "selected_reward": 0.3337961138546074
       },
       {
         "W": 4,
-        "held_out_mean_incumbent_reward": 0.08672513737963981,
-        "held_out_mean_selected_reward": 0.29042241380071904,
+        "held_out_mean_incumbent_reward": 0.054866788781902064,
+        "held_out_mean_selected_reward": 0.27185696041545393,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16206,18 +16930,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.08672513737963983,
+        "incumbent_reward": 0.05486678878190204,
         "lambda": 0.2,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.29042241380071904
+        "selected_reward": 0.271856960415454
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.28672513737963984,
-        "held_out_mean_selected_reward": 0.41395217570548093,
+        "held_out_mean_incumbent_reward": 0.25486678878190205,
+        "held_out_mean_selected_reward": 0.39573526729376085,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16227,18 +16952,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.28672513737963984,
+        "incumbent_reward": 0.25486678878190205,
         "lambda": 0.0,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.41395217570548093
+        "selected_reward": 0.39573526729376085
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.27672513737963983,
-        "held_out_mean_selected_reward": 0.40777568761024285,
+        "held_out_mean_incumbent_reward": 0.24486678878190205,
+        "held_out_mean_selected_reward": 0.38954135194984546,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16248,18 +16974,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.27672513737963983,
+        "incumbent_reward": 0.24486678878190205,
         "lambda": 0.01,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.40777568761024285
+        "selected_reward": 0.3895413519498455
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.23672513737963982,
-        "held_out_mean_selected_reward": 0.38306973522929044,
+        "held_out_mean_incumbent_reward": 0.20486678878190206,
+        "held_out_mean_selected_reward": 0.36476569057418406,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16269,18 +16996,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.23672513737963985,
+        "incumbent_reward": 0.20486678878190206,
         "lambda": 0.05,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.38306973522929044
+        "selected_reward": 0.3647656905741841
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.18672513737963983,
-        "held_out_mean_selected_reward": 0.3521872947531,
+        "held_out_mean_incumbent_reward": 0.15486678878190208,
+        "held_out_mean_selected_reward": 0.3337961138546074,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16290,18 +17018,19 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.18672513737963983,
+        "incumbent_reward": 0.15486678878190205,
         "lambda": 0.1,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.35218729475309996
+        "selected_reward": 0.3337961138546074
       },
       {
         "W": 8,
-        "held_out_mean_incumbent_reward": 0.08672513737963981,
-        "held_out_mean_selected_reward": 0.29042241380071904,
+        "held_out_mean_incumbent_reward": 0.054866788781902064,
+        "held_out_mean_selected_reward": 0.27185696041545393,
         "held_out_selected_policies": [
+          "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]",
@@ -16311,12 +17040,12 @@
           "OptimalPolicy[no-gate-retry]",
           "OptimalPolicy[no-gate-retry]"
         ],
-        "incumbent_reward": 0.08672513737963983,
+        "incumbent_reward": 0.05486678878190204,
         "lambda": 0.2,
-        "selected_hypervolume": 0.41395217570548093,
-        "selected_parallel_penalty": 0.6176488095238095,
+        "selected_hypervolume": 0.39573526729376085,
+        "selected_parallel_penalty": 0.6193915343915344,
         "selected_policy": "OptimalPolicy[no-gate-retry]",
-        "selected_reward": 0.29042241380071904
+        "selected_reward": 0.271856960415454
       }
     ],
     "real_smoke_fine": [
@@ -17378,7 +18107,8 @@
     "studies/dream-rsi/attempts.jsonl": "626b557688ebbd77976e09925607a300af398b14be924c61065a38b76925dd60",
     "studies/dream-rsi/live_round1.json": "ccbaace215c969738e9e06eafe06818ef73590dd56fb5c1dd6ab07ec6780832f",
     "studies/dream-rsi/live_round2.json": "2adf63e73101f746dfa1fb66f4e2d0faed3a1a60364169d7e763e81378d4f7f0",
-    "studies/dream-rsi/live_round3.json": "a8c3f629547ba1c43f32a9fffe11ecec965c474c4f288674102363166c0c821f"
+    "studies/dream-rsi/live_round3.json": "a8c3f629547ba1c43f32a9fffe11ecec965c474c4f288674102363166c0c821f",
+    "studies/dream-rsi/live_round5.json": "22317cdd94eeeeacded7049641b28c993f7ff189ad4ab63bc69ced2dea582bb0"
   },
   "stability_seeds": [
     0,
@@ -17479,12 +18209,13 @@
       "smoke_successes": 7
     }
   ],
-  "timestamp_utc": "2026-11-13T19:01:42.928023+00:00",
+  "timestamp_utc": "2026-11-13T19:42:50.923753+00:00",
   "world_provenance": {
     "qwen_compression_smoke": "Study B grid distilled mildest->aggressive per family.",
     "qwen_live_round1": "live_round1.json world_records (5 smoke cells, RTX 3090).",
     "qwen_live_round2": "live_round2.json world_records (2 smoke cells, RTX 3090).",
     "qwen_live_round3": "live_round3.json world_records (3 smoke cells, RTX 3090).",
+    "qwen_live_round5": "live_round5.json world_records (4 smoke cells, RTX 3090).",
     "qwen_smoke_families": "per-family splits of the smoke tree, families with >=4 nodes; single-branch worlds test stopping patience only.",
     "qwen_stage2_smoke": "committed 10-trial smoke run.json files on grid edges.",
     "smolvlm_branches": "per-root descendant subtrees with >=2 nodes; smaller roots pool per cycle into *-fragments worlds (split_cycle_branches).",
@@ -17525,6 +18256,13 @@
         "max_gain": 0.8400170109068306,
         "nodes": 3,
         "world_id": "qwen-round3"
+      }
+    ],
+    "qwen_live_round5": [
+      {
+        "max_gain": 0.8416641997286263,
+        "nodes": 4,
+        "world_id": "qwen-round5"
       }
     ],
     "qwen_smoke_families": [
