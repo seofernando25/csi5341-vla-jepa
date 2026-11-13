@@ -611,6 +611,112 @@ def build_round5_candidates() -> list[Stage2Candidate]:
     )
 
 
+def _r6_c1_bf16act_s1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """Root B1: C1 base, action attention/interfaces BF16, HQQ2 action MLP, solver1."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "int8_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "merger", "bits": 4},
+        {"method": "solver_steps", "count": 1},
+    ]
+
+
+def _r6_c2_s1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    """Root B2: report C2 base (full-vocab NF4 vision+text+action+merger, solver1) plus
+    mild structured cuts. Matches `fast-nf4-all-solver1-packed` without the graph engine."""
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "int8_embedding"},
+        {"method": "solver_steps", "count": 1},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {"method": "bnb", "scope": "vision_blocks", "bits": 4},
+        {"method": "bnb", "scope": "merger", "bits": 4},
+        {"method": "bnb", "scope": "action", "bits": 4},
+    ]
+
+
+def _r6_fullact(text_frac: float, vision_frac: float, solver1: bool) -> list[dict[str, Any]]:
+    """Root B3: entire action head (attention, MLP, interfaces) stays BF16; text NF4
+    and vision HQQ2 take the compression. Optional solver1 child for control fidelity."""
+    changes: list[dict[str, Any]] = [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "int8_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "merger", "bits": 4},
+    ]
+    if solver1:
+        changes.append({"method": "solver_steps", "count": 1})
+    return changes
+
+
+def build_round6_candidates() -> list[Stage2Candidate]:
+    """Round 6 grid: action-control fidelity and C2 direction, 3 roots x 2 depths.
+
+    R4 proved the full-vocab C1 base (86/100 dev) and R5 proved HQQ3 vision does not
+    fix tasks 0/5/8, so R6 targets closed-loop action control: (B1) the unprobed R4
+    combo of BF16 action attention/interfaces with solver1 on C1; (B2) the report C2
+    base (full-vocab NF4 vision+text+action, solver1; reserved-500 98.0%) with mild
+    pruning; (B3) the entire action head in BF16 with text/vision compressed. All
+    cell IDs are new (`r6-*`); no committed measurements exist for them.
+    """
+    return _chain(
+        [
+            (
+                "r6_c1_bf16act",
+                [
+                    ("r6-c1-bf16act-s1-t10-v25", _r6_c1_bf16act_s1(0.10, 0.25)),
+                    ("r6-c1-bf16act-s1-t15-v35-g32", _r6_c1_bf16act_s1(0.15, 0.35)),
+                ],
+            ),
+            (
+                "r6_c2",
+                [
+                    ("r6-c2-s1-t12-v25", _r6_c2_s1(0.12, 0.25)),
+                    ("r6-c2-s1-t20-v35", _r6_c2_s1(0.20, 0.35)),
+                ],
+            ),
+            (
+                "r6_fullact",
+                [
+                    ("r6-fullact-t15-v35-g32", _r6_fullact(0.15, 0.35, solver1=False)),
+                    ("r6-fullact-s1-t15-v35-g32", _r6_fullact(0.15, 0.35, solver1=True)),
+                ],
+            ),
+        ]
+    )
+
+
 def make_evaluator(
     policy_tag: str,
     round_id: str,

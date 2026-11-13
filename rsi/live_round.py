@@ -18,6 +18,7 @@ from rsi.live import (
     build_round3_candidates,
     build_round4_candidates,
     build_round5_candidates,
+    build_round6_candidates,
     gpu_name,
     journals_for,
     promote_to_development,
@@ -34,6 +35,7 @@ ROUND_BUILDERS = {
     "r3": build_round3_candidates,
     "r4": build_round4_candidates,
     "r5": build_round5_candidates,
+    "r6": build_round6_candidates,
 }
 
 
@@ -155,6 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", default="studies/dream-rsi/live_round1.json")
     parser.add_argument("--fallback-smoke-gate", type=int, default=None)
     parser.add_argument("--screen-promoted", action="store_true")
+    parser.add_argument("--promote-top-k", type=int, default=1)
     args = parser.parse_args(argv)
     selected = Candidate(
         args.name,
@@ -165,6 +168,7 @@ def main(argv: list[str] | None = None) -> int:
         args.round,
         selected,
         args.budget_each,
+        promote_top_k=args.promote_top_k,
         output_path=args.output,
         fallback_smoke_gate=args.fallback_smoke_gate,
         screen_promoted=args.screen_promoted,
