@@ -141,7 +141,9 @@ def _worker_main(conn, task_ids: list[int], phase: str, episodes: int):
 
     try:
         for task_id in task_ids:
+            print(f"worker env_creating task={task_id}", flush=True)
             env, _ = make_environment(task_id, phase)
+            print(f"worker env_created task={task_id}", flush=True)
             try:
                 for trial in range(episodes):
                     seed = episode_seed(task_id, trial, phase)
