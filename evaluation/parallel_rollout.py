@@ -391,7 +391,12 @@ def main():
             finally:
                 env.close()
         wall = time.perf_counter() - wall_start
+        torch.cuda.synchronize()
+        peak = torch.cuda.max_memory_allocated() / 1e9
         print(f"profile: {successes}/{len(tasks) * episodes} successes in {wall:.1f}s")
+        print(
+            f"profile: peak_allocated={peak:.2f} GB, trials_per_min={len(tasks) * episodes / wall * 60:.2f}"
+        )
         for stage, seconds in sorted(totals.items(), key=lambda kv: -kv[1]):
             print(f"  {stage:10s} {seconds:8.1f}s ({100 * seconds / wall:5.1f}%)")
         return
