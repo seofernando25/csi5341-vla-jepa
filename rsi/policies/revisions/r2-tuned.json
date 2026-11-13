@@ -1,0 +1,63 @@
+{
+  "name": "OptimalPolicy[r2-tuned]",
+  "round_id": "r2",
+  "base": "OptimalPolicy",
+  "config": {
+    "beta": 1.0,
+    "gate_retry": true
+  },
+  "rationale": "selected-class best mean attainment beta=1.0",
+  "parent_selection": "OptimalPolicy[no-gate-retry]",
+  "parent_config": {
+    "gate_retry": false
+  },
+  "held_out_mean_V": {
+    "InitialPolicy": 0.276745,
+    "OptimalPolicy": 0.44796,
+    "OptimalPolicy[no-gate-retry]": 0.466315,
+    "GreedySerialPolicy": 0.312676,
+    "RoundRobinPolicy": 0.233031,
+    "RandomPolicy[seed=0]": 0.169667,
+    "RandomPolicy[seed=1]": 0.131945,
+    "RandomPolicy[seed=2]": 0.155788,
+    "OptimalPolicy[r1-retry-flip]": 0.466315,
+    "OptimalPolicy[r1-serial]": 0.44796,
+    "OptimalPolicy[r1-tuned]": 0.44796,
+    "OptimalPolicy[r1-wide]": 0.44796
+  },
+  "trajectory_stats": {
+    "worlds": [
+      "libero-smolvlm-cycle0",
+      "libero-smolvlm-cycle1",
+      "libero-smolvlm-cycle2",
+      "qwen-compression-smoke",
+      "qwen-stage2-smoke",
+      "qwen-live-r1"
+    ],
+    "nodes": 203,
+    "fail_counts": {
+      "ok": 127,
+      "runtime_failure": 1,
+      "interrupted": 2,
+      "implementation_failure": 1,
+      "gate_failed": 37,
+      "gate_near_miss": 35
+    },
+    "near_miss": 35
+  },
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "lambda_parallel": 0.05,
+  "max_parallelism": 4,
+  "code_head": "fac38428221be020c273d3e92bdd2736d5b82512",
+  "host": {
+    "python": "3.12.11",
+    "machine": "x86_64"
+  },
+  "created_utc": "2026-11-13T18:04:22.467012+00:00"
+}

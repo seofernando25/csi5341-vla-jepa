@@ -36,9 +36,10 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
 
 - Scores are Eq. (1) replay values $V$, not LIBERO success. Worlds are not independent: the
   three SmolVLM cycles split one search run, the Qwen chains are synthesized from a grid study,
-  and the synthetic worlds are hand-made. The policy-development agent ($M$ new versions per
-  cycle) was never built; the pool holds hand-written stand-ins, so "selection" ranks
-  fixed baselines instead of improving a policy.
+  and the synthetic worlds are hand-made. The policy-development agent ([develop.py](../../rsi/develop.py))
+  archives $M=4$ `OptimalPolicy` revisions per round from replay trajectories (tuned default
+  $\beta$, serial/wide arms, gate-retry ablation) with provenance under
+  `rsi/policies/revisions/`; selection is argmax including the incumbent on held-out $V$.
 - In-sample $V$ (selection and score on the same worlds) overstates rank stability.
   Leave-one-world-out $V$ selects on the other worlds of the suite and scores the held-out
   world. Smoke and development never share a $V$; the development world is in-sample only
@@ -56,9 +57,32 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
   `OptimalPolicy[no-gate-retry]` on real smoke; one $W=1$ fold flips to `OptimalPolicy`).
   Each cell in `dream_benchmark.json` records hypervolume and parallelism penalty separately.
 - Pool: `InitialPolicy` incumbent (argmax ties resolve to it) vs `OptimalPolicy`,
-  `OptimalPolicy[no-gate-retry]`, greedy-serial, round-robin, and three fixed-seed random
-  policies. Beta is swept ($\rho \in \{0,0.25,0.5,0.75,1\}$), not fixed per candidate, so no
-  fixed-beta variants exist.
+  `OptimalPolicy[no-gate-retry]`, greedy-serial, round-robin, three fixed-seed random
+  policies, plus the archived per-round revisions. Replay sweeps beta
+  ($\rho \in \{0,0.25,0.5,0.75,1\}$); live rounds fix beta at the trajectory-tuned value.
+
+## Live rounds (RTX 3090)
+
+Frozen `InitialPolicy` control vs the held-out-selected `OptimalPolicy` variant
+(`beta=1.0`, `gate_retry=False`, i.e. the `r1/r2-retry-flip` config: LOWO parent at tuned
+beta) on fresh grids, same probe budget, independent journals ([live.py](../../rsi/live.py)).
+Pre-stated gates: $\ge 8/10$ smoke promotes the smallest passing cell to development (100
+trials); development gate $\ge 77/100$. Stage journals record phase, $n$, bytes and machine
+(`outputs/compression/r*/`, not committed); compact evidence in
+[live_round1.json](live_round1.json) and [live_round2.json](live_round2.json) with committed
+measurement `run.json` files. Bases are the restricted-vocabulary `T1`/`T2`, not report C1/C2.
+
+- **Round 1** (9 fresh cells around the Stage 2 winner, budget 6 each): control probed 2
+  cells, 0 passes (`6/10`, `7/10`); selected probed 5, 3 passes on the new `group_size=32`
+  branch (`r1-t10-v25-g32`, `r1-t15-v35-g32`, `r1-t20-v45-g32`, each `8/10`, Wilson 95%
+  `[49.0, 94.3]`). Promoted `r1-t20-v45-g32` scored **83/100** (Wilson 95% `[74.5, 89.1]`)
+  at **853.1 MB**, beating the `77/100` gate and saving `124.7 MB` vs `T2` (`977.8 MB`).
+- **Round 2** (6 fresh cells tightening the `g32` winner, budget 4 each): both arms probed
+  the 2 roots, 0 passes (`6/10`, `6/10`); no promotion. Tighter cuts fail at smoke, so the
+  round stopped after 2 probes per arm.
+- **Totals:** 7 new smoke runs + 1 development promotion on `NVIDIA GeForce RTX 3090`
+  (plus 1 pre-flight smoke); reserved 500 trials untouched; phases never pooled. Replay $V$
+  is not LIBERO success, and one `83/100` promotion does not claim a general selection gain.
 
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 

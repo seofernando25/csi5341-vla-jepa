@@ -1,0 +1,121 @@
+{
+  "protocol": "dream-rsi-live-round",
+  "round_id": "r2",
+  "control_policy": {
+    "name": "InitialPolicy",
+    "config": {}
+  },
+  "selected_policy": {
+    "name": "OptimalPolicy[r2-retry-flip]",
+    "config": {
+      "beta": 1.0,
+      "gate_retry": false
+    }
+  },
+  "probe_budget_each": 4,
+  "smoke_gate": 8,
+  "dev_gate": 77,
+  "machine": "NVIDIA GeForce RTX 3090",
+  "code_head": "fac38428221be020c273d3e92bdd2736d5b82512",
+  "recorded_utc": "2026-11-13T18:09:40.925175+00:00",
+  "control": {
+    "policy": "control",
+    "probes_used": 2,
+    "decision_rounds": 2,
+    "best_smoke_reduction": 0.0,
+    "results": [
+      {
+        "candidate": "r2-t25-v50-g32",
+        "phase": "smoke",
+        "status": "completed",
+        "successes": 6,
+        "episodes": 10,
+        "resident_bytes": 826856114.0,
+        "wall_seconds": 110.93,
+        "policy": "control",
+        "round_id": "r2",
+        "machine": "NVIDIA GeForce RTX 3090",
+        "recorded_utc": "2026-11-13T18:07:29.435753+00:00"
+      },
+      {
+        "candidate": "r2-t20-v50-g32",
+        "phase": "smoke",
+        "status": "completed",
+        "successes": 6,
+        "episodes": 10,
+        "resident_bytes": 849575090.0,
+        "wall_seconds": 112.65,
+        "policy": "control",
+        "round_id": "r2",
+        "machine": "NVIDIA GeForce RTX 3090",
+        "recorded_utc": "2026-11-13T18:09:40.840648+00:00"
+      }
+    ]
+  },
+  "selected": {
+    "policy": "selected",
+    "probes_used": 2,
+    "decision_rounds": 1,
+    "best_smoke_reduction": 0.0,
+    "results": [
+      {
+        "candidate": "r2-t25-v50-g32",
+        "phase": "smoke",
+        "status": "completed",
+        "successes": 6,
+        "episodes": 10,
+        "resident_bytes": 826856114.0,
+        "wall_seconds": 107.31,
+        "policy": "selected",
+        "round_id": "r2",
+        "machine": "NVIDIA GeForce RTX 3090",
+        "recorded_utc": "2026-11-13T18:09:40.872941+00:00"
+      },
+      {
+        "candidate": "r2-t20-v50-g32",
+        "phase": "smoke",
+        "status": "completed",
+        "successes": 6,
+        "episodes": 10,
+        "resident_bytes": 849575090.0,
+        "wall_seconds": 108.91,
+        "policy": "selected",
+        "round_id": "r2",
+        "machine": "NVIDIA GeForce RTX 3090",
+        "recorded_utc": "2026-11-13T18:09:40.907084+00:00"
+      }
+    ]
+  },
+  "development_promotions": {
+    "control": [],
+    "selected": []
+  },
+  "world": {
+    "world_id": "qwen-live-r2",
+    "nodes": 2
+  },
+  "world_records": [
+    {
+      "candidate": "r2-t25-v50-g32",
+      "parent": "root",
+      "policy": "control",
+      "smoke_successes": 6,
+      "smoke_episodes": 10,
+      "fail_class": "gate_failed",
+      "resident_bytes": 826856114,
+      "machine": "NVIDIA GeForce RTX 3090",
+      "recorded_utc": "2026-11-13T18:07:29.435753+00:00"
+    },
+    {
+      "candidate": "r2-t20-v50-g32",
+      "parent": "root",
+      "policy": "control",
+      "smoke_successes": 6,
+      "smoke_episodes": 10,
+      "fail_class": "gate_failed",
+      "resident_bytes": 849575090,
+      "machine": "NVIDIA GeForce RTX 3090",
+      "recorded_utc": "2026-11-13T18:09:40.840648+00:00"
+    }
+  ]
+}
