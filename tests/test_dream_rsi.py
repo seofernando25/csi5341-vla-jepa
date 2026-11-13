@@ -537,3 +537,157 @@ def test_selection_stability_flags_seed_luck() -> None:
     assert len(stab["cells"]) == 5  # 5 lambdas x 1 W level
     for cell in stab["cells"]:
         assert set(cell["winners_by_seed"]) == {str(s) for s in STABILITY_SEEDS}
+
+
+def test_round4_grid_is_c1_based_fresh_and_chained() -> None:
+    from rsi.live import (
+        build_round1_candidates,
+        build_round2_candidates,
+        build_round3_candidates,
+        build_round4_candidates,
+    )
+    from rsi.qwen_search import build_stage2_candidates
+
+    cands = build_round4_candidates()
+    assert len(cands) == 6
+    old_ids = {c.cell_id for c in build_stage2_candidates()}
+    for builder in (build_round1_candidates, build_round2_candidates, build_round3_candidates):
+        old_ids |= {c.cell_id for c in builder()}
+    assert not ({c.cell_id for c in cands} & old_ids)
+    by_id = {c.cell_id: c for c in cands}
+    for c in cands:
+        assert c.parent_id == "root" or c.parent_id in by_id
+        methods = [ch["method"] for ch in c.recipe["changes"]]
+        assert "world_remove" in methods
+        assert "int8_embedding" in methods
+        assert "compact_embedding" not in methods
+
+
+def test_wilson_interval_covers_reported_dev_rates() -> None:
+    from rsi.live import attach_wilson, wilson_interval
+
+    assert wilson_interval(8, 10) == [0.4902, 0.9433]
+    assert wilson_interval(88, 100) == [0.8019, 0.93]
+    payload = {
+        "control": {
+            "results": [
+                {"status": "completed", "successes": 8, "episodes": 10},
+                {"status": "runtime_failure"},
+            ]
+        },
+        "selected": {"results": []},
+        "development_promotions": {
+            "control": [{"status": "completed", "successes": 88, "episodes": 100}],
+            "selected": [],
+        },
+    }
+    attach_wilson(payload)
+    assert payload["control"]["results"][0]["wilson_95"] == [0.4902, 0.9433]
+    assert "wilson_95" not in payload["control"]["results"][1]
+    assert payload["development_promotions"]["control"][0]["wilson_95"] == [0.8019, 0.93]
+
+
+def test_gate_binomial_rates_are_exact() -> None:
+    from rsi.gate import binomial_pmf, combined_oc, legacy_oc, prob_at_least, sequential_oc
+
+    assert binomial_pmf(10, 8, 0.5) == pytest.approx(45 / 1024)
+    assert prob_at_least(10, 8, 0.5) == pytest.approx(56 / 1024)
+    # Legacy 8/10 screen kills a good (p=0.87) branch with ~13% probability.
+    assert legacy_oc(0.87)["p_reject_overall"] == pytest.approx(0.13076421)
+    assert legacy_oc(0.87)["expected_trials"] == pytest.approx(10.0)
+    # Near-miss confirm (7/10 -> disjoint 10-trial screen) cuts that to ~4.4%.
+    seq = sequential_oc(0.87)
+    assert seq["p_screen_pass"] == pytest.approx(0.86923579)
+    assert seq["p_near_miss"] == pytest.approx(0.09945945)
+    assert seq["p_reject_overall"] == pytest.approx(0.04431049)
+    assert seq["p_reject_overall"] < legacy_oc(0.87)["p_reject_overall"]
+    assert seq["expected_trials"] == pytest.approx(10.99459454)
+    # Confirm helps bad branches slightly: more passes at p=0.5, still rare.
+    assert sequential_oc(0.5)["p_pass_overall"] > legacy_oc(0.5)["p_pass_overall"]
+    assert sequential_oc(0.5)["p_pass_overall"] == pytest.approx(0.06109619)
+    # Full C0 -> screen -> confirm gate and its bad-branch counterpart.
+    assert combined_oc(0.87)["p_reject_overall"] == pytest.approx(0.07525183)
+    assert combined_oc(0.87)["expected_trials"] == pytest.approx(16.63863424)
+    with pytest.raises(ValueError, match="probability"):
+        legacy_oc(1.5)
+
+
+def test_gate_decisions_and_phase_separation() -> None:
+    from rsi.gate import (
+        assert_disjoint_seeds,
+        c0_decision,
+        c0_oc,
+        confirm_decision,
+        screen_decision,
+    )
+
+    assert screen_decision(8) == "pass"
+    assert screen_decision(10) == "pass"
+    assert screen_decision(7) == "confirm"
+    assert screen_decision(6) == "reject"
+    assert screen_decision(0) == "reject"
+    assert confirm_decision(8) == "pass"
+    assert confirm_decision(7) == "reject"
+    assert c0_decision(3) == "reject"
+    assert c0_decision(4) == "continue"
+    assert c0_oc(0.87)["p_reject"] == pytest.approx(0.03237594)
+    with pytest.raises(ValueError, match="successes"):
+        screen_decision(11)
+    assert_disjoint_seeds(("screen", [0, 1]), ("confirm", [10, 11]), ("dev", [20]))
+    with pytest.raises(ValueError, match="disjoint"):
+        assert_disjoint_seeds(("screen", [0, 1]), ("confirm", [1, 2]))
+
+
+def test_develop_embeds_gate_summary(tmp_path) -> None:
+    from rsi.develop import develop_policies, gate_summary
+
+    report = develop_policies(build_synthetic_suite(), "test-r0", revisions_dir=tmp_path)
+    oc = report["records"][0]["gate"]["operating_characteristics"]
+    assert oc["legacy"]["p_reject_overall"] == pytest.approx(0.13076421)
+    assert oc["sequential"]["p_reject_overall"] == pytest.approx(0.04431049)
+    assert gate_summary()["reference_p"] == pytest.approx(0.87)
+
+
+def test_r4_revisions_archived_on_coarse_smoke_history() -> None:
+    import json as _json
+    from pathlib import Path as _Path
+
+    from rsi.develop import load_revision_candidates, real_smoke_coarse_history
+
+    history = real_smoke_coarse_history()
+    world_ids = [t.world_id for t in history]
+    # Eight smoke-phase worlds; dev-100 and reserved-500 worlds are excluded.
+    assert len(history) == 8
+    assert world_ids == [
+        "libero-smolvlm-cycle0",
+        "libero-smolvlm-cycle1",
+        "libero-smolvlm-cycle2",
+        "qwen-compression-smoke",
+        "qwen-stage2-smoke",
+        "qwen-round1",
+        "qwen-round2",
+        "qwen-round3",
+    ]
+    paths = sorted(_Path("rsi/policies/revisions").glob("r4-*.json"))
+    assert [p.name for p in paths] == [
+        "r4-retry-flip.json",
+        "r4-serial.json",
+        "r4-tuned.json",
+        "r4-wide.json",
+    ]
+    loaded = load_revision_candidates("r4")
+    assert len(loaded) == 4
+    assert all(c.cls.__name__ == "OptimalPolicy" for c in loaded)
+    for path in paths:
+        record = _json.loads(path.read_text())
+        assert record["round_id"] == "r4"
+        assert set(record["config"]) == {"beta", "gate_retry"}
+        assert record["trajectory_stats"]["worlds"] == world_ids
+        assert "InitialPolicy" in record["held_out_mean_V"]
+        assert (
+            record["held_out_mean_V"][record["parent_selection"]]
+            >= record["held_out_mean_V"]["InitialPolicy"]
+        )
+        assert record["gate"]["operating_characteristics"]["sequential"][
+            "p_reject_overall"
+        ] == pytest.approx(0.04431049)

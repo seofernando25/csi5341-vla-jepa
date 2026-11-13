@@ -1,0 +1,138 @@
+{
+  "name": "OptimalPolicy[r4-retry-flip]",
+  "round_id": "r4",
+  "base": "OptimalPolicy",
+  "config": {
+    "beta": 1.0,
+    "gate_retry": false
+  },
+  "rationale": "gate-retry ablated against the tuned arm",
+  "parent_selection": "OptimalPolicy[no-gate-retry]",
+  "parent_config": {
+    "gate_retry": false
+  },
+  "held_out_mean_V": {
+    "InitialPolicy": 0.236725,
+    "OptimalPolicy": 0.369303,
+    "OptimalPolicy[no-gate-retry]": 0.38307,
+    "GreedySerialPolicy": 0.263674,
+    "RoundRobinPolicy": 0.164356,
+    "EpsilonGreedyPolicy[eps=0.2]": 0.097265,
+    "ShallowFirstPolicy": 0.165477,
+    "TwoStageGatePolicy": 0.073561,
+    "IncumbentWithExceptions": 0.235852,
+    "RandomPolicy[seed=0]": 0.119959,
+    "RandomPolicy[seed=1]": 0.091667,
+    "RandomPolicy[seed=2]": 0.109549,
+    "OptimalPolicy[r1-retry-flip]": 0.38307,
+    "OptimalPolicy[r1-serial]": 0.369303,
+    "OptimalPolicy[r1-tuned]": 0.369303,
+    "OptimalPolicy[r1-wide]": 0.369303,
+    "OptimalPolicy[r2-retry-flip]": 0.38307,
+    "OptimalPolicy[r2-serial]": 0.369303,
+    "OptimalPolicy[r2-tuned]": 0.369303,
+    "OptimalPolicy[r2-wide]": 0.369303
+  },
+  "trajectory_stats": {
+    "worlds": [
+      "libero-smolvlm-cycle0",
+      "libero-smolvlm-cycle1",
+      "libero-smolvlm-cycle2",
+      "qwen-compression-smoke",
+      "qwen-stage2-smoke",
+      "qwen-round1",
+      "qwen-round2",
+      "qwen-round3"
+    ],
+    "nodes": 208,
+    "fail_counts": {
+      "ok": 128,
+      "runtime_failure": 1,
+      "interrupted": 2,
+      "implementation_failure": 1,
+      "gate_failed": 40,
+      "gate_near_miss": 36
+    },
+    "near_miss": 36
+  },
+  "gate": {
+    "screen": {
+      "trials": 10,
+      "pass": 8,
+      "near_miss": 7
+    },
+    "confirm": {
+      "trials": 10,
+      "pass": 8,
+      "disjoint_seeds": true
+    },
+    "reference_p": 0.87,
+    "operating_characteristics": {
+      "legacy": {
+        "true_p": 0.87,
+        "p_pass_overall": 0.8692357909163672,
+        "p_reject_overall": 0.13076420908363284,
+        "expected_trials": 10.0
+      },
+      "sequential": {
+        "true_p": 0.87,
+        "p_screen_pass": 0.8692357909163672,
+        "p_near_miss": 0.0994594541215911,
+        "p_screen_reject": 0.03130475496204174,
+        "p_confirm_pass_given_near_miss": 0.8692357909163672,
+        "p_pass_overall": 0.9556895081838586,
+        "p_reject_overall": 0.04431049181614144,
+        "expected_trials": 10.99459454121591
+      },
+      "combined": {
+        "true_p": 0.87,
+        "p_c0_reject": 0.032375936710000004,
+        "p_screen_pass": 0.841093467963592,
+        "p_near_miss": 0.09623936112973931,
+        "p_pass_overall": 0.9247481651524869,
+        "p_reject_overall": 0.07525183484751308,
+        "expected_trials": 16.63863424419739
+      },
+      "legacy_bad_p0.5": {
+        "true_p": 0.5,
+        "p_pass_overall": 0.0546875,
+        "p_reject_overall": 0.9453125,
+        "expected_trials": 10.0
+      },
+      "sequential_bad_p0.5": {
+        "true_p": 0.5,
+        "p_screen_pass": 0.0546875,
+        "p_near_miss": 0.1171875,
+        "p_screen_reject": 0.828125,
+        "p_confirm_pass_given_near_miss": 0.0546875,
+        "p_pass_overall": 0.06109619140625,
+        "p_reject_overall": 0.93890380859375,
+        "expected_trials": 11.171875
+      },
+      "combined_bad_p0.5": {
+        "true_p": 0.5,
+        "p_c0_reject": 0.65625,
+        "p_screen_pass": 0.018798828125,
+        "p_near_miss": 0.040283203125,
+        "p_pass_overall": 0.021001815795898438,
+        "p_reject_overall": 0.9789981842041016,
+        "expected_trials": 9.84033203125
+      }
+    }
+  },
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "lambda_parallel": 0.05,
+  "max_parallelism": 4,
+  "code_head": "85099938f3782b3e53f0c388443e339ea2f8a886",
+  "host": {
+    "python": "3.12.11",
+    "machine": "x86_64"
+  },
+  "created_utc": "2026-11-13T19:18:24.754347+00:00"
+}

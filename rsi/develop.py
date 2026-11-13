@@ -18,8 +18,25 @@ from typing import Any
 
 from rsi.api import GATE_NEAR_MISS
 from rsi.dream import CANDIDATE_POOL, INCUMBENT, Candidate, leave_one_world_out, replay_terms
+from rsi.gate import (
+    CONFIRM_PASS,
+    CONFIRM_TRIALS,
+    NEAR_MISS_SCORE,
+    REFERENCE_P,
+    SCREEN_PASS,
+    SCREEN_TRIALS,
+    combined_oc,
+    legacy_oc,
+    sequential_oc,
+)
 from rsi.objective import DEFAULT_BETA_GRID, DEFAULT_LAMBDA_PARALLEL, evaluate_policy_over_history
-from rsi.tree import DiscoveryTree
+from rsi.qwen_search import MEASUREMENTS_DIR, stage2_smoke_world
+from rsi.tree import (
+    DiscoveryTree,
+    from_compression_summary,
+    from_live_records,
+    partition_attempts_by_root_cycle,
+)
 
 REVISIONS_DIR = Path("rsi/policies/revisions")
 
@@ -31,6 +48,55 @@ def _code_head() -> str | None:
         ).stdout.strip()
     except (OSError, subprocess.CalledProcessError):
         return None
+
+
+def gate_summary() -> dict[str, Any]:
+    """Exact operating characteristics of legacy vs sequential gates (no simulation).
+
+    Rates are exact binomial sums from ``rsi.gate`` at the reference good-branch
+    rate (p = 0.87) and a bad-branch rate (p = 0.5). Screen/confirm seeds stay
+    disjoint and are never pooled into dev-100; reserved-500 is never touched.
+    """
+    detail = {
+        "screen": {"trials": SCREEN_TRIALS, "pass": SCREEN_PASS, "near_miss": NEAR_MISS_SCORE},
+        "confirm": {"trials": CONFIRM_TRIALS, "pass": CONFIRM_PASS, "disjoint_seeds": True},
+        "reference_p": REFERENCE_P,
+    }
+    ocs = {
+        "legacy": legacy_oc(REFERENCE_P),
+        "sequential": sequential_oc(REFERENCE_P),
+        "combined": combined_oc(REFERENCE_P),
+        "legacy_bad_p0.5": legacy_oc(0.5),
+        "sequential_bad_p0.5": sequential_oc(0.5),
+        "combined_bad_p0.5": combined_oc(0.5),
+    }
+    return {
+        **detail,
+        "operating_characteristics": ocs,
+    }
+
+
+def real_smoke_coarse_history(
+    attempts_path: str | Path = "studies/dream-rsi/attempts.jsonl",
+    compression_summary_path: str | Path = "studies/compression/summary.csv",
+) -> list[DiscoveryTree]:
+    """Rebuild the coarse smoke-only replay suite (mirrors ``run_benchmark``).
+
+    Eight smoke-phase worlds: 3 SmolVLM root cycles, Qwen compression smoke, Qwen
+    stage-2 smoke, and live rounds 1-3. Excludes dev-100 and reserved-500 worlds.
+    """
+    trees = list(partition_attempts_by_root_cycle(attempts_path))
+    comp = Path(compression_summary_path)
+    if comp.exists():
+        trees.append(from_compression_summary(comp)[0])
+    if (Path(MEASUREMENTS_DIR) / "s2-c2-tmlp10" / "smoke" / "run.json").exists():
+        trees.append(stage2_smoke_world()[0])
+    for rnd in ("live_round1", "live_round2", "live_round3"):
+        journal = Path("studies/dream-rsi") / f"{rnd}.json"
+        if journal.exists():
+            recs = json.loads(journal.read_text())["world_records"]
+            trees.append(from_live_records(recs, f"qwen-{rnd.replace('live_', '')}", rnd))
+    return trees
 
 
 def trajectory_stats(history: list[DiscoveryTree]) -> dict[str, Any]:
@@ -120,6 +186,7 @@ def develop_policies(
     out_dir.mkdir(parents=True, exist_ok=True)
     head = _code_head()
     stamped = datetime.now(UTC).isoformat()
+    gate = gate_summary()
     candidates: list[Candidate] = []
     records: list[dict[str, Any]] = []
     for tag, config, rationale in specs:
@@ -134,6 +201,7 @@ def develop_policies(
             "parent_config": sel_cand.config,
             "held_out_mean_V": {n: round(mean_held[n], 6) for n in order},
             "trajectory_stats": stats,
+            "gate": gate,
             "beta_grid": list(DEFAULT_BETA_GRID),
             "lambda_parallel": lambda_parallel,
             "max_parallelism": max_parallelism,
