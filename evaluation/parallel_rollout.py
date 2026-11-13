@@ -315,6 +315,9 @@ def parallel_rollout(
                     queued = chunk.transpose(0, 1)[:n_action_steps]  # [n, N, D]
                     for slot, wid in enumerate(needy):
                         state[wid]["queue"].extend(queued[:, slot, :].unbind(0))
+                        action = state[wid]["queue"].pop(0)
+                        command = state[wid]["pipeline"].post(action.unsqueeze(0))
+                        state[wid]["conn"].send(command[0].float().cpu().numpy())
                 # Serve every worker holding a queued action (no inference needed).
                 for wid, w in state.items():
                     if w["done"] or "pending_raw" not in w or not w["queue"]:
