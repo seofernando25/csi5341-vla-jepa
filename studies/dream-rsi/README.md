@@ -1,4 +1,4 @@
-# Dream-RSI search (closed)
+# Dream-RSI search (reopened: fidelity repair)
 
 Optional arm: an automated search over SmolVLM conditioning architectures, scored by held-out
 prediction loss. It found lower loss but no successful policy.
@@ -15,8 +15,8 @@ screen, promotion and loss/latency plots. The earlier search harness was archive
 
 ## Dream-RSI integration and replay benchmark
 
-Completed Dream-RSI integration under `rsi/` following arXiv:2609.14858v2 (Algorithm 1, Eq. 1,
-Appendix D.2 Listing 2):
+Completed Dream-RSI integration under `rsi/` following arXiv:2609.14858v2 (Eq. 1,
+Appendix D.2 Listing 2; the paper states no numbered algorithm):
 
 - [api.py](../../rsi/api.py): prefix-only `Observation`, `CellMeta`, `GridPlanningContext`,
   `GridPlan`, `SimResult`, and `LLMDesignedMethod` interface.
@@ -32,32 +32,53 @@ Appendix D.2 Listing 2):
 
 Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.json](dream_benchmark.json)).
 
-| Suite | $W$ | Initial $V$ | Optimal $V$ | Optimal penalty | Selected | $\Delta V$ |
-|---|---:|---:|---:|---:|---|---:|
-| `smolvlm_full` (27 nodes) | 1 | 0.8759 | 0.8759 | 1.000 | `InitialPolicy` | +0.0000 |
-| `smolvlm_full` (27 nodes) | 2 | 0.8759 | 0.8900 | 0.718 | `OptimalPolicy` | +0.0141 |
-| `smolvlm_full` (27 nodes) | 4 | 0.8759 | 0.8931 | 0.656 | `OptimalPolicy` | +0.0172 |
-| `smolvlm_cycles` (3 worlds) | 1 | 0.4750 | 0.6299 | 1.000 | `OptimalPolicy` | +0.1549 |
-| `smolvlm_cycles` (3 worlds) | 2 | 0.4750 | 0.6461 | 0.675 | `OptimalPolicy` | +0.1711 |
-| `smolvlm_cycles` (3 worlds) | 4 | 0.4750 | 0.6496 | 0.605 | `OptimalPolicy` | +0.1746 |
-| `synthetic_suite` (4 worlds) | 1 | 0.2855 | 0.2754 | 1.000 | `InitialPolicy` | -0.0101 |
-| `synthetic_suite` (4 worlds) | 2 | 0.2855 | 0.4425 | 0.623 | `OptimalPolicy` | +0.1570 |
-| `synthetic_suite` (4 worlds) | 4 | 0.2855 | 0.4456 | 0.517 | `OptimalPolicy` | +0.1601 |
-| `qwen_compression` (162 smoke + 23 dev) | 1 | 0.1949 | 0.3323 | 1.000 | `OptimalPolicy` | +0.1374 |
-| `qwen_compression` (162 smoke + 23 dev) | 2 | 0.1949 | 0.3413 | 0.738 | `OptimalPolicy` | +0.1464 |
-| `qwen_compression` (162 smoke + 23 dev) | 4 | 0.1949 | 0.3432 | 0.699 | `OptimalPolicy` | +0.1483 |
+### Fidelity repair: what the replay scores can and cannot say
+
+- Scores are Eq. (1) replay values $V$, not LIBERO success. Worlds are not independent: the
+  three SmolVLM cycles split one search run, the Qwen chains are synthesized from a grid study,
+  and the synthetic worlds are hand-made. The policy-development agent ($M$ new versions per
+  cycle) was never built; the pool holds hand-written stand-ins, so "selection" ranks
+  fixed baselines instead of improving a policy.
+- In-sample $V$ (selection and score on the same worlds) overstates rank stability.
+  Leave-one-world-out $V$ selects on the other worlds of the suite and scores the held-out
+  world. Smoke and development never share a $V$; the development world is in-sample only
+  (one world cannot leave-one-out).
+- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_derived` (5 worlds) mean selected $V=0.5662$
+  vs incumbent $0.3421$, selected beats incumbent in 5/5 folds, always
+  `OptimalPolicy[no-gate-retry]`; `synthetic` (4 worlds) $0.4456$ vs $0.2855$, 4/4 folds,
+  always `OptimalPolicy`. Flips: on held-out `qwen-compression-smoke` the best replay is
+  `RandomPolicy[seed=2]`, not the selection; at $W=1$ synthetic folds split 2/2 and
+  `synth-late-bloomer` favors the incumbent. Single-suite in-sample $V$ on
+  `qwen_compression_smoke` ($W\ge 4$) picks `RandomPolicy[seed=*]` seed luck; pooled and
+  held-out selection picks an `OptimalPolicy` variant.
+- Sensitivity ($\lambda \in \{0,0.01,0.05,0.1,0.2\} \times W \in \{1,2,4,8\}$):
+  selection is stable across the grid (`OptimalPolicy` on synthetic,
+  `OptimalPolicy[no-gate-retry]` on real smoke; one $W=1$ fold flips to `OptimalPolicy`).
+  Each cell in `dream_benchmark.json` records hypervolume and parallelism penalty separately.
+- Pool: `InitialPolicy` incumbent (argmax ties resolve to it) vs `OptimalPolicy`,
+  `OptimalPolicy[no-gate-retry]`, greedy-serial, round-robin, and three fixed-seed random
+  policies. Beta is swept ($\rho \in \{0,0.25,0.5,0.75,1\}$), not fixed per candidate, so no
+  fixed-beta variants exist.
 
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 
 Using `OptimalPolicy` (`W=4`, $\beta=1.0$) in [qwen_search.py](../../rsi/qwen_search.py) over 5
-mixed-precision/pruning branches between `C1` (`838.5 MB`) and `C2` (`977.8 MB`):
+mixed-precision/pruning branches between the restricted-vocabulary bases `T1` (`838.5 MB`) and
+`T2` (`977.8 MB`) (Study B recipes `deploy-nf4-vision-text-channels-restricted` and
+`deploy-hqq2-vision-action-restricted`; not the report's C1/C2):
 
 - **Smoke phase (8 probes, 2 decision rounds, 10 trials each):** 3 candidates passed the
   $\ge 8/10$ gate (`s2-c2-t10-v25`: `8/10`, `904.8 MB`; `s2-c2-tlay2`: `8/10`, `925.5 MB`;
   `s2-c2-vmlp25`: `8/10`, `961.6 MB`). Tighter cuts (`s2-c2-t15-v35`, `s2-c2-tmlp10`,
   `s2-c1-hqq2-act`, `s2-c2-tlay4` at `7/10`; `s2-c2-vmlp50` at `6/10`) were pruned.
 - **Development promotion (100 trials, `NVIDIA GeForce RTX 5060 Ti`, 402.7 s):**
-  `s2-c2-t10-v25` (`C2` + `10%` `text_mlp` + `25%` `vision_mlp` pruning) scored **85/100 (85.0%)**
+  `s2-c2-t10-v25` (`T2` + `10%` `text_mlp` + `25%` `vision_mlp` pruning) scored **85/100 (85.0%)**
   with **904.8 MB** (`904,848,818` bytes, **−83.64%** vs. `B16`), beating the `77/100` gate,
-  `B16` (`82/100`), and `C1` (`82/100`), and saving `73.0 MB` vs. `C2` (`977.8 MB`, `87/100`).
+  `B16` (`82/100`), and `T1` (`82/100`), and saving `73.0 MB` vs. `T2` (`977.8 MB`, `87/100`).
 - **Evidence:** [qwen_stage2.json](qwen_stage2.json). Reserved 500 trials remain untouched.
+- **Caveats:** the live journal probed 8 of 15 grid cells, so the committed
+  `s2-c2-tmlp20` smoke measurement (`8/10`, `863.8 MB` by linear derivation, absent from the
+  journal) never faced the promotion gate; its `run.json` summary phase field reads
+  `development` but the run holds 10 episodes under `smoke/`, so the replay treats it as a
+  10-trial smoke node. The replay `qwen-stage2-smoke` world therefore has 9 nodes, all
+  10-trial smoke; no development measurements enter it.
