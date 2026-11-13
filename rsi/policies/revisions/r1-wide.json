@@ -1,0 +1,58 @@
+{
+  "name": "OptimalPolicy[r1-wide]",
+  "round_id": "r1",
+  "base": "OptimalPolicy",
+  "config": {
+    "beta": 0.75,
+    "gate_retry": true
+  },
+  "rationale": "high-beta parallel exploration arm",
+  "parent_selection": "OptimalPolicy[no-gate-retry]",
+  "parent_config": {
+    "gate_retry": false
+  },
+  "held_out_mean_V": {
+    "InitialPolicy": 0.342094,
+    "OptimalPolicy": 0.544152,
+    "OptimalPolicy[no-gate-retry]": 0.566178,
+    "GreedySerialPolicy": 0.385212,
+    "RoundRobinPolicy": 0.289637,
+    "RandomPolicy[seed=0]": 0.209601,
+    "RandomPolicy[seed=1]": 0.164335,
+    "RandomPolicy[seed=2]": 0.192946
+  },
+  "trajectory_stats": {
+    "worlds": [
+      "libero-smolvlm-cycle0",
+      "libero-smolvlm-cycle1",
+      "libero-smolvlm-cycle2",
+      "qwen-compression-smoke",
+      "qwen-stage2-smoke"
+    ],
+    "nodes": 198,
+    "fail_counts": {
+      "ok": 124,
+      "runtime_failure": 1,
+      "interrupted": 2,
+      "implementation_failure": 1,
+      "gate_failed": 36,
+      "gate_near_miss": 34
+    },
+    "near_miss": 34
+  },
+  "beta_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "lambda_parallel": 0.05,
+  "max_parallelism": 4,
+  "code_head": "e2bf17078546fd0ee05e62b72c3d16bbf2042044",
+  "host": {
+    "python": "3.12.11",
+    "machine": "x86_64"
+  },
+  "created_utc": "2026-11-13T17:39:26.387490+00:00"
+}

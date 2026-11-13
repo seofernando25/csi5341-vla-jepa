@@ -44,7 +44,8 @@ class Candidate:
 
 
 INCUMBENT = Candidate("InitialPolicy", InitialPolicy)
-# Hand-written stand-ins for the paper's M policy versions; no policy-development agent wrote them.
+# Base pool. Per-round M=4 revisions from the policy-development agent (rsi/develop.py)
+# join the pool at selection time; the names below are the hand-written starting versions.
 CANDIDATE_POOL: tuple[Candidate, ...] = (
     Candidate("OptimalPolicy", OptimalPolicy),
     Candidate("OptimalPolicy[no-gate-retry]", OptimalPolicy, {"gate_retry": False}),
@@ -207,8 +208,8 @@ def recommend_next_beta(
 class DreamEngine:
     """Offline dreaming policy evaluation and selection (paper Section 3, Eq. 1).
 
-    Covers "Offline evaluation" and the argmax of "Policy improvement and selection". The
-    policy-development agent that writes new versions is not implemented; callers pass candidates.
+    Covers "Offline evaluation" and the argmax of "Policy improvement and selection". New
+    versions come from the policy-development agent (rsi/develop.py); callers pass candidates.
     """
 
     def __init__(
