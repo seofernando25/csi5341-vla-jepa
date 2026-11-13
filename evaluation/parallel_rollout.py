@@ -262,8 +262,6 @@ def parallel_rollout(
                         w["conn"].close()
                         alive -= 1
                         procs[wid].join(timeout=60)
-                for alive_check in ():
-                    pass
                 # Batched inference for workers that asked and whose queue is empty.
                 needy = [
                     wid
