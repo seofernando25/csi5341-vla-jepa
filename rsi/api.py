@@ -5,6 +5,17 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+GATE_NEAR_MISS = "gate_near_miss"
+GATE_FAILED = "gate_failed"
+# One literal per fail class; policies compare against these constants, never raw strings.
+
+
+def gate_fail_class(successes: int, gate: int, near_miss: int = 1) -> str:
+    """Classify a success count against a gate; `near_miss` successes short is a near miss."""
+    if successes >= gate:
+        return "ok"
+    return GATE_NEAR_MISS if gate - successes <= near_miss else GATE_FAILED
+
 
 @dataclass(frozen=True)
 class Observation:

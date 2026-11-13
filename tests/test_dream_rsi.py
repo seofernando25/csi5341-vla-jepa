@@ -4,8 +4,19 @@ from __future__ import annotations
 
 import pytest
 
-from rsi.api import GridPlan, GridPlanningContext
-from rsi.dream import DreamEngine, build_synthetic_suite, recommend_next_beta, run_benchmark
+from rsi.api import GATE_FAILED, GATE_NEAR_MISS, GridPlan, GridPlanningContext, gate_fail_class
+from rsi.dream import (
+    CANDIDATE_POOL,
+    INCUMBENT,
+    DreamEngine,
+    build_synthetic_suite,
+    leave_one_world_out,
+    recommend_next_beta,
+    replay_terms,
+    run_benchmark,
+    select_from_terms,
+    sensitivity_grid,
+)
 from rsi.objective import BetaPoint, compute_eq1_score, evaluate_policy_on_tree, pareto_frontier
 from rsi.policies import InitialPolicy, OptimalPolicy
 from rsi.qwen_search import B16_RESIDENT_BYTES, LiveQwenQuestion, build_stage2_candidates
@@ -181,7 +192,86 @@ def test_run_benchmark_smoke(tmp_path) -> None:
     payload = run_benchmark(output_path=out_file, parallelism_levels=(1, 4))
     assert out_file.exists()
     assert payload["attempts_count"] == 27
-    assert "smolvlm_full" in payload["suites"]
-    assert "smolvlm_cycles" in payload["suites"]
-    assert "synthetic_suite" in payload["suites"]
-    assert "qwen_compression" in payload["suites"]
+    assert "smolvlm_full" in payload["in_sample"]
+    assert "smolvlm_cycles" in payload["in_sample"]
+    assert "synthetic_suite" in payload["in_sample"]
+    assert "qwen_compression_smoke" in payload["in_sample"]
+    assert "qwen_compression_development" in payload["in_sample"]
+    # Smoke and development never share a V: separate hold-out suites.
+    assert "real_smoke_derived" in payload["held_out"]
+    assert "synthetic" in payload["held_out"]
+    assert "qwen_compression_development" not in payload["held_out"]
+    for suite_data in payload["held_out"].values():
+        for row in suite_data.values():
+            assert "folds" in row
+            assert set(row["mean_held_out_reward_by_policy"]) >= {payload["incumbent"]}
+    # Sensitivity records hypervolume and penalty separately per (lambda, W) cell.
+    assert len(payload["sensitivity"]["synthetic"]) == 2 * len(payload["lambda_grid"])
+    for cell in payload["sensitivity"]["synthetic"]:
+        assert "selected_hypervolume" in cell and "selected_parallel_penalty" in cell
+        assert cell["selected_reward"] == pytest.approx(
+            cell["selected_hypervolume"] - cell["lambda"] * cell["selected_parallel_penalty"]
+        )
+
+
+def test_gate_fail_class_uses_shared_constants() -> None:
+    assert gate_fail_class(8, 8) == "ok"
+    assert gate_fail_class(7, 8) == GATE_NEAR_MISS
+    assert gate_fail_class(6, 8) == GATE_FAILED
+    assert gate_fail_class(7, 8, near_miss=0) == GATE_FAILED
+
+
+def test_candidate_pool_covers_families_and_incumbent_wins_ties() -> None:
+    names = [c.name for c in CANDIDATE_POOL]
+    assert any("RandomPolicy" in n for n in names)
+    assert any("RoundRobin" in n for n in names)
+    assert any("GreedySerial" in n for n in names)
+    assert "OptimalPolicy" in names and "OptimalPolicy[no-gate-retry]" in names
+    assert INCUMBENT.name == "InitialPolicy"
+
+    synth = build_synthetic_suite()
+    pool = [INCUMBENT, *CANDIDATE_POOL]
+    world_ids = [t.world_id for t in synth]
+    # Incumbent is first in the pool, so it wins argmax ties.
+    tied = {c.name: {w: (1.0, 0.0) for w in world_ids} for c in pool}
+    assert select_from_terms(tied, world_ids, 0.05) == INCUMBENT.name
+
+
+def test_leave_one_world_out_reports_selection_vs_incumbent() -> None:
+    synth = build_synthetic_suite()
+    pool = [INCUMBENT, *CANDIDATE_POOL]
+    terms = replay_terms(pool, synth, 4)
+    world_ids = [t.world_id for t in synth]
+    lowo = leave_one_world_out(terms, world_ids, 0.05)
+    assert len(lowo["folds"]) == len(world_ids)
+    for fold in lowo["folds"]:
+        assert set(fold["held_out_reward_by_policy"]) == set(terms)
+    assert lowo["mean_selected_reward"] >= lowo["mean_incumbent_reward"] - 1e-9
+    with pytest.raises(ValueError, match="at least two worlds"):
+        leave_one_world_out(terms, world_ids[:1], 0.05)
+
+
+def test_sensitivity_grid_covers_lambda_and_W() -> None:
+    from rsi.dream import LAMBDA_GRID, PARALLELISM_GRID
+
+    synth = build_synthetic_suite()
+    pool = [INCUMBENT, *CANDIDATE_POOL]
+    terms_by_w = {w: replay_terms(pool, synth, w) for w in PARALLELISM_GRID}
+    world_ids = [t.world_id for t in synth]
+    cells = sensitivity_grid(terms_by_w, world_ids)
+    assert len(cells) == len(PARALLELISM_GRID) * len(LAMBDA_GRID)
+    for cell in cells:
+        assert cell["selected_reward"] == pytest.approx(
+            cell["selected_hypervolume"] - cell["lambda"] * cell["selected_parallel_penalty"]
+        )
+
+
+def test_stage2_smoke_world_includes_tmlp20() -> None:
+    from rsi.qwen_search import stage2_smoke_world
+
+    tree, records = stage2_smoke_world()
+    by_id = {r["candidate"]: r for r in records}
+    # Committed 10-trial smoke measurement, absent from qwen_stage2.json.
+    assert by_id["s2-c2-tmlp20"]["smoke_successes"] == 8
+    assert by_id["s2-c2-tmlp20"]["smoke_episodes"] == 10
+    assert tree.nodes["s2-c2-tmlp20"].fail_class == "ok"
