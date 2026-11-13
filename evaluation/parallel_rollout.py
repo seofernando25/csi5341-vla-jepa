@@ -333,6 +333,7 @@ def parallel_rollout(
         for proc in procs.values():
             proc.join(timeout=30)
     per_task = [np.mean([r["success"] for r in records if r["task_id"] == t]) for t in tasks]
+    torch.cuda.synchronize()
     return {
         "episodes": len(records),
         "successes": sum(r["success"] for r in records),
@@ -341,6 +342,7 @@ def parallel_rollout(
         "task_macro_success": float(np.mean(per_task)),
         "wall_seconds": time.perf_counter() - started_all,
         "workers": workers,
+        "peak_allocated_gb": torch.cuda.max_memory_allocated() / 1e9,
     }
 
 
