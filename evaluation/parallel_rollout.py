@@ -382,8 +382,9 @@ def main():
             try:
                 for trial in range(episodes):
                     seed = episode_seed(task_id, trial, args.phase)
-                    ok, _, elapsed = profile_episode(policy, Pipeline(policy), env, task, seed)
+                    ok, steps, elapsed = profile_episode(policy, Pipeline(policy), env, task, seed)
                     successes += ok
+                    print(f"serial task={task_id} trial={trial} success={ok} steps={steps}")
                     for stage, seconds in elapsed.items():
                         totals[stage] = totals.get(stage, 0.0) + seconds
             finally:
