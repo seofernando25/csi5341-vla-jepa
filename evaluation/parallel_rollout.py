@@ -132,6 +132,9 @@ def profile_episode(policy, pipeline, env, task, seed) -> tuple[bool, int, dict[
 
 def _worker_main(conn, task_ids: list[int], phase: str, episodes: int):
     """Own whole tasks: reset/step envs, ask the server for each action."""
+    import os
+
+    conn.send(("boot", os.getpid()))
     from lerobot.utils.random_utils import set_seed
 
     from evaluation.simulator import make_environment
@@ -236,7 +239,9 @@ def parallel_rollout(
                     except EOFError:
                         message = ("exhausted",)
                     kind = message[0]
-                    if kind == "episode_start":
+                    if kind == "boot":
+                        print(f"worker {wid} booted pid={message[1]}", flush=True)
+                    elif kind == "episode_start":
                         _, task_id, trial = message
                         w["key"] = (task_id, trial)
                         w["pipeline"].reset()
