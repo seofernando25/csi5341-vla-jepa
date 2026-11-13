@@ -213,9 +213,87 @@ def build_round1_candidates() -> list[Stage2Candidate]:
     return candidates
 
 
+def _g32_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        {"method": "world_remove"},
+        {"method": "compact_embedding"},
+        {"method": "bnb", "scope": "text", "bits": 4},
+        {
+            "method": "hqq",
+            "scope": "vision_blocks",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {
+            "method": "hqq",
+            "scope": "action_mlp",
+            "bits": 2,
+            "axis": 0,
+            "group_size": 32,
+            "backend": "pytorch",
+        },
+        {"method": "bnb", "scope": "action_attention", "bits": 4},
+        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
+        {"method": "bnb", "scope": "merger", "bits": 4},
+    ]
+
+
+def _chain(
+    specs: list[tuple[str, list[tuple[str, list[dict[str, Any]]]]]],
+    start_seq: int = 0,
+) -> list[Stage2Candidate]:
+    candidates: list[Stage2Candidate] = []
+    seq = start_seq
+    for b_idx, (fam, chain) in enumerate(specs):
+        parent_id = "root"
+        for a_idx, (cid, changes) in enumerate(chain):
+            candidates.append(
+                Stage2Candidate(
+                    cell_id=cid,
+                    branch=b_idx,
+                    attempt=a_idx,
+                    parent_id=parent_id,
+                    seq=seq,
+                    family=fam,
+                    recipe={"id": cid, "family": fam, "changes": changes},
+                )
+            )
+            parent_id = cid
+            seq += 1
+    return candidates
+
+
 def build_round2_candidates() -> list[Stage2Candidate]:
-    """Placeholder replaced after Round 1: refinements around the Round 1 winner."""
-    raise NotImplementedError("Round 2 grid is defined from Round 1 results")
+    """Fresh 2-branch x 3-attempt refinements around the Round 1 winner (r1-t20-v45-g32).
+
+    Round 1 selected arm: 3/5 smoke passes on the g32 branch, best `r1-t20-v45-g32`
+    (`8/10`, `853.1 MB`, dev `83/100`). Round 2 tightens pruning on that base.
+    All cell IDs are new (`r2-*`); no committed measurements exist for them.
+    """
+    return _chain(
+        [
+            (
+                "r2_tight",
+                [
+                    ("r2-t25-v50-g32", _g32_changes(0.25, 0.50)),
+                    ("r2-t30-v55-g32", _g32_changes(0.30, 0.55)),
+                    ("r2-t30-v60-g32", _g32_changes(0.30, 0.60)),
+                ],
+            ),
+            (
+                "r2_mix",
+                [
+                    ("r2-t20-v50-g32", _g32_changes(0.20, 0.50)),
+                    ("r2-t25-v45-g32", _g32_changes(0.25, 0.45)),
+                    ("r2-t25-v55-g32", _g32_changes(0.25, 0.55)),
+                ],
+            ),
+        ]
+    )
 
 
 def make_evaluator(

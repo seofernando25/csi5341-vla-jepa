@@ -403,3 +403,18 @@ def test_run_arm_uses_fixed_budget_with_mock(tmp_path) -> None:
         _live.run_compression_subprocess = _orig
     assert 0 < arm["probes_used"] <= 4
     assert journals["stage"].exists()
+
+
+def test_round2_grid_is_fresh_and_chained() -> None:
+    from rsi.live import build_round1_candidates, build_round2_candidates
+    from rsi.qwen_search import build_stage2_candidates
+
+    cands = build_round2_candidates()
+    assert len(cands) == 6
+    old_ids = {c.cell_id for c in build_stage2_candidates()} | {
+        c.cell_id for c in build_round1_candidates()
+    }
+    assert not ({c.cell_id for c in cands} & old_ids)
+    by_id = {c.cell_id: c for c in cands}
+    for c in cands:
+        assert c.parent_id == "root" or c.parent_id in by_id
