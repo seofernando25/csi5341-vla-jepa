@@ -1,0 +1,79 @@
+# Narration source. One sentence per line; a line is one TTS call.
+# Syntax: *emphasis*   {shown|spoken}   @cue:token (visual trigger at that word)
+# Facts trace to studies/ (reserved-500 arms), studies/dream-rsi/ (attempts, audits, rounds R1-R6).
+
+# hook | THE HOOK
+Our AI designed a robot brain that tested @better:*better*.
+Then the robot scored @zero:*{0/10|zero out of ten}*.
+
+# idea | THE IDEA
+This is @title:*{Dream-RSI|Dream R S I}*: a way to make AI search *smarter*.
+An agent explores ideas, one *branch* at a time, and @gpu:every test burns a *GPU run*.
+So @who:*who decides* which branch comes next?
+
+# dream | THE DREAM
+{Dream-RSI|Dream R S I} keeps the *history*.
+Every past search becomes a *replay simulator*.
+@walk:A new strategy can walk that old tree in *milliseconds*.
+@nogpu:No GPU. That's the *dream*.
+@keep:Keep the best strategy. @never:*Never downgrade.*
+
+# loop | THE LOOP
+Then deploy it, search live, and feed the new history *back in*.
+@l1:Search. @l2:Remember. @l3:Dream. @l4:Select. *Repeat.*
+
+# code | THE CODEBASE
+Our codebase compresses a released robot policy called @vla:*VLA-JEPA*, and every part has a job.
+@eval:*evaluation* runs the rollouts and the timing; @fast:*fastpath* is the CUDA-graph engine; @nf:*{NF4|N F four}* quantizes the weights.
+@comp:*compression* turns recipes into transforms into measurements; @rsimod:*{rsi|R S I}* holds tonight's search; @studies:*studies* holds the evidence.
+
+# arms | THE HEADLINE ARMS
+The scoreboard comes from reserved @five:*{500|five hundred}* trials that nobody tunes against.
+@b16:Baseline {B16|B sixteen}: {475/500|four seventy five of five hundred}, {95.0%|ninety five percent}.
+@c1:{C1|C one}, full-vocabulary {4-bit|four bit}: {484/500|four eighty four of five hundred}, {96.8%|ninety six point eight percent}, at {1.38 GB|one point three eight gigabytes}.
+@c2:{C2|C two}, CUDA graphs plus {4-bit|four bit}: {490/500|four ninety of five hundred}, {98.0%|ninety eight percent}, in {31.6|thirty one point six} milliseconds.
+
+# project | THE FIRST ATTEMPT
+First attempt: swap the Qwen brain for a tiny @smol:*SmolVLM*.
+A @llm:language model proposed {27|twenty seven} adapters. The best cut held-out loss from @loss:*{0.32|point three two}* to *{0.28|point two eight}*.
+
+# fail | THE FAILURE
+We trained it for {10,000|ten thousand} steps. @zero2:Zero for ten.
+The bug: our GPU pipeline @twice:*rescaled every image twice*.
+Contrast crushed @x255:*{255x|two hundred fifty five times}*. The search had ranked brains staring at *mush*.
+Even repaired, the swap recovered to {31/100|thirty one of a hundred} against {82|eighty two} for the baseline.
+@lossnot:*Loss is not success.*
+
+# audit | THE AUDIT
+Second attempt: skip training, compress the Qwen policy directly, on an @ti:*{RTX 5060 Ti|R T X 5060 Ti}*.
+Eight smoke probes; the winner @win2:*s2-c2-t10-v25* hit {85/100|eighty five of a hundred} at {904.8|nine hundred four point eight} megabytes.
+Then we audited it against the paper. The scoring was @faithful:*faithful*, but the replay was @insample:*in-sample*.
+The base was the restricted-vocabulary @t2:*T2* arm, not the report's {C2|C two}.
+The {8/10|eight of ten} gate @fkill:*falsely killed {13.08%|thirteen point oh eight percent}* of good branches, and @m4:{M=4|M equals four} revision plus a frozen-policy control were @missing:*missing*.
+
+# fix | THE REPAIR KIT
+Tonight, on an @gpu3090:*{RTX 3090|R T X 3090}*, we repaired all four.
+Leave-one-world-out replay across @worlds:*{33+|thirty three plus}* worlds: the adaptive policy won @coarse:*{10/10|ten of ten}* coarse folds, {0.3854|point three eight five four} to {0.2192|point two one nine two}, and @live5:*{5/5|five of five}* live folds.
+We built the @m4gen:{M=4|M equals four} revision generator, the @gate:exact-binomial sequential gate cutting false kills to @fk:*{4.43%|four point four three percent}*, and a @par:parallel rollout harness.
+
+# live | LIVE ROUNDS 1 TO 3
+Live round one: the selected policy found @three:*three* passing cells where the frozen control found @zeroc:*zero*.
+We promoted @r1:*r1-t20-v45-g32*: {83/100|eighty three of a hundred} at {853.1|eight fifty three point one} megabytes, {124.7|a hundred twenty four point seven} under {T2|T two}.
+Round two found the pruning cliff near @cliff:*{820|eight twenty} to {845|eight forty five}* megabytes: {0/2|zero of two} passes on both arms.
+Round three promoted @r3:*r3-t15-v40-g32*: {88/100|eighty eight of a hundred}, interval {80.2|eighty point two} to {93.0|ninety three point zero}, at {885.1|eight eighty five point one} megabytes.
+
+# jump | THE FULL-VOCAB JUMP
+Round four jumped to the full-vocabulary {C1|C one} base. All @five5:*five* probes passed smoke.
+@r4:*r4-c1-t15-v35-g32* scored {86/100|eighty six of a hundred} at {1199.6|eleven ninety nine point six} megabytes, {88.8|eighty eight point eight} under {C1|C one}, and even @s1:*single-step* solving passed {8/10|eight of ten}.
+Round five tested untouched axes: {3-bit|three bit} vision hit {85/100|eighty five of a hundred} at {876|eight seventy six} megabytes.
+Tasks {0, 5, and 8|zero, five and eight} proved @ctrl:*control-bottlenecked*, not bitwidth-bottlenecked, and {12.5%|twelve point five percent} head pruning @fail6:failed at {6/10|six of ten}.
+
+# tasks | WHY 83 TO 88
+Why does every dev run stall at {83|eighty three} to {88|eighty eight}?
+Seven of ten spatial tasks score {90|ninety} to {100|a hundred} percent.
+Tasks @t0:*zero*, @t5:*five*, and @t8:*eight* sit at {40|forty} to {70|seventy}. The gripper, not the quantization, is the ceiling.
+
+# close | WHERE WE STOPPED
+Round six, a {C2|C two} plus full-precision-action grid, is @staged:*staged in code*.
+The reserved {500|five hundred} trials remain @untouched:*one hundred percent untouched*. Experiments @freeze:*freeze here*.
+We finalize the five-page report and the presentation. @robot:*Only the robot* tells the truth.

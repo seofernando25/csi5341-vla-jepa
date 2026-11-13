@@ -1,0 +1,22 @@
+{
+  "name": "dream-rsi-explainer",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "prep": "bun tools/prep.mjs",
+    "tts": "bun tools/tts.mjs",
+    "align": "./.venv-align/bin/python tools/align.py",
+    "audio": "./.venv-align/bin/python tools/audio.py",
+    "capture": "bun tools/capture.mjs",
+    "mux": "bun tools/mux.mjs",
+    "build": "bun run prep && bun run tts && bun run align && bun run audio && bun run capture && bun run mux"
+  },
+  "dependencies": {
+    "@fontsource/inter": "5.2.8",
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "p5": "1.11.3",
+    "playwright-core": "1.49.1",
+    "three": "0.170.0"
+  }
+}
