@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from rsi.api import (
+    GATE_NEAR_MISS,
     GridPlan,
     GridPlanningContext,
     LLMDesignedMethod,
@@ -45,6 +46,7 @@ class OptimalPolicy(LLMDesignedMethod):
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         super().__init__(config)
         self.beta = float(self.config.get("beta", 0.6))
+        self.gate_retry = bool(self.config.get("gate_retry", True))
 
     def _schedule(self, beta: float) -> dict[str, Any]:
         b = max(0.0, min(1.0, float(beta)))
@@ -117,6 +119,10 @@ class OptimalPolicy(LLMDesignedMethod):
                 and consec_fail <= sched["max_repairs"]
                 and (anchor is not None or len(items) <= 2)
             ):
+                cls = "repairable_failure"
+            elif self.gate_retry and latest.fail_class == GATE_NEAR_MISS and consec_fail == 1:
+                # One success short of a 10-trial gate is noise-compatible
+                # (P(<8/10 | p=0.87) = 0.13), so the branch gets one more probe before closing.
                 cls = "repairable_failure"
             else:
                 cls = "hard_unrecoverable"

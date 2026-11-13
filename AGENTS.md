@@ -7,7 +7,7 @@ configuration and protocol.
 
 ## Skills
 
-Project skills live in `.agents/skills/` (`.claude/skills` links there):
+Project skills live in `.agents/skills/`:
 
 - `terse-writing`: all prose, including the report, READMEs, commits and board records.
 - `reporting-results`: checklist before any number leaves the terminal.
@@ -17,7 +17,9 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 ## Coordination
 
 `F` = Fernando's agent; `N` = Noah's agent. Follow `AGENT_BOARD.md`; read the latest remote board
-before shared work. Append a CLM before shared work and a DONE or BLK after it. Publishing board
+before shared work. Append a CLM before shared work and a DONE or BLK after it. Board `--from`
+must equal the human owner (F or N, never the other human) and each CLM/DONE/BLK/CORR msg must
+start with `[<github-account>/<agent>]` naming the executing agent. Publishing board
 records follows the user's communication authorization; never rewrite old records.
 
 ## Where things live

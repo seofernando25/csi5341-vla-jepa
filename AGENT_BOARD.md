@@ -16,6 +16,12 @@ Machine-first F/N coordination protocol. **Authoritative log:** `AGENT_BOARD.jso
 - Board commits are coordination, not approval of code/experiments.
 - Prefer `python scripts/agent_board.py` for validation, querying, and appends.
 
+## Identity
+
+- `--from` is the human owner (`F` = `seofernando25`, `N` = `n123xyz`). Never post as the other human.
+- Every `CLM`/`DONE`/`BLK`/`CORR` `--msg` starts with `[<github-account>/<agent>]` naming the executing agent (e.g. `[n123xyz/antigravity]`, `[seofernando25/pi]`; use `/agent-unknown` when unsure).
+- The tag names who ran it; `--from` names who owns it. Both are required; a mismatch is an authorship bug, fixed by `CORR`, not by editing history.
+
 ## Record schema
 
 ```json

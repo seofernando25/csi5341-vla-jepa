@@ -30,17 +30,26 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(payload, indent=2))
         else:
             print(f"Dream-RSI benchmark completed in {payload['elapsed_ms']} ms")
-            for suite_name, suite_data in payload["suites"].items():
-                print(f"\n[{suite_name}]")
+            inc = payload["incumbent"]
+            print("\nIn-sample replay score V (selection and score on the same worlds)")
+            for suite_name, suite_data in payload["in_sample"].items():
+                print(f"[{suite_name}]")
                 for w_key, row in suite_data.items():
-                    init_r = row["initial"]["pareto"]["reward"]
-                    opt_r = row["optimal"]["pareto"]["reward"]
-                    init_p = row["initial"]["pareto"]["parallel_penalty"]
-                    opt_p = row["optimal"]["pareto"]["parallel_penalty"]
+                    sel = row["selected_policy"]
                     print(
-                        f"  {w_key}: Initial V={init_r:.4f} (pen={init_p:.3f}) | "
-                        f"Optimal V={opt_r:.4f} (pen={opt_p:.3f}) | "
-                        f"selected={row['selected_policy']} (dV={row['delta_reward']:+.4f})"
+                        f"  {w_key}: {inc} V={row['policies'][inc]['reward']:.4f} | "
+                        f"selected={sel} V={row['policies'][sel]['reward']:.4f} "
+                        f"(dV={row['delta_reward']:+.4f})"
+                    )
+            print("\nLeave-one-world-out replay score V (mean over held-out worlds)")
+            for suite_name, suite_data in payload["held_out"].items():
+                print(f"[{suite_name}]")
+                for w_key, row in suite_data.items():
+                    print(
+                        f"  {w_key}: {inc} V={row['mean_incumbent_reward']:.4f} | "
+                        f"selected V={row['mean_selected_reward']:.4f} | selected beats/below "
+                        f"incumbent in {row['folds_selected_beats_incumbent']}/"
+                        f"{row['folds_selected_below_incumbent']} of {len(row['folds'])} folds"
                     )
         return 0
     if args.cmd == "qwen-stage2":

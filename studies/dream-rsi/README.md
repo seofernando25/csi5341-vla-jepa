@@ -1,5 +1,41 @@
 # Dream-RSI search (reopened: fidelity repair)
 
+## Executive summary (2026-11-13)
+
+One-line state: four live compression points (83–88/100 dev, −89 to −125 MB) at
+indistinguishable success; replay $V$ selected the search policy but is not LIBERO success.
+
+**What stuck.**
+
+- Full-vocab C1 base (Round 4): moved off restricted-vocab `T1`/`T2` onto the report's
+  `C1` base (`int8_embedding`). All 5 probed `r4-*` cells passed smoke (8/10);
+  `r4-c1-t15-v35-g32` scored **86/100 dev** (Wilson 95% [77.9, 91.5]) at **1199.6 MB**
+  (−88.8 MB vs C1's 1288.4 MB, 87/100 dev). `solver_steps=1` passed smoke 8/10.
+- Best restricted-vocab (`T2`) points: Stage 2 `s2-c2-t10-v25` **85/100 dev** (904.8 MB,
+  RTX 5060 Ti); R1 `r1-t20-v45-g32` **83/100 dev** (853.1 MB, −124.7 MB vs T2, RTX 3090);
+  R3 `r3-t15-v40-g32` **88/100 dev** [80.2, 93.0] (885.1 MB, −92.7 MB vs T2);
+  R5 `r5-hqq3-t20-v40` (HQQ 3-bit vision) **85/100 dev** [76.7, 90.7] (876.0 MB, −101.8 MB vs T2).
+- Method: leave-one-world-out replay over 10 coarse / 22 fine / 5 live / 4 synthetic worlds
+  (`OptimalPolicy[no-gate-retry]` wins 10/10 coarse folds, $V=0.3854$ vs $0.2192$, and 5/5
+  live folds, $V=0.2047$ vs $0.0964$); $M=4$ automated revision generator
+  (`rsi/develop.py`, archived `r1..r6`); sequential multi-fidelity gate (`rsi/gate.py`,
+  10-trial good-branch false kills 13.08% to 4.43% at $p=0.87$); parallel LIBERO rollout
+  engine (`evaluation/parallel_rollout.py`).
+
+**What did not work.**
+
+- Tighter MLP cuts past `t20-v45` (Round 2): `t20..25`/`v45..50` failed smoke (6/10 both
+  arms); pruning cliff at ~820–845 MB.
+- Attention-head pruning (Round 5): 12.5% cut (`r5-heads-t15-v35`) dropped to 6/10 smoke.
+- HQQ 3-bit vision (Round 5): `r5-hqq3-t20-v40` (85/100 dev) still scored 5/10, 7/10, 4/10
+  on tasks 0, 5, 8 — vision bitwidth is not the bottleneck on those tasks.
+- Small-grid ties and dev-100 noise: R1 selected beat frozen control (3 passes vs 0); in
+  R3–R5 root cells already passed 8/10 so both policies probed the same roots and tied.
+  Dev runs of 83–88/100 have overlapping 95% Wilson intervals ($\pm 8$–$9$ pp); the
+  deterministic win is weight reduction (−89 to −125 MB) at indistinguishable success.
+
+Details below; older SmolVLM negative results kept intact.
+
 Optional arm: an automated search over SmolVLM conditioning architectures, scored by held-out
 prediction loss. It found lower loss but no successful policy.
 
