@@ -44,13 +44,16 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
   Leave-one-world-out $V$ selects on the other worlds of the suite and scores the held-out
   world. Smoke and development never share a $V$; the development world is in-sample only
   (one world cannot leave-one-out).
-- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_coarse` (7 worlds: 3 SmolVLM cycles,
-  Qwen smoke, Stage 2 smoke, live R1, live R2) mean selected $V=0.3954$ vs incumbent
-  $0.2301$, 7/7 folds, always `OptimalPolicy[no-gate-retry]`; `real_smoke_fine` (22
+- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_coarse` (8 worlds: 3 SmolVLM cycles,
+  Qwen smoke, Stage 2 smoke, live R1, R2, R3) mean selected $V=0.3831$ vs incumbent
+  $0.2367$, selected beats incumbent in 8/8 folds; per-fold winners split
+  (`OptimalPolicy` 4 folds, one fold each for `OptimalPolicy[no-gate-retry]`,
+  `TwoStageGatePolicy`, `EpsilonGreedyPolicy`, `RandomPolicy[seed=2]`), so no single
+  variant dominates single-world folds; `real_smoke_fine` (22
   worlds: 6 SmolVLM branch + 3 fragment + 13 Qwen family) $0.1361$ vs $0.0344$, beats
   incumbent in 6/22 folds with 16 ties on single-chain worlds, always `OptimalPolicy`;
-  `live_rounds` (R1+R2) $-0.0275$ vs $-0.0500$, 2/2 folds (absolute $V$ is negative:
-  both worlds are mostly gate failures); `synthetic` (4 worlds) $0.4456$ vs $0.2855$,
+  `live_rounds` (R1+R2+R3) $-0.0321$ vs $0.0611$, selected beats incumbent in 2/3 folds
+  (absolute $V$ is negative: the worlds are mostly gate failures); `synthetic` (4 worlds) $0.4456$ vs $0.2855$,
   4/4 folds, always `OptimalPolicy`. Flips: on held-out `qwen-compression-smoke` the
   best replay is `RandomPolicy[seed=2]`, not the selection; at $W=1$ synthetic folds
   split 2/2 and `synth-late-bloomer` favors the incumbent. Single-suite in-sample $V$
@@ -82,12 +85,13 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
 ## Live rounds (RTX 3090)
 
 Frozen `InitialPolicy` control vs the held-out-selected `OptimalPolicy` variant
-(`beta=1.0`, `gate_retry=False`, i.e. the `r1/r2-retry-flip` config: LOWO parent at tuned
+(`beta=1.0`, `gate_retry=False`, i.e. the `r1/r2/r3-retry-flip` config: LOWO parent at tuned
 beta) on fresh grids, same probe budget, independent journals ([live.py](../../rsi/live.py)).
 Pre-stated gates: $\ge 8/10$ smoke promotes the smallest passing cell to development (100
 trials); development gate $\ge 77/100$. Stage journals record phase, $n$, bytes and machine
 (`outputs/compression/r*/`, not committed); compact evidence in
-[live_round1.json](live_round1.json) and [live_round2.json](live_round2.json) with committed
+[live_round1.json](live_round1.json), [live_round2.json](live_round2.json) and
+[live_round3.json](live_round3.json) with committed
 measurement `run.json` files. Bases are the restricted-vocabulary `T1`/`T2`, not report C1/C2.
 
 - **Round 1** (9 fresh cells around the Stage 2 winner, budget 6 each): control probed 2
@@ -98,9 +102,17 @@ measurement `run.json` files. Bases are the restricted-vocabulary `T1`/`T2`, not
 - **Round 2** (6 fresh cells tightening the `g32` winner, budget 4 each): both arms probed
   the 2 roots, 0 passes (`6/10`, `6/10`); no promotion. Tighter cuts fail at smoke, so the
   round stopped after 2 probes per arm.
-- **Totals:** 7 new smoke runs + 1 development promotion on `NVIDIA GeForce RTX 3090`
+- **Round 3** (8 fresh cells: 4 exploit ±5% text/vision MLP steps around the R1 winner,
+  4 explore looser budgets, budget 8 each): both arms probed the same 3 roots then
+  self-terminated (`r3-t15-v40-g32` `8/10` Wilson 95% `[49.0, 94.3]` at `885.1 MB`;
+  `r3-t20-v40-g32` `7/10`; `r3-t20-v45-g64` `5/10` at `835.2 MB`). Both arms promoted the
+  same cell, so one shared `100`-trial measurement covers both: **88/100** (Wilson 95%
+  `[80.2, 93.0]`, `737.9 s`), beating the `77/100` gate and saving `92.7 MB` vs `T2`
+  (`977.8 MB`), but `32.0 MB` larger than the R1 winner at nominally higher success
+  (`88/100` vs `83/100`; separate cells, no significance claimed).
+- **Totals:** 10 new smoke runs + 2 development promotions on `NVIDIA GeForce RTX 3090`
   (plus 1 pre-flight smoke); reserved 500 trials untouched; phases never pooled. Replay $V$
-  is not LIBERO success, and one `83/100` promotion does not claim a general selection gain.
+  is not LIBERO success, and the `83/100`/`88/100` promotions do not claim a general selection gain.
 
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 

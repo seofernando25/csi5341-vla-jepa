@@ -14,6 +14,7 @@ from rsi.live import (
     SMOKE_GATE,
     build_round1_candidates,
     build_round2_candidates,
+    build_round3_candidates,
     gpu_name,
     journals_for,
     promote_to_development,
@@ -23,7 +24,11 @@ from rsi.live import (
 from rsi.policies import InitialPolicy
 from rsi.policies.optimal import OptimalPolicy
 
-ROUND_BUILDERS = {"r1": build_round1_candidates, "r2": build_round2_candidates}
+ROUND_BUILDERS = {
+    "r1": build_round1_candidates,
+    "r2": build_round2_candidates,
+    "r3": build_round3_candidates,
+}
 
 
 def _code_head() -> str | None:

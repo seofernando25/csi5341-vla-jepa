@@ -479,7 +479,7 @@ def run_benchmark(
             run = Path(measurements_dir) / rec["candidate"] / "smoke" / "run.json"
             sources[str(run)] = _sha256(run)
     live_rounds: list[DiscoveryTree] = []
-    for rnd in ("live_round1", "live_round2"):
+    for rnd in ("live_round1", "live_round2", "live_round3"):
         journal = Path("studies/dream-rsi") / f"{rnd}.json"
         if journal.exists():
             recs = json.loads(journal.read_text())["world_records"]
@@ -580,6 +580,7 @@ def run_benchmark(
             "qwen_stage2_smoke": "committed 10-trial smoke run.json files on grid edges.",
             "qwen_live_round1": "live_round1.json world_records (5 smoke cells, RTX 3090).",
             "qwen_live_round2": "live_round2.json world_records (2 smoke cells, RTX 3090).",
+            "qwen_live_round3": "live_round3.json world_records (3 smoke cells, RTX 3090).",
             "synthetic_suite": "hand-made branch chains in build_synthetic_suite.",
         },
         "worlds": {

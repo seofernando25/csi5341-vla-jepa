@@ -296,6 +296,78 @@ def build_round2_candidates() -> list[Stage2Candidate]:
     )
 
 
+def _g64_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
+    return [
+        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
+        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
+        *_t2_base_changes(),
+    ]
+
+
+def build_round3_candidates() -> list[Stage2Candidate]:
+    """Fresh exploit+explore grid around the Round 1 winner (r1-t20-v45-g32).
+
+    Round 1 selected arm: 3/5 smoke passes on the g32 branch, promoted
+    `r1-t20-v45-g32` (`8/10`, `853.1 MB`, dev `83/100`). Round 2 tightened
+    pruning past the winner and failed at smoke (`6/10`, `6/10`), so Round 3
+    exploits with finer +-5% text/vision MLP steps around the winner and
+    explores looser budgets (g64 groups, lighter joint cuts) plus one
+    layer-drop cell. All cell IDs are new (`r3-*`); no committed measurements
+    exist for them.
+    """
+    return _chain(
+        [
+            (
+                "r3_exploit",
+                [
+                    ("r3-t15-v40-g32", _g32_changes(0.15, 0.40)),
+                    ("r3-t20-v40-g32", _g32_changes(0.20, 0.40)),
+                    ("r3-t15-v45-g32", _g32_changes(0.15, 0.45)),
+                    ("r3-t25-v45-g32", _g32_changes(0.25, 0.45)),
+                ],
+            ),
+            (
+                "r3_explore",
+                [
+                    ("r3-t20-v45-g64", _g64_changes(0.20, 0.45)),
+                    ("r3-t10-v35-g32", _g32_changes(0.10, 0.35)),
+                    (
+                        "r3-t20-v45-g32-tlay2",
+                        [
+                            {"method": "channels", "scope": "text_mlp", "fraction": 0.20},
+                            {"method": "channels", "scope": "vision_mlp", "fraction": 0.45},
+                            {"method": "layers", "scope": "text", "count": 2, "criterion": "cka"},
+                            {"method": "world_remove"},
+                            {"method": "compact_embedding"},
+                            {"method": "bnb", "scope": "text", "bits": 4},
+                            {
+                                "method": "hqq",
+                                "scope": "vision_blocks",
+                                "bits": 2,
+                                "axis": 0,
+                                "group_size": 32,
+                                "backend": "pytorch",
+                            },
+                            {
+                                "method": "hqq",
+                                "scope": "action_mlp",
+                                "bits": 2,
+                                "axis": 0,
+                                "group_size": 32,
+                                "backend": "pytorch",
+                            },
+                            {"method": "bnb", "scope": "action_attention", "bits": 4},
+                            {"method": "bnb", "scope": "action_interfaces", "bits": 4},
+                            {"method": "bnb", "scope": "merger", "bits": 4},
+                        ],
+                    ),
+                    ("r3-t10-v25-g64", _g64_changes(0.10, 0.25)),
+                ],
+            ),
+        ]
+    )
+
+
 def make_evaluator(
     policy_tag: str,
     round_id: str,
