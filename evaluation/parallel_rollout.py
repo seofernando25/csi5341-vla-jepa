@@ -63,20 +63,31 @@ def check_gpu_guard(limit_bytes: int = GPU_USED_BYTES_LIMIT) -> int:
 
 
 def stack_batches(batches: list[dict]) -> dict:
-    """Stack N single-row prepared batches into one N-row batch."""
+    """Stack N single-row prepared batches into one N-row batch.
+
+    Tensors concatenate on dim 0, lists concatenate, plain scalars become a
+    tensor, nested dicts recurse, and all-None keys (inference placeholders
+    like `action`) drop out. Anything else collects into a per-row list, which
+    matches the `task` convention; the model only reads its known keys.
+    """
     stacked = {}
     for key in batches[0]:
         values = [b[key] for b in batches]
         if all(v is None for v in values):
-            continue  # inference placeholder (e.g. `action`); the model skips it
+            continue
         if any(v is None for v in values):
             raise TypeError(f"Mixed None batch for prepared key {key!r}")
-        if isinstance(values[0], torch.Tensor):
+        first = values[0]
+        if isinstance(first, torch.Tensor):
             stacked[key] = torch.cat(values, dim=0)
-        elif isinstance(values[0], list):
+        elif isinstance(first, dict):
+            stacked[key] = stack_batches(values)
+        elif isinstance(first, list):
             stacked[key] = [v for value in values for v in value]
+        elif isinstance(first, bool | int | float):
+            stacked[key] = torch.tensor(values)
         else:
-            raise TypeError(f"Cannot batch prepared key {key!r} of type {type(values[0])}")
+            stacked[key] = list(values)
     return stacked
 
 

@@ -39,9 +39,18 @@ def test_stack_batches_skips_all_none_keys():
     assert stacked["observation.state"].shape == (2, 8)
 
 
-def test_stack_batches_rejects_unbatchable_keys():
+def test_stack_batches_nests_dicts_and_collects_unknowns():
+    a = {"m": {"s": "x"}, "r": 0.0, "task": ["a"]}
+    b = {"m": {"s": "y"}, "r": 1.0, "task": ["b"]}
+    stacked = stack_batches([a, b])
+    assert stacked["m"] == {"s": ["x", "y"]}
+    assert stacked["r"].tolist() == [0.0, 1.0]
+    assert stacked["task"] == ["a", "b"]
+
+
+def test_stack_batches_rejects_mixed_none():
     with pytest.raises(TypeError):
-        stack_batches([{"n": 1}, {"n": 2}])
+        stack_batches([{"n": 1}, {"n": None}])
 
 
 def test_batched_queues_match_serial_select_action():
