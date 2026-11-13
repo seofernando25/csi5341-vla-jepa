@@ -15,19 +15,26 @@ from typing import Any
 from rsi.api import GridPlanningContext, LLMDesignedMethod
 from rsi.objective import DEFAULT_BETA_GRID, DEFAULT_LAMBDA_PARALLEL, evaluate_policy_over_history
 from rsi.policies import (
+    EpsilonGreedyPolicy,
     GreedySerialPolicy,
+    IncumbentWithExceptions,
     InitialPolicy,
     OptimalPolicy,
     RandomPolicy,
     RoundRobinPolicy,
+    ShallowFirstPolicy,
+    TwoStageGatePolicy,
 )
 from rsi.qwen_search import MEASUREMENTS_DIR, stage2_smoke_world
 from rsi.tree import (
     DiscoveryTree,
+    compression_smoke_by_family,
     from_attempts_jsonl,
     from_compression_summary,
+    from_live_records,
     make_synthetic_tree,
     partition_attempts_by_root_cycle,
+    split_cycle_branches,
 )
 
 LAMBDA_GRID: tuple[float, ...] = (0.0, 0.01, 0.05, 0.1, 0.2)
@@ -51,10 +58,32 @@ CANDIDATE_POOL: tuple[Candidate, ...] = (
     Candidate("OptimalPolicy[no-gate-retry]", OptimalPolicy, {"gate_retry": False}),
     Candidate("GreedySerialPolicy", GreedySerialPolicy),
     Candidate("RoundRobinPolicy", RoundRobinPolicy),
+    Candidate("EpsilonGreedyPolicy[eps=0.2]", EpsilonGreedyPolicy, {"epsilon": 0.2}),
+    Candidate("ShallowFirstPolicy", ShallowFirstPolicy),
+    Candidate("TwoStageGatePolicy", TwoStageGatePolicy),
+    Candidate("IncumbentWithExceptions", IncumbentWithExceptions),
     Candidate("RandomPolicy[seed=0]", RandomPolicy, {"seed": 0}),
     Candidate("RandomPolicy[seed=1]", RandomPolicy, {"seed": 1}),
     Candidate("RandomPolicy[seed=2]", RandomPolicy, {"seed": 2}),
 )
+
+STABILITY_SEEDS: tuple[int, ...] = (0, 1, 2, 3, 4)
+
+
+def pool_for_seed(seed: int) -> list[Candidate]:
+    """Per-seed pool: deterministic candidates plus one seeded draw of each stochastic policy."""
+    pool = [c for c in (INCUMBENT, *CANDIDATE_POOL) if "RandomPolicy" not in c.name]
+    pool = [c for c in pool if "EpsilonGreedy" not in c.name]
+    pool.append(Candidate(f"RandomPolicy[seed={seed}]", RandomPolicy, {"seed": seed}))
+    pool.append(
+        Candidate(
+            f"EpsilonGreedyPolicy[eps=0.2,seed={seed}]",
+            EpsilonGreedyPolicy,
+            {"epsilon": 0.2, "seed": seed},
+        )
+    )
+    return pool
+
 
 # terms[policy][world_id] = (normalized hypervolume, parallelism penalty); V = hv - lambda * penalty.
 Terms = dict[str, dict[str, tuple[float, float]]]
@@ -176,6 +205,43 @@ def sensitivity_grid(
                 cell["held_out_mean_incumbent_reward"] = lowo["mean_incumbent_reward"]
             cells.append(cell)
     return cells
+
+
+def selection_stability(
+    terms_by_seed_w: dict[int, dict[int, Terms]],
+    world_ids: list[str],
+    lambda_grid: tuple[float, ...] = LAMBDA_GRID,
+) -> dict[str, Any]:
+    """Winner per seed for every (lambda, W) cell; unanimity is stability evidence.
+
+    `terms_by_seed_w[seed][W]` holds replay terms over the same world universe with
+    the seed's stochastic draws. Returns per-cell winners plus suite summaries:
+    unanimous-cell fraction and the distinct-winner set.
+    """
+    seeds = sorted(terms_by_seed_w)
+    cells: list[dict[str, Any]] = []
+    for w in sorted(terms_by_seed_w[seeds[0]]):
+        for lam in lambda_grid:
+            winners = {
+                str(s): select_from_terms(terms_by_seed_w[s][w], world_ids, lam) for s in seeds
+            }
+            modal = max(set(winners.values()), key=list(winners.values()).count)
+            cells.append(
+                {
+                    "lambda": lam,
+                    "W": w,
+                    "winners_by_seed": winners,
+                    "modal_winner": modal,
+                    "unanimous": len(set(winners.values())) == 1,
+                    "distinct_winners": sorted(set(winners.values())),
+                }
+            )
+    n = float(len(cells))
+    return {
+        "cells": cells,
+        "unanimous_fraction": sum(c["unanimous"] for c in cells) / n,
+        "distinct_winners": sorted({w for c in cells for w in c["distinct_winners"]}),
+    }
 
 
 def recommend_next_beta(
@@ -382,21 +448,25 @@ def run_benchmark(
     t0 = time.perf_counter()
     full_tree = from_attempts_jsonl(attempts_path)
     cycle_trees = partition_attempts_by_root_cycle(attempts_path)
+    branch_trees, fragment_trees = split_cycle_branches(cycle_trees)
     synth_trees = build_synthetic_suite()
     sources = {str(attempts_path): _sha256(Path(attempts_path))}
 
     suites: dict[str, list[DiscoveryTree]] = {
         "smolvlm_full": [full_tree],
         "smolvlm_cycles": cycle_trees,
+        "smolvlm_branches": [*branch_trees, *fragment_trees],
         "synthetic_suite": synth_trees,
     }
-    real_smoke_derived = list(cycle_trees)
+    real_smoke_coarse = list(cycle_trees)
     comp_path = Path(compression_summary_path)
+    qwen_smoke: DiscoveryTree | None = None
     if comp_path.exists():
         qwen_smoke, qwen_dev = from_compression_summary(comp_path)
         suites["qwen_compression_smoke"] = [qwen_smoke]
         suites["qwen_compression_development"] = [qwen_dev]
-        real_smoke_derived.append(qwen_smoke)
+        suites["qwen_smoke_families"] = compression_smoke_by_family(comp_path)
+        real_smoke_coarse.append(qwen_smoke)
         # qwen_dev stays out of held-out means: one world cannot leave-one-out,
         # and no V averages smoke with development trials.
         sources[str(compression_summary_path)] = _sha256(comp_path)
@@ -404,15 +474,43 @@ def run_benchmark(
     if (Path(measurements_dir) / "s2-c2-tmlp10" / "smoke" / "run.json").exists():
         stage2_tree, stage2_records = stage2_smoke_world(measurements_dir)
         suites["qwen_stage2_smoke"] = [stage2_tree]
-        real_smoke_derived.append(stage2_tree)
+        real_smoke_coarse.append(stage2_tree)
         for rec in stage2_records:
             run = Path(measurements_dir) / rec["candidate"] / "smoke" / "run.json"
             sources[str(run)] = _sha256(run)
-    held_out_suites = {"real_smoke_derived": real_smoke_derived, "synthetic": synth_trees}
+    live_rounds: list[DiscoveryTree] = []
+    for rnd in ("live_round1", "live_round2"):
+        journal = Path("studies/dream-rsi") / f"{rnd}.json"
+        if journal.exists():
+            recs = json.loads(journal.read_text())["world_records"]
+            world = from_live_records(recs, f"qwen-{rnd.replace('live_', '')}", provenance=rnd)
+            suites[f"qwen_{rnd}"] = [world]
+            live_rounds.append(world)
+            sources[str(journal)] = _sha256(journal)
+    real_smoke_coarse.extend(live_rounds)
+    fine_worlds = [
+        *branch_trees,
+        *fragment_trees,
+        *(suites.get("qwen_smoke_families", [])),
+    ]
+    # Suites share nodes across suite boundaries (branches vs cycles) but worlds are
+    # disjoint within a suite and suites are never pooled: each LOWO mean stays in-suite.
+    held_out_suites = {
+        "real_smoke_coarse": real_smoke_coarse,
+        "real_smoke_fine": fine_worlds,
+        "live_rounds": live_rounds,
+        "synthetic": synth_trees,
+    }
+    held_out_suites = {k: v for k, v in held_out_suites.items() if len(v) >= 2}
 
     pool = [INCUMBENT, *CANDIDATE_POOL]
     worlds = {t.world_id: t for trees in suites.values() for t in trees}
-    terms_by_w = {w: replay_terms(pool, list(worlds.values()), w) for w in parallelism_levels}
+    world_list = list(worlds.values())
+    terms_by_w = {w: replay_terms(pool, world_list, w) for w in parallelism_levels}
+    terms_by_seed_w = {
+        s: {w: replay_terms(pool_for_seed(s), world_list, w) for w in parallelism_levels}
+        for s in STABILITY_SEEDS
+    }
     lam = DEFAULT_LAMBDA_PARALLEL
 
     in_sample = {
@@ -431,6 +529,11 @@ def run_benchmark(
     }
     sensitivity = {
         name: sensitivity_grid(terms_by_w, [t.world_id for t in trees], lambda_grid)
+        for name, trees in held_out_suites.items()
+    }
+
+    stability = {
+        name: selection_stability(terms_by_seed_w, [t.world_id for t in trees], lambda_grid)
         for name, trees in held_out_suites.items()
     }
 
@@ -466,6 +569,19 @@ def run_benchmark(
         "parallelism_levels": list(parallelism_levels),
         "incumbent": INCUMBENT.name,
         "candidate_pool": [c.name for c in CANDIDATE_POOL],
+        "stability_seeds": list(STABILITY_SEEDS),
+        "world_provenance": {
+            "smolvlm_cycles": "attempts.jsonl grouped by root creation cycle (3 worlds).",
+            "smolvlm_branches": "per-root descendant subtrees with >=2 nodes; smaller roots "
+            "pool per cycle into *-fragments worlds (split_cycle_branches).",
+            "qwen_compression_smoke": "Study B grid distilled mildest->aggressive per family.",
+            "qwen_smoke_families": "per-family splits of the smoke tree, families with >=4 "
+            "nodes; single-branch worlds test stopping patience only.",
+            "qwen_stage2_smoke": "committed 10-trial smoke run.json files on grid edges.",
+            "qwen_live_round1": "live_round1.json world_records (5 smoke cells, RTX 3090).",
+            "qwen_live_round2": "live_round2.json world_records (2 smoke cells, RTX 3090).",
+            "synthetic_suite": "hand-made branch chains in build_synthetic_suite.",
+        },
         "worlds": {
             name: [
                 {"world_id": t.world_id, "nodes": t.num_nonroot, "max_gain": t.max_gain}
@@ -478,9 +594,11 @@ def run_benchmark(
             "in_sample": "Selection and reported V use the same worlds.",
             "held_out": (
                 "Selection uses the other worlds of the suite; V is from the held-out world. "
-                "Worlds are not independent: the three SmolVLM cycles split one search run, the "
+                "Worlds are not independent: the three SmolVLM cycles split one search run, "
+                "branch worlds share nodes with the cycle worlds of the other suite, the "
                 "qwen-compression chains are synthesized from a grid study, and the synthetic "
-                "worlds are hand-made. Development worlds are excluded."
+                "worlds are hand-made. Suites are analyzed separately, never pooled. "
+                "Development worlds are excluded."
             ),
             "stage2_world": (
                 "Committed 10-trial smoke measurements with the grid's parent->child edges; "
@@ -490,6 +608,7 @@ def run_benchmark(
         "in_sample": in_sample,
         "held_out": held_out,
         "sensitivity": sensitivity,
+        "selection_stability": stability,
         "replay_terms": {
             f"W={w}": {
                 name: {

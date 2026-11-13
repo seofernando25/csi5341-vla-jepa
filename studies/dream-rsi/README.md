@@ -44,22 +44,40 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
   Leave-one-world-out $V$ selects on the other worlds of the suite and scores the held-out
   world. Smoke and development never share a $V$; the development world is in-sample only
   (one world cannot leave-one-out).
-- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_derived` (5 worlds) mean selected $V=0.5662$
-  vs incumbent $0.3421$, selected beats incumbent in 5/5 folds, always
-  `OptimalPolicy[no-gate-retry]`; `synthetic` (4 worlds) $0.4456$ vs $0.2855$, 4/4 folds,
-  always `OptimalPolicy`. Flips: on held-out `qwen-compression-smoke` the best replay is
-  `RandomPolicy[seed=2]`, not the selection; at $W=1$ synthetic folds split 2/2 and
-  `synth-late-bloomer` favors the incumbent. Single-suite in-sample $V$ on
-  `qwen_compression_smoke` ($W\ge 4$) picks `RandomPolicy[seed=*]` seed luck; pooled and
-  held-out selection picks an `OptimalPolicy` variant.
+- Held-out ($\lambda=0.05$, $W=4$): `real_smoke_coarse` (7 worlds: 3 SmolVLM cycles,
+  Qwen smoke, Stage 2 smoke, live R1, live R2) mean selected $V=0.3954$ vs incumbent
+  $0.2301$, 7/7 folds, always `OptimalPolicy[no-gate-retry]`; `real_smoke_fine` (22
+  worlds: 6 SmolVLM branch + 3 fragment + 13 Qwen family) $0.1361$ vs $0.0344$, beats
+  incumbent in 6/22 folds with 16 ties on single-chain worlds, always `OptimalPolicy`;
+  `live_rounds` (R1+R2) $-0.0275$ vs $-0.0500$, 2/2 folds (absolute $V$ is negative:
+  both worlds are mostly gate failures); `synthetic` (4 worlds) $0.4456$ vs $0.2855$,
+  4/4 folds, always `OptimalPolicy`. Flips: on held-out `qwen-compression-smoke` the
+  best replay is `RandomPolicy[seed=2]`, not the selection; at $W=1$ synthetic folds
+  split 2/2 and `synth-late-bloomer` favors the incumbent. Single-suite in-sample $V$
+  on `qwen_compression_smoke` ($W\ge 4$) picks `RandomPolicy[seed=*]` seed luck; pooled
+  and held-out selection picks an `OptimalPolicy` variant.
+- Stability (seeds 0–4, $5 \times 4$ $\lambda \times W$ cells per suite): the winner
+  survives seeds on every real-smoke suite (unanimous fraction 1.0 on coarse, fine and
+  live rounds across all 20 cells). It does not survive serial replay on synthetic
+  worlds (0.75): all five $W=1$ cells flip by seed (`RandomPolicy[seed=1]`,
+  `RandomPolicy[seed=2]`, `EpsilonGreedyPolicy[seed=4]` beat the incumbent's modal
+  win), while every $W \ge 2$ cell is unanimous. Serial replay lets a stochastic draw
+  win; that is seed luck, not LIBERO evidence.
 - Sensitivity ($\lambda \in \{0,0.01,0.05,0.1,0.2\} \times W \in \{1,2,4,8\}$):
-  selection is stable across the grid (`OptimalPolicy` on synthetic,
-  `OptimalPolicy[no-gate-retry]` on real smoke; one $W=1$ fold flips to `OptimalPolicy`).
-  Each cell in `dream_benchmark.json` records hypervolume and parallelism penalty separately.
+  selection is stable across the grid (`OptimalPolicy` on synthetic and fine smoke,
+  `OptimalPolicy[no-gate-retry]` on coarse smoke, `TwoStageGatePolicy` on live
+  rounds). Each cell in `dream_benchmark.json` records hypervolume and parallelism
+  penalty separately.
 - Pool: `InitialPolicy` incumbent (argmax ties resolve to it) vs `OptimalPolicy`,
-  `OptimalPolicy[no-gate-retry]`, greedy-serial, round-robin, three fixed-seed random
-  policies, plus the archived per-round revisions. Replay sweeps beta
-  ($\rho \in \{0,0.25,0.5,0.75,1\}$); live rounds fix beta at the trajectory-tuned value.
+  `OptimalPolicy[no-gate-retry]`, greedy-serial, round-robin, epsilon-greedy
+  ($\epsilon=0.2$), shallow-first (size-penalized argmax proxy: mildest attempt
+  first), two-stage gate with one near-miss retry, incumbent-with-exceptions (serial
+  plus one near-miss excuse), three fixed-seed random policies, plus the archived
+  per-round revisions. Replay sweeps beta
+  ($\rho \in \{0,0.25,0.5,0.75,1\}$); live rounds fix beta at the trajectory-tuned
+  value. Worlds and their provenance are listed under `world_provenance` in
+  [dream_benchmark.json](dream_benchmark.json); each suite is analyzed separately
+  and never pooled.
 
 ## Live rounds (RTX 3090)
 

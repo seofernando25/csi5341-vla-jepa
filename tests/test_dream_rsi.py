@@ -198,13 +198,22 @@ def test_run_benchmark_smoke(tmp_path) -> None:
     assert "qwen_compression_smoke" in payload["in_sample"]
     assert "qwen_compression_development" in payload["in_sample"]
     # Smoke and development never share a V: separate hold-out suites.
-    assert "real_smoke_derived" in payload["held_out"]
+    assert "real_smoke_coarse" in payload["held_out"]
+    assert "real_smoke_fine" in payload["held_out"]
+    assert "live_rounds" in payload["held_out"]
     assert "synthetic" in payload["held_out"]
     assert "qwen_compression_development" not in payload["held_out"]
     for suite_data in payload["held_out"].values():
         for row in suite_data.values():
             assert "folds" in row
             assert set(row["mean_held_out_reward_by_policy"]) >= {payload["incumbent"]}
+    # Multi-seed stability: one winner-per-seed record per (lambda, W) cell.
+    assert set(payload["stability_seeds"]) == {0, 1, 2, 3, 4}
+    for stab in payload["selection_stability"].values():
+        assert 0.0 <= stab["unanimous_fraction"] <= 1.0
+        assert stab["cells"]
+        for cell in stab["cells"]:
+            assert set(cell["winners_by_seed"]) == {"0", "1", "2", "3", "4"}
     # Sensitivity records hypervolume and penalty separately per (lambda, W) cell.
     assert len(payload["sensitivity"]["synthetic"]) == 2 * len(payload["lambda_grid"])
     for cell in payload["sensitivity"]["synthetic"]:
@@ -226,6 +235,10 @@ def test_candidate_pool_covers_families_and_incumbent_wins_ties() -> None:
     assert any("RandomPolicy" in n for n in names)
     assert any("RoundRobin" in n for n in names)
     assert any("GreedySerial" in n for n in names)
+    assert any("EpsilonGreedy" in n for n in names)
+    assert any("ShallowFirst" in n for n in names)
+    assert any("TwoStageGate" in n for n in names)
+    assert any("IncumbentWithExceptions" in n for n in names)
     assert "OptimalPolicy" in names and "OptimalPolicy[no-gate-retry]" in names
     assert INCUMBENT.name == "InitialPolicy"
 
@@ -418,3 +431,109 @@ def test_round2_grid_is_fresh_and_chained() -> None:
     by_id = {c.cell_id: c for c in cands}
     for c in cands:
         assert c.parent_id == "root" or c.parent_id in by_id
+
+
+def test_pool_for_seed_isolates_stochastic_draws() -> None:
+    from rsi.dream import STABILITY_SEEDS, pool_for_seed
+
+    assert tuple(STABILITY_SEEDS) == (0, 1, 2, 3, 4)
+    for seed in STABILITY_SEEDS:
+        pool = pool_for_seed(seed)
+        names = [c.name for c in pool]
+        assert names[0] == INCUMBENT.name
+        assert f"RandomPolicy[seed={seed}]" in names
+        assert f"EpsilonGreedyPolicy[eps=0.2,seed={seed}]" in names
+        assert sum("RandomPolicy" in n for n in names) == 1
+        assert sum("EpsilonGreedy" in n for n in names) == 1
+
+
+def test_split_cycle_branches_partitions_disjointly() -> None:
+    from rsi.tree import partition_attempts_by_root_cycle, split_cycle_branches
+
+    cycles = partition_attempts_by_root_cycle("studies/dream-rsi/attempts.jsonl")
+    branches, fragments = split_cycle_branches(cycles)
+    assert branches and fragments
+    by_world: dict[str, int] = {}
+    for t in [*branches, *fragments]:
+        for cid in t.order:
+            by_world[cid] = by_world.get(cid, 0) + 1
+    assert set(by_world) == {cid for t in cycles for cid in t.order}
+    assert set(by_world.values()) == {1}
+    for t in branches:
+        assert t.num_nonroot >= 2
+
+
+def test_compression_smoke_families_are_disjoint_chains() -> None:
+    from rsi.tree import compression_smoke_by_family, from_compression_summary
+
+    full = from_compression_summary("studies/compression/summary.csv")[0]
+    families = compression_smoke_by_family("studies/compression/summary.csv")
+    assert len(families) >= 10
+    seen: dict[str, int] = {}
+    for t in families:
+        assert t.num_nonroot >= 4
+        for cid in t.order:
+            seen[cid] = seen.get(cid, 0) + 1
+    assert set(seen.values()) == {1}
+    assert set(seen) <= set(full.order)
+
+
+def test_live_round_worlds_are_smoke_only_and_chained() -> None:
+    import json as _json
+
+    from rsi.tree import from_live_records
+
+    cases = (("live_round1", "qwen-round1", 5), ("live_round2", "qwen-round2", 2))
+    for rnd, world_id, n in cases:
+        with open(f"studies/dream-rsi/{rnd}.json") as f:
+            recs = _json.load(f)["world_records"]
+        tree = from_live_records(recs, world_id, provenance=rnd)
+        assert tree.world_id == world_id
+        assert tree.num_nonroot == n
+        assert all(tree.nodes[c].episodes == 10 for c in tree.order)
+        for c in tree.order:
+            parent = tree.nodes[c].parent_id
+            assert parent == "root" or parent in tree.nodes
+
+
+def test_new_policies_solve_legally_and_seed_is_deterministic() -> None:
+    from rsi.dream import build_synthetic_suite
+    from rsi.policies import (
+        EpsilonGreedyPolicy,
+        IncumbentWithExceptions,
+        ShallowFirstPolicy,
+        TwoStageGatePolicy,
+    )
+    from rsi.tree import ReplayQuestion
+
+    synth = build_synthetic_suite()
+    for cls in (ShallowFirstPolicy, TwoStageGatePolicy, IncumbentWithExceptions):
+        res = cls({}).solve(ReplayQuestion(synth[0], max_parallelism=4))
+        assert res.total_probes > 0
+    r1 = EpsilonGreedyPolicy({"epsilon": 0.2, "seed": 3}).solve(
+        ReplayQuestion(synth[1], max_parallelism=4)
+    )
+    r2 = EpsilonGreedyPolicy({"epsilon": 0.2, "seed": 3}).solve(
+        ReplayQuestion(synth[1], max_parallelism=4)
+    )
+    assert r1.total_probes == r2.total_probes > 0
+    assert r1.best_score == r2.best_score
+
+
+def test_selection_stability_flags_seed_luck() -> None:
+    from rsi.dream import (
+        STABILITY_SEEDS,
+        build_synthetic_suite,
+        pool_for_seed,
+        replay_terms,
+        selection_stability,
+    )
+
+    synth = build_synthetic_suite()
+    world_ids = [t.world_id for t in synth]
+    by_seed = {s: {4: replay_terms(pool_for_seed(s), synth, 4)} for s in STABILITY_SEEDS}
+    stab = selection_stability(by_seed, world_ids)
+    assert 0.0 <= stab["unanimous_fraction"] <= 1.0
+    assert len(stab["cells"]) == 5  # 5 lambdas x 1 W level
+    for cell in stab["cells"]:
+        assert set(cell["winners_by_seed"]) == {str(s) for s in STABILITY_SEEDS}

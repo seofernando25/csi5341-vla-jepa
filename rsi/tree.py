@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from rsi.api import CellMeta, Observation
+from rsi.api import CellMeta, Observation, gate_fail_class
 
 
 @dataclass(frozen=True)
@@ -31,6 +31,8 @@ class TreeNode:
     summary: str
     cycle: int
     tags: tuple[str, ...] = ()
+    successes: int | None = None
+    episodes: int | None = None
 
 
 class DiscoveryTree:
@@ -94,8 +96,8 @@ class DiscoveryTree:
             error=node.error,
             delta_vs_baseline=delta_base,
             delta_vs_parent=delta_parent,
-            n_valid=1 if node.valid else 0,
-            n_total=1 if node.evaluated else 0,
+            n_valid=node.successes if node.successes is not None else int(node.valid),
+            n_total=node.episodes if node.episodes is not None else int(node.evaluated),
             mechanism_family=node.mechanism_family,
             summary=node.summary,
             cycle=node.cycle,
@@ -257,6 +259,111 @@ def partition_attempts_by_root_cycle(
     ]
 
 
+def split_cycle_branches(
+    trees: list[DiscoveryTree], min_nodes: int = 2
+) -> tuple[list[DiscoveryTree], list[DiscoveryTree]]:
+    """Split cycle trees into per-root-branch worlds (disjoint node sets).
+
+    Provenance: each root of a SmolVLM cycle tree starts an independent search line,
+    so a root's descendant subtree replays standalone. Branches below `min_nodes`
+    carry no refine-vs-abandon decision and pool per cycle into a fragments world.
+    Returns (branch_worlds, fragment_worlds).
+    """
+    branches: list[DiscoveryTree] = []
+    fragments: list[DiscoveryTree] = []
+    for tree in trees:
+        small: list[TreeNode] = []
+        for root_id in tree.roots:
+            sub = [cid for cid in tree.order if cid in _subtree_ids(tree, root_id)]
+            nodes = [tree.nodes[cid] for cid in sub]
+            if len(nodes) >= min_nodes:
+                branches.append(
+                    DiscoveryTree(f"{tree.world_id}-branch{tree.nodes[root_id].branch}", 0.0, nodes)
+                )
+            else:
+                small.extend(nodes)
+        if small:
+            fragments.append(DiscoveryTree(f"{tree.world_id}-fragments", 0.0, small))
+    for t in branches + fragments:
+        t.baseline_score = trees[0].baseline_score if trees else 0.0
+    return branches, fragments
+
+
+def _subtree_ids(tree: DiscoveryTree, root_id: str) -> set[str]:
+    out = {root_id}
+    stack = [root_id]
+    while stack:
+        for child in tree.children.get(stack.pop(), ()):
+            out.add(child)
+            stack.append(child)
+    return out
+
+
+def from_live_records(
+    records: list[dict[str, Any]],
+    world_id: str,
+    provenance: str,
+    baseline_score: float = 0.0,
+    smoke_gate: int = 8,
+) -> DiscoveryTree:
+    """Build a replay world from a live round's compact `world_records`.
+
+    Provenance (recorded in `provenance`, e.g. round id + journal path): branch groups
+    cells by root ancestor, attempt counts depth below that root; score is
+    gate-qualified size reduction versus B16. Only 10-trial smoke records enter;
+    development promotions never do.
+    """
+    from rsi.qwen_search import B16_RESIDENT_BYTES
+
+    parent = {r["candidate"]: r.get("parent") or "root" for r in records}
+
+    def root_of(cid: str) -> str:
+        cur = cid
+        while parent.get(cur) not in (None, "root"):
+            cur = parent[cur]
+        return cur
+
+    def depth(cid: str) -> int:
+        d, cur = 0, cid
+        while parent.get(cur) not in (None, "root"):
+            cur = parent[cur]
+            d += 1
+        return d
+
+    branch_of: dict[str, int] = {}
+    for cid in parent:
+        r = root_of(cid)
+        if r not in branch_of:
+            branch_of[r] = len(branch_of)
+    nodes: list[TreeNode] = []
+    for seq, r in enumerate(records):
+        cid = r["candidate"]
+        succ = int(r["smoke_successes"])
+        fail_class = gate_fail_class(succ, smoke_gate)
+        passed = fail_class == "ok"
+        reduction = max(0.0, 1.0 - float(r["resident_bytes"]) / B16_RESIDENT_BYTES)
+        nodes.append(
+            TreeNode(
+                cell_id=cid,
+                branch=branch_of[root_of(cid)],
+                attempt=depth(cid),
+                parent_id=parent[cid],
+                seq=seq,
+                score=reduction if passed else 0.0,
+                evaluated=True,
+                valid=passed,
+                fail_class=fail_class,
+                error=None if passed else f"smoke={succ}<{smoke_gate}",
+                mechanism_family=provenance,
+                summary=f"{cid}: smoke={succ}/{r['smoke_episodes']}, red={reduction:.3f}",
+                cycle=0,
+                successes=succ,
+                episodes=int(r["smoke_episodes"]),
+            )
+        )
+    return DiscoveryTree(world_id=world_id, baseline_score=baseline_score, nodes=nodes)
+
+
 def _records_to_tree(
     records: list[dict[str, Any]],
     baseline_score: float,
@@ -353,13 +460,15 @@ def from_compression_summary(
 
     Each family forms a branch ordered from mildest (largest bytes) to most aggressive
     (smallest bytes). Score is gate-qualified size reduction: 1 - bytes / B16_bytes.
+    These chains are synthesized from a grid study, not from a recorded search order. A smoke
+    count one below its gate is `gate_near_miss`; the development world has no near-miss class.
     """
     with open(path, newline="") as f:
         rows = list(csv.DictReader(f))
     b16 = next(r for r in rows if r["candidate"] == "B16")
     b16_bytes = float(b16["resident_tensor_storage_bytes"])
 
-    def build_tree(world_id: str, col: str, gate: int) -> DiscoveryTree:
+    def build_tree(world_id: str, col: str, gate: int, near_miss: int) -> DiscoveryTree:
         filtered = [
             r
             for r in rows
@@ -383,7 +492,7 @@ def from_compression_summary(
                 passed = succ >= gate
                 reduction = max(0.0, 1.0 - float(r["resident_tensor_storage_bytes"]) / b16_bytes)
                 score = reduction if passed else 0.0
-                fail_class = "ok" if passed else "gate_failed"
+                fail_class = gate_fail_class(succ, gate, near_miss)
                 nodes.append(
                     TreeNode(
                         cell_id=cid,
@@ -399,6 +508,8 @@ def from_compression_summary(
                         mechanism_family=fam,
                         summary=f"{cid}: {col}={succ}, red={reduction:.3f}",
                         cycle=0,
+                        successes=succ,
+                        episodes=int(r[col.replace("successes", "episodes")]),
                     )
                 )
                 parent_id = cid
@@ -406,6 +517,37 @@ def from_compression_summary(
         return DiscoveryTree(world_id=world_id, baseline_score=0.0, nodes=nodes)
 
     return (
-        build_tree("qwen-compression-smoke", "smoke_successes", smoke_gate),
-        build_tree("qwen-compression-dev", "development_successes", dev_gate),
+        build_tree("qwen-compression-smoke", "smoke_successes", smoke_gate, near_miss=1),
+        build_tree("qwen-compression-dev", "development_successes", dev_gate, near_miss=0),
     )
+
+
+def compression_smoke_by_family(
+    path: str | Path = "studies/compression/summary.csv",
+    smoke_gate: int = 8,
+    min_nodes: int = 4,
+) -> list[DiscoveryTree]:
+    """Split the Qwen compression smoke tree into per-family worlds (disjoint nodes).
+
+    Provenance: each family chain in `from_compression_summary` is synthesized from
+    the Study B grid (mildest to most aggressive), not from a recorded search order,
+    so a family replays standalone. Families below `min_nodes` carry no
+    refine-vs-abandon decision and are excluded (kept in the pooled smoke world).
+    Single-branch worlds only test stopping patience, stated as a caveat.
+    """
+    full = from_compression_summary(path, smoke_gate=smoke_gate)[0]
+    by_family: dict[str, list[TreeNode]] = {}
+    for cid in full.order:
+        node = full.nodes[cid]
+        by_family.setdefault(node.mechanism_family, []).append(node)
+    worlds = []
+    for fam in sorted(by_family):
+        nodes = by_family[fam]
+        if len(nodes) < min_nodes:
+            continue
+        worlds.append(DiscoveryTree(f"qwen-smoke-{_slug(fam)}", 0.0, nodes))
+    return worlds
+
+
+def _slug(name: str) -> str:
+    return "".join(c.lower() if c.isalnum() else "-" for c in name).strip("-")
