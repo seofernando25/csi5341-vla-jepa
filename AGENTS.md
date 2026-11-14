@@ -56,6 +56,7 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 - `agent-board`: reading and posting coordination records.
 - `mastermind`: delegating to subagents and gating their output.
 - `orchestrate-and-gate`: multi-step diagnosis and release gates.
+- `auto-research`: bounded Dream-RSI compression rounds, stop rules, and reserved-500 lock.
 - `untangle-codebase`: whole-codebase refactor procedure (run only when asked).
 
 ## Coordination
