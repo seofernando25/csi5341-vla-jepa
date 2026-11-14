@@ -41,7 +41,6 @@ report/*.log
 report/*.out
 
 # Raw per-batch diagnostic streams and unread machine-generated dumps stay local; compact summaries are published.
-studies/evaluation/adaptation/summary.json
 studies/evaluation/training/*/metrics.jsonl
 studies/evaluation/training/*/metrics_summary.json
 studies/compression/measurements/*/*/serialized.json

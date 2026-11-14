@@ -38,10 +38,11 @@ paired against B16 on identical initial states and seeds.
 |---|---|
 | `report/` | Final IEEE report: `main.tex`, `plots/` (all figures from committed evidence), `data/numbers.json` |
 | `studies/` | Compact evidence for every experiment: run records, per-episode CSVs, milestones |
-| `evaluation/` | Rollouts, timing, S500 training, analysis; compression recipes and transforms in `evaluation/compression/` |
-| `src/lerobot_policy_vla_jepa_smolvlm/` | LeRobot plugin for the SmolVLM2 backbone (S500) |
+| `evaluation/` | Rollouts, timing, analysis; compression recipes and transforms in `evaluation/compression/` |
+| `rsi/` | Dream-RSI search over compression recipes: replay, gates, live rounds |
+| `docs/COMMANDS.md` | One canonical command per task |
 | `web/presentation/` | Paper presentation (October milestone) |
-| `tests/` | Unit tests for statistics, compression transforms and the plugin |
+| `tests/` | Unit tests for statistics, compression transforms and the search |
 
 ## Setup
 
