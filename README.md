@@ -1,4 +1,20 @@
-# How Small Can VLA-JEPA Get?
+<img src="docs/assets/banner.png" alt="csi5341-vla-jepa: one manipulator arm rendered at 16, 8, 4, 3 and 2 bits" width="100%">
+
+<p align="center"><i>How small can VLA-JEPA get? Post-training compression of a robot policy, measured on LIBERO.</i></p>
+
+<p align="center">
+  <a href="https://github.com/seofernando25/csi5341-vla-jepa/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/seofernando25/csi5341-vla-jepa/actions/workflows/ci.yml/badge.svg?branch=main"/></a>
+</p>
+
+<p align="center">
+  <a href="#results"><b>Results</b></a> ·
+  <a href="report/main.pdf"><b>Report</b></a> ·
+  <a href="studies/README.md"><b>Evidence</b></a> ·
+  <a href="docs/COMMANDS.md"><b>Commands</b></a> ·
+  <a href="web/presentation/README.md"><b>Presentation</b></a>
+</p>
+
+---
 
 CSI 5341 course project by Noah Sprenger and Fernando Nogueira. We compress the released
 [VLA-JEPA](https://arxiv.org/abs/2602.10098) LIBERO policy after training and measure what
