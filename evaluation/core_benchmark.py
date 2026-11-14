@@ -1,4 +1,4 @@
-"""Time neural execution separately from tokenization and image preprocessing.
+"""Neural-only timing (excluding tokenization and image preprocessing) after 1e-5 native equivalence check.
 
 Every observation is first checked against the unmodified native policy under
 identical random seeds. This benchmark supplements, not replaces, pipeline timing.

@@ -1,4 +1,4 @@
-"""Collect per-recipe measurements into studies/compression/summary.csv.
+"""Aggregate Study B per-recipe measurements into studies/compression/summary.csv.
 
 Example: python -m evaluation.compression.analysis
 Reads studies/compression/recipes/*.json and measurements/<recipe>/<phase>/.

@@ -1,4 +1,4 @@
-"""Record matched LIBERO rollouts and fixed-input timing for B16/Q8/Q4/S500.
+"""CLI for Study A observation collection, serial LIBERO rollouts, and full-pipeline timing.
 
 Examples:
   python -m evaluation.run collect

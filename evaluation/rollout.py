@@ -1,4 +1,4 @@
-"""Matched closed-loop LIBERO trials: fixed initial states and per-episode seeds."""
+"""Serial single-env LIBERO rollouts on fixed initial states and seeds (see parallel_rollout for multi-worker)."""
 
 import csv
 import os

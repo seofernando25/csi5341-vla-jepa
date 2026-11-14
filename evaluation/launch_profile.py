@@ -1,4 +1,4 @@
-"""Count kernel launches and host synchronizations in one stock action-chunk prediction.
+"""Count CUDA kernel launches and host syncs per action-chunk prediction via torch.profiler.
 
 Example: python -m evaluation.launch_profile B16 Q8 Q4
 Profiles 10 predictions on the first bank observation per variant and writes

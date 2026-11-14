@@ -1,4 +1,4 @@
-"""Summarize matched B16/Q8/Q4/S500 runs into summary.json and T1_summary.csv.
+"""Shared paired-bootstrap/Wilson stats and Study A run summarizer (summary.json, T1_summary.csv).
 
 Example: python -m evaluation.analysis --runs <run-dir> [<run-dir> ...]
 Each run directory holds run.json plus episodes.csv or timings.csv.
