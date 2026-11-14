@@ -9,7 +9,8 @@ Compact evidence for every experiment. The [final report](../report/main.pdf) su
 | Compression (B) | How far can post-training compression go, and what breaks first? | Done. 201 recipes; two joint recipes keep 96.8–98.0% success at 1.38–1.51 GB (73–75% less) | [compression/](compression/README.md) |
 | SmolVLM backbone (S500) | Can SmolVLM2-500M replace Qwen with limited fine-tuning? | Negative. 2.2% after 10k steps | [evaluation/](evaluation/README.md) |
 | SmolVLM recovery | Do corrected inputs and wider adaptation recover S500? | Closed. 31/100 development vs B16 82/100 | [recovery/](recovery/README.md) |
-| Dream-RSI search | Can an automated search find better SmolVLM conditioning? | Reopened (SmolVLM: 0/10 dev stands). Replay fidelity repair: held-out V beats incumbent on all folds, selection flips recorded; Qwen Stage 2 (`s2-c2-t10-v25`: 85/100 dev, 904.8 MB) | [dream-rsi/](dream-rsi/README.md), [confirmation/](confirmation/n0008-20261001/README.md) |
+| n0008 confirmation | Does 10k-step training of Dream-RSI's best SmolVLM adapter (`n0008`) succeed on LIBERO? | Closed. Held-out loss 0.2653, 0/10 dev (double `÷255` bug) | [confirmation/](confirmation/README.md) |
+| Dream-RSI search | Can an automated search find better compression or conditioning policies? | Reopened (SmolVLM: 0/10 dev stands). Replay fidelity repair: held-out V beats incumbent on all folds; Qwen Stage 2 (`s2-c2-t10-v25`: 85/100 dev, 904.8 MB) and live rounds R1–R5 | [dream-rsi/](dream-rsi/README.md) |
 | SmolVLA check | How does the complete pretrained SmolVLA policy do? | Quick check: 7/10, one trial per task | [smolvla/](smolvla/README.md) |
 
 Hardware for all local runs: [HARDWARE.md](HARDWARE.md).

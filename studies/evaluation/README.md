@@ -39,21 +39,18 @@ Run from the repository root on a Linux NVIDIA host. GPU jobs run one at a time 
 
 ```bash
 uv sync --frozen --extra dev --extra eval --extra report && source .venv/bin/activate
-python -m evaluation.sources baseline qwen smolvlm world_model pretrain simulator_assets
-python -m evaluation.run collect                                   # observation bank
-python -m evaluation.run benchmark --variant B16                   # repeat for Q8, Q4
-python -m evaluation.core_benchmark --variant B16                  # neural-only timing
-python -m evaluation.run rollout --variant B16 --phase final --episodes 50
-python -m evaluation.train --dataset-root "$CSI_DATASET_ROOT" --steps 10000
-python -m evaluation.adaptation --training-runs "$CSI_TRAIN_RUN"   # curves + selection.json
-python -m evaluation.run rollout --variant S500 --checkpoint "$CSI_CHECKPOINT" --phase final --episodes 50
-python -m evaluation.analysis --runs "$CSI_B16_RUN" "$CSI_Q8_RUN" "$CSI_Q4_RUN"
+vla-sources baseline qwen world_model simulator_assets
+vla-eval collect                                                   # observation bank
+vla-eval benchmark --variant B16                                   # repeat for Q8, Q4
+vla-core-benchmark --variant B16                                   # neural-only timing
+vla-eval rollout --variant B16 --phase final --episodes 50         # repeat for Q8, Q4
+vla-eval-analyze --runs "$CSI_B16_RUN" "$CSI_Q8_RUN" "$CSI_Q4_RUN"
 ```
 
-`CSI_*` variables are user-supplied local paths. Checkpoints and observations stay under ignored
-`outputs/evaluation/`. `--resume <pretrained_model dir>` restores optimizer, scheduler, RNG and
-sampler state; `--steps` is cumulative. The analyzer rejects mismatched hardware or software,
-duplicate trials and missing records.
+S500 training and checkpoint selection (`evaluation/train.py`, `evaluation/adaptation.py`, and
+`src/lerobot_policy_vla_jepa_smolvlm/`) belong to a closed negative arm and are preserved in Git
+history at commit `82df05d`. The analyzer (`vla-eval-analyze`) rejects mismatched hardware or
+software, duplicate trials and missing records.
 
 ## Frozen controls
 

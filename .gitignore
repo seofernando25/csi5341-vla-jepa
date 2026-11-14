@@ -40,8 +40,12 @@ report/*.fls
 report/*.log
 report/*.out
 
-# Raw per-batch diagnostic streams stay local; compact summaries are published.
+# Raw per-batch diagnostic streams and unread machine-generated dumps stay local; compact summaries are published.
+studies/evaluation/adaptation/summary.json
 studies/evaluation/training/*/metrics.jsonl
+studies/evaluation/training/*/metrics_summary.json
+studies/compression/measurements/*/*/serialized.json
+studies/compression/measurements/*/*/tensor_layout.json
 
 # Required presentation clips, explicitly retained for the offline viewer.
 !/web/presentation/assets/droid-demonstration.mp4

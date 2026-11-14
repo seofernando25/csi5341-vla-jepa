@@ -175,6 +175,8 @@ bases; Round 4 uses the report's full-vocabulary `C1` base (not the report's C1/
   (plus 1 pre-flight smoke); reserved 500 trials untouched; phases never pooled. Replay $V$
   is not LIBERO success, and the `83/100`/`88/100` promotions do not claim a general selection gain.
 
+Reproduce one round: `uv run --no-sync vla-rsi-round --round r1 --output studies/dream-rsi/live_round1.json`.
+
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 
 Using `OptimalPolicy` (`W=4`, $\beta=1.0$) in [qwen_search.py](../../rsi/qwen_search.py) over 5
