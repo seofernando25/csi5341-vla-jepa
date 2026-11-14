@@ -11,6 +11,7 @@ cuda = pytest.mark.skipif(not torch.cuda.is_available(), reason="NF4 kernels nee
 
 
 @cuda
+@pytest.mark.slow
 @pytest.mark.parametrize("shape", [(2048, 2048), (1024, 2048), (6144, 2048), (2048, 6144)])
 def test_nf4_dequantization_equals_bitsandbytes_bit_for_bit(shape):
     from bitsandbytes import functional

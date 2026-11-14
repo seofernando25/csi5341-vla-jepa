@@ -50,6 +50,7 @@ packages = ["evaluation", "rsi", "report"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = ["slow: GPU or slow tests requiring CUDA"]
 filterwarnings = [
   # Raised inside a third-party dependency at import time, not by project code.
   "ignore:`torch.jit.script_method` is deprecated:DeprecationWarning",
