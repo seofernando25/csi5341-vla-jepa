@@ -10,7 +10,7 @@ Prevent linear-thread bloat, false root-cause retrains, and unverified hardware 
 ## 1. T3 Orchestration & Delegation
 
 - **Split early, never run linear marathons.** Do not chain >3–4 diagnostic or hardware-debug turns in one agent. Delegate file/log/thread scouting to `gemini-4-hydrogen` (`thinking_level: low`) in parallel, and keep a separate **adversarial reviewer** (`thinking_level: medium/high`) running against every diagnosis before acting.
-- **Check workspace access before delegating.** Verify the target repo matches the active project/sandbox (`csi5341-vla-jepa` vs `ugv`) before spawning workers; use the right `projectId` or provider so pre-tool hooks do not reject edits.
+- **Check workspace access before delegating.** Verify the target repo matches the active project/sandbox before spawning workers; use the right `projectId` or provider so pre-tool hooks do not reject edits.
 - **Never poll or block on `t3_thread_wait`.** Launch `delegate_task(..., mode="async")` and end the turn. Completion wakes the thread.
 - **Keep `t3_thread_read` bounded.** Always pass `limit=20, maxCharsPerItem=2000` and page with `afterPosition`; never dump `maxCharsPerItem=6000+` into context.
 - **Verify environment & parity once up front.** In one command, check `git rev-parse HEAD`, `git status -s`, Python venv packages (`rl/.venv` vs root `.venv`), and OS flags (`macOS nc -G`, `OpenWrt uname -n`) before running or patching remote hosts. Create `scratch/` with `mkdir -p` before `scp`, use `ssh -M -S <sock>` control sockets instead of `pkill -f`, and never run broad `grep` across `~/Documents`.
@@ -19,7 +19,7 @@ Prevent linear-thread bloat, false root-cause retrains, and unverified hardware 
 ### Multi-Agent Efficiency & Shared-KB Discipline
 
 - **Split into micro-agents (`<= 5` tool calls each).** Never bundle 3–5 unrelated files or tasks into one 40–60 call scout; spawn 4–8 parallel micro-agents scoped to one file, diff, or edit set with an explicit command budget.
-- **Query the shared KB and pass targeted slices.** Before scanning `ugv`, run `/home/fer/Documents/ugv/.agent_kb/kb.py` (`facts`, `query <term> --slice N`, `slice <file>:<start>-<end>`) and embed exact file paths, line ranges, SSH/venv facts, and prior conclusions in each child's Task Card so subagents skip `find`, `wc -l`, `grep -rn`, and 500-line `sed` dumps.
+- **Query the shared KB and pass targeted slices.** Before scanning a repo, run the repo knowledge base (`.agent_kb/kb.py`, where one exists) (`facts`, `query <term> --slice N`, `slice <file>:<start>-<end>`) and embed exact file paths, line ranges, SSH/venv facts, and prior conclusions in each child's Task Card so subagents skip `find`, `wc -l`, `grep -rn`, and 500-line `sed` dumps.
 - **Refresh the KB on milestones.** After behavior/layout changes or real hardware runs, re-run `kb.py index` and update `FACTS.md` before spawning downstream agents.
 
 ## 2. Single-Owner Resource & Interrupt Discipline
