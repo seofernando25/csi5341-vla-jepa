@@ -4,6 +4,7 @@ Example: python -m evaluation.compression.analysis
 Reads studies/compression/recipes/*.json and measurements/<recipe>/<phase>/.
 """
 
+import argparse
 import csv
 
 from evaluation.analysis import paired_difference
@@ -92,6 +93,7 @@ def summary_row(recipe, baselines):
 
 
 def main():
+    argparse.ArgumentParser(description=__doc__).parse_args()
     baselines = {}
     for phase in ROLLOUT_PHASES:
         run = completed("B16", phase)

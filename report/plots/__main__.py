@@ -4,6 +4,7 @@ Usage: python -m report.plots   (repository root; CPU only, no model loading)
 Every number quoted in report/main.tex is written to report/data/numbers.json.
 """
 
+import argparse
 import json
 
 from report.plots.data import DATA, collect, divergence, memory_ceiling, parameter_census
@@ -15,6 +16,7 @@ from report.plots.style import OUT
 
 
 def main() -> None:
+    argparse.ArgumentParser(description=__doc__).parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     DATA.mkdir(parents=True, exist_ok=True)
     n = collect()

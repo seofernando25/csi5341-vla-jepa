@@ -29,6 +29,21 @@ report = [
   "scipy>=1.14,<2.0",
 ]
 
+[project.scripts]
+vla-eval = "evaluation.run:main"
+vla-parallel-rollout = "evaluation.parallel_rollout:main"
+vla-core-benchmark = "evaluation.core_benchmark:main"
+vla-launch-profile = "evaluation.launch_profile:main"
+vla-eval-analyze = "evaluation.analysis:main"
+vla-hardware = "evaluation.hardware:main"
+vla-sources = "evaluation.sources:main"
+vla-compress = "evaluation.compression.study:main"
+vla-compress-analyze = "evaluation.compression.analysis:main"
+vla-compress-cka = "evaluation.compression.cka:main"
+vla-rsi = "rsi.__main__:main"
+vla-rsi-round = "rsi.live_round:main"
+vla-report-plots = "report.plots.__main__:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["evaluation", "rsi", "report"]
 

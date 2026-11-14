@@ -4,6 +4,7 @@ Example: python -m evaluation.compression.cka   # writes studies/compression/cka
 Layer pruning with criterion "cka" removes the blocks whose output most resembles their input.
 """
 
+import argparse
 from collections import defaultdict
 
 import torch
@@ -24,6 +25,7 @@ def linear_cka(x, y):
 
 
 def main():
+    argparse.ArgumentParser(description=__doc__).parse_args()
     output = ROOT / "studies/compression/cka.json"
     if output.exists():
         raise FileExistsError("Preserve earlier CKA profile")
