@@ -1,4 +1,4 @@
-<img src="docs/assets/banner.png" alt="csi5341-vla-jepa: one manipulator arm rendered at 16, 8, 4, 3 and 2 bits" width="100%">
+<img src="docs/assets/banner.png" alt="csi5341-vla-jepa: Post-training compression of VLA-JEPA on LIBERO" width="100%">
 
 <p align="center"><i>How small can VLA-JEPA get? Post-training compression of a robot policy, measured on LIBERO.</i></p>
 
