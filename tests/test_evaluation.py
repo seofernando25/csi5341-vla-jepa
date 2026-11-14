@@ -4,7 +4,6 @@ from collections import Counter
 
 import pytest
 
-from evaluation.adaptation import choose
 from evaluation.analysis import (
     core_summary,
     paired_difference,
@@ -74,19 +73,6 @@ def test_neural_timings_require_full_native_equivalence_check():
         core_summary(record, rows)
     record["equivalence"]["observations"] = 100
     assert core_summary(record, rows)["median_ms"] == 1
-
-
-def test_checkpoint_selection_uses_loss_and_breaks_ties_by_budget():
-    rows = [
-        {"step": step, "loss": loss, "samples": 200}
-        for step, loss in [(1500, 0.5), (5000, 0.4), (10000, 0.4)]
-    ]
-    assert choose(rows, [1500, 5000, 10000])["step"] == 5000
-    with pytest.raises(ValueError, match="incomplete"):
-        choose(rows[:2], [1500, 5000, 10000])
-    rows[-1]["loss"] = float("nan")
-    with pytest.raises(ValueError, match="finite"):
-        choose(rows, [1500, 5000, 10000])
 
 
 def test_committed_initial_states_reserve_distinct_final_trials():

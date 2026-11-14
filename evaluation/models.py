@@ -112,47 +112,18 @@ def load_policy(variant, checkpoint=None, device="cuda"):
 
     if variant not in {"B16", "Q8", "Q4", "S500"}:
         raise ValueError("Unknown configuration")
+    if variant == "S500":
+        raise ValueError("S500 is a closed arm; its plugin code is archived at commit 82df05d")
     if device != "cuda" or not torch.cuda.is_available():
         raise RuntimeError("The matched campaign requires CUDA; CPU fallback is forbidden")
-    compatibility = {}
-    if variant == "S500":
-        from lerobot_policy_vla_jepa_smolvlm import VLAJEPASmolVLMConfig, VLAJEPASmolVLMPolicy
-
-        if checkpoint is None:
-            baseline = PreTrainedConfig.from_pretrained(artifact("baseline"))
-            config = VLAJEPASmolVLMConfig(
-                input_features=baseline.input_features,
-                output_features=baseline.output_features,
-                device=device,
-                torch_dtype="bfloat16",
-                vlm_model_name=str(artifact("smolvlm")),
-                jepa_encoder_name=str(artifact("world_model")),
-                init_from_vla_jepa=str(artifact("pretrain")),
-                resize_images_to=baseline.resize_images_to,
-                binarize_gripper_action=baseline.binarize_gripper_action,
-                pre_snap_gripper_action=baseline.pre_snap_gripper_action,
-            )
-            policy = VLAJEPASmolVLMPolicy(config)
-            status = "untrained_adapter_smoke_only"
-        else:
-            config = PreTrainedConfig.from_pretrained(checkpoint)
-            config.device = device
-            config.init_from_vla_jepa = None
-            config.vlm_model_name = str(artifact("smolvlm"))
-            config.jepa_encoder_name = str(artifact("world_model"))
-            policy = VLAJEPASmolVLMPolicy.from_pretrained(checkpoint, config=config, strict=True)
-            status = "adapted"
-    else:
-        config = PreTrainedConfig.from_pretrained(artifact("baseline"))
-        config.device = device
-        config.qwen_model_name = str(artifact("qwen"))
-        config.jepa_encoder_name = str(artifact("world_model"))
-        config.torch_dtype = "bfloat16"
-        policy = VLAJEPAPolicy(config)
-        compatibility = restore_published_checkpoint(
-            policy, artifact("baseline") / "model.safetensors"
-        )
-        status = "published_trained_policy"
+    config = PreTrainedConfig.from_pretrained(artifact("baseline"))
+    config.device = device
+    config.qwen_model_name = str(artifact("qwen"))
+    config.jepa_encoder_name = str(artifact("world_model"))
+    config.torch_dtype = "bfloat16"
+    policy = VLAJEPAPolicy(config)
+    compatibility = restore_published_checkpoint(policy, artifact("baseline") / "model.safetensors")
+    status = "published_trained_policy"
     policy.to(device=device, dtype=torch.bfloat16).eval().requires_grad_(False)
     logical_parameters = sum(p.numel() for p in policy.parameters())
     converted = []

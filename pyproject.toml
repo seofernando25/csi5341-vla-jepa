@@ -30,11 +30,11 @@ report = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lerobot_policy_vla_jepa_smolvlm"]
+packages = ["evaluation", "rsi", "report"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = [".", "src"]
+pythonpath = ["."]
 filterwarnings = [
   # Raised inside a third-party dependency at import time, not by project code.
   "ignore:`torch.jit.script_method` is deprecated:DeprecationWarning",
