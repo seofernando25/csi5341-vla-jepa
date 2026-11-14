@@ -8,6 +8,7 @@ caption are from report/data/numbers.json (B16 stock vs C2: peak 5.61 -> 1.51 GB
 median latency 79 -> 32 ms, LIBERO-Spatial success 95.0 -> 98.0 %).
 """
 
+import itertools
 import math
 import os
 
@@ -187,7 +188,7 @@ BAYER = (
 
 def ramp(v):
     out = np.zeros(v.shape + (3,))
-    for (a, ca), (b, cb) in zip(RAMP, RAMP[1:]):
+    for (a, ca), (b, cb) in itertools.pairwise(RAMP):
         m = (v >= a) & (v <= b)
         t = ((v - a) / (b - a))[..., None]
         out = np.where(m[..., None], np.array(ca) * (1 - t) + np.array(cb) * t, out)
