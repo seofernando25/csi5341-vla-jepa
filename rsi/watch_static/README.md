@@ -31,7 +31,7 @@ open http://127.0.0.1:8787/?demo=1
 | `js/dom.js` | `el`, `svg`, `icon`, `clear`, `setText`, `copyButton`, `toast`, `rafBatch` |
 | `js/api.js` | fetch client (`state`, `events`, `artifact`, `context`); swaps to `demo.js` |
 | `js/sse.js` | EventSource wrapper: frame parsing, bounded reconnect, cursor |
-| `js/router.js` | `#/node/<cycle>/<cell>/<view>`, `#/policy/<cycle>/<step>/<view>` |
+| `js/router.js` | `#/node/<cycle>/<cell>/<view>`, `#/policy/<cycle>/<step>/<view>`, `#/story/<chapter>` |
 | `js/keyboard.js` | global key map |
 | `js/markdown.js` | markdown → DOM fragment (no `innerHTML`) |
 | `js/highlight.js` | python / json / diff tokenizers → DOM |
@@ -56,7 +56,14 @@ open http://127.0.0.1:8787/?demo=1
 | `js/components/palette.js` | command palette |
 | `js/components/shortcuts.js` | shortcut sheet |
 | `js/demo.js` | fixture adapter and scripted stream for `?demo=1` |
-| `fixture.json`, `fixture_events.json` | sanitized demo state, events, artifacts, context |
+| `js/story/index.js` | Story shell: top bar, chapter rail, deep links, `ctx.story` data cache |
+| `js/story/nav.js` | chapter metadata, story hash parsing, scroll spy |
+| `js/story/model.js`, `model_dream.js` | pure Story derivations (baseline, probe, order, frontier, dream, diff) |
+| `js/story/chapter-*.js` | one chapter each: task, probe, tree, dreaming, changed |
+| `js/story/method.js` | loop steps and documented deviations |
+| `js/story/dreaming-*.js` | dreaming figures and charts |
+| `css/story.css`, `story-figures.css`, `story-<chapter>.css` | Story design system and per-chapter figures |
+| `fixture.json`, `fixture_events.json`, `fixture_story.json` | sanitized demo state, events, artifacts, context, dream payload |
 | `package.json` | `{"type":"module"}` so node parses the modules in tests |
 
 ## Data flow
@@ -151,3 +158,56 @@ uv run --no-sync pytest -q tests/test_rsi_watch.py tests/test_rsi_watch_events.p
 - No `innerHTML` or markup strings: build nodes with `js/dom.js`.
 - One writer per DOM region; views never touch another region.
 - Never invent data: show `—` or "not recorded".
+
+## Story mode
+
+`#/story/<chapter>` is an editorial, scroll-driven explanation of the same run; the Workbench is
+unchanged. The switch in both top bars is a plain link, so every chapter is deep-linkable and the
+browser back button works. Chapters are mounted once by `js/story/index.js`; each exports
+`{id, number, title, dek, mount(root, ctx)}` and returns `{update(state, prev), destroy()}`.
+`ctx.story` caches `dream(cycle, world)`, `events(source)`, `artifact(source, name)` and
+`context(source)`; failures resolve `null` and the chapter renders a state line, never invented
+data. Scrubbers and play/pause are chapter-local ephemeral state; everything derived comes from
+`js/story/model.js`, which is pure and node-tested (`tests/js/story_model.mjs`).
+
+Story is light-first but uses the same tokens, so dark works. Motion is opt-in (play buttons) and
+`prefers-reduced-motion` jumps to the final frame. No chapter uses `innerHTML`.
+
+### Adding a chapter
+
+1. Add `js/story/chapter-<id>.js` exporting `id`, `number`, `title`, `dek`, `mount`.
+2. Add its metadata to `CHAPTERS` in `js/story/nav.js` (order = reading order).
+3. Add `css/story-<id>.css` and link it in `index.html` (the static test requires every CSS file
+   to be linked).
+4. Import it in the `CHAPTER_MODULES` list in `js/story/index.js`.
+5. If it needs new data, add a pure selector to `js/story/model.js` and a node assertion.
+
+## Endpoints the page reads
+
+| Endpoint | Payload |
+|---|---|
+| `GET /api/state` | `{study_dir, now, loop, protocol, gpu, cycles}`; `loop.baseline {score, resident_bytes}`; each node also carries `baseline_mb`, `per_task`, `peak_cuda_bytes`, `stage_seconds` when `score.json`/`eval/result.json` record them; `cycle.probes_used_live` counts scored nodes |
+| `GET /api/events?source=&after=` | `{events, next, done}`; kinds `system, text, thinking, tool_call, tool_result, result`; thinking/text are streamed deltas |
+| `GET /api/artifact?source=&name=` | `{name, text}`; names `proposal diff score error solution policy verdict curve seed export prompt` |
+| `GET /api/context?source=` | `{source, kind, log, files, command, sections}`; `recorded:false` means not recorded |
+| `GET /api/dream?cycle=&world=` | policy-development replay (below); `status: pending|ready|missing` |
+
+`/api/dream` is read-only and returns `null` for anything the run did not write. `rounds` is
+present only when `world` is given, and only for that world (all slots, all betas). Absolute paths
+are never returned; `source_dir` is relative to the study or `null`.
+
+```json
+{"cycle":"iter_000","status":"pending|ready|missing","recorded_utc":null,
+ "protocol":{"m":4,"lambda_parallel":0.05,"beta_grid":[0,0.25,0.5,0.75,1],"max_parallelism":2},
+ "worlds":[{"id":"w0","nodes":12,"baseline_score":0.0,"max_gain":0.8,"degenerate":false}],
+ "tree":{"world_id":"w0","nodes":[{"cell_id":"b0_a0","parent_id":null,"branch":0,"attempt":0,
+   "seq":1,"score":0.08,"fail_class":"ok","evaluated":true,"summary":"..."}]},
+ "candidates":[{"slot":"m0_incumbent","step":0,"status":"incumbent","mean_v":0.485,
+   "delta_vs_best":null,"attempts":0,"error":null,"sha256":"..."}],
+ "curves":{"m0_incumbent":{"w0":[{"beta":0.5,"probes":3,"attainment":0.4,"rounds":2}]}},
+ "rounds":{"m0_incumbent":{"0":{"0.5":[{"round":1,"batch":["b0_a0"],"prefix_size":0,
+   "outcomes":[{"cell_id":"b0_a0","score":0.08,"fail_class":"ok"}]}]}}},
+ "heldout":{"num_worlds":24,"mean_V_by_slot":{},"delta_vs_incumbent":0.03},
+ "verdict":{"selected_slot":"m3_llm","incumbent_in_sample_V":0.485,"selected_in_sample_V":0.579},
+ "agent":{"backend":"pi","model":"...","effort":"max","calls":3,"num_turns":98,"cost_usd":0.52}}
+```

@@ -15,6 +15,7 @@ node tests enforce.
 | `artifacts` | `"<source>|<name>" → {status, text, at, error}` | `artifact/*` |
 | `context` | `"<source>" → {status, payload, at, error}` | `context/*` |
 | `ui` | cycle, tabs, active tab, theme, panels, filter, search, palette, follow | `ui/*` |
+| story (local) | chapter, per-chapter scrub/play/expanded | chapter modules, never the store |
 
 ## Machine 1 — loop (derived, read-only)
 
@@ -92,6 +93,25 @@ system ──ui/theme(light|dark)──▶ explicit ──ui/theme(system)──
 `theme-boot.js` resolves the persisted choice before first paint. `system` re-resolves on
 `prefers-color-scheme` changes. The choice is persisted under `watch.theme`.
 
+## Machine 7 — mode (Story | Workbench)
+
+```
+workbench ──hash #/story/<chapter>──▶ story
+story ──hash #/node|#/policy──▶ workbench
+```
+
+`#/story/<chapter>` is the only story route; anything else is the Workbench. `main.js` owns the
+switch (`document.body.dataset.mode`, `#app` hidden, `#story-root` hidden). The Story shell never
+writes the hash while its root is hidden, so a Workbench load cannot be hijacked. `ctx.go(source,
+view)` opens the tab, writes the resulting tab hash and switches to the Workbench. Deep links
+scroll to the chapter on the next frame; scrolling updates the hash with `replaceState` (no jump).
+
+Story chapters are mounted once and updated on every dispatch. Their scrubbers, play state and
+expanded blocks are chapter-local ephemeral state: they are not in the store and are not
+deep-linkable. Every derived number comes from `js/story/model.js`, which is pure and node-tested.
+`ctx.story` caches `/api/dream`, `/api/events`, `/api/artifact` and `/api/context`; a miss resolves
+`null` and the chapter renders the run's real state, never a fabricated frame.
+
 ## Invariants
 
 1. `loopLive` requires both `running === true` and `status === "running"`.
@@ -108,11 +128,17 @@ system ──ui/theme(light|dark)──▶ explicit ──ui/theme(system)──
 10. Artifact and context results never overwrite a newer result (`at` guard).
 11. A node's transcript is final once `done`/`gone`, even if the loop later restarts.
 12. `?demo=1` uses the same store and reducer; only `api`/`sse` are swapped.
+13. `scored` is scored nodes in the cycle / `loop.probe_budget`; never a fixed grid.
+14. Story never invents: a missing file renders "not recorded" or the real pending state.
+15. `#/story/*` never writes the hash while `#story-root` is hidden.
 
 ## Where the rules live
 
 - `js/reducer.js`: transitions 3–6 and the `at` guards.
 - `js/selectors.js`: machines 1–2, tree rows, transcript blocks, scores, routing helpers.
-- `js/main.js`: effects (what to load for the active tab), polling, stream lifecycle, hash routing.
+- `js/main.js`: effects (what to load for the active tab), polling, stream lifecycle, hash routing, mode switch.
+- `js/story/index.js`: chapter mounting, deep links, scroll spy, `ctx.story` cache.
+- `js/story/model.js`, `model_dream.js`: pure Story derivations (baseline, probe, order, frontier, dream, diff).
+- `rsi/watch_dream.py`: `/api/dream` resolver; `rsi/watch.py` serves it and the state fields.
 - `js/sse.js`: reconnect/backoff and frame parsing; it never dispatches directly.
 - tests: `tests/test_rsi_watch_store.py` runs the reducer and selectors under node.
