@@ -363,6 +363,36 @@
       "ceiling_pct": 37.31517738622907
     }
   },
+  "launch_profile": {
+    "observation": "bank index 0",
+    "profiled_calls": 10,
+    "variants": {
+      "B16": {
+        "wall_median_ms": 71.57303701387718,
+        "gpu_busy_ms": 35.95355570000004,
+        "kernel_launches": 4989.0,
+        "host_syncs": 118.0,
+        "nonzero_calls": 11.0,
+        "item_calls": 20.0
+      },
+      "Q8": {
+        "wall_median_ms": 170.78643952845596,
+        "gpu_busy_ms": 64.20403940000236,
+        "kernel_launches": 9301.7,
+        "host_syncs": 691.0,
+        "nonzero_calls": 192.0,
+        "item_calls": 216.0
+      },
+      "Q4": {
+        "wall_median_ms": 100.85520701250061,
+        "gpu_busy_ms": 41.5859574999992,
+        "kernel_launches": 5576.4,
+        "host_syncs": 118.0,
+        "nonzero_calls": 11.0,
+        "item_calls": 20.0
+      }
+    }
+  },
   "sensitivity": {
     "bits": {
       "language": {
@@ -483,36 +513,196 @@
     "sources": [
       "studies/compression/measurements/s2-c2-t10-v25/development/run.json",
       "studies/compression/measurements/s2-c2-t10-v25/size/run.json"
-    ]
-  },
-  "launch_profile": {
-    "observation": "bank index 0",
-    "profiled_calls": 10,
-    "variants": {
-      "B16": {
-        "wall_median_ms": 71.57303701387718,
-        "gpu_busy_ms": 35.95355570000004,
-        "kernel_launches": 4989.0,
-        "host_syncs": 118.0,
-        "nonzero_calls": 11.0,
-        "item_calls": 20.0
+    ],
+    "rounds": {
+      "by_round": {
+        "r1": {
+          "round_id": "r1",
+          "machine": "NVIDIA GeForce RTX 3090",
+          "smoke_probes": 5,
+          "smoke_passed": 3,
+          "promotions": [
+            {
+              "round_id": "r1",
+              "candidate": "r1-t20-v45-g32",
+              "successes": 83,
+              "episodes": 100,
+              "wilson_pct": [
+                74.45199523239887,
+                89.10643388594006
+              ],
+              "resident_bytes": 853123250,
+              "resident_mb": 853.12325,
+              "machine": "NVIDIA GeForce RTX 3090"
+            }
+          ],
+          "source": "studies/dream-rsi/live_round1.json"
+        },
+        "r2": {
+          "round_id": "r2",
+          "machine": "NVIDIA GeForce RTX 3090",
+          "smoke_probes": 2,
+          "smoke_passed": 0,
+          "promotions": [],
+          "source": "studies/dream-rsi/live_round2.json",
+          "failed_resident_mb_range": [
+            826.856114,
+            849.57509
+          ]
+        },
+        "r3": {
+          "round_id": "r3",
+          "machine": "NVIDIA GeForce RTX 3090",
+          "smoke_probes": 3,
+          "smoke_passed": 1,
+          "promotions": [
+            {
+              "round_id": "r3",
+              "candidate": "r3-t15-v40-g32",
+              "successes": 88,
+              "episodes": 100,
+              "wilson_pct": [
+                80.18790057328857,
+                93.00059356298051
+              ],
+              "resident_bytes": 885070130,
+              "resident_mb": 885.07013,
+              "machine": "NVIDIA GeForce RTX 3090"
+            }
+          ],
+          "source": "studies/dream-rsi/live_round3.json"
+        },
+        "r4": {
+          "round_id": "r4",
+          "machine": "NVIDIA GeForce RTX 3090",
+          "smoke_probes": 5,
+          "smoke_passed": 5,
+          "promotions": [
+            {
+              "round_id": "r4",
+              "candidate": "r4-c1-t15-v35-g32",
+              "successes": 86,
+              "episodes": 100,
+              "wilson_pct": [
+                77.86281178903616,
+                91.47365634006086
+              ],
+              "resident_bytes": 1199565706,
+              "resident_mb": 1199.565706,
+              "machine": "NVIDIA GeForce RTX 3090"
+            }
+          ],
+          "source": "studies/dream-rsi/live_round4.json"
+        },
+        "r5": {
+          "round_id": "r5",
+          "machine": "NVIDIA GeForce RTX 3090",
+          "smoke_probes": 4,
+          "smoke_passed": 2,
+          "promotions": [
+            {
+              "round_id": "r5",
+              "candidate": "r5-hqq3-t20-v40",
+              "successes": 85,
+              "episodes": 100,
+              "wilson_pct": [
+                76.71644040916763,
+                90.69401471634337
+              ],
+              "resident_bytes": 875957426,
+              "resident_mb": 875.957426,
+              "machine": "NVIDIA GeForce RTX 3090"
+            }
+          ],
+          "source": "studies/dream-rsi/live_round5.json"
+        }
       },
-      "Q8": {
-        "wall_median_ms": 170.78643952845596,
-        "gpu_busy_ms": 64.20403940000236,
-        "kernel_launches": 9301.7,
-        "host_syncs": 691.0,
-        "nonzero_calls": 192.0,
-        "item_calls": 216.0
+      "promoted": {
+        "r1-t20-v45-g32": {
+          "round_id": "r1",
+          "candidate": "r1-t20-v45-g32",
+          "successes": 83,
+          "episodes": 100,
+          "wilson_pct": [
+            74.45199523239887,
+            89.10643388594006
+          ],
+          "resident_bytes": 853123250,
+          "resident_mb": 853.12325,
+          "machine": "NVIDIA GeForce RTX 3090"
+        },
+        "r3-t15-v40-g32": {
+          "round_id": "r3",
+          "candidate": "r3-t15-v40-g32",
+          "successes": 88,
+          "episodes": 100,
+          "wilson_pct": [
+            80.18790057328857,
+            93.00059356298051
+          ],
+          "resident_bytes": 885070130,
+          "resident_mb": 885.07013,
+          "machine": "NVIDIA GeForce RTX 3090"
+        },
+        "r4-c1-t15-v35-g32": {
+          "round_id": "r4",
+          "candidate": "r4-c1-t15-v35-g32",
+          "successes": 86,
+          "episodes": 100,
+          "wilson_pct": [
+            77.86281178903616,
+            91.47365634006086
+          ],
+          "resident_bytes": 1199565706,
+          "resident_mb": 1199.565706,
+          "machine": "NVIDIA GeForce RTX 3090"
+        },
+        "r5-hqq3-t20-v40": {
+          "round_id": "r5",
+          "candidate": "r5-hqq3-t20-v40",
+          "successes": 85,
+          "episodes": 100,
+          "wilson_pct": [
+            76.71644040916763,
+            90.69401471634337
+          ],
+          "resident_bytes": 875957426,
+          "resident_mb": 875.957426,
+          "machine": "NVIDIA GeForce RTX 3090"
+        }
       },
-      "Q4": {
-        "wall_median_ms": 100.85520701250061,
-        "gpu_busy_ms": 41.5859574999992,
-        "kernel_launches": 5576.4,
-        "host_syncs": 118.0,
-        "nonzero_calls": 11.0,
-        "item_calls": 20.0
-      }
+      "r2_cliff_mb": [
+        826.856114,
+        849.57509
+      ]
     }
+  },
+  "funnel": {
+    "planned": 201,
+    "screened": 198,
+    "screen_failed": 3,
+    "pilot": 163,
+    "development": 24,
+    "final": 4
+  },
+  "sensitivity_dev_failures": {
+    "action_heads_75": 69,
+    "merger_75": 76,
+    "combined_channels": 70,
+    "combined_depth": 65,
+    "b16_dev": 82
+  },
+  "recovery_dev": {
+    "recovered_successes": 31,
+    "baseline_successes": 82,
+    "episodes": 100,
+    "recovered_wilson_pct": [
+      22.77969721237604,
+      40.62605571948941
+    ],
+    "baseline_wilson_pct": [
+      73.33264161369925,
+      88.29977450105363
+    ]
   }
 }

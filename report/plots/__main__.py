@@ -11,14 +11,17 @@ from report.plots.data import (
     DATA,
     collect,
     divergence,
+    dream_rsi_rounds,
     dream_rsi_stage2,
     launch_profile,
     memory_ceiling,
     parameter_census,
+    recipe_funnel,
+    recovery_dev,
+    sensitivity_dev_failures,
 )
 from report.plots.divergence import fig_divergence
-from report.plots.memory import fig_budget
-from report.plots.results import fig_tasks, fig_tradeoff
+from report.plots.results import fig_ladder
 from report.plots.sensitivity import fig_sensitivity
 from report.plots.style import OUT
 
@@ -31,13 +34,16 @@ def main() -> None:
     census = parameter_census()
     n["census"] = census
     n["memory_ceiling"] = memory_ceiling(census, n["rows"]["B16"]["peak_allocated_gb"])
-    fig_tradeoff(n)
-    fig_budget(census, n["memory_ceiling"], n)
-    n["sensitivity"] = fig_sensitivity()
+    n["launch_profile"] = launch_profile()
+    fig_ladder(n)
+    dev_fails = sensitivity_dev_failures()
+    n["sensitivity"] = fig_sensitivity(dev_fails)
     n["divergence"] = fig_divergence(divergence())
     n["dream_rsi"] = dream_rsi_stage2()
-    n["launch_profile"] = launch_profile()
-    fig_tasks(n)
+    n["dream_rsi"]["rounds"] = dream_rsi_rounds()
+    n["funnel"] = recipe_funnel()
+    n["sensitivity_dev_failures"] = dev_fails
+    n["recovery_dev"] = recovery_dev()
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")
 

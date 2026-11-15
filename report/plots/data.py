@@ -270,3 +270,128 @@ def launch_profile() -> dict:
         "profiled_calls": prof["profiled_calls"],
         "variants": prof["variants"],
     }
+
+
+def recipe_funnel() -> dict:
+    """Compression recipe attrition across screening, pilot, dev, and held-out phases."""
+    counts = load_json(COMP / "final_benchmark_milestone.json")["phase_counts"]
+    screened = int(counts["screen"]["completed"])
+    failed = int(counts["screen"]["failed"])
+    return {
+        "planned": screened + failed,
+        "screened": screened,
+        "screen_failed": failed,
+        "pilot": int(counts["smoke"]["completed"]),
+        "development": int(counts["development"]["completed"]),
+        "final": int(counts["final"]["completed"]),
+    }
+
+
+def sensitivity_dev_failures() -> dict:
+    """100-trial development failures (<77/100) from the compression summary table."""
+    comp = pd.read_csv(COMP / "summary.csv").set_index("candidate")
+    mapping = {
+        "action_heads_75": "action_attention-heads-750",
+        "merger_75": "merger-channels-750",
+        "combined_channels": "deploy-nf4-channel-boundaries-restricted",
+        "combined_depth": "deploy-nf4-depth-boundaries-restricted",
+        "b16_dev": "B16",
+    }
+    return {key: int(comp.loc[cand, "development_successes"]) for key, cand in mapping.items()}
+
+
+def recovery_dev() -> dict:
+    """SmolVLM four-layer RGB recovery vs B16 on 100 development trials."""
+    d = load_json(ROOT / "studies" / "recovery" / "diagnostics" / "expanded_development_pair.json")
+    episodes_n = int(d["episodes_per_model"])
+    rec = int(d["parent_successes"])
+    base = int(d["baseline_successes"])
+    return {
+        "recovered_successes": rec,
+        "baseline_successes": base,
+        "episodes": episodes_n,
+        "recovered_wilson_pct": [100 * v for v in wilson(rec, episodes_n)],
+        "baseline_wilson_pct": [100 * v for v in wilson(base, episodes_n)],
+    }
+
+
+def _resident_bytes(candidate: str, fallback: float) -> int:
+    size_path = COMP / "measurements" / candidate / "size" / "run.json"
+    if size_path.exists():
+        return int(load_json(size_path)["summary"]["resident_tensor_storage_bytes"])
+    return int(fallback)
+
+
+def dream_rsi_rounds() -> dict:
+    """All committed Dream-RSI live rounds and promoted development candidates."""
+    round_files = sorted(
+        (ROOT / "studies" / "dream-rsi").glob("live_round*.json"),
+        key=lambda p: (
+            0,
+            int(p.stem.replace("live_round", ""))
+            if p.stem.replace("live_round", "").isdigit()
+            else 999,
+            p.stem,
+        ),
+    )
+    by_round: dict = {}
+    promoted: dict = {}
+    for path in round_files:
+        d = load_json(path)
+        rid = str(d["round_id"])
+        promos_raw = [
+            *d.get("development_promotions", {}).get("selected", []),
+            *d.get("development_promotions", {}).get("control", []),
+        ]
+        seen_promo: dict[str, dict] = {}
+        for item in promos_raw:
+            cand = str(item["candidate"])
+            if cand in seen_promo:
+                continue
+            succ = int(item["successes"])
+            ep = int(item["episodes"])
+            res_b = _resident_bytes(cand, item["resident_bytes"])
+            entry = {
+                "round_id": rid,
+                "candidate": cand,
+                "successes": succ,
+                "episodes": ep,
+                "wilson_pct": [100 * v for v in wilson(succ, ep)],
+                "resident_bytes": res_b,
+                "resident_mb": res_b / 1e6,
+                "machine": str(item.get("machine", d.get("machine", ""))),
+            }
+            seen_promo[cand] = entry
+            promoted[cand] = entry
+        smoke_records = d.get("world_records") or [
+            *d.get("selected", {}).get("results", []),
+            *d.get("control", {}).get("results", []),
+        ]
+        seen_smoke: dict[str, int] = {}
+        smoke_pass = 0
+        smoke_gate = int(d.get("smoke_gate", 8))
+        for rec in smoke_records:
+            cand = str(rec["candidate"])
+            if cand in seen_smoke:
+                continue
+            s_succ = int(rec.get("smoke_successes", rec.get("successes", 0)))
+            res_b = _resident_bytes(cand, rec["resident_bytes"])
+            seen_smoke[cand] = res_b
+            if s_succ >= smoke_gate:
+                smoke_pass += 1
+        round_entry: dict = {
+            "round_id": rid,
+            "machine": str(d.get("machine", "")),
+            "smoke_probes": len(seen_smoke),
+            "smoke_passed": smoke_pass,
+            "promotions": list(seen_promo.values()),
+            "source": str(path.relative_to(ROOT)),
+        }
+        if not seen_promo and seen_smoke:
+            mbs = [b / 1e6 for b in seen_smoke.values()]
+            round_entry["failed_resident_mb_range"] = [min(mbs), max(mbs)]
+        by_round[rid] = round_entry
+    out: dict = {"by_round": by_round, "promoted": promoted}
+    if "r2" in by_round and "failed_resident_mb_range" in by_round["r2"]:
+        out["r2_cliff_mb"] = by_round["r2"]["failed_resident_mb_range"]
+    return out
