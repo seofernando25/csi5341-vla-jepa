@@ -148,21 +148,21 @@ A keyword scan of every `proposal.md` found no hiding or restore language in cyc
 their resident bytes are 0.72 to 3.9 GB. A scan is not an audit: these numbers stay preliminary
 until each reported node is re-measured with the fixed evaluator. Reserved-500 has not run.
 
+Dream-RSI runs (`vla-rsi start`, `status`, `stop`, `watch`): [docs/COMMANDS.md](../../docs/COMMANDS.md).
+The pre-GPU check is the test suite. Synthetic calibration runs are harness checks, not evidence.
+
+Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rsi.discovery_tools`
+(`read,write,edit,bash`), `dream_rsi.policy_dev_tools` (`read,write,edit`), `agent_timeout_s`,
+`eval_timeout_s` (1800 each), `policy_timeout_s` (1200) and `gpu_slots` (2). `allowed_methods` and
+`agent_tools` were removed.
+
 ## Status
 
 - Protocol frozen.
 - Precision-surface pre-registration: [precision_surface_plan.json](precision_surface_plan.json).
-- Protocol additions dated 2026-11-15 (agent tools, timeouts, GPU slots) are recorded in
-  [protocol.json](protocol.json) under `dream_rsi`.
 - Recipes: 22 arms under `recipes/`; queue: 59 cells, 431 estimated minutes. All 59 cells ran.
 - Evidence: one Dream-RSI run (3 cycles, 24 probes); three cycle-3 nodes invalid, two development
   winners preliminary (see the section above).
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.
 
-## Harness trials (synthetic, not evidence)
-
-- Calibration `haiku-low-v1` (`vla-rsi calibrate`, synthetic worlds, no GPU; file `outputs/rsi-calibration/haiku-low-v1/calibration.json`). Agent: Claude Code CLI, Haiku, low effort, tools `read,write,edit`.
-- Verdict `improved_and_generalised`. Steps: 3 (2 accepted, 1 not better). Train mean V 0.4853 to 0.5267 (delta +0.0414). Held-out mean V 0.5245 to 0.5394 (delta +0.0149).
-- Cost $0.0615 over 3 calls and 52 turns. Wall time 140.7 s.
-- This run used the pre-fix harness, before `PrefixView`.

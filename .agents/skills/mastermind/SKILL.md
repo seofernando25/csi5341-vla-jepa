@@ -29,13 +29,13 @@ mechanics only.
 
 ## Routing
 
-| Tier | Use for | Models |
+| Tier | Use for | Model |
 |---|---|---|
-| Fast | Scouting, log and data queries, edits with a complete spec | Beam free, Inkling 2 Small free |
-| Skeptical | Review, diagnosis, any brief that may itself be wrong | Gemini 4 Hydrogen (low), Haiku 5.5, Iceman free |
+| Fast | Scouting, log and data queries, edits with a complete spec | Cheapest model the harness offers |
+| Skeptical | Review, diagnosis, any brief that may itself be wrong | A stronger model than the author's |
 
 Default subagent model: `mistral/deepseek-v4-1-flash-1017` at low thinking (owner directive,
-2026-11-15). Use `none` for lookups and mechanical edits; reserve `max` for a one-off task that
+2026-11-15). Low is the floor for lookups and mechanical edits; reserve `max` for a one-off task that
 needs it, such as authoring a skill. The tiers apply when the harness offers cheaper models.
 
 Thinking level by task (owner directive, 2026-11-15): low for trivial or mechanical work

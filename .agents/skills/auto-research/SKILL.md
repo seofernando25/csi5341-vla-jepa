@@ -5,36 +5,52 @@ description: Run bounded, reproducible Dream-RSI or compression auto-research lo
 
 # Auto Research
 
-Run bounded Dream-RSI rounds over the open Qwen compression track (`rsi/`, `studies/program-v1/`) without touching reserved test trials or burning GPU budget on unlogged runs. For `rsi/` internals and paper fidelity, read [docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md) and the `dream-rsi` skill.
+Bounded Dream-RSI rounds over the clean-room compression track (`rsi/`, `studies/program-v1/`)
+without touching reserved trials or burning GPU budget on unlogged runs. Paper fidelity:
+[docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md); editing `rsi/` itself: the `dream-rsi` skill.
 
 ## Preconditions
 
-1. **Sync and claim:** `git fetch origin main`, read `AGENT_BOARD.jsonl`, confirm with `nvidia-smi` that the GPU is free, and post a `CLM` with the round ID and hypothesis before launching GPUs.
-2. **Tests pass:** `uv run --no-sync pytest -q -m "not slow"` is green. This is the only pre-GPU check; there is no fake-environment cycle.
-3. **Calibration verdict recorded:** `uv run --no-sync vla-rsi calibrate --tag <name> --prompt rsi/prompts/policy_dev.md` writes `outputs/rsi-calibration/<tag>/` (synthetic worlds, LLM API, no GPU). Record its verdict in the claim. Do not use it as evidence.
-4. **Closed arms stay closed:** Do not restart SmolVLM backbone training or swaps (`82df05d`) without a new experimental plan.
+1. **Sync and claim:** `git fetch origin main`, read `AGENT_BOARD.jsonl`, confirm with `nvidia-smi`
+   that the GPU is free, and post a `CLM` with the round ID and hypothesis before launching GPUs.
+2. **Tests pass:** `uv run --no-sync pytest -q -m "not slow"`. This is the pre-GPU check; a cycle can
+   also be exercised against a stub with `--evaluator MODULE:FUNC`.
+3. **Calibration verdict recorded:** `vla-rsi calibrate --tag <name> --prompt rsi/prompts/policy_dev.md`
+   writes `outputs/rsi-calibration/<tag>/` (synthetic worlds, LLM API, no GPU). Record its verdict in
+   the claim; it is not evidence.
 
-## Bounded Loops
+## Bounded loops
 
-Commands are listed in [docs/COMMANDS.md](../../../docs/COMMANDS.md).
+Commands: [docs/COMMANDS.md](../../../docs/COMMANDS.md). The agent backend comes from protocol
+`dream_rsi.agent`: pi on `mistral/deepseek-v4-1-flash-1017` at max thinking. Override with
+`--backend {claude,pi} --model --effort`. Each manifest records backend, model, effort, CLI version,
+turns and cost; cite them in the claim.
 
-The agent backend defaults to the Claude Code CLI, Haiku, low effort (protocol `dream_rsi.agent`). Override with `--backend {claude,pi} --model --effort`. Each manifest records backend, model, effort, CLI version, turns and cost; cite them in the claim.
+1. **Detached run (canonical):** `vla-rsi start --study-dir studies/program-v1 -- --cycles 3
+   --probe-budget 8 --promote-top-k 1 --policy-timeout 1200`, then `vla-rsi status`, `vla-rsi watch`,
+   `vla-rsi stop`, each with `--study-dir studies/program-v1`.
+2. **Single cycle:** `vla-rsi cycle --cycle-id iter_000 --probe-budget 8 --promote-top-k 1`.
+3. **Policy development only:** `vla-rsi develop --cycle-id iter_000 --m 4`.
+4. **Inspect:** `studies/program-v1/cycles/<cid>/live_cycle_manifest.json`, `tree.json`, and
+   `studies/program-v1/policies/<cid>/selection.json`.
 
-1. **Single cycle:** `uv run --no-sync vla-rsi cycle --cycle-id iter_000 --probe-budget 8 --promote-top-k 1`
-2. **Outer loop** (`plan_grid` -> online `bwrap` agent expansion -> `develop_policies_llm` update): `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8 --promote-top-k 1`
-3. **Offline policy development only:** `uv run --no-sync vla-rsi develop --cycle-id iter_000 --m 4`
-4. **Inspect artifacts:** `studies/program-v1/cycles/<cid>/live_cycle_manifest.json`, `tree.json`, and `policies/<cid>/selection.json`. Declare a GPU wall-clock and probe cap before starting. Measure with Wilson 95% CIs and median/p95 latency. Never pool smoke, development and reserved phases.
+Declare a GPU wall-clock and probe cap before starting. Report Wilson 95% CIs and median/p95 latency.
+Never pool smoke, development and reserved phases.
 
-## Hard Locks & Stop Rules
+## Hard locks and stop rules
 
-- **Reserved-500 lock:** Never invoke `--phase final` (500 reserved LIBERO trials) inside an automated search loop. Reserved trials run only after human or explicit promotion of a Pareto candidate.
-- **Diminishing-returns stop:** Stop the loop cleanly and publish a summary when either:
-  - two consecutive rounds hit a pruning cliff (`smoke < 8/10`) or yield overlapping development 95% Wilson CIs with `< 20 MB` / `< 5 ms` Pareto gain, or
-  - the declared GPU or probe budget is reached.
-- **Resume contract:** A node whose `studies/program-v1/cycles/<cid>/nodes/<cell>/score.json` exists is returned as-is and never re-run. `vla-compress run` refuses to overwrite an existing `studies/program-v1/measurements/<recipe>/<phase>/` folder. On interrupt, inspect `git status` and partial manifests, then resume the same `--cycle-id`. Do not discard completed nodes or mix seeds across cycles.
+- **Reserved-500 lock:** never pass `--phase final` inside a search loop. Reserved trials run only
+  after a human freezes one candidate.
+- **Diminishing-returns stop:** stop cleanly and publish a summary when two consecutive rounds hit a
+  pruning cliff (`smoke < 8/10`) or yield overlapping development 95% Wilson CIs with < 20 MB or
+  < 5 ms Pareto gain, or when the declared budget is reached.
+- **Resume contract:** a node whose `cycles/<cid>/nodes/<cell>/score.json` exists is returned as-is
+  and never re-run. `vla-compress run` refuses to overwrite an existing
+  `measurements/<recipe>/<phase>/`. On interrupt, inspect `git status` and partial manifests, then
+  resume the same `--cycle-id`.
 
-## Wrap Up
+## Wrap up
 
-1. Run `uv run --no-sync ruff check . && uv run --no-sync ruff format --check . && uv run --no-sync pytest -q -m "not slow"`.
-2. If evidence affecting report numbers changed, run `uv run --no-sync vla-report-plots` and confirm `report/data/numbers.json` changed only where expected.
-3. Post board `DONE` (or `BLK` with the exact blocker) with the commit SHA and summary metrics.
+Run the checks in AGENTS.md. If evidence affecting report numbers changed, rebuild
+`vla-report-plots` and confirm `report/data/numbers.json` changed only where expected. Post board
+`DONE` (or `BLK` with the exact blocker) with the commit SHA and summary metrics.

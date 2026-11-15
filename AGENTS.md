@@ -4,7 +4,14 @@ CSI 5341 project: post-training compression of the released VLA-JEPA LIBERO poli
 are the final report (`report/`, IEEE two-column, ≤5 pages, due 2026-12-09) and the final
 presentation (due 2026-12-04). Keep results attributable to their model, configuration and protocol.
 
-- **Open:** Dream-RSI search over Qwen compression recipes (`rsi/`, `studies/program-v1/`).
+Current state — what is running, what is blocked, next step: `HANDOFF.md` at the repo root.
+
+- **Open:** Dream-RSI clean-room search over compression solutions (`rsi/`, `studies/program-v1/`).
+  A discovery agent writes `proposal.md` and `solution.py` in a per-node, git-snapshotted workspace;
+  the fixed evaluator `evaluation/compression/solution.py` scores it; a policy-development agent
+  rewrites the exploration policy that replay selects.
+- **Pending merge:** the measurement queue (`evaluation/compression/queue.py`) that runs the
+  pre-registered precision surface.
 - **Closed, negative:** the SmolVLM backbone swap (S500), its recovery and the n0008 confirmation.
   Their summaries stay under `studies/`; their code is in Git history at `82df05d`. Do not restart
   them without a new plan.
@@ -30,11 +37,11 @@ They must pass with no warnings. Mark slow or GPU tests `@pytest.mark.slow`.
 | `report/` | `main.tex`; `plots/` builds every figure and `data/numbers.json` from committed evidence |
 | `studies/<study>/` | Evidence. Each has a README (question, result, evidence, reproduction command), compact tables the report reads, and raw per-run records. Indexed in `studies/README.md` |
 | `evaluation/` | Rollouts, timing, analysis, `fastpath.py` (CUDA-graph engine), `nf4.py` |
-| `evaluation/compression/` | Recipes → transforms → measurements |
-| `rsi/` | Dream-RSI: replay, gates, live rounds |
+| `evaluation/compression/` | Recipes and transforms; `solution.py` is the fixed evaluator for an agent-written `solution.py` |
+| `rsi/` | Dream-RSI: discovery and policy-development agents, `bwrap` sandbox, replay, gates, live cycles, watch page |
 | `web/` | Presentation and explainer sources (`web/README.md`) |
 | `scripts/` | Board tooling and small runners |
-| `docs/` | `COMMANDS.md`, README assets |
+| `docs/` | `COMMANDS.md`, `DREAM_RSI.md`, `ORCHESTRATION.md`, `COMPRESSION_PROGRAM.md`, README assets |
 
 Every number quoted in the report comes from `report/plots/`, which reads `studies/`. Rebuild both
 after any evidence change (`vla-report-plots`) and confirm `report/data/numbers.json` changed only
@@ -58,6 +65,7 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 - `orchestrate-and-gate`: multi-step diagnosis and release gates.
 - `auto-research`: bounded Dream-RSI compression rounds, stop rules, and reserved-500 lock.
 - `dream-rsi`: paper specification (`arXiv:2609.14858v2`), fidelity boundaries (`docs/DREAM_RSI.md`), and `rsi/` invariants.
+- `ui-critique`: review of a rendered page, figure or slide.
 - `untangle-codebase`: whole-codebase refactor procedure (run only when asked).
 
 ## Coordination

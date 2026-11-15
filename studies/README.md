@@ -5,8 +5,9 @@
 The pre-cleanroom compression and Dream-RSI evidence was deleted from the working tree. It remains
 in git history at tag `pre-cleanroom-20261115`. Nothing from that tree is reused, pooled, or cited.
 
-The new evidence base is [program-v1/](program-v1/README.md). It is empty at reset time. The report
-is stale until the clean runs land.
+The new evidence base is [program-v1/](program-v1/README.md). It holds the frozen protocol, the
+pre-registered precision surface and no measurements yet. The report is stale until the clean runs
+land.
 
 ## Closed studies kept outside the reset
 
@@ -34,6 +35,8 @@ points:
 - Reserved trials never guide selection. No phase is pooled with another.
 - Every run records code revision, checkpoint revision, recipe hash, environment, GPU, seeds and
   exit status. Failed runs stay recorded.
+- The precision surface runs through `evaluation/compression/queue.py` (pending merge); until then
+  one arm and phase per `vla-compress run`.
 
 ## Evidence rules
 
