@@ -1,0 +1,81 @@
+/* Action creators. Pure data; the reducer owns every transition. */
+
+export const act = {
+  stateLoading: () => ({ type: "state/loading" }),
+  stateLoaded: (data, at = Date.now(), seq = 0) => ({ type: "state/loaded", data, at, seq }),
+  stateError: (error, at = Date.now()) => ({ type: "state/error", error, at }),
+
+  hello: (payload) => ({ type: "transport/hello", payload }),
+  attach: (source, after = 0) => ({ type: "transport/attach", source, after }),
+  detach: (source) => ({ type: "transport/detach", source }),
+  events: (source, events, next, at = Date.now()) => ({
+    type: "transport/events",
+    source,
+    events,
+    next,
+    at,
+  }),
+  reset: (source, reason) => ({ type: "transport/reset", source, reason }),
+  done: (source, reason, next) => ({ type: "transport/done", source, reason, next }),
+  transportError: (source, error) => ({ type: "transport/error", source, error }),
+  closed: (source) => ({ type: "transport/closed", source }),
+
+  transcriptLoading: (source, at = Date.now()) => ({ type: "transcript/loading", source, at }),
+  transcriptLoaded: (source, events, next, at = Date.now()) => ({
+    type: "transcript/loaded",
+    source,
+    events,
+    next,
+    at,
+  }),
+  transcriptError: (source, error) => ({ type: "transcript/error", source, error }),
+
+  open: (source, view) => ({ type: "ui/open", source, view }),
+  close: (id) => ({ type: "ui/close", id }),
+  activate: (id) => ({ type: "ui/activate", id }),
+  view: (view) => ({ type: "ui/view", view }),
+  cycle: (cycleId) => ({ type: "ui/cycle", cycleId }),
+  theme: (theme) => ({ type: "ui/theme", theme }),
+  sidebar: (patch) => ({ type: "ui/sidebar", patch }),
+  inspector: (patch) => ({ type: "ui/inspector", patch }),
+  outline: (open) => ({ type: "ui/outline", open }),
+  treeToggle: (cycleId) => ({ type: "ui/treeToggle", cycleId }),
+  treeCursor: (source) => ({ type: "ui/treeCursor", source }),
+  follow: (on) => ({ type: "ui/follow", on }),
+  filter: (filter) => ({ type: "ui/filter", filter }),
+  search: (patch, at = Date.now()) => ({ type: "ui/search", patch, at }),
+  focusBlock: (index, at = Date.now()) => ({ type: "ui/focusBlock", index, at }),
+  palette: (patch) => ({ type: "ui/palette", patch }),
+  shortcuts: (open) => ({ type: "ui/shortcuts", open }),
+  drawer: (open) => ({ type: "ui/drawer", open }),
+
+  artifactLoading: (source, name, at = Date.now()) => ({
+    type: "artifact/loading",
+    source,
+    name,
+    at,
+  }),
+  artifactLoaded: (source, name, text, at = Date.now()) => ({
+    type: "artifact/loaded",
+    source,
+    name,
+    text,
+    at,
+  }),
+  artifactError: (source, name, error, at = Date.now()) => ({
+    type: "artifact/error",
+    source,
+    name,
+    error,
+    at,
+  }),
+
+  contextLoading: (source, at = Date.now()) => ({ type: "context/loading", source, at }),
+  contextLoaded: (source, payload, at = Date.now()) => ({
+    type: "context/loaded",
+    source,
+    payload,
+    at,
+  }),
+  contextError: (source, error, at = Date.now()) => ({ type: "context/error", source, error, at }),
+};

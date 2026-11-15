@@ -1,0 +1,283 @@
+/* Explorer: cycle sections, lineage guides and dense node rows. */
+
+.tree-scroll {
+  flex: 1 1 auto;
+  container-type: inline-size;
+  padding-bottom: 4px;
+}
+
+/* Cycle section ----------------------------------------------------------- */
+.tree-cycle {
+  min-width: 0;
+}
+
+.tree-cycle-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  height: var(--row-lg);
+  padding: 0 6px 0 5px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--fg);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tree-cycle-head:hover {
+  background: var(--bg-hover);
+}
+
+.tree-cycle-head[data-current="1"] {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.tree-cycle-head[data-active="1"] .tree-cycle-name {
+  color: var(--accent);
+}
+
+.tree-cycle-head .icon {
+  flex: none;
+  color: var(--fg-subtle);
+}
+
+.tree-cycle-name {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.tree-cycle-head .pill {
+  flex: none;
+  height: 15px;
+  padding: 0 5px;
+  font-size: 9.5px;
+}
+
+.tree-cycle-count {
+  flex: none;
+  margin-left: auto;
+  color: var(--fg-subtle);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.tree-cycle-best {
+  flex: none;
+  color: var(--fg-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Rows -------------------------------------------------------------------- */
+.tree-rows {
+  display: block;
+}
+
+.tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--row);
+  padding: 0 6px 0 4px;
+  color: var(--fg-muted);
+  font-size: 11.5px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  scroll-margin-top: var(--row-lg);
+}
+
+.tree-row:hover {
+  background: var(--bg-hover);
+}
+
+.tree-row[data-active="1"] {
+  background: var(--bg-active);
+}
+
+.tree-row[data-active="1"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+}
+
+.tree-row[data-cursor="1"],
+.tree-row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--border-focus);
+}
+
+/* Indent guides: one 12px cell per ancestor, the last cell is the elbow. */
+.tree-indent {
+  display: flex;
+  flex: none;
+  align-self: stretch;
+}
+
+.tree-indent i {
+  position: relative;
+  flex: none;
+  width: 12px;
+}
+
+.tree-guide[data-on="1"]::before,
+.tree-elbow::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 0;
+  width: 1px;
+  height: 50%;
+  background: var(--border);
+}
+
+.tree-guide[data-on="1"]::before,
+.tree-elbow[data-last="0"]::before {
+  height: 100%;
+}
+
+.tree-elbow::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 7px;
+  height: 1px;
+  background: var(--border);
+}
+
+.tree-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 12px;
+  color: var(--fg-subtle);
+}
+
+.tree-caret .icon {
+  opacity: 0.7;
+}
+
+.tree-row .dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin: 0 5px 0 2px;
+}
+
+.tree-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--fg);
+}
+
+.tree-row[data-tone="idle"] .tree-name {
+  color: var(--fg-muted);
+}
+
+.tree-row[data-cell="root"] .tree-name {
+  font-weight: 600;
+}
+
+/* Right-aligned meta: score, smoke, duration, cost, then a 2px score bar. */
+.tree-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  flex: none;
+  margin-left: 6px;
+  color: var(--fg-subtle);
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.tree-meta-line {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.tree-meta-line > * {
+  flex: none;
+}
+
+.tree-score {
+  color: var(--fg);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.tree-bar {
+  align-self: stretch;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+
+.tree-bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--ok);
+}
+
+.tree-bar[data-tone="live"] > i {
+  background: var(--live);
+}
+
+.tree-bar[data-tone="warn"] > i {
+  background: var(--warn);
+}
+
+.tree-bar[data-tone="err"] > i {
+  background: var(--err);
+}
+
+.tree-bar[data-tone="idle"] > i {
+  background: var(--fg-subtle);
+}
+
+/* Narrow sidebar: drop the lowest-value meta first. */
+@container (max-width: 232px) {
+  .tree-cycle-best {
+    display: none;
+  }
+}
+
+@container (max-width: 214px) {
+  .tree-meta .m-dur {
+    display: none;
+  }
+}
+
+@container (max-width: 196px) {
+  .tree-meta .m-cost {
+    display: none;
+  }
+}
+
+/* Empty and loading ------------------------------------------------------- */
+.tree-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+}

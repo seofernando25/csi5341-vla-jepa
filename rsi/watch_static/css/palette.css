@@ -1,0 +1,204 @@
+/* Command palette and shortcut sheet. Tokens only; the scrim stays flat. */
+
+.palette-dialog,
+.shortcuts-dialog {
+  animation: overlay-in 0.1s ease-out;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+/* Palette ----------------------------------------------------------------- */
+.palette-dialog {
+  width: min(680px, calc(100vw - 24px));
+}
+
+.palette-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  height: 38px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.palette-search .icon {
+  flex: none;
+  color: var(--fg-subtle);
+}
+
+.palette-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-size: 13px;
+  outline: none;
+}
+
+.palette-input::placeholder {
+  color: var(--fg-subtle);
+}
+
+.palette-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 4px 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.palette-group {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  color: var(--fg-subtle);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.palette-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px 0 8px;
+  border-left: 2px solid transparent;
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+}
+
+.palette-row:hover {
+  background: var(--bg-hover);
+}
+
+.palette-row[aria-selected="true"] {
+  background: var(--bg-active);
+  border-left-color: var(--accent);
+}
+
+.palette-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.palette-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.palette-hint {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fg-subtle);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.palette-key {
+  flex: none;
+  color: var(--fg-muted);
+}
+
+.palette-empty {
+  padding: 20px 12px;
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+
+.palette-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  height: 26px;
+  padding: 0 10px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-subtle);
+  font-size: 10.5px;
+  user-select: none;
+}
+
+.palette-foot-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Shortcut sheet ---------------------------------------------------------- */
+.shortcuts-dialog {
+  width: min(520px, calc(100vw - 24px));
+}
+
+.shortcuts-dialog:focus {
+  outline: none;
+}
+
+.shortcuts-spacer {
+  flex: 1 1 auto;
+}
+
+.shortcuts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcuts-table th,
+.shortcuts-table td {
+  height: 28px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.shortcuts-table tr:last-child th,
+.shortcuts-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.shortcuts-table th {
+  width: 148px;
+  font-weight: 400;
+}
+
+.shortcuts-table td {
+  color: var(--fg-muted);
+  font-size: var(--fs-small);
+}
+
+.shortcuts-keys {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palette-dialog,
+  .shortcuts-dialog {
+    animation: none;
+  }
+}

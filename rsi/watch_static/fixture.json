@@ -8,9 +8,10 @@
     "stage": "cycle",
     "cycles_target": 3,
     "elapsed_s": 4321.5,
-    "agent_cost_usd": 2.91,
+    "agent_cost_usd": 5.56,
     "best_score": 0.24,
-    "running": true
+    "running": true,
+    "probe_budget": 8
   },
   "protocol": {
     "smoke_gate": 8,
@@ -36,10 +37,142 @@
   },
   "cycles": [
     {
+      "cycle_id": "cycle-0",
+      "iteration": 0,
+      "status": "done",
+      "decision_rounds": 3,
+      "opened_branches": [
+        1,
+        2
+      ],
+      "probes_used": 5,
+      "effective_sequential_rounds": 2,
+      "agent_timeout_s": 1800,
+      "policy_sha256": "1b7d4f2a9c6e8d0b3a5f7c1e9d2b4a6c8e0f1a3b5d7c9e2f4a6b8d0c1e3f5a7b",
+      "nodes": [
+        {
+          "cell_id": "root",
+          "parent_id": null,
+          "branch": null,
+          "attempt": null,
+          "round": null,
+          "status": "done",
+          "fail_class": "ok",
+          "score": 0.0,
+          "size_reduction": 0.0,
+          "successes": 0,
+          "episodes": 10,
+          "resident_mb": null,
+          "commit": null,
+          "agent_seconds": null,
+          "eval_seconds": null,
+          "agent_cost_usd": null,
+          "agent_turns": null,
+          "agent_timed_out": false,
+          "error": null,
+          "headline": null,
+          "promoted": null,
+          "started_utc": null,
+          "elapsed_s": null
+        },
+        {
+          "cell_id": "b1a1",
+          "parent_id": "root",
+          "branch": 1,
+          "attempt": 1,
+          "round": 1,
+          "status": "done",
+          "fail_class": "ok",
+          "score": 0.09,
+          "size_reduction": 0.09,
+          "successes": 9,
+          "episodes": 10,
+          "resident_mb": 431.0,
+          "commit": "8c4e1f0",
+          "agent_seconds": 655.0,
+          "eval_seconds": 91.0,
+          "agent_cost_usd": 0.41,
+          "agent_turns": 26,
+          "agent_timed_out": false,
+          "error": null,
+          "headline": "Quantize the MLP blocks to int8 with per-channel scales",
+          "promoted": null,
+          "started_utc": "2026-11-15T07:12:00Z",
+          "elapsed_s": null
+        },
+        {
+          "cell_id": "b2a1",
+          "parent_id": "root",
+          "branch": 2,
+          "attempt": 1,
+          "round": 1,
+          "status": "stopped",
+          "fail_class": null,
+          "score": null,
+          "size_reduction": null,
+          "successes": null,
+          "episodes": null,
+          "resident_mb": null,
+          "commit": null,
+          "agent_seconds": 240.0,
+          "eval_seconds": null,
+          "agent_cost_usd": 0.18,
+          "agent_turns": 9,
+          "agent_timed_out": false,
+          "error": null,
+          "headline": "Fold the vision encoder's last block into the projector",
+          "promoted": null,
+          "started_utc": "2026-11-15T07:24:00Z",
+          "elapsed_s": null
+        },
+        {
+          "cell_id": "b7a1",
+          "parent_id": null,
+          "branch": null,
+          "attempt": null,
+          "round": null,
+          "status": "done",
+          "fail_class": "runtime_failure",
+          "score": null,
+          "size_reduction": null,
+          "successes": null,
+          "episodes": null,
+          "resident_mb": null,
+          "commit": null,
+          "agent_seconds": 1800.0,
+          "eval_seconds": null,
+          "agent_cost_usd": 1.12,
+          "agent_turns": 41,
+          "agent_timed_out": true,
+          "error": "agent timed out after 1800 s: no solution.py was written; the workspace is unchanged",
+          "headline": "Widen the calibration set to 256 frames",
+          "promoted": null,
+          "started_utc": "2026-11-15T07:40:00Z",
+          "elapsed_s": null
+        }
+      ],
+      "policy_dev": {
+        "status": "skipped",
+        "selected_step": null,
+        "incumbent_v": null,
+        "selected_v": null,
+        "heldout_delta": null,
+        "steps": []
+      }
+    },
+    {
       "cycle_id": "cycle-1",
       "iteration": 1,
       "status": "done",
-      "decision_rounds": 2,
+      "decision_rounds": 4,
+      "opened_branches": [
+        1,
+        2,
+        3
+      ],
+      "probes_used": 8,
+      "effective_sequential_rounds": 3,
+      "agent_timeout_s": 1800,
       "policy_sha256": "5e2a0f7c91d4b8e63a1f0c2d9b7e4a58c3d1f06e2b9a7c4d8e1f3a5b6c7d8e9f",
       "nodes": [
         {
@@ -63,7 +196,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": null,
-          "promoted": null
+          "promoted": null,
+          "started_utc": null,
+          "elapsed_s": null
         },
         {
           "cell_id": "b1a1",
@@ -86,7 +221,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": "Quantize the MLP blocks to int8 with per-channel scales",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T08:31:00Z",
+          "elapsed_s": null
         },
         {
           "cell_id": "b1a2",
@@ -109,7 +246,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": "Keep int8 MLP, factor the action head to rank 64",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T08:47:00Z",
+          "elapsed_s": null
         },
         {
           "cell_id": "b2a1",
@@ -132,7 +271,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": "Low-rank factors on every MLP and prune unused vision tokens",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T08:40:00Z",
+          "elapsed_s": null
         },
         {
           "cell_id": "b3a1",
@@ -155,7 +296,9 @@
           "agent_timed_out": false,
           "error": "Traceback (most recent call last):\n  File \"solution.py\", line 41, in compress\nKeyError: 'action_head.weight'",
           "headline": "Share one projection across the three attention blocks",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T08:52:00Z",
+          "elapsed_s": null
         }
       ],
       "policy_dev": {
@@ -170,21 +313,27 @@
             "status": "accepted",
             "mean_v": 0.334,
             "delta_vs_best": 0.053,
-            "reason": null
+            "reason": null,
+            "attempts": 1,
+            "slot": "m1_llm"
           },
           {
             "step": 2,
             "status": "not_better",
             "mean_v": 0.318,
             "delta_vs_best": -0.016,
-            "reason": "Weighted the cost term more heavily; fewer calls, lower value."
+            "reason": "Weighted the cost term more heavily; fewer calls, lower value.",
+            "attempts": 2,
+            "slot": "m2_llm"
           },
           {
             "step": 3,
             "status": "rejected",
             "mean_v": 0.29,
             "delta_vs_best": -0.044,
-            "reason": "Held-out replay regressed on the late-round branches."
+            "reason": "Held-out replay regressed on the late-round branches.",
+            "attempts": 1,
+            "slot": "m3_llm"
           }
         ]
       }
@@ -194,6 +343,15 @@
       "iteration": 2,
       "status": "running",
       "decision_rounds": 1,
+      "opened_branches": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "probes_used": 3,
+      "effective_sequential_rounds": 1,
+      "agent_timeout_s": 1800,
       "policy_sha256": "9a1c3e5f7b9d1f3a5c7e9b1d3f5a7c9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a",
       "nodes": [
         {
@@ -217,7 +375,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": null,
-          "promoted": null
+          "promoted": null,
+          "started_utc": null,
+          "elapsed_s": null
         },
         {
           "cell_id": "c2-b1a1",
@@ -240,7 +400,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": "Prune attention heads that never fire on held-out frames",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T10:05:00Z",
+          "elapsed_s": 572.0
         },
         {
           "cell_id": "c2-b2a1",
@@ -263,14 +425,16 @@
           "agent_timed_out": false,
           "error": null,
           "headline": "Rank-32 factors for the action head",
-          "promoted": null
+          "promoted": null,
+          "started_utc": "2026-11-15T10:02:10Z",
+          "elapsed_s": 742.0
         },
         {
           "cell_id": "c2-b3a1",
           "parent_id": "root",
           "branch": 3,
           "attempt": 1,
-          "round": 1,
+          "round": null,
           "status": "pending",
           "fail_class": null,
           "score": null,
@@ -286,14 +450,16 @@
           "agent_timed_out": false,
           "error": null,
           "headline": null,
-          "promoted": null
+          "promoted": null,
+          "started_utc": null,
+          "elapsed_s": null
         },
         {
           "cell_id": "c2-b4a1",
           "parent_id": "root",
           "branch": 4,
           "attempt": 1,
-          "round": 1,
+          "round": null,
           "status": "pending",
           "fail_class": null,
           "score": null,
@@ -309,7 +475,9 @@
           "agent_timed_out": false,
           "error": null,
           "headline": null,
-          "promoted": null
+          "promoted": null,
+          "started_utc": null,
+          "elapsed_s": null
         }
       ],
       "policy_dev": {
