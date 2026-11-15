@@ -411,7 +411,7 @@ def test_long_output_is_capped_and_flagged(tmp_path: Path) -> None:
         "node:iter_000:..",
         "node:iter_000:a/b",
         "other:iter_000:root",
-        "policy:iter_000:0",
+        "policy:iter_000:-1",
         "policy:iter_000:x",
         "node:iter 0:root",
     ],
@@ -932,3 +932,127 @@ def test_server_handle_error_silences_only_a_vanished_client(
     except ValueError:
         server.handle_error(None, ("127.0.0.1", 1))
     assert "ValueError" in capsys.readouterr().err
+
+
+def test_static_assets_are_allowlisted(
+    study: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The page is a module tree: css/js are served, everything else is not."""
+    root = tmp_path / "static"
+    (root / "css").mkdir(parents=True)
+    (root / "js" / "views").mkdir(parents=True)
+    _write(root / "index.html", "<!doctype html><title>t</title>")
+    _write(root / "css" / "x.css", "body { color: red; }")
+    _write(root / "js" / "main.js", "export const x = 1;\n")
+    _write(root / "js" / "views" / "v.js", "export const y = 2;\n")
+    _write(root / "fixture.json", "{}")
+    _write(root / "secret.txt", "SECRET")
+    _write(root / "package.json", "{}")
+    outside = tmp_path / "outside.js"
+    _write(outside, "SECRET")
+    (root / "js" / "escape.js").symlink_to(outside)
+    monkeypatch.setattr(watch, "STATIC_INDEX", root / "index.html")
+    srv = make_server(study, "127.0.0.1", 0)
+    thread = threading.Thread(target=srv.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body, headers = _get(srv, "/js/main.js")
+        assert status == 200 and body == b"export const x = 1;\n"
+        assert headers["Content-Type"].startswith("text/javascript")
+        status, _, headers = _get(srv, "/js/views/v.js")
+        assert status == 200 and headers["Content-Type"].startswith("text/javascript")
+        status, _, headers = _get(srv, "/css/x.css")
+        assert status == 200 and headers["Content-Type"].startswith("text/css")
+        status, _, headers = _get(srv, "/fixture.json")
+        assert status == 200 and headers["Content-Type"].startswith("application/json")
+        assert _get(srv, "/secret.txt")[0] == 404
+        assert _get(srv, "/package.json")[0] == 404
+        assert _get(srv, "/js/escape.js")[0] == 404
+        port = srv.server_address[1]
+        for path in ("/js/../watch.py", "/js/%2e%2e/watch.py", "/js/..%2fwatch.py", "/js//main.js"):
+            raw = _raw(
+                srv,
+                f"GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: close\r\n\r\n".encode(),
+            )
+            assert b" 404 " in raw.split(b"\r\n")[0], path
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_static_index_is_the_module_page() -> None:
+    """The committed page is served as ES modules, not one inline script."""
+    srv = make_server(Path("."), "127.0.0.1", 0)
+    thread = threading.Thread(target=srv.serve_forever, daemon=True)
+    thread.start()
+    try:
+        status, body, headers = _get(srv, "/")
+        assert status == 200 and headers["Content-Type"].startswith("text/html")
+        assert b'type="module"' in body and b"js/main.js" in body
+        assert b"css/tokens.css" in body
+        assert b"<script>" not in body
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_context_sections_for_a_node(study: Path) -> None:
+    """Context is split into the sections the agent actually received, with sizes."""
+    ndir = study / "cycles" / "iter_000" / "nodes" / NODE_CELL
+    task = "Read the evidence and write a proposal.\n"
+    _write(ndir / "evidence" / "TASK.md", task)
+    _json(ndir / "evidence" / "tree.json", {"nodes": [{"cell_id": "root"}]})
+    _write(ndir / "evidence" / "nodes" / "root" / "proposal.md", "# Baseline\n")
+    _json(ndir / "logs" / "command.json", {"backend": "pi", "model": "m", "use_bwrap": True})
+    payload = watch.context_payload(study, parse_source(f"node:iter_000:{NODE_CELL}"))
+    sections = {section["id"]: section for section in payload["sections"]}
+    assert set(sections) == {"system", "message", "tree", "earlier", "command"}
+    assert sections["system"]["recorded"] is False
+    assert sections["system"]["text"] is None and sections["system"]["note"]
+    assert sections["message"]["text"] == task
+    assert sections["message"]["chars"] == len(task)
+    assert sections["message"]["tokens"] == (len(task) + 3) // 4
+    assert sections["tree"]["path"].endswith("evidence/tree.json")
+    earlier = sections["earlier"]["items"]
+    assert earlier[0]["cell_id"] == "root"
+    assert earlier[0]["files"][0]["name"] == "proposal.md"
+    assert sections["command"]["fields"]["backend"] == "pi"
+    assert sections["command"]["fields"]["sandboxed"] is True
+    assert str(study) not in json.dumps(payload)
+
+
+def test_context_sections_for_a_policy_step(study: Path) -> None:
+    pdir = study / "policies" / "iter_000"
+    _write(pdir / "evidence" / "TASK.md", "Rewrite method.py.\n")
+    _write(pdir / "step_01" / "workspace" / "method.py", "class OptimalPolicy: pass\n")
+    _write(pdir / "step_01" / "candidate.py", "class OptimalPolicy:\n    pass\n")
+    _json(pdir / "evidence" / "history" / "step_01" / "verdict.json", {"status": "accepted"})
+    payload = watch.context_payload(study, parse_source("policy:iter_000:1"))
+    sections = {section["id"]: section for section in payload["sections"]}
+    assert sections["seed"]["text"].startswith("class OptimalPolicy")
+    assert sections["candidate"]["text"].startswith("class OptimalPolicy")
+    assert sections["system"]["recorded"] is False
+    assert {item["name"] for item in sections["evidence"]["items"]} >= {"verdict.json"}
+
+
+def test_policy_seed_artifact(study: Path) -> None:
+    pdir = study / "policies" / "iter_000"
+    _write(pdir / "step_01" / "workspace" / "method.py", "seed\n")
+    step = parse_source("policy:iter_000:1")
+    assert read_artifact(study, step, "seed") == "seed\n"
+    assert read_artifact(study, parse_source(f"node:iter_000:{NODE_CELL}"), "seed") is None
+
+
+def test_loop_reports_the_probe_budget(study: Path) -> None:
+    """The title bar shows the run's probe budget, not the grid maximum."""
+    raw = json.loads((study / "loop_state.json").read_text(encoding="utf-8"))
+    raw["run"] = {"probe_budget": 4, "max_parallelism": 2}
+    _json(study / "loop_state.json", raw)
+    assert build_state(study)["loop"]["probe_budget"] == 4
+    raw.pop("run")
+    raw["first_run"] = {"probe_budget": 6}
+    _json(study / "loop_state.json", raw)
+    assert build_state(study)["loop"]["probe_budget"] == 6
+    raw.pop("first_run")
+    _json(study / "loop_state.json", raw)
+    assert build_state(study)["loop"]["probe_budget"] is None

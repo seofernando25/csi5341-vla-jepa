@@ -1,0 +1,241 @@
+/* Outline rail: transcript search, filter chips and block navigation.
+   Width (--outline-w, 208px) and the rail surface live in shell.css; this file owns
+   everything inside #outline. Tokens only. */
+
+.outline-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  flex: none;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.outline-head {
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.outline-head .count {
+  font-size: 10.5px;
+}
+
+.outline-follow {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--fg-subtle);
+}
+
+.outline-follow:hover {
+  color: var(--fg);
+}
+
+.outline-follow[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.outline-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 6px 6px;
+}
+
+/* Search ------------------------------------------------------------------ */
+.outline-search-input {
+  width: 100%;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: var(--fs-small);
+}
+
+.outline-search-input::placeholder {
+  color: var(--fg-subtle);
+}
+
+.outline-search-input:hover {
+  border-color: var(--border-strong);
+}
+
+.outline-search-input:focus {
+  border-color: var(--border-focus);
+}
+
+.outline-hits {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+  padding-left: 1px;
+  color: var(--fg-subtle);
+  font-size: 10px;
+}
+
+.outline-hits-label {
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.outline-hit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  color: var(--fg-muted);
+}
+
+.outline-hit-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--fg);
+}
+
+.outline-hit-btn:disabled {
+  color: var(--fg-subtle);
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Filter chips: a 3 + 2 segmented control sized for the 208 px rail. */
+.outline-chips {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  padding: 1px;
+  border-radius: var(--radius);
+  background: var(--border);
+}
+
+.outline-chip {
+  grid-column: span 2;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--fg-muted);
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outline-chip:nth-child(4),
+.outline-chip:nth-child(5) {
+  grid-column: span 3;
+}
+
+.outline-chip:hover {
+  background: var(--bg-hover);
+  color: var(--fg);
+}
+
+.outline-chip[aria-pressed="true"] {
+  background: var(--bg-active);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Block rows -------------------------------------------------------------- */
+.outline-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px 0 8px;
+}
+
+.outline-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  height: var(--row);
+  padding: 0 6px 0 8px;
+  border-left: 2px solid transparent;
+  color: var(--fg);
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  text-align: left;
+}
+
+.outline-row:hover {
+  background: var(--bg-hover);
+}
+
+.outline-row[data-active="1"] {
+  background: var(--bg-active);
+}
+
+.outline-row[data-focus="1"] {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+
+.outline-row[data-focus="1"] .outline-label {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.outline-row[data-kind="thinking"] {
+  color: var(--fg-muted);
+}
+
+.outline-row[data-kind="toolresult"],
+.outline-row[data-kind="system"] {
+  color: var(--fg-subtle);
+}
+
+.outline-row[data-kind="tool"],
+.outline-row[data-kind="toolresult"] {
+  padding-left: 14px;
+}
+
+.outline-row[data-kind="toolresult"] {
+  padding-left: 18px;
+}
+
+.outline-row[data-error="1"] .outline-kind,
+.outline-row[data-error="1"] .outline-meta {
+  color: var(--err);
+}
+
+.outline-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 12px;
+  color: var(--fg-subtle);
+}
+
+.outline-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.outline-meta {
+  flex: none;
+  color: var(--fg-subtle);
+  font-size: 10px;
+}
+
+.outline-empty {
+  padding: 10px 8px;
+  color: var(--fg-subtle);
+  font-size: var(--fs-small);
+}
+
+.outline-search-input:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -1px;
+}

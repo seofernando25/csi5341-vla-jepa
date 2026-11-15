@@ -16,22 +16,53 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
+from rsi.watch_context import context_payload
+from rsi.watch_dream import dream_payload, policy_root
 from rsi.watch_events import read_events, redact_obj
+from rsi.watch_files import (
+    ARTIFACT_CAP,
+    HEX,
+    PART,
+    STEP_RE,
+    inside,
+    log_path,
+    read_json,
+    read_text,
+)
 
-PART = re.compile(r"^[A-Za-z0-9._-]+$")
-HEX = re.compile(r"^[0-9a-f]{7,40}$")
-ARTIFACTS = ("proposal", "diff", "score", "error", "solution", "policy", "verdict", "curve")
+__all__ = [
+    "Source",
+    "SourceError",
+    "build_state",
+    "context_payload",
+    "events_payload",
+    "make_server",
+    "parse_source",
+    "read_artifact",
+    "run_watch",
+    "static_path",
+]
+
+ARTIFACTS = (
+    "proposal",
+    "diff",
+    "score",
+    "error",
+    "solution",
+    "policy",
+    "verdict",
+    "curve",
+    "seed",
+    "export",
+    "prompt",
+)
 NODE_FILES = {
     "proposal": "proposal.md",
     "diff": "diff.patch",
     "score": "score.json",
     "error": "error.txt",
 }
-STEP_RE = re.compile(r"^step_(\d+)$")
-ATTEMPT_RE = re.compile(r"^attempt_(\d+)$")
 AFTER = re.compile(r"[0-9]{1,9}")
-ARTIFACT_CAP = 200_000
-CONTEXT_CAP = 40_000
 STREAM_TAIL_SECONDS = 0.25
 STREAM_STATE_SECONDS = 2.0
 STREAM_PING_SECONDS = 15.0
@@ -40,6 +71,15 @@ STREAM_EVENT_CAP = 200
 MAX_STREAMS = 4
 LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
 STATIC_INDEX = Path(__file__).resolve().parent / "watch_static" / "index.html"
+STATIC_DIRS = ("css", "js")
+STATIC_FILES = ("index.html", "fixture.json", "fixture_events.json", "fixture_story.json")
+STATIC_TYPES = {
+    ".html": "text/html; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+    ".svg": "image/svg+xml",
+}
 _GPU: list[Any] = [0.0, None]
 
 
@@ -65,46 +105,9 @@ def parse_source(text: str | None) -> Source:
     for part in (cycle, name):
         if not PART.match(part) or part in (".", ".."):
             raise SourceError(f"bad source id component: {part!r}")
-    if parts[0] == "policy" and (not name.isdigit() or int(name) < 1):
-        raise SourceError(f"policy step must be an integer >= 1: {name!r}")
+    if parts[0] == "policy" and (not name.isdigit() or int(name) < 0):
+        raise SourceError(f"policy step must be an integer >= 0: {name!r}")
     return Source(parts[0], cycle, name)
-
-
-def _read_json(study: Path, path: Path) -> dict[str, Any] | None:
-    """Parse one JSON object under `study`; a symlink that escapes the study is not read."""
-    safe = _inside(study, path)
-    if safe is None:
-        return None
-    try:
-        obj = json.loads(safe.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None
-    return obj if isinstance(obj, dict) else None
-
-
-def _inside(study: Path, path: Path) -> Path | None:
-    """Resolve `path` and return it only when it stays inside the resolved study root.
-
-    Agent-authored trees can contain symlinks; every read goes through this check so the watch
-    server cannot be turned into an arbitrary-file-read primitive.
-    """
-    try:
-        real = Path(path).resolve(strict=True)
-    except (OSError, RuntimeError):
-        return None
-    return real if real.is_relative_to(study) else None
-
-
-def _read_text(study: Path, path: Path, cap: int = ARTIFACT_CAP) -> str | None:
-    safe = _inside(study, path)
-    if safe is None or not safe.is_file():
-        return None
-    try:
-        with safe.open("rb") as fh:
-            data = fh.read(cap * 4 + 1)
-    except OSError:
-        return None
-    return data.decode("utf-8", errors="replace")[:cap]
 
 
 def _num(value: Any) -> float | None:
@@ -184,6 +187,10 @@ def _blank(
         "successes": None,
         "episodes": None,
         "resident_mb": None,
+        "baseline_mb": None,
+        "per_task": None,
+        "peak_cuda_bytes": None,
+        "stage_seconds": None,
         "commit": None,
         "agent_seconds": None,
         "eval_seconds": None,
@@ -218,11 +225,51 @@ def _mark_stopped(node: dict[str, Any]) -> None:
 
 
 def _headline(study: Path, path: Path) -> str | None:
-    text = _read_text(study, path, cap=20_000) or ""
+    text = read_text(study, path, cap=20_000) or ""
     for line in text.splitlines():
         if line.startswith("#"):
             return line.lstrip("#").strip()[:200] or None
     return None
+
+
+def _per_task(value: Any) -> dict[str, dict[str, int | None]] | None:
+    """Per-task successes from `score.json`, keyed by task id; absent when not recorded."""
+    if not isinstance(value, dict) or not value:
+        return None
+    out = {}
+    for key, item in value.items():
+        if isinstance(item, dict):
+            out[str(key)] = {
+                "successes": _int(item.get("successes")),
+                "episodes": _int(item.get("episodes")),
+            }
+    return out or None
+
+
+def _stages(value: Any) -> dict[str, float | None] | None:
+    """`eval/result.json` stage timings, keeping only numeric entries."""
+    if not isinstance(value, dict) or not value:
+        return None
+    return {str(key): _num(item) for key, item in value.items()}
+
+
+def _eval_detail(study: Path, ndir: Path, rec: dict[str, Any]) -> None:
+    """Fill the fields `score.json` omits from `eval/result.json`, when the evaluation wrote one."""
+    if all(rec[key] is not None for key in ("peak_cuda_bytes", "stage_seconds", "baseline_mb")):
+        return
+    result = read_json(study, ndir / "eval" / "result.json")
+    if result is None:
+        return
+    sizes = result.get("sizes") if isinstance(result.get("sizes"), dict) else {}
+    if rec["peak_cuda_bytes"] is None:
+        rec["peak_cuda_bytes"] = _int(sizes.get("peak_cuda_bytes"))
+    if rec["stage_seconds"] is None:
+        rec["stage_seconds"] = _stages(result.get("stage_seconds"))
+    if rec["baseline_mb"] is None:
+        baseline = _num(result.get("baseline_resident_bytes"))
+        if baseline is None:
+            baseline = _num(sizes.get("baseline_resident_bytes"))
+        rec["baseline_mb"] = round(baseline / 1e6, 2) if baseline is not None else None
 
 
 def _node(
@@ -234,10 +281,11 @@ def _node(
     attempt: int | None,
 ) -> dict[str, Any]:
     rec = _blank(cell_id, parent, branch, attempt)
-    score = _read_json(study, ndir / "score.json")
+    score = read_json(study, ndir / "score.json")
     if score is not None:
         sizes = score.get("sizes") if isinstance(score.get("sizes"), dict) else {}
         resident = _num(sizes.get("resident_bytes"))
+        baseline = _num(sizes.get("baseline_resident_bytes"))
         rec.update(
             status="done",
             fail_class=_str(score.get("fail_class")),
@@ -246,6 +294,9 @@ def _node(
             successes=_int(score.get("successes")),
             episodes=_int(score.get("episodes")),
             resident_mb=round(resident / 1e6, 2) if resident is not None else None,
+            baseline_mb=round(baseline / 1e6, 2) if baseline is not None else None,
+            per_task=_per_task(score.get("per_task")),
+            peak_cuda_bytes=_int(sizes.get("peak_cuda_bytes")),
             commit=_str(score.get("commit")),
             agent_seconds=_num(score.get("agent_seconds")),
             eval_seconds=_num(score.get("eval_seconds")),
@@ -255,6 +306,7 @@ def _node(
             error=_str(score.get("error")),
             round=_int(score.get("round")),
         )
+        _eval_detail(study, ndir, rec)
     elif (ndir / "eval").is_dir():
         rec["status"] = "evaluating"
     elif (ndir / "logs" / "stdout.log").is_file():
@@ -267,7 +319,7 @@ def _node(
             rec["elapsed_s"] = round((datetime.now(UTC) - started).total_seconds(), 1)
     if ndir.is_dir():
         rec["headline"] = _headline(study, ndir / "proposal.md")
-        dev = _read_json(study, ndir / "development.json")
+        dev = read_json(study, ndir / "development.json")
         if dev is not None:
             rec["promoted"] = {
                 "successes": _int(dev.get("successes")) or 0,
@@ -278,7 +330,7 @@ def _node(
 
 def _nodes(study: Path, cdir: Path) -> list[dict[str, Any]]:
     out = [{**_blank("root", None, None, None), "status": "done", "fail_class": "ok", "score": 0.0}]
-    grid = _read_json(study, cdir / "grid_plan.json") or {}
+    grid = read_json(study, cdir / "grid_plan.json") or {}
     branches, attempts = _int(grid.get("max_branches")), _int(grid.get("max_attempts_per_branch"))
     slots: list[tuple[str, str, int, int]] = []
     if branches is not None and attempts is not None:
@@ -299,17 +351,33 @@ def _nodes(study: Path, cdir: Path) -> list[dict[str, Any]]:
     return out
 
 
-def _policy_dev(study: Path, cid: str, raw: dict[str, Any]) -> dict[str, Any]:
-    pdir = study / "policies" / cid
-    selection = _read_json(study, pdir / "selection.json") or {}
+def _dev_block(
+    selection: dict[str, Any],
+    steps: list[dict[str, Any]],
+    selected_step: int | None,
+    status: str,
+) -> dict[str, Any]:
+    return {
+        "status": status,
+        "selected_step": selected_step,
+        "incumbent_v": _num(selection.get("incumbent_in_sample_V")),
+        "selected_v": _num(selection.get("selected_in_sample_V")),
+        "heldout_delta": _num(selection.get("heldout_delta_vs_incumbent")),
+        "steps": steps,
+    }
+
+
+def _policy_dev(study: Path, root: Path, raw: dict[str, Any]) -> dict[str, Any]:
+    """Policy development under one root: `step_NN/` dirs plus `evidence/history/step_NN`."""
+    selection = read_json(study, root / "selection.json") or {}
     steps: list[dict[str, Any]] = []
     selected_step = None
-    if pdir.is_dir():
-        for sdir in sorted(pdir.iterdir()):
+    if root.is_dir():
+        for sdir in sorted(root.iterdir()):
             match = STEP_RE.match(sdir.name)
             if not match or not sdir.is_dir() or int(match.group(1)) < 1:
                 continue
-            verdict = _read_json(study, pdir / "evidence" / "history" / sdir.name / "verdict.json")
+            verdict = read_json(study, root / "evidence" / "history" / sdir.name / "verdict.json")
             step = int(match.group(1))
             if verdict is None:
                 status, mean_v, delta, reason = "running", None, None, None
@@ -330,27 +398,53 @@ def _policy_dev(study: Path, cid: str, raw: dict[str, Any]) -> dict[str, Any]:
                     "mean_v": mean_v,
                     "delta_vs_best": delta,
                     "reason": reason,
+                    "attempts": _int((verdict or {}).get("attempts")),
+                    "slot": _str((verdict or {}).get("slot")),
                 }
             )
     pd_status = raw.get("status")
-    return {
-        "status": pd_status
-        if pd_status in ("pending", "running", "done", "skipped")
-        else "pending",
-        "selected_step": selected_step,
-        "incumbent_v": _num(selection.get("incumbent_in_sample_V")),
-        "selected_v": _num(selection.get("selected_in_sample_V")),
-        "heldout_delta": _num(selection.get("heldout_delta_vs_incumbent")),
-        "steps": steps,
-    }
+    return _dev_block(
+        selection,
+        steps,
+        selected_step,
+        pd_status if pd_status in ("pending", "running", "done", "skipped") else "pending",
+    )
+
+
+def _variant_dev(study: Path) -> dict[str, Any] | None:
+    """A finished policy-development root with no loop state: variants are the steps."""
+    selection = read_json(study, study / "selection.json")
+    if selection is None or not (study / "evidence" / "history").is_dir():
+        return None
+    steps = []
+    selected_step = None
+    for item in selection.get("variants") or []:
+        if not isinstance(item, dict):
+            continue
+        step = _int(item.get("step"))
+        if selection.get("selected_slot") and item.get("slot") == selection["selected_slot"]:
+            selected_step = step
+        steps.append(
+            {
+                "step": step,
+                "status": _str(item.get("status")) or "running",
+                "mean_v": _num(item.get("mean_v")),
+                "delta_vs_best": _num(item.get("delta_vs_best")),
+                "reason": _str(item.get("error")),
+                "attempts": _int(item.get("attempts")),
+                "slot": _str(item.get("slot")),
+            }
+        )
+    return _dev_block(selection, steps, selected_step, "done")
 
 
 def _cycle(study: Path, cid: str, iteration: int | None, it: dict[str, Any]) -> dict[str, Any]:
     cdir = study / "cycles" / cid
     cyc = it.get("cycle") if isinstance(it.get("cycle"), dict) else {}
-    manifest = _read_json(study, cdir / "live_cycle_manifest.json")
+    manifest = read_json(study, cdir / "live_cycle_manifest.json")
     done = manifest is not None or cyc.get("status") == "done"
     policy_in = it.get("policy_in") if isinstance(it.get("policy_in"), dict) else {}
+    nodes = _nodes(study, cdir)
     return {
         "cycle_id": cid,
         "iteration": iteration,
@@ -358,14 +452,19 @@ def _cycle(study: Path, cid: str, iteration: int | None, it: dict[str, Any]) -> 
         "decision_rounds": _int(manifest.get("decision_rounds")) if manifest else None,
         "opened_branches": _branches(manifest.get("opened_branches")) if manifest else None,
         "probes_used": _int(manifest.get("probes_used")) if manifest else None,
+        "probes_used_live": sum(
+            1 for n in nodes if n["cell_id"] != "root" and n["score"] is not None
+        ),
         "effective_sequential_rounds": (
             _int(manifest.get("effective_sequential_rounds")) if manifest else None
         ),
         "agent_timeout_s": _num(manifest.get("agent_timeout_s")) if manifest else None,
         "policy_sha256": _str(policy_in.get("sha256")),
-        "nodes": _nodes(study, cdir),
+        "nodes": nodes,
         "policy_dev": _policy_dev(
-            study, cid, it.get("policy_dev") if isinstance(it.get("policy_dev"), dict) else {}
+            study,
+            study / "policies" / cid,
+            it.get("policy_dev") if isinstance(it.get("policy_dev"), dict) else {},
         ),
     }
 
@@ -398,7 +497,7 @@ def _holder(study: Path) -> str | None:
 
 
 def _protocol_block(study: Path) -> dict[str, Any]:
-    proto = _read_json(study, study / "protocol.json") or {}
+    proto = read_json(study, study / "protocol.json") or {}
     drsi = proto.get("dream_rsi") if isinstance(proto.get("dream_rsi"), dict) else {}
     gates = proto.get("gates") if isinstance(proto.get("gates"), dict) else {}
     phases = proto.get("phases") if isinstance(proto.get("phases"), dict) else {}
@@ -422,11 +521,89 @@ def _protocol_block(study: Path) -> dict[str, Any]:
     }
 
 
+def _baseline(study: Path, cycles: list[dict[str, Any]]) -> dict[str, Any]:
+    """Baseline score is not recorded (the root's 0.0 is a placeholder); its bytes are on disk."""
+    for cycle in cycles:
+        for node in cycle["nodes"]:
+            if node["cell_id"] == "root" or node["status"] != "done":
+                continue
+            ndir = study / "cycles" / cycle["cycle_id"] / "nodes" / node["cell_id"]
+            score = read_json(study, ndir / "score.json") or {}
+            sizes = score.get("sizes") if isinstance(score.get("sizes"), dict) else {}
+            value = _int(sizes.get("baseline_resident_bytes"))
+            if value is None:
+                result = read_json(study, ndir / "eval" / "result.json") or {}
+                esizes = result.get("sizes") if isinstance(result.get("sizes"), dict) else {}
+                value = _int(result.get("baseline_resident_bytes")) or _int(
+                    esizes.get("baseline_resident_bytes")
+                )
+            if value is not None:
+                return {"score": None, "resident_bytes": value}
+    return {"score": None, "resident_bytes": None}
+
+
+def _calibration_state(study: Path, now: datetime) -> dict[str, Any] | None:
+    """A finished policy-development root served directly: one cycle, no nodes, no loop state."""
+    dev = _variant_dev(study)
+    if dev is None:
+        return None
+    selection = read_json(study, study / "selection.json") or {}
+    agent = selection.get("agent") if isinstance(selection.get("agent"), dict) else {}
+    variants = [v for v in selection.get("variants") or [] if isinstance(v, dict)]
+    sha = next(
+        (
+            _str(v.get("policy_sha256"))
+            for v in variants
+            if v.get("slot") == selection.get("selected_slot")
+        ),
+        None,
+    )
+    cycle = {
+        "cycle_id": study.name,
+        "iteration": None,
+        "status": "done",
+        "decision_rounds": None,
+        "opened_branches": None,
+        "probes_used": None,
+        "probes_used_live": 0,
+        "effective_sequential_rounds": None,
+        "agent_timeout_s": None,
+        "policy_sha256": sha,
+        "nodes": [],
+        "policy_dev": dev,
+    }
+    loop = {
+        "status": "done",
+        "stop_reason": None,
+        "iteration": None,
+        "stage": None,
+        "cycles_target": None,
+        "elapsed_s": None,
+        "agent_cost_usd": round(_num(agent.get("cost_usd")) or 0.0, 6),
+        "best_score": None,
+        "running": False,
+        "probe_budget": None,
+        "baseline": {"score": None, "resident_bytes": None},
+    }
+    return {
+        "study_dir": study.name,
+        "now": now.isoformat(),
+        "loop": loop,
+        "protocol": _protocol_block(study),
+        "gpu": _gpu_block(),
+        "cycles": [cycle],
+    }
+
+
 def build_state(study_dir: Path) -> dict[str, Any]:
     """Watch state per the watch_api contract; missing or half-written files are skipped."""
     study = Path(study_dir)
     now = datetime.now(UTC)
-    raw = _read_json(study, study / "loop_state.json")
+    raw = read_json(study, study / "loop_state.json")
+    if raw is None:
+        calibration = _calibration_state(study, now)
+        if calibration is not None:
+            return calibration
     running = _holder(study) is not None
     iterations = [it for it in (raw or {}).get("iterations", []) if isinstance(it, dict)]
     cycles = [
@@ -466,6 +643,11 @@ def build_state(study_dir: Path) -> dict[str, Any]:
         status = "stopped"
     else:
         status = state_status if state_status in ("stopped", "done", "error") else "idle"
+    run = (raw or {}).get("run") if isinstance((raw or {}).get("run"), dict) else {}
+    first = (raw or {}).get("first_run") if isinstance((raw or {}).get("first_run"), dict) else {}
+    probe_budget = _int(run.get("probe_budget"))
+    if probe_budget is None:
+        probe_budget = _int(first.get("probe_budget"))
     loop = {
         "status": status,
         "stop_reason": (raw or {}).get("stop_reason"),
@@ -476,6 +658,8 @@ def build_state(study_dir: Path) -> dict[str, Any]:
         "agent_cost_usd": round(cost, 6),
         "best_score": max(scores) if scores else None,
         "running": running,
+        "probe_budget": probe_budget,
+        "baseline": _baseline(study, cycles),
     }
     return {
         "study_dir": study.name,
@@ -505,139 +689,108 @@ def _solution(study: Path, src: Source, nodes_commit: str | None) -> str | None:
     return out.stdout[: ARTIFACT_CAP * 4].decode("utf-8", errors="replace")[:ARTIFACT_CAP]
 
 
-def _step_dir(study: Path, src: Source) -> Path:
-    return study / "policies" / src.cycle_id / f"step_{int(src.name):02d}"
-
-
 def read_artifact(study_dir: Path, source: Source, name: str) -> str | None:
     """Text of one artifact of a validated source, or None when it does not exist."""
     study = Path(study_dir)
     if source.kind == "node":
         ndir = study / "cycles" / source.cycle_id / "nodes" / source.name
         if name in NODE_FILES:
-            return _read_text(study, ndir / NODE_FILES[name])
+            return read_text(study, ndir / NODE_FILES[name])
+        if name == "export":
+            return read_text(study, ndir / "export" / "solution.py")
+        if name == "prompt":
+            return read_text(study, ndir / "evidence" / "TASK.md")
         if name == "solution":
-            score = _read_json(study, ndir / "score.json") or {}
+            score = read_json(study, ndir / "score.json") or {}
             return _solution(study, source, _str(score.get("commit")))
         return None
-    sdir = _step_dir(study, source)
+    root = policy_root(study, source.cycle_id) or study / "policies" / source.cycle_id
+    sdir = root / f"step_{int(source.name):02d}"
     if name == "policy":
-        return _read_text(study, sdir / "candidate.py")
-    history = study / "policies" / source.cycle_id / "evidence" / "history" / sdir.name
+        return read_text(study, sdir / "candidate.py")
+    if name == "seed":
+        return read_text(study, sdir / "workspace" / "method.py")
+    history = root / "evidence" / "history" / sdir.name
     if name == "verdict":
-        return _read_text(study, history / "verdict.json")
+        return read_text(study, history / "verdict.json")
     if name == "curve":
-        return _read_text(study, history / "scaling_curve.json")
+        return read_text(study, sdir / "replay" / "result.json") or read_text(
+            study, history / "scaling_curve.json"
+        )
     return None
-
-
-def _log_path(study: Path, source: Source) -> Path:
-    if source.kind == "node":
-        return study / "cycles" / source.cycle_id / "nodes" / source.name / "logs" / "stdout.log"
-    attempts = study / "policies" / source.cycle_id / f"step_{int(source.name):02d}" / "logs"
-    best: tuple[int, Path] | None = None
-    if attempts.is_dir():
-        for path in attempts.iterdir():
-            match = ATTEMPT_RE.match(path.name)
-            has_log = match is not None and (path / "stdout.log").is_file()
-            if has_log and (best is None or int(match.group(1)) > best[0]):
-                best = (int(match.group(1)), path / "stdout.log")
-    return best[1] if best else attempts / "attempt_0" / "stdout.log"
 
 
 def _finished(study: Path, source: Source) -> bool:
     if source.kind == "node":
         return (study / "cycles" / source.cycle_id / "nodes" / source.name / "score.json").is_file()
+    root = policy_root(study, source.cycle_id) or study / "policies" / source.cycle_id
     return (
-        study
-        / "policies"
-        / source.cycle_id
-        / "evidence"
-        / "history"
-        / f"step_{int(source.name):02d}"
-        / "verdict.json"
+        root / "evidence" / "history" / f"step_{int(source.name):02d}" / "verdict.json"
     ).is_file()
 
 
 def events_payload(study_dir: Path, source: Source, after: int) -> dict[str, Any]:
     """Events from `after` for one source, with the next index and done flag."""
     study = Path(study_dir)
-    log = _log_path(study, source)
-    if log.exists() and _inside(study, log) is None:
+    log = log_path(study, source)
+    if log.exists() and inside(study, log) is None:
         return {"events": [], "next": after, "done": True, "error": "log path outside study"}
     finished = _finished(study, source)
     events, nxt, done = read_events(log, after, finished=finished)
     return {"events": events, "next": nxt, "done": done}
 
 
-def _rel(study: Path, path: Path) -> str:
-    """Study-relative POSIX path so the page never sees a machine-specific absolute path."""
-    try:
-        return path.relative_to(study).as_posix()
-    except ValueError:
-        return path.as_posix()
+def _static_root() -> Path:
+    """The directory the page is served from; tests patch STATIC_INDEX to a temp copy."""
+    return STATIC_INDEX.parent.resolve()
 
 
-def _context_paths(study: Path, source: Source) -> list[tuple[str, Path]]:
-    """The files the agent reads for one source, in reading order."""
-    if source.kind == "node":
-        ndir = study / "cycles" / source.cycle_id / "nodes" / source.name
-        return [
-            ("TASK.md", ndir / "evidence" / "TASK.md"),
-            ("tree.json", ndir / "evidence" / "tree.json"),
-            ("proposal.md", ndir / "proposal.md"),
-        ]
-    pdir = study / "policies" / source.cycle_id
-    return [
-        ("TASK.md", pdir / "evidence" / "TASK.md"),
-        ("tree.json", pdir / "evidence" / "tree.json"),
-        ("candidate.py", _step_dir(study, source) / "candidate.py"),
-    ]
+def static_path(url_path: str) -> Path | None:
+    """Resolve one allowlisted static path, refusing traversal, dotfiles and symlinks.
 
-
-def context_payload(study_dir: Path, source: Source) -> dict[str, Any]:
-    """Read-only view of what the agent sees: evidence files, model and sandbox flags.
-
-    The command line is deliberately not shipped: it carries host paths (`/usr/bin/bwrap`,
-    the credential mount, the workspace) that say nothing about the agent's context.
+    The page is a set of ES modules under `css/` and `js/` plus three root files. Anything
+    else is not served, even if it exists: the static tree is not a general file server.
     """
-    study = Path(study_dir)
-    files = []
-    for name, path in _context_paths(study, source):
-        text = _read_text(study, path, cap=CONTEXT_CAP + 1)
-        if text is None:
-            continue
-        files.append(
-            {
-                "name": name,
-                "path": _rel(study, path),
-                "text": text[:CONTEXT_CAP],
-                "truncated": len(text) > CONTEXT_CAP,
-            }
-        )
-    meta = _read_json(study, _log_path(study, source).parent / "command.json") or {}
-    return {
-        "source": f"{source.kind}:{source.cycle_id}:{source.name}",
-        "kind": source.kind,
-        "log": _rel(study, _log_path(study, source)),
-        "files": files,
-        "command": {
-            "backend": _str(meta.get("backend")),
-            "model": _str(meta.get("model")),
-            "effort": _str(meta.get("effort")),
-            "tools": _str(meta.get("tools")),
-            "cli_version": _str(meta.get("cli_version")),
-            "network": meta.get("network") is True,
-            "sandboxed": meta.get("use_bwrap") is True,
-        },
-    }
+    relative = url_path.lstrip("/")
+    if not relative or relative.endswith("/"):
+        return None
+    parts = relative.split("/")
+    if len(parts) > 3 or any(
+        not PART.match(p) or p in (".", "..") or p.startswith(".") for p in parts
+    ):
+        return None
+    if len(parts) == 1 and parts[0] not in STATIC_FILES:
+        return None
+    if len(parts) > 1 and parts[0] not in STATIC_DIRS:
+        return None
+    root = _static_root()
+    candidate = root / relative
+    try:
+        real = candidate.resolve(strict=True)
+    except (OSError, RuntimeError):
+        return None
+    if not real.is_relative_to(root) or not real.is_file() or candidate.is_symlink():
+        return None
+    return real
 
 
-def _page(study: Path) -> tuple[int, bytes, str]:
-    if STATIC_INDEX.is_file():
-        return 200, STATIC_INDEX.read_bytes(), "text/html; charset=utf-8"
-    hint = "<p>Watch page not built: rsi/watch_static/index.html is missing.</p>"
-    return 404, f"<!doctype html><title>watch</title>{hint}".encode(), "text/html; charset=utf-8"
+def _static(url_path: str) -> tuple[int, bytes, str] | None:
+    """(status, body, content type) for one static request, or None when it is not served."""
+    if url_path in ("/", "/index.html"):
+        if STATIC_INDEX.is_file():
+            return 200, STATIC_INDEX.read_bytes(), STATIC_TYPES[".html"]
+        hint = "<p>Watch page not built: rsi/watch_static/index.html is missing.</p>"
+        return 404, f"<!doctype html><title>watch</title>{hint}".encode(), STATIC_TYPES[".html"]
+    path = static_path(url_path)
+    if path is None:
+        return None
+    ctype = STATIC_TYPES.get(path.suffix)
+    if ctype is None:
+        return None
+    try:
+        return 200, path.read_bytes(), ctype
+    except OSError:
+        return None
 
 
 def _log_token(path: Path) -> str:
@@ -712,9 +865,11 @@ class _Handler(BaseHTTPRequestHandler):
         study = self.server.study_dir
         if not self._host_ok():
             return self._json(403, {"error": "forbidden host"})
-        if url.path == "/":
-            status, body, ctype = _page(study)
-            return self._send(status, body, ctype)
+        if not url.path.startswith("/api/"):
+            page = _static(url.path)
+            if page is None:
+                return self._json(404, {"error": "not found"})
+            return self._send(*page)
         if url.path == "/api/state":
             return self._json(200, self.server.snapshot()[1])
         if url.path == "/api/events":
@@ -725,6 +880,8 @@ class _Handler(BaseHTTPRequestHandler):
             return self._context(study, query)
         if url.path == "/api/artifact":
             return self._artifact(study, query)
+        if url.path == "/api/dream":
+            return self._dream(study, query)
         return self._json(404, {"error": "not found"})
 
     def _host_ok(self) -> bool:
@@ -772,7 +929,7 @@ class _Handler(BaseHTTPRequestHandler):
             self.server.streams.release()
 
     def _stream_loop(self, study: Path, source: Source, after: int) -> None:
-        token = _log_token(_log_path(study, source))
+        token = _log_token(log_path(study, source))
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
@@ -800,8 +957,8 @@ class _Handler(BaseHTTPRequestHandler):
         last_state = started - STREAM_STATE_SECONDS  # first state goes out immediately
         try:
             while True:
-                log_path = _log_path(study, source)
-                new_token = _log_token(log_path)
+                path = log_path(study, source)
+                new_token = _log_token(path)
                 if new_token != token:
                     token = new_token
                     index = 0
@@ -857,6 +1014,19 @@ class _Handler(BaseHTTPRequestHandler):
         if text is None:
             return self._json(404, {"error": "artifact not found"})
         return self._json(200, {"name": name, "text": redact_obj(text)})
+
+    def _dream(self, study: Path, query: dict[str, list[str]]) -> None:
+        """One cycle's policy-development record; an unknown cycle is a 404, not an empty page."""
+        cycle = (_first(query, "cycle") or "").strip()
+        if not cycle or not PART.fullmatch(cycle) or cycle in (".", ".."):
+            return self._json(400, {"error": "cycle must be a cycle id"})
+        world = _first(query, "world") or None
+        if world is not None and (len(world) > 200 or not PART.fullmatch(world)):
+            return self._json(400, {"error": "world must be a world id"})
+        payload = dream_payload(study, cycle, world)
+        if payload["status"] == "missing":
+            return self._json(404, {"error": "unknown cycle"})
+        return self._json(200, redact_obj(payload))
 
     def _json(self, status: int, payload: Any) -> None:
         body = json.dumps(payload).encode("utf-8")

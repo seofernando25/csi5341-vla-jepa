@@ -1,0 +1,322 @@
+/* Chapters 05-06: what changed, method. Tokens only; the shell owns the page. */
+
+/* --- 05 · what changed -------------------------------------------------- */
+
+.changed-pending {
+  display: grid;
+  gap: 10px;
+  padding-block: 8px 4px;
+}
+
+.changed-state {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(20px, 2.2vw, 26px);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.changed-note {
+  margin: 18px 0 0;
+  max-width: 68ch;
+  color: var(--fg-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.changed-meta {
+  margin: 12px 0 0;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+.changed-stats {
+  margin: 28px 0 0;
+}
+
+.changed-diff,
+.changed-variants {
+  margin: 24px 0 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.changed-diff .figure-head,
+.changed-variants .figure-head {
+  margin-bottom: 0;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.changed-diff .figure-head span:first-child {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.changed-diff .figure-cap,
+.changed-variants .figure-cap {
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.changed-diff .figure-cap a {
+  color: var(--accent);
+}
+
+.changed-missing {
+  margin: 0;
+  padding: 18px 16px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+.diff-counts {
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.diff {
+  overflow-x: auto;
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.diff-line {
+  display: grid;
+  grid-template-columns: 3em 3em 1.4em minmax(max-content, 1fr);
+  align-items: start;
+  min-height: 1.6em;
+}
+
+.diff-no {
+  padding-right: 0.6em;
+  color: var(--fg-subtle);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+.diff-sign {
+  color: var(--fg-subtle);
+  text-align: center;
+  user-select: none;
+}
+
+.diff-text {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  white-space: pre;
+}
+
+.diff-line[data-kind="add"] {
+  background: var(--add-bg);
+}
+
+.diff-line[data-kind="add"] .diff-sign {
+  color: var(--add-fg);
+}
+
+.diff-line[data-kind="del"] {
+  background: var(--del-bg);
+}
+
+.diff-line[data-kind="del"] .diff-sign {
+  color: var(--del-fg);
+}
+
+.diff-skip {
+  padding: 2px 16px 2px 7.4em;
+  border-block: 1px solid var(--border);
+  background: var(--bg-inset);
+  color: var(--fg-subtle);
+  font-size: 11px;
+}
+
+.diff-more {
+  padding: 8px 16px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 11.5px;
+}
+
+.changed-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.changed-table th {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--fg-muted);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.changed-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: baseline;
+}
+
+.changed-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.changed-table .slot,
+.changed-table .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.changed-table .num,
+.changed-table th.num {
+  text-align: right;
+}
+
+.changed-table tr.is-selected td {
+  background: var(--accent-soft);
+}
+
+.changed-table tr.is-selected .slot {
+  font-weight: 600;
+}
+
+/* --- 06 · method -------------------------------------------------------- */
+
+.method {
+  display: grid;
+  gap: 32px;
+}
+
+.method-block {
+  display: grid;
+  gap: 6px;
+}
+
+.method .method-head {
+  margin: 0;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.method-list {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+  list-style: none;
+}
+
+.method-list .method-row {
+  display: grid;
+  grid-template-columns: 2.4em 8.5em minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  align-items: baseline;
+  margin: 0;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.method-list .method-row.is-plain {
+  grid-template-columns: 8.5em minmax(0, 1fr) auto;
+}
+
+.method-num {
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.method-label {
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.method-text {
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.chapter-body .method-where {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chapter-body .method-where:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.chapter-body .method-where:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.method-where.is-none {
+  color: var(--fg-subtle);
+}
+
+.method-note {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--fg-muted);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+@media (max-width: 640px) {
+  .changed-table {
+    font-size: 11.5px;
+  }
+
+  .changed-table th,
+  .changed-table td {
+    padding-inline: 10px;
+  }
+
+  .method-list .method-row,
+  .method-list .method-row.is-plain {
+    grid-template-columns: 2.4em minmax(0, 1fr);
+    gap: 2px 10px;
+  }
+
+  .method-list .method-row.is-plain {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .method-list .method-row .method-label,
+  .method-list .method-row .method-text,
+  .method-list .method-row .method-where {
+    grid-column: 2;
+  }
+
+  .method-list .method-row.is-plain .method-label,
+  .method-list .method-row.is-plain .method-text,
+  .method-list .method-row.is-plain .method-where {
+    grid-column: 1;
+  }
+
+  .chapter-body .method-where {
+    white-space: normal;
+  }
+}

@@ -1,0 +1,117 @@
+/* Shared story blocks: figures, stats, rules. Tokens only. */
+
+/* Figures ------------------------------------------------------------------ */
+.figure {
+  min-width: 0;
+  margin: 40px 0 0;
+  padding: 0;
+}
+
+.figure + .figure {
+  margin-top: 20px;
+}
+
+.figure-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-muted);
+  font: 500 11px/1.4 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.figure-head > * + * {
+  color: var(--fg-subtle);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.figure-body {
+  min-width: 0;
+}
+
+.figure-cap {
+  max-width: 70ch;
+  margin-top: 14px;
+  color: var(--fg-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.figure-cap strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Stats and rules ---------------------------------------------------------- */
+.stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(20px, 4vw, 56px);
+  margin-top: 28px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.stat-value {
+  font: 500 clamp(32px, 3.4vw, 44px)/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.stat-label {
+  color: var(--fg-muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stat[data-tone="accent"] .stat-value {
+  color: var(--accent);
+}
+
+.stat[data-tone="ok"] .stat-value {
+  color: var(--ok);
+}
+
+.stat[data-tone="warn"] .stat-value {
+  color: var(--warn);
+}
+
+.stat[data-tone="err"] .stat-value {
+  color: var(--err);
+}
+
+.rule {
+  height: 1px;
+  margin: clamp(28px, 4vw, 48px) 0;
+  border: 0;
+  background: var(--border);
+}
+
+@media (max-width: 600px) {
+  .figure {
+    padding: 16px;
+    border-radius: var(--radius);
+  }
+
+  .stat-row {
+    gap: 20px 28px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+  }
+}
