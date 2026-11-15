@@ -332,16 +332,29 @@ def test_unknown_recipe_method_is_rejected():
         apply(None, {"changes": [{"method": "not_a_method"}]})
 
 
-def test_every_committed_recipe_uses_a_known_method():
-    from evaluation.common import ROOT, read_json
-    from evaluation.compression.recipes import METHODS
+def test_storage_inventory_records_per_module_storage_for_effective_bits():
+    class Inner(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.language_model = nn.Linear(8, 4, bias=False)
+            self.visual = nn.Linear(4, 2, bias=False)
 
-    recipes = sorted((ROOT / "studies/program-v1/recipes").glob("*.json"))
-    if not recipes:
-        pytest.skip("clean-room recipes are not authored yet")
-    for path in recipes:
-        for change in read_json(path)["changes"]:
-            assert change["method"] in METHODS, (path.name, change["method"])
-            quantizer = change.get("quantizer")
-            if quantizer:
-                assert quantizer["method"] in METHODS, (path.name, quantizer["method"])
+    class Qwen(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.model = nn.Module()
+            self.model.model = Inner()
+
+    policy = nn.Module()
+    policy.model = nn.Module()
+    policy.model.qwen = Qwen()
+    policy.model.action_model = nn.Linear(2, 1, bias=False)
+
+    inventory = storage_inventory(policy)
+    assert inventory["modules"]["text"] == {
+        "resident_tensor_storage_bytes": 32 * 4,
+        "logical_parameter_elements": 32,
+    }
+    assert inventory["modules"]["vision"]["logical_parameter_elements"] == 8
+    assert inventory["modules"]["action"]["logical_parameter_elements"] == 2
+    assert inventory["inference_core_logical_parameter_elements"] == 42

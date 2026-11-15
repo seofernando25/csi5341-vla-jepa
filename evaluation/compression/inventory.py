@@ -46,6 +46,23 @@ def logical_parameter_count(module):
 
 def storage_inventory(policy):
     """Deduplicate actual packed tensors, tied weights and quantizer metadata."""
+    result = _resident(policy)
+    if hasattr(policy, "model") and hasattr(policy.model, "qwen"):
+        result["inference_core_logical_parameter_elements"] = sum(
+            logical_parameter_count(root) for root in roots(policy).values()
+        )
+        result["modules"] = {
+            name: {
+                "resident_tensor_storage_bytes": _resident(root)["resident_tensor_storage_bytes"],
+                "logical_parameter_elements": logical_parameter_count(root),
+            }
+            for name, root in roots(policy).items()
+        }
+    return result
+
+
+def _resident(policy):
+    """Resident tensor storage and parameter counts of one module tree."""
     seen = set()
     total = 0
 
@@ -89,10 +106,6 @@ def storage_inventory(policy):
         "represented_logical_parameter_elements": logical_parameter_count(policy),
         "resident_tensor_storage_bytes": total,
     }
-    if hasattr(policy, "model") and hasattr(policy.model, "qwen"):
-        result["inference_core_logical_parameter_elements"] = sum(
-            logical_parameter_count(root) for root in roots(policy).values()
-        )
     return result
 
 
