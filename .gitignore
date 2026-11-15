@@ -46,6 +46,33 @@ studies/evaluation/training/*/metrics_summary.json
 studies/program-v1/measurements/*/*/serialized.json
 studies/program-v1/measurements/*/*/tensor_layout.json
 
+# Per-node agent crash dumps, raw transcripts and editor backups stay local. command.json is the
+# only log file that is evidence: it is path-free, while stdout.log, stderr.log and
+# agent_result.json quote the sandbox paths (/tmp/work, /tmp/evidence) the agent saw.
+studies/*/cycles/*/nodes/*/error.txt
+studies/*/cycles/*/nodes/*/logs/stdout.log
+studies/*/cycles/*/nodes/*/logs/stderr.log
+studies/*/cycles/*/nodes/*/logs/agent_result.json
+rsi/watch_static/*.orig
+
+# Raw per-node inputs and outputs stay local: the frozen fork, the batch evidence handed to the
+# agent, and the evaluator's per-episode output for smoke and development. score.json,
+# development.json and tree.json are evidence.
+studies/*/cycles/*/nodes/*/workspace/
+studies/*/cycles/*/nodes/*/export/
+studies/*/cycles/*/nodes/*/evidence/
+studies/*/cycles/*/nodes/*/eval/
+studies/*/cycles/*/nodes/*/development/
+# The effective grid plan is duplicated in live_cycle_manifest.json.
+studies/*/cycles/*/grid_plan.json
+# The cycle's snapshot store and GPU slot locks are runtime state, never evidence.
+studies/*/cycles/*/snapshots.git/
+studies/*/cycles/*/gpu-slots/
+# Policy-dev scratch: the agent workspace and its per-attempt transcripts. The step's
+# candidate.py, replay and evidence/history records are the evidence.
+studies/*/policies/*/step_*/workspace/
+studies/*/policies/*/step_*/logs/
+
 # Required presentation clips, explicitly retained for the offline viewer.
 !/web/presentation/assets/droid-demonstration.mp4
 !/web/presentation/assets/human-demonstration.mp4
