@@ -33,6 +33,24 @@ reported. Goal set by Fernando: every result for the report measured within 24 h
 - Measurement queue: active, 12 cell records written.
 - No subagents are running. Fernando asked for no new ones in this session.
 
+## Update 12:45 EST: first development results
+
+Development phase, 100 trials each, same states. Not final: Reserved-500 has not run.
+
+- **Dream-RSI cycle 1 done** (8 probes, all valid, all 8/10 smoke, no timeouts; 2 h of probes).
+  Best node `iter_000-b0-a3`: 86.9 % memory removed, **80/100 development** (gate 77, passes).
+  Uncompressed reference `B16`: **82/100** in the measurement queue. Losses concentrate on tasks 0,
+  5 and 8 (3/10, 4/10, 3/10 for the node).
+- **Dreaming ran in the real loop:** `policies/iter_000/selection.json` selected an LLM-written
+  policy, in-sample V 0.467 -> 0.808 on the one recorded tree; held-out (24 synthetic worlds) only
+  0.525 -> 0.533. As expected, mostly overfit to one tree. Cycle 2 started under the new policy.
+- **Queue so far (development successes /100):** language INT8 81, NF4 81, HQQ3 80, HQQ2 20;
+  vision INT8 79, NF4 82, HQQ3 83, HQQ2 86; action cells running. Language is the bottleneck at
+  2 bits; vision tolerates 2 bits. Differences of a few trials are inside the noise (Wilson 95 %
+  at 80/100 is about 71 to 87).
+- **Before committing evidence:** `selection.json` stores an absolute `selected_policy_path` under
+  the home directory. Redact or relativise it first (rule: no machine-specific paths).
+
 ## What is running
 
 | What | Where | Unit | Check |
