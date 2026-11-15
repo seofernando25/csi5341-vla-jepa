@@ -75,6 +75,29 @@ Background waiters of the old session die with it. Start new ones.
 - **Dreaming** (replay of candidate policies on recorded trees) first happens when cycle 1 ends.
   With one recorded tree the first selection is overfit by construction.
 
+## Map (read these instead of re-exploring)
+
+`CLAUDE.md` has the directory table and `docs/COMMANDS.md` the one command per task. What they do
+not say:
+
+| Need | Go to |
+|---|---|
+| How the loop differs from the paper | `docs/DREAM_RSI.md`, "Known deviations" |
+| What a discovery agent is told | `rsi/prompts/discovery.md`; workspace seed in `rsi/workspace_template/` |
+| What the policy-rewrite agent is told | `rsi/prompts/policy_dev.md` |
+| How a node is scored | `evaluation/compression/solution.py` (memory rule, violations, time limit) |
+| Outer loop, resume, stop rules | `rsi/durable_loop.py`; one cycle in `rsi/online_cycle.py`; one node in `rsi/expansion.py` |
+| Replay ("dreaming") and V | `rsi/dream.py`, `rsi/objective.py`, `rsi/policy_dev.py` |
+| Launcher, status, stop | `rsi/service.py` |
+| Agent CLI wiring (pi) | `rsi/agent_backends.py` |
+| Frozen gates, budgets, revisions | `studies/program-v1/protocol.json` |
+| A node's record | `studies/program-v1/cycles/<cycle>/nodes/<cell>/{score.json,proposal.md,diff.patch}` |
+| Policy versions and replay evidence | `studies/program-v1/policies/` |
+| Watch page (old) | `rsi/watch.py`, `rsi/watch_events.py`, `rsi/watch_static/index.html` |
+| Watch page (new, unmerged) | UI worktrees; `rsi/watch_static/README.md` and `docs/watch_state.md` there |
+| Measurement queue (unmerged) | queue worktree: `evaluation/compression/queue.py`, `studies/program-v1/queue.json`, `recipes/` |
+| Scratch from today's agents | `/tmp/opencode/` (audits, UI notes, logs); lost on reboot |
+
 ## To check at the end of cycle 1
 
 - Were two agents really running in parallel? After 24 min only one node was done and branch 1 had
