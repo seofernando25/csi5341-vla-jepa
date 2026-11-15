@@ -8,7 +8,7 @@ The active [main.tex](main.tex) is a scaffold. It has no results until the clean
 `studies/program-v1/`.
 
 ```bash
-uv run --no-sync python -m report.plots   # only after program-v1 evidence exists
+uv run --no-sync python -m report.plots   # exits early until studies/program-v1/summary.csv exists
 cd report && latexmk -pdf main.tex
 ```
 

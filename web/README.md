@@ -15,7 +15,10 @@ Details: [presentation/README.md](presentation/README.md).
 
 ## `web/dream-rsi-explainer/` — Dream-RSI explainer video
 
-Deterministic Three.js + Canvas 2D renderer producing a 245 s (`1280×720`, `24 fps`) narrated explainer from `script.txt` and `studies/dream-rsi/attempts.jsonl`.
+Deterministic Three.js + Canvas 2D renderer producing a 208 s (`1280×720`, `24 fps`, 14 scenes)
+narrated explainer from `script.txt`. The search-tree geometry comes from
+`studies/program-v1/protocol.json` (`dream_rsi.grid_plan`), not from run data. The tracked MP4
+predates the clean-room cut; re-render before presenting.
 
 - **Build:**
   ```sh
