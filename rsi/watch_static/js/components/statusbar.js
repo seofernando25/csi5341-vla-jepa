@@ -15,7 +15,6 @@ export function mount(root, ctx) {
   const hints = el("span", { class: "status-hints" }, [
     el("span", { class: "status-hint" }, [el("kbd", { class: "kbd" }, `${modLabel()} K`), "palette"]),
     el("span", { class: "status-hint" }, [el("kbd", { class: "kbd" }, "/"), "search"]),
-    el("span", { class: "status-hint" }, [el("kbd", { class: "kbd" }, "?"), "shortcuts"]),
   ]);
   root.append(connection, loopItem, slots, last, el("span", { class: "status-spacer" }), hints);
 

@@ -45,6 +45,7 @@ export function createApi({ demo = false } = {}) {
     events: (source, after = 0) => getJson(`/api/events?${qs({ source, after })}`),
     artifact: (source, name) => getJson(`/api/artifact?${qs({ source, name })}`),
     context: (source) => getJson(`/api/context?${qs({ source })}`),
+    dream: (cycle, world) => getJson(`/api/dream?${qs({ cycle, world })}`),
   };
 }
 

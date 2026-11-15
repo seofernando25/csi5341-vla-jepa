@@ -27,6 +27,18 @@ export function readHash() {
   return parseHash(location.hash);
 }
 
+/* Story mode: #/story/<chapter>. */
+export function parseStory(hash = location.hash) {
+  const text = String(hash).replace(/^#\/?/, "");
+  const parts = text.split("/");
+  if (parts[0] !== "story" || !parts[1]) return null;
+  return { chapter: decodeURIComponent(parts[1]) };
+}
+
+export function storyHash(chapter = "task") {
+  return `#/story/${encodeURIComponent(chapter)}`;
+}
+
 export function writeHash(tab, { replace = false } = {}) {
   const next = formatHash(tab);
   if (!next || location.hash === next) return;

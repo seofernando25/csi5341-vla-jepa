@@ -8,7 +8,8 @@ import * as fmt from "./format.js";
 import * as dom from "./dom.js";
 import { createApi } from "./api.js";
 import { openStream } from "./sse.js";
-import { parseHash, writeHash } from "./router.js";
+import { parseHash, writeHash, parseStory, storyHash } from "./router.js";
+import { mountStory } from "./story/index.js";
 import { mountView } from "./views/index.js";
 import { mount as mountTitlebar } from "./components/titlebar.js";
 import { mountTabs, mountViewbar } from "./components/tabs.js";
@@ -28,6 +29,8 @@ const TICK_MS = 1000;
 const stored = safeTheme();
 const store = createStore(reducer, makeInitialState({ theme: stored }));
 let api = null;
+let story = null;
+let mode = "workbench";
 
 const ctx = {
   store,
@@ -37,7 +40,13 @@ const ctx = {
   fmt,
   dom,
   api: null,
-  go: (source, view) => store.dispatch(act.open(source, view)),
+  go: (source, view) => {
+    const [kind, cycle, target] = String(source).split(":");
+    store.dispatch(act.open(source, view));
+    if (kind && cycle && target) {
+      location.hash = `#/${kind}/${encodeURIComponent(cycle)}/${encodeURIComponent(target)}/${view || "transcript"}`;
+    }
+  },
 };
 
 const regions = {};
@@ -209,7 +218,25 @@ function effects(state) {
 }
 
 /* --- routing ------------------------------------------------------------ */
+function applyMode(next) {
+  if (mode === next) return;
+  mode = next;
+  document.body.dataset.mode = mode;
+  document.getElementById("app").hidden = mode === "story";
+  document.getElementById("story-root").hidden = mode !== "story";
+  const state = store.getState();
+  if (mode === "story" && story) story.update(state, null);
+  else render(state, null);
+}
+
 function routeFromHash(state) {
+  const storyRoute = parseStory(location.hash);
+  if (storyRoute) {
+    applyMode("story");
+    if (story) story.go(storyRoute.chapter);
+    return true;
+  }
+  applyMode("workbench");
   const route = parseHash(location.hash);
   if (!route) return false;
   const source = sel.sourceOf(route.kind, route.cycle, route.target);
@@ -320,6 +347,10 @@ function mountActiveView(state) {
 /* --- render loop -------------------------------------------------------- */
 function render(state, prev) {
   if (state.ui.theme !== prev?.ui.theme) applyTheme(state.ui.theme);
+  if (mode === "story") {
+    if (story) story.update(state, prev);
+    return;
+  }
   applyLayout(state);
   mountActiveView(state);
   for (const region of Object.values(regions)) region.update(state, prev);
@@ -340,6 +371,7 @@ async function boot() {
   api = await createApi({ demo: DEMO });
   ctx.api = api;
   mountRegions();
+  story = mountStory(document.getElementById("story-root"), ctx);
   installSplitters();
   installKeyboard(store, { act, go: ctx.go });
   store.subscribe(render);
@@ -359,7 +391,7 @@ async function boot() {
       const data = await api.state();
       lastStateAt = Date.now();
       store.dispatch(act.stateLoaded(data, lastStateAt));
-      if (!sel.activeTab(store.getState())) {
+      if (mode === "workbench" && !sel.activeTab(store.getState())) {
         if (!routeFromHash(store.getState())) {
           const source = sel.defaultSource(store.getState());
           if (source) store.dispatch(act.open(source));
@@ -374,7 +406,7 @@ async function boot() {
   setInterval(poll, POLL_MS);
   setInterval(() => store.dispatch({ type: "tick", at: Date.now() }), TICK_MS);
   routeFromHash(store.getState());
-  if (!sel.activeTab(store.getState())) {
+  if (mode === "workbench" && !sel.activeTab(store.getState())) {
     const source = sel.defaultSource(store.getState());
     if (source) store.dispatch(act.open(source));
   }

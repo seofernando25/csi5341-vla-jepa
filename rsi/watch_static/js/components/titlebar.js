@@ -45,6 +45,11 @@ export function mount(root, ctx) {
   const gpu = metric("gpu", "gpu");
   metrics.append(best.node, scored.node, cost.node, elapsed.node, gpu.node);
 
+  const modeSwitch = el("nav", { class: "mode-switch", "aria-label": "Mode" }, [
+    el("a", { class: "mode-link", href: "#/story/task" }, "Story"),
+    el("span", { class: "mode-link", "aria-current": "page" }, "Workbench"),
+  ]);
+
   const paletteBtn = el("button", { class: "palette-trigger", type: "button", title: "Command palette" }, [
     icon("command", 13),
     el("span", {}, "Jump to…"),
@@ -80,7 +85,7 @@ export function mount(root, ctx) {
     dispatch(act.inspector({ open }));
   });
 
-  actions.append(paletteBtn, themeBtn, sidebarBtn, inspectorBtn);
+  actions.append(modeSwitch, paletteBtn, themeBtn, sidebarBtn, inspectorBtn);
 
   let cycleSig = "";
   let statusSig = "";
