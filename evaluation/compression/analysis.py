@@ -33,18 +33,17 @@ def rollout_columns(candidate, phase, baseline_rows):
     run = completed(candidate, phase)
     if run is None:
         return {}
-    rows = episodes(run[1])
-    columns = {
-        f"{phase}_successes": sum(int(r["success"]) for r in rows),
-        f"{phase}_episodes": len(rows),
-    }
+    record, folder = run
+    if (folder / "episodes.csv").exists():
+        rows = episodes(folder)
+        successes, n = sum(int(r["success"]) for r in rows), len(rows)
+    else:  # compacted smoke: counts preserved in run.json summary
+        successes, n = int(record["summary"]["successes"]), int(record["summary"]["episodes"])
+        rows = None
+    columns = {f"{phase}_successes": successes, f"{phase}_episodes": n}
     if baseline_rows is not None:
         if phase == "smoke":  # one state per task: no interval, plain difference
-            change = (
-                100
-                * (columns[f"{phase}_successes"] - sum(int(r["success"]) for r in baseline_rows))
-                / len(rows)
-            )
+            change = 100 * (successes - sum(int(r["success"]) for r in baseline_rows)) / n
         else:
             change = paired_difference(baseline_rows, rows)["difference_pp"]
         columns[f"{phase}_paired_change_pp"] = change

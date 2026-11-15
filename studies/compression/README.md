@@ -155,3 +155,22 @@ Checkpoint: `lerobot/VLA-JEPA-LIBERO` revision `735d9f692981e286ade093b5046627ed
 The campaign scheduler that chose which recipes advanced was removed after the study closed;
 its decisions are recorded in [decisions.jsonl](decisions.jsonl) and the `*_selection.json` files,
 and the code is in Git history at commit `82df05d`.
+
+## Measurement cleanup (keep-rule)
+
+The keep-union is 44 directories: the seven report/ladder candidates (`B16`,
+`deploy-hqq2-vision-action`, `fast-nf4-all-solver1-packed`, `fast-nf4-all-packed`,
+`fast-b16-graph`, `fast-b16-graph-solver1`, `fast-nf4-all-solver1`), all nine `s2-*` directories,
+and every directory with `development/` or `final/` evidence (34). Keep-union directories retain
+their `smoke/episodes.csv`; all `run.json` (508), development/final `episodes.csv` (43),
+`timings.csv` (11), `summary.csv` and `recipes/` are kept everywhere.
+
+Removed 353 redundant raw files, replaced by compact committed records:
+
+- 199 `screen/observations.json` (every directory) → [divergence.json](divergence.json),
+  163 rows; its header carries the source glob, git head and builder.
+- 154 non-keep `smoke/episodes.csv` → success/episode counts in each smoke `run.json` summary.
+  Smoke pairing is count-only, so removing screened-out smoke episodes loses no statistic.
+
+[summary.csv](summary.csv) is the frozen compact record (208 rows). Rebuild:
+`uv run --no-sync vla-compress-analyze`.

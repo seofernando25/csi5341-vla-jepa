@@ -223,20 +223,50 @@ def smoke(comp: pd.DataFrame, name: str) -> float:
 
 
 def divergence() -> pd.DataFrame:
+    """Per-candidate offline arm change vs smoke success, from the compact divergence record."""
     comp = pd.read_csv(COMP / "summary.csv")
+    rec = {r["candidate"]: r for r in load_json(COMP / "divergence.json")["rows"]}
     rows = []
     for cand, smoke in zip(comp.candidate, comp.smoke_successes, strict=True):
-        path = COMP / "measurements" / cand / "screen" / "observations.json"
-        if pd.isna(smoke) or not path.exists():
+        if pd.isna(smoke) or cand not in rec:
             continue
-        obs = pd.DataFrame(load_json(path))
         rows.append(
             {
                 "candidate": cand,
-                "arm_mse": obs.physical_arm_change_mse.mean(),
-                "gripper": obs.gripper_disagreement.mean(),
+                "arm_mse": rec[cand]["arm_mse"],
+                "gripper": rec[cand]["gripper"],
                 "smoke": int(smoke),
                 "component": component_of(cand),
             }
         )
     return pd.DataFrame(rows)
+
+
+def dream_rsi_stage2() -> dict:
+    """Dream-RSI stage-2 development evidence for the smallest passing candidate (search only)."""
+    from rsi.live import DEV_GATE  # local: keep the plots build free of the RSI import graph
+
+    cand = "s2-c2-t10-v25"
+    dev_path = COMP / "measurements" / cand / "development" / "run.json"
+    size_path = COMP / "measurements" / cand / "size" / "run.json"
+    dev, size = load_json(dev_path), load_json(size_path)
+    return {
+        "candidate": cand,
+        "phase": "development",
+        "development_successes": int(dev["summary"]["successes"]),
+        "development_episodes": int(dev["summary"]["episodes"]),
+        "gate": DEV_GATE,
+        "resident_bytes": int(size["summary"]["resident_tensor_storage_bytes"]),
+        "gpu": dev["environment"]["gpu"],
+        "sources": [str(dev_path.relative_to(ROOT)), str(size_path.relative_to(ROOT))],
+    }
+
+
+def launch_profile() -> dict:
+    """Per-variant kernel-launch profile of one prediction (bank index 0, 10 profiled calls)."""
+    prof = load_json(EVAL / "launch_profile.json")
+    return {
+        "observation": prof["observation"],
+        "profiled_calls": prof["profiled_calls"],
+        "variants": prof["variants"],
+    }
