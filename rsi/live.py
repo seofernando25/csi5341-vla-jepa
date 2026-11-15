@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from rsi.action_space import build_recipe_changes
 from rsi.api import gate_fail_class
 from rsi.qwen_search import (
     B16_RESIDENT_BYTES,
@@ -82,164 +83,49 @@ def build_round1_candidates() -> list[Stage2Candidate]:
 
     All cell IDs are new (`r1-*`); no committed measurements exist for them.
     """
-    specs: list[tuple[str, list[tuple[str, list[dict[str, Any]]]]]] = [
-        (
-            "r1_joint",
-            [
-                ("r1-t12-v30", _channels("r1_joint", [("text_mlp", 0.12), ("vision_mlp", 0.30)])),
-                ("r1-t15-v35", _channels("r1_joint", [("text_mlp", 0.15), ("vision_mlp", 0.35)])),
-                ("r1-t20-v45", _channels("r1_joint", [("text_mlp", 0.20), ("vision_mlp", 0.45)])),
-            ],
-        ),
-        (
-            "r1_vision",
-            [
-                ("r1-v35", _channels("r1_vision", [("vision_mlp", 0.35)])),
-                ("r1-v45", _channels("r1_vision", [("vision_mlp", 0.45)])),
-                ("r1-v60", _channels("r1_vision", [("vision_mlp", 0.60)])),
-            ],
-        ),
-        (
-            "r1_group32",
-            [
-                (
-                    "r1-t10-v25-g32",
-                    [
-                        {"method": "channels", "scope": "text_mlp", "fraction": 0.10},
-                        {"method": "channels", "scope": "vision_mlp", "fraction": 0.25},
-                        {"method": "world_remove"},
-                        {"method": "compact_embedding"},
-                        {"method": "bnb", "scope": "text", "bits": 4},
-                        {
-                            "method": "hqq",
-                            "scope": "vision_blocks",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {
-                            "method": "hqq",
-                            "scope": "action_mlp",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {"method": "bnb", "scope": "action_attention", "bits": 4},
-                        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-                        {"method": "bnb", "scope": "merger", "bits": 4},
-                    ],
-                ),
-                (
-                    "r1-t15-v35-g32",
-                    [
-                        {"method": "channels", "scope": "text_mlp", "fraction": 0.15},
-                        {"method": "channels", "scope": "vision_mlp", "fraction": 0.35},
-                        {"method": "world_remove"},
-                        {"method": "compact_embedding"},
-                        {"method": "bnb", "scope": "text", "bits": 4},
-                        {
-                            "method": "hqq",
-                            "scope": "vision_blocks",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {
-                            "method": "hqq",
-                            "scope": "action_mlp",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {"method": "bnb", "scope": "action_attention", "bits": 4},
-                        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-                        {"method": "bnb", "scope": "merger", "bits": 4},
-                    ],
-                ),
-                (
-                    "r1-t20-v45-g32",
-                    [
-                        {"method": "channels", "scope": "text_mlp", "fraction": 0.20},
-                        {"method": "channels", "scope": "vision_mlp", "fraction": 0.45},
-                        {"method": "world_remove"},
-                        {"method": "compact_embedding"},
-                        {"method": "bnb", "scope": "text", "bits": 4},
-                        {
-                            "method": "hqq",
-                            "scope": "vision_blocks",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {
-                            "method": "hqq",
-                            "scope": "action_mlp",
-                            "bits": 2,
-                            "axis": 0,
-                            "group_size": 32,
-                            "backend": "pytorch",
-                        },
-                        {"method": "bnb", "scope": "action_attention", "bits": 4},
-                        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-                        {"method": "bnb", "scope": "merger", "bits": 4},
-                    ],
-                ),
-            ],
-        ),
-    ]
-    candidates: list[Stage2Candidate] = []
-    seq = 0
-    for b_idx, (fam, chain) in enumerate(specs):
-        parent_id = "root"
-        for a_idx, (cid, changes) in enumerate(chain):
-            candidates.append(
-                Stage2Candidate(
-                    cell_id=cid,
-                    branch=b_idx,
-                    attempt=a_idx,
-                    parent_id=parent_id,
-                    seq=seq,
-                    family=fam,
-                    recipe={"id": cid, "family": fam, "changes": changes},
-                )
-            )
-            parent_id = cid
-            seq += 1
-    return candidates
+    return _chain(
+        [
+            (
+                "r1_joint",
+                [
+                    (
+                        "r1-t12-v30",
+                        _channels("r1_joint", [("text_mlp", 0.12), ("vision_mlp", 0.30)]),
+                    ),
+                    (
+                        "r1-t15-v35",
+                        _channels("r1_joint", [("text_mlp", 0.15), ("vision_mlp", 0.35)]),
+                    ),
+                    (
+                        "r1-t20-v45",
+                        _channels("r1_joint", [("text_mlp", 0.20), ("vision_mlp", 0.45)]),
+                    ),
+                ],
+            ),
+            (
+                "r1_vision",
+                [
+                    ("r1-v35", _channels("r1_vision", [("vision_mlp", 0.35)])),
+                    ("r1-v45", _channels("r1_vision", [("vision_mlp", 0.45)])),
+                    ("r1-v60", _channels("r1_vision", [("vision_mlp", 0.60)])),
+                ],
+            ),
+            (
+                "r1_group32",
+                [
+                    ("r1-t10-v25-g32", _g32_changes(0.10, 0.25)),
+                    ("r1-t15-v35-g32", _g32_changes(0.15, 0.35)),
+                    ("r1-t20-v45-g32", _g32_changes(0.20, 0.45)),
+                ],
+            ),
+        ]
+    )
 
 
 def _g32_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "compact_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "action_attention", "bits": 4},
-        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-        {"method": "bnb", "scope": "merger", "bits": 4},
-    ]
+    return build_recipe_changes(
+        base="T2", text_mlp_prune=text_frac, vision_mlp_prune=vision_frac, group_size=32
+    )
 
 
 def _chain(
@@ -297,79 +183,35 @@ def build_round2_candidates() -> list[Stage2Candidate]:
 
 
 def _g64_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        *_t2_base_changes(),
-    ]
+    return build_recipe_changes(
+        base="T2", text_mlp_prune=text_frac, vision_mlp_prune=vision_frac, group_size=64
+    )
 
 
 def _c1_base_changes(group_size: int = 64) -> list[dict[str, Any]]:
     """Full-vocabulary C1 base (`deploy-hqq2-vision-action`): world removed, int8
     embedding, NF4 text, HQQ2 vision blocks + action MLP, NF4 action attention,
     interfaces and merger. No `compact_embedding` (report dropped Nov 9)."""
-    return [
-        {"method": "world_remove"},
-        {"method": "int8_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": group_size,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": group_size,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "action_attention", "bits": 4},
-        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-        {"method": "bnb", "scope": "merger", "bits": 4},
-    ]
+    return build_recipe_changes(base="C1", group_size=group_size)
 
 
 def _c1_g32_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """C1 base with finer HQQ group size plus mild structured cuts."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        *_c1_base_changes(group_size=32),
-    ]
+    return build_recipe_changes(
+        base="C1", text_mlp_prune=text_frac, vision_mlp_prune=vision_frac, group_size=32
+    )
 
 
 def _c1_bf16attn_changes(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """C1 base with action attention/interfaces left in BF16 (no NF4) to protect the
     fragile action attention heads; action MLP stays HQQ2."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "int8_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 64,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 64,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "merger", "bits": 4},
-    ]
+    return build_recipe_changes(
+        base="C1",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=64,
+        action_precision="bf16_attn_hqq2_mlp",
+    )
 
 
 def _c1_solver1_changes(extra: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
@@ -492,61 +334,26 @@ def build_round3_candidates() -> list[Stage2Candidate]:
 
 def _r5_action_fidelity_solver1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """Root A: fragile action attention/interfaces stay BF16; everything else compressed."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "compact_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "merger", "bits": 4},
-        {"method": "solver_steps", "count": 1},
-    ]
+    return build_recipe_changes(
+        base="T2",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=32,
+        action_precision="bf16_attn_hqq2_mlp",
+        solver_steps=1,
+    )
 
 
 def _r5_hqq3_vision(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """Root B: 3-bit axis-1 HQQ vision for spatial fidelity; NF4 text; full T2 action tail."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "compact_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 3,
-            "axis": 1,
-            "group_size": 64,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "action_attention", "bits": 4},
-        {"method": "bnb", "scope": "action_interfaces", "bits": 4},
-        {"method": "bnb", "scope": "merger", "bits": 4},
-    ]
+    return build_recipe_changes(
+        base="T2",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=64,
+        vision_bits=3,
+        action_group_size=32,
+    )
 
 
 def build_round5_candidates() -> list[Stage2Candidate]:
@@ -613,71 +420,41 @@ def build_round5_candidates() -> list[Stage2Candidate]:
 
 def _r6_c1_bf16act_s1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """Root B1: C1 base, action attention/interfaces BF16, HQQ2 action MLP, solver1."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "int8_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {
-            "method": "hqq",
-            "scope": "action_mlp",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "merger", "bits": 4},
-        {"method": "solver_steps", "count": 1},
-    ]
+    return build_recipe_changes(
+        base="C1",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=32,
+        action_precision="bf16_attn_hqq2_mlp",
+        solver_steps=1,
+    )
 
 
 def _r6_c2_s1(text_frac: float, vision_frac: float) -> list[dict[str, Any]]:
     """Root B2: report C2 base (full-vocab NF4 vision+text+action+merger, solver1) plus
     mild structured cuts. Matches `fast-nf4-all-solver1-packed` without the graph engine."""
-    return [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "int8_embedding"},
-        {"method": "solver_steps", "count": 1},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {"method": "bnb", "scope": "vision_blocks", "bits": 4},
-        {"method": "bnb", "scope": "merger", "bits": 4},
-        {"method": "bnb", "scope": "action", "bits": 4},
-    ]
+    return build_recipe_changes(
+        base="C2",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=None,
+        vision_bits=4,
+        action_precision="nf4",
+        solver_steps=1,
+    )
 
 
 def _r6_fullact(text_frac: float, vision_frac: float, solver1: bool) -> list[dict[str, Any]]:
     """Root B3: entire action head (attention, MLP, interfaces) stays BF16; text NF4
     and vision HQQ2 take the compression. Optional solver1 child for control fidelity."""
-    changes: list[dict[str, Any]] = [
-        {"method": "channels", "scope": "text_mlp", "fraction": text_frac},
-        {"method": "channels", "scope": "vision_mlp", "fraction": vision_frac},
-        {"method": "world_remove"},
-        {"method": "int8_embedding"},
-        {"method": "bnb", "scope": "text", "bits": 4},
-        {
-            "method": "hqq",
-            "scope": "vision_blocks",
-            "bits": 2,
-            "axis": 0,
-            "group_size": 32,
-            "backend": "pytorch",
-        },
-        {"method": "bnb", "scope": "merger", "bits": 4},
-    ]
-    if solver1:
-        changes.append({"method": "solver_steps", "count": 1})
-    return changes
+    return build_recipe_changes(
+        base="C1",
+        text_mlp_prune=text_frac,
+        vision_mlp_prune=vision_frac,
+        group_size=32,
+        action_precision="bf16_full",
+        solver_steps=1 if solver1 else 4,
+    )
 
 
 def build_round6_candidates() -> list[Stage2Candidate]:
