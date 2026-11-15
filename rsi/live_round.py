@@ -27,7 +27,8 @@ from rsi.live import (
 )
 from rsi.policies import InitialPolicy
 from rsi.policies.optimal import OptimalPolicy
-from rsi.qwen_search import run_compression_subprocess
+from rsi.propose import candidates_from_journal
+from rsi.qwen_search import Stage2Candidate, run_compression_subprocess
 
 ROUND_BUILDERS = {
     "r1": build_round1_candidates,
@@ -37,6 +38,13 @@ ROUND_BUILDERS = {
     "r5": build_round5_candidates,
     "r6": build_round6_candidates,
 }
+
+
+def resolve_round_candidates(round_id: str) -> list[Stage2Candidate]:
+    """Return candidates from a legacy round builder or a validated proposal journal."""
+    if round_id in ROUND_BUILDERS:
+        return ROUND_BUILDERS[round_id]()
+    return candidates_from_journal(round_id)
 
 
 def _code_head() -> str | None:
@@ -58,7 +66,7 @@ def run_live_round(
     screen_promoted: bool = False,
 ) -> dict[str, Any]:
     """Run control (frozen InitialPolicy) then selected on a fresh grid, same budget."""
-    candidates = ROUND_BUILDERS[round_id]()
+    candidates = resolve_round_candidates(round_id)
     recipes_dir = Path("outputs/compression") / f"{round_id}_recipes"
     journals = journals_for(round_id)
     control_policy = InitialPolicy()
