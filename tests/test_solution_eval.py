@@ -14,6 +14,7 @@ from torch import nn
 
 from evaluation.compression import solution, study
 from evaluation.compression.inventory import ResidentWalk
+from evaluation.compression.memory import live_payloads
 
 BASE = (256 * 256 + 256) * 4  # fp32 Linear(256, 256) weight and bias
 HALF = 256 * 256 * 2 + 256 * 4  # fp16 weight, fp32 bias
@@ -85,7 +86,7 @@ def truth(held: int) -> float:
 
 def test_identity_is_zero_reduction(cpu_env):
     result = run(cpu_env, "def compress(policy, calibration):\n    return policy\n")
-    assert result["status"] == "ok"
+    assert result["status"] == "ok", result.get("error")
     assert result["sizes"]["size_reduction"] == pytest.approx(0.0, abs=1e-6)
     assert result["baseline_resident_bytes"] == BASE
 
@@ -314,3 +315,126 @@ def test_numpy_module_walk_counts_nbytes():
     walk.add({"a": np.zeros(10, dtype=np.float32)})
     assert walk.nbytes == 40
     assert os.path.basename(solution.PROTOCOL_PATH) == "protocol.json"
+
+
+# Weights parked outside the returned policy, as cycle-3 nodes iter_002-b1-a3,
+# iter_002-b2-a1 and iter_002-b2-a2 did on the `torch` module.
+FOREIGN_STASH = """
+import torch
+
+def compress(policy, calibration):
+    setattr(torch, "_vla_jepa_test_stash", [policy.lin.weight.detach().clone()])
+    policy.lin.weight = torch.nn.Parameter(torch.zeros(1))
+    return policy
+"""
+
+DEFERRED_RESTORE = """
+import torch
+
+def compress(policy, calibration):
+    setattr(torch, "_vla_jepa_test_stash", [policy.lin.weight.detach().clone()])
+    policy.lin.weight = torch.nn.Parameter(torch.zeros(1))
+    original = policy.select_action
+
+    def select_action(batch):
+        pending = getattr(torch, "_vla_jepa_test_stash", None)
+        if pending:
+            setattr(torch, "_vla_jepa_test_stash", None)
+            policy.lin.weight.data = pending[0]
+        return original(batch)
+
+    policy.select_action = select_action
+    return policy
+"""
+
+FOREIGN_BLOB = """
+import torch
+
+def compress(policy, calibration):
+    blob = policy.lin.weight.detach().numpy().tobytes()
+    setattr(torch, "_vla_jepa_test_blob", blob)
+    policy.lin.weight = torch.nn.Parameter(torch.zeros(1))
+    return policy
+"""
+
+
+@pytest.fixture(autouse=True)
+def clear_foreign_stashes():
+    yield
+    for name in ("_vla_jepa_test_stash", "_vla_jepa_test_blob"):
+        if hasattr(torch, name):
+            delattr(torch, name)
+
+
+def screen_with_inference(policy, calibration, predictions=80, compiled=False):
+    policy.select_action(None)
+    return fake_screen(policy, calibration, predictions, compiled)
+
+
+def test_weights_parked_on_a_foreign_module_are_charged(cpu_env):
+    result = run(cpu_env, FOREIGN_STASH)
+    assert result["status"] == "ok"
+    assert result["sizes"]["resident_bytes"] == BASE + TINY
+    assert result["sizes"]["size_reduction"] == 0.0
+
+
+def test_restore_at_the_first_forward_is_charged(cpu_env, monkeypatch):
+    monkeypatch.setattr(study, "screen", screen_with_inference)
+    result = run(cpu_env, DEFERRED_RESTORE)
+    assert result["status"] == "ok"
+    sizes = result["sizes"]
+    assert sizes["resident_before_inference_bytes"] == BASE + TINY
+    assert sizes["resident_after_inference_bytes"] == BASE
+    assert sizes["resident_bytes"] == BASE + TINY
+    assert sizes["size_reduction"] == 0.0
+
+
+def test_buffer_parked_on_a_foreign_module_is_charged(cpu_env):
+    result = run(cpu_env, FOREIGN_BLOB)
+    assert result["status"] == "ok"
+    assert result["sizes"]["resident_bytes"] == TINY + 256 * 4 + 256 * 256 * 4
+    assert result["sizes"]["size_reduction"] == 0.0
+
+
+def test_payload_present_before_compress_is_not_charged(cpu_env):
+    torch._vla_jepa_test_blob = torch.zeros(1024)
+    result = run(cpu_env, "def compress(policy, calibration):\n    return policy\n")
+    assert result["status"] == "ok"
+    assert result["sizes"]["resident_bytes"] == BASE
+    assert result["sizes"]["size_reduction"] == pytest.approx(0.0, abs=1e-6)
+
+
+def test_measure_merges_new_payloads_without_double_counting(monkeypatch):
+    monkeypatch.setattr(solution, "REQUIRED_DEVICE", "cpu")
+    skip = frozenset(live_payloads())
+    torch._vla_jepa_test_blob = torch.zeros(1024)
+    sized = solution.measure(FakePolicy(), (), skip)
+    assert sized["resident_bytes"] == BASE + 4096
+    assert sized["violations"] == []
+
+
+def test_peak_cuda_figure_dominates_the_size_record(tmp_path):
+    record = {"stage_seconds": {}}
+    run_ = solution._Run(tmp_path, "check", tmp_path, record, 1.0)
+    run_.baseline_bytes = 1000
+    sizes = run_.sizes(before=100, after=200, peak=900, file_bytes=0)
+    assert sizes["resident_bytes"] == 900
+    assert sizes["size_reduction"] == pytest.approx(0.1)
+
+
+def test_discovery_prompt_states_that_hiding_memory_fails():
+    from rsi.online_evidence import build_discovery_prompt
+
+    prompt = build_discovery_prompt(
+        cell_id="c-b0-a0",
+        cycle_id="c",
+        parent_id="root",
+        smoke_trials=10,
+        smoke_gate=8,
+        best_score=0.0,
+        gpu_slots=2,
+        minutes=30,
+    )
+    flat = " ".join(prompt.split())
+    assert "Hiding or deferring memory makes the node fail" in flat
+    assert "peak CUDA storage" in flat

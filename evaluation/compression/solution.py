@@ -2,14 +2,21 @@
 
 run_solution loads the B16 policy and frozen calibration, hashes the workspace, imports
 solution.py as a fresh module and calls compress under a wall-clock limit. The returned
-object is measured: resident bytes are every tensor reachable from it, from the solution
-module and from modules imported out of the workspace, each storage counted once, and the
-larger of that and the live CUDA storage in the process, plus every workspace file over 1 MiB
-as it stands after compress. Size is compared with the same tensor walk on the untouched
-policy. Violations: off-device or meta tensors, memory maps, and files the solution opens or
-creates outside the workspace. Those are detected by diffing open fds, /proc/self/maps and
-directory listings of the workspace, out_dir and the temp dir around compress, so a file
-opened and closed without touching a watched tree is not seen.
+object is measured before and after the episodes: resident bytes are the largest of
+
+- every tensor reachable from it, from the solution module and from modules imported out of
+  the workspace, each storage counted once;
+- every tensor, array or byte buffer the process still holds that was not live before
+  compress ran, wherever it is kept, so weights parked on another module or in a closure
+  are charged;
+- the live CUDA storage in the process, and the peak CUDA storage during the episodes;
+
+plus every workspace file over 1 MiB as it stands after compress. Size is compared with the
+same tensor walk on the untouched policy. Violations: off-device or meta tensors, memory
+maps, and files the solution opens or creates outside the workspace. Those are detected by
+diffing open fds, /proc/self/maps and directory listings of the workspace, out_dir and the
+temp dir around compress, so a file opened and closed without touching a watched tree is
+not seen.
 """
 
 from __future__ import annotations
@@ -37,8 +44,9 @@ from evaluation.common import environment, read_json, recorded_run
 from evaluation.compression import calibration as calib
 from evaluation.compression import study
 from evaluation.compression.inventory import ResidentWalk, live_cuda_bytes
+from evaluation.compression.memory import live_payloads, new_payloads
 from evaluation.models import load_policy
-from evaluation.pipeline import Pipeline
+from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
 from evaluation.rollout import rollout
 
 PHASES = ("check", "smoke", "development")
@@ -99,11 +107,19 @@ def workspace_file_bytes(workspace: Path) -> int:
     return total
 
 
-def measure(policy: object, roots: tuple[object, ...]) -> dict:
-    """Resident bytes of policy and extra roots; violations found by the walk."""
+def measure(policy: object, roots: tuple[object, ...], skip: frozenset | None = None) -> dict:
+    """Resident bytes of policy, extra roots and payloads the solution kept alive.
+
+    `skip` is the payload key set recorded before compress; None charges no payloads beyond
+    the walk, which is how the untouched policy is sized.
+    """
     walk = ResidentWalk(REQUIRED_DEVICE)
     walk.add(policy, *roots)
-    resident = walk.nbytes
+    storages = dict(walk.storages)
+    if skip is not None:
+        for key, nbytes in new_payloads(skip).items():
+            storages[key] = max(storages.get(key, 0), nbytes)
+    resident = sum(storages.values())
     if REQUIRED_DEVICE == "cuda":
         resident = max(resident, live_cuda_bytes())
     return {"resident_bytes": resident, "violations": walk.violations}
@@ -244,6 +260,7 @@ class _Run:
         self.log: list[str] = []
         self.baseline_bytes = 0
         self.baseline_violations: Counter[str] = Counter()
+        self.baseline_payloads: frozenset = frozenset()
 
     @contextmanager
     def stage(self, name: str) -> Iterator[None]:
@@ -269,9 +286,15 @@ class _Run:
                 policy, record["model"] = load_policy("B16")
             with self.stage("baseline"):
                 baseline = measure(policy, ())
-                self.baseline_bytes = baseline["resident_bytes"]
                 self.baseline_violations = Counter(baseline["violations"])
-            record["baseline_resident_bytes"] = self.baseline_bytes
+                peak = self.baseline_peak(policy, calibration)
+                self.baseline_bytes = max(baseline["resident_bytes"], peak)
+                self.baseline_payloads = frozenset(live_payloads())
+            record.update(
+                baseline_resident_bytes=self.baseline_bytes,
+                baseline_walk_bytes=baseline["resident_bytes"],
+                baseline_peak_cuda_bytes=peak,
+            )
             self.candidate(policy, calibration)
         except _Verdict as verdict:
             record.update(status=verdict.status, error=str(verdict))
@@ -280,6 +303,25 @@ class _Run:
         finally:
             _forget_workspace_modules(self.workspace)
             sys.path.remove(str(self.workspace))
+
+    def baseline_peak(self, policy: object, calibration: dict) -> int:
+        """Peak CUDA bytes the untouched policy reaches in one forward pass.
+
+        Charging the candidate's peak against a walk-only baseline would bill it for the
+        activation working set that the untouched policy pays too. One forward pass reaches
+        the same peak as a whole screen or rollout, so the baseline is sized the same way.
+        """
+        if REQUIRED_DEVICE != "cuda":
+            return 0
+        bank = observation_bank()
+        pipeline = Pipeline(policy)
+        index = (calibration.get("bank_indices") or [0])[0]
+        torch.cuda.reset_peak_memory_stats()
+        with torch.inference_mode(), inference_autocast():
+            policy.reset()
+            torch.manual_seed(self.protocol["seed"] + index)
+            policy.predict_action_chunk(pipeline.sample(bank[index]))
+        return torch.cuda.max_memory_allocated()
 
     def candidate(self, policy: object, calibration: dict) -> None:
         record = self.record
@@ -291,8 +333,6 @@ class _Run:
         random.seed(seed)
         record["seed"] = seed
         probe = _Probe(self.workspace, self.out_dir)
-        if REQUIRED_DEVICE == "cuda":
-            torch.cuda.reset_peak_memory_stats()
         with self.stage("compress"):
             probe.start()
             with _time_limit(self.limit):
@@ -300,29 +340,50 @@ class _Run:
             opened = probe.finish()
         if returned is None or not all(hasattr(returned, name) for name in POLICY_API):
             raise _Verdict("solution_error", f"compress must return an object with {POLICY_API}")
+        # Peak CUDA is read after the episodes, so statistics from compress are cleared here.
+        if REQUIRED_DEVICE == "cuda":
+            torch.cuda.reset_peak_memory_stats()
+        roots = (vars(module), *(vars(m) for m in _workspace_modules(self.workspace)))
         with self.stage("measure"):
-            roots = (vars(module), *(vars(m) for m in _workspace_modules(self.workspace)))
-            sized = measure(returned, roots)
+            sized = measure(returned, roots, self.baseline_payloads)
             file_bytes = workspace_file_bytes(self.workspace)
+        new = Counter(sized["violations"]) - self.baseline_violations
+        violations = opened + sorted(new.elements())
+        if violations:
+            raise _Verdict("size_violation", "; ".join(violations[:20]))
+        record["sizes"] = self.sizes(sized["resident_bytes"], None, 0, file_bytes)
+        if self.phase == "check":
+            self.check(returned, calibration)
+        else:
+            self.rollouts(returned)
+        # Measure again after inference: a solution that restores or re-creates weights for
+        # the episodes pays for them, whether they sit on the device or anywhere else.
+        with self.stage("measure_after"):
+            after = measure(returned, roots, self.baseline_payloads)
         peak = torch.cuda.max_memory_allocated() if REQUIRED_DEVICE == "cuda" else 0
-        resident = sized["resident_bytes"] + file_bytes
+        record["sizes"] = self.sizes(
+            sized["resident_bytes"], after["resident_bytes"], peak, file_bytes
+        )
+        new = Counter(after["violations"]) - self.baseline_violations
+        if new:
+            raise _Verdict("size_violation", "; ".join(sorted(new.elements())[:20]))
+        record["status"] = "ok"
+
+    def sizes(self, before: int, after: int | None, peak: int, file_bytes: int) -> dict:
+        """Size record; resident is the largest figure seen before, during and after episodes."""
+        resident = max(before, after or 0, peak) + file_bytes
         reduction = max(0.0, 1 - resident / self.baseline_bytes) if self.baseline_bytes else 0.0
-        record["sizes"] = {
+        record = {
             "resident_bytes": resident,
             "baseline_resident_bytes": self.baseline_bytes,
             "size_reduction": reduction,
             "peak_cuda_bytes": peak,
             "workspace_file_bytes": file_bytes,
+            "resident_before_inference_bytes": before,
         }
-        new = Counter(sized["violations"]) - self.baseline_violations
-        violations = opened + sorted(new.elements())
-        if violations:
-            raise _Verdict("size_violation", "; ".join(violations[:20]))
-        if self.phase == "check":
-            self.check(returned, calibration)
-        else:
-            self.rollouts(returned)
-        record["status"] = "ok"
+        if after is not None:
+            record["resident_after_inference_bytes"] = after
+        return record
 
     def check(self, policy: object, calibration: dict) -> None:
         with self.stage("check"):

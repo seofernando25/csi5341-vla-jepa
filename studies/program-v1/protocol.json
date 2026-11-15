@@ -58,6 +58,13 @@
       "from": "240 (CLI default, tuned for Haiku)",
       "to": "1200",
       "reason": "Calibration cleanroom-v1 on synthetic worlds: all three DeepSeek max-thinking policy-development steps timed out at 300 s. Passed as --policy-timeout. No evidence run had been launched."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.evaluator.memory_rule+prompt",
+      "from": "max(tensor walk of the returned policy and workspace modules, live CUDA bytes), measured after compress and before the first forward pass",
+      "to": "max(tensor walk, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, peak CUDA bytes during the episodes), measured after compress and again after inference; the discovery prompt again states that hiding or deferring memory fails the node",
+      "reason": "Cycle 3 found the hole: nodes iter_002-b1-a3, iter_002-b2-a1 and iter_002-b2-a2 scored 1.0 with 0 resident bytes by parking every weight on the CPU in a list attached to the torch module, leaving zero-element CUDA placeholders, and restoring the full bf16 weights on the first inference call. The walk covered only the returned policy and workspace modules, and measurement ran before the first forward pass. Evidence, audit and re-measurement: studies/program-v1/exploit/. No node score was selected on the old rule after this revision."
     }
   ],
   "dream_rsi": {

@@ -23,17 +23,22 @@ margin, so one new episode failure zeroes the node. The best score in the tree s
 
 ## How memory is measured
 
-Resident bytes are the larger of two figures:
+Resident bytes are the largest of these figures, taken before and after the episodes:
 
 - every tensor byte reachable from what you return and from this workspace's modules, each storage
   counted once;
-- the process's live CUDA storage.
+- every tensor, array or byte buffer the process still holds that was not there before `compress`
+  ran, wherever it is kept: another module's namespace, a class attribute, a closure;
+- the process's live CUDA storage, and its peak CUDA storage while the episodes run.
 
 The evaluator holds the original policy while it measures, so a compressed copy left beside the
 original scores about 0. Replace the weights in place and free the originals.
 
 Workspace files count too: every file in `/tmp/work` larger than 1 MiB is added in full, including
 one written at import time or shipped in the workspace and loaded later.
+
+Memory is counted wherever it hides: tensors on the CPU, in lists, in module globals, in files
+reloaded later. Hiding or deferring memory makes the node fail. Really remove it.
 
 ## What you have
 
