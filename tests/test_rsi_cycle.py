@@ -693,6 +693,38 @@ def test_post_run_tree_is_clean_after_the_evidence_commit(tmp_path: Path) -> Non
         assert path.relative_to(repo).as_posix() not in tracked, path
 
 
+def test_development_record_carries_per_task_scores(tmp_path: Path) -> None:
+    per_task = {str(task): {"successes": 1 if task < 8 else 0, "episodes": 1} for task in range(10)}
+    raw = {
+        "status": "ok",
+        "successes": 8,
+        "episodes": 10,
+        "sizes": {"size_reduction": 0.4, "resident_bytes": 1000, "baseline_resident_bytes": 2000},
+        "rollout": {"per_task": per_task},
+    }
+    study = _study(tmp_path)
+    manifest = run_online_cycle(
+        cycle_id="iter_000",
+        study_dir=study,
+        probe_budget=1,
+        max_parallelism=1,
+        promote_top_k=1,
+        agent_cmd=_agent(tmp_path, EDIT_BODY),
+        use_bwrap=False,
+        evaluator=_stub_evaluator(raw=raw),
+    )
+    cell = manifest["development_promotions"][0]["cell_id"]
+    path = study / "cycles" / "iter_000" / "nodes" / cell / "development.json"
+    text = path.read_text(encoding="utf-8")
+    record = json.loads(text)
+    assert set(record["per_task"]) == {str(task) for task in range(10)}
+    assert record["per_task"]["0"] == {"successes": 1, "episodes": 1}
+    assert record["per_task"]["9"] == {"successes": 0, "episodes": 1}
+    assert all(set(counts) == {"successes", "episodes"} for counts in record["per_task"].values())
+    assert str(study) not in text
+    assert "/home/" not in text and "/tmp/opencode/" not in text
+
+
 def test_manifest_records_run_args_and_provenance(tmp_path: Path) -> None:
     study = _study(tmp_path)
     manifest = run_online_cycle(

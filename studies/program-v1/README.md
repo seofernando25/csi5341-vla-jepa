@@ -59,8 +59,8 @@ Every run writes:
 - `timings.csv` for benchmark runs.
 - `summary.json`: successes, intervals, paired differences, peak memory, storage inventory.
 - `recipe.json` and transformation events.
-- Dream-RSI cycles: agent logs, sandbox logs, `tree.json`, `live_cycle_manifest.json`, selected
-  policy path and code hash.
+- Dream-RSI cycles: agent logs, sandbox logs, `tree.json`, `live_cycle_manifest.json`,
+  `score.json`, `development.json` (with per-task successes), selected policy path and code hash.
 
 Runtime artifacts stay in `outputs/`. Compact records stay here.
 

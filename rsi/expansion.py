@@ -474,6 +474,7 @@ def _evaluate(
         "successes": verdict.successes,
         "episodes": verdict.episodes,
         "sizes": verdict.sizes,
+        "per_task": _per_task(raw),
         "workspace_sha256": raw.get("workspace_sha256"),
         "status": raw.get("status"),
         "error": verdict.error,
@@ -498,6 +499,11 @@ def promote_node(ctx: NodeContext, node_dir: Path, smoke: dict[str, Any]) -> dic
         "commit": smoke["commit"],
         "digest": smoke.get("digest"),
         **fields,
+    }
+    # Per-task ids come from the evaluator; they are redacted like every other committed string.
+    record["per_task"] = {
+        _redact(str(task_id), node_dir): dict(counts)
+        for task_id, counts in (record.get("per_task") or {}).items()
     }
     if record.get("error"):
         record["error"] = _redact(str(record["error"]), node_dir)
