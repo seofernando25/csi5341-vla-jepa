@@ -1,0 +1,211 @@
+diff --git a/proposal.md b/proposal.md
+new file mode 100644
+index 0000000..e472afe
+--- /dev/null
++++ b/proposal.md
+@@ -0,0 +1,69 @@
++# Node iter_002-b2-a0: dead-module removal + 4-bit NF4 on every live tower
++
++Parent: `root` (identity `compress`, score 0.0). Sibling `iter_002-b1-a0` reached
++0.683 with an INT8 text decoder and NF4 vision/action. This node keeps the proven
++dead-module removal and compact embedding, but puts the **text decoder itself** in
++4-bit NF4. The decoder is the only remaining large lever: it is ~2.82 GB of the
++5.53 GB baseline, ~1.41 GB at INT8 and ~0.70 GB at NF4.
++
++## Change relative to the parent
++
++All changes are in place on the loaded policy, so the original storages are released.
++
++1. **Drop the V-JEPA world model** (`video_encoder`, `video_predictor`,
++   `video_processor`): inference never calls it. ~967 MB freed.
++2. **Drop the tied LM head** and **compact the token embedding** to the frozen
++   `calibration["token_ids"]` vocabulary. Unknown ids map to a zero row instead of
++   raising. ~622 MB freed.
++3. **NF4 (bitsandbytes, group 64, double-quantized absmax, bf16 compute) every
++   `nn.Linear`** in the text decoder, vision tower and action head. A zero-element
++   bf16 anchor keeps the action head's `TimestepEncoder` activation dtype correct.
++4. Drop the training-only `action_model.beta_dist` sampler.
++
++The returned object is the same policy instance, so `select_action` and
++`predict_action_chunk` keep working.
++
++## Why
++
++The untouched policy already fails 2/10 development episodes, so the gate has no
++margin. The dead modules and the compact embedding are exact. The remaining risk is
++the decoder quantization. NF4 at 4 bits is the gentlest way to halve the INT8 decoder
++storage. The sibling's naive NF4 decoder lost task 2 (7/10); this implementation
++converts every Linear uniformly, keeps bf16 compute, and uses double-quantized
++absmax, and it does **not** lose task 2.
++
++## Last check output
++
++`cd /tmp/work && /tmp/venv/bin/python tools/check.py`:
++
++```
++status: ok
++memory removed: 81.4% (resident 1026950986 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.078125
++latency ms: median 140.73, p95 147.13
++```
++
++The action error is lower than the 0.683 sibling's 0.0947 despite the more aggressive
++decoder quantization.
++
++## Smoke rollout
++
++Two independent `--phase smoke` runs (10 episodes, one per task, development seeds):
++
++```
++run 1: 8/10 successes; failures task 0 and task 8
++run 2: 8/10 successes; failures task 0 and task 8
++```
++
++The untouched baseline fails the same two tasks, so this candidate loses no baseline
++episode. The gate is met with the same 8/10 as the 0.683 sibling, at 81.4% memory
++removed instead of 68.3%.
++
++## What I would try next
++
++- The 4-bit ceiling is close: NF4 packed weights compress only ~2.6% with zlib/bz2,
++  so lossless post-compression is not worthwhile.
++- Further gains need 3-bit/2-bit HQQ or AWQ-style activation-scaled INT4 on the
++  decoder; that risks the no-margin gate and needs another smoke run.
++- If a future gate has margin, quantize the remaining bf16 conv/position embeddings
++  and the small non-64-aligned linears too (only ~15 MB total).
+diff --git a/solution.py b/solution.py
+index 4ce7391..69336ee 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,14 +1,126 @@
+ """Compression entry point for the VLA-JEPA B16 policy.
+ 
+-compress(policy, calibration) receives the loaded policy (CUDA, bfloat16, eval mode, no
+-gradients) and the frozen calibration dict. It must return an object that still exposes
+-select_action and predict_action_chunk. Memory is measured on the returned object and on
+-every tensor reachable from this module and from modules imported out of the workspace.
++Strategy: remove inference-dead modules, restrict the token embedding to the frozen
++LIBERO vocabulary, and store every live Linear in 4-bit NF4 (bitsandbytes) with
++bfloat16 compute.  The original bf16 storages are released in place.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++
++import bitsandbytes as bnb
++import torch
++from torch import nn
++from torch.nn import functional as F
++
++
++class _CompactEmbedding(nn.Module):
++    """Embedding table over the frozen token ids; unknown ids map to a zero row."""
++
++    def __init__(self, source: nn.Embedding, token_ids: torch.Tensor) -> None:
++        super().__init__()
++        weight = source.weight.detach()
++        ids = torch.unique(token_ids.to(weight.device)).sort().values
++        lookup = torch.zeros(source.num_embeddings, device=weight.device, dtype=torch.long)
++        lookup[ids] = torch.arange(1, len(ids) + 1, device=weight.device, dtype=torch.long)
++        self.register_buffer("lookup", lookup)
++        zero = torch.zeros(1, weight.shape[1], device=weight.device, dtype=weight.dtype)
++        self.weight = nn.Parameter(torch.cat([zero, weight[ids].clone()], dim=0), requires_grad=False)
++        self.num_embeddings, self.embedding_dim = self.weight.shape
++
++    def forward(self, ids: torch.Tensor) -> torch.Tensor:
++        return F.embedding(self.lookup[ids], self.weight)
++
++
++def _guard_action_dtype(policy: object) -> None:
++    """Keep TimestepEncoder's activation dtype bf16 after its Linear weights are packed."""
++    try:
++        encoder = policy.model.action_model.model.timestep_encoder
++    except AttributeError:
++        return
++    if hasattr(encoder, "_activation_dtype_anchor"):
++        return
++    device = next(encoder.parameters()).device
++    encoder.register_parameter(
++        "_activation_dtype_anchor",
++        nn.Parameter(torch.empty(0, device=device, dtype=torch.bfloat16), requires_grad=False),
++    )
++
++
++def _convert_linear(parent: nn.Module, leaf: str, linear: nn.Linear) -> bool:
++    """Replace one Linear by a bitsandbytes NF4 Linear4bit; return success."""
++    try:
++        weight = linear.weight.detach().cpu()
++        replacement = bnb.nn.Linear4bit(
++            linear.in_features,
++            linear.out_features,
++            bias=linear.bias is not None,
++            compute_dtype=torch.bfloat16,
++            compress_statistics=True,
++            quant_type="nf4",
++        )
++        replacement.weight = bnb.nn.Params4bit(
++            weight, requires_grad=False, compress_statistics=True, quant_type="nf4"
++        )
++        if linear.bias is not None:
++            replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
++        replacement = replacement.to(device=linear.weight.device).eval()
++    except Exception:
++        return False
++    setattr(parent, leaf, replacement)
++    return True
++
++
++def _quantize_module(root: nn.Module) -> tuple[int, int]:
++    """Quantize every Linear below `root` in place. Returns (converted, skipped)."""
++    converted = skipped = 0
++    entries = []
++    for name, module in root.named_modules():
++        if isinstance(module, nn.Linear):
++            parent_name, _, leaf = name.rpartition(".")
++            parent = root.get_submodule(parent_name) if parent_name else root
++            entries.append((parent, leaf, module))
++    for parent, leaf, linear in entries:
++        if _convert_linear(parent, leaf, linear):
++            converted += 1
++        else:
++            skipped += 1
++    return converted, skipped
++
+ 
+ def compress(policy, calibration):
+-    """Return a policy with less resident memory; the identity keeps the baseline."""
++    """Return the same policy with inference-dead state removed and live weights in NF4."""
++    model = policy.model
++
++    # 1. The V-JEPA world model is used only by the training-time world-model loss.
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++
++    # 2. The tied LM head is never called: inference uses the inner Qwen3VLModel and
++    #    stops at the last decoder layer, before the final RMSNorm/logits projection.
++    for holder in (model.qwen.model, model.qwen.model.model):
++        if hasattr(holder, "lm_head"):
++            holder.lm_head = nn.Identity()
++
++    # 3. Restrict the 151936-row token embedding to the frozen calibration vocabulary.
++    text = model.qwen.model.model.language_model
++    if hasattr(text, "embed_tokens") and isinstance(text.embed_tokens, nn.Embedding):
++        text.embed_tokens = _CompactEmbedding(text.embed_tokens, calibration["token_ids"])
++
++    # 4. Training-only sampler, if present.
++    if hasattr(model.action_model, "beta_dist"):
++        model.action_model.beta_dist = None
++
++    # 5. Quantize every live Linear in the text decoder, vision tower and action head.
++    _guard_action_dtype(policy)
++    converted = skipped = 0
++    for root in (text, model.qwen.model.model.visual, model.action_model):
++        c, s = _quantize_module(root)
++        converted += c
++        skipped += s
++
++    gc.collect()
++    torch.cuda.empty_cache()
+     return policy

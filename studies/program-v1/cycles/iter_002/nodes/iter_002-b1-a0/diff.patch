@@ -1,0 +1,242 @@
+diff --git a/proposal.md b/proposal.md
+new file mode 100644
+index 0000000..53d4a64
+--- /dev/null
++++ b/proposal.md
+@@ -0,0 +1,71 @@
++# iter_002-b1-a0: remove inference-dead state, then INT8/NF4 the live towers
++
++Parent: `root` (identity `compress`, score 0.0).
++
++## Change relative to the parent
++
++All changes are in place on the loaded policy so the original storages are released.
++
++1. **Drop the V-JEPA world model.** `policy.model.video_encoder`,
++   `video_predictor` and `video_processor` are used only by the training-time
++   world-model loss. The inference path (`_encode_qwen` -> DiT action head)
++   never calls them. Setting the three attributes to `None` removes ~0.92 GiB
++   of BF16 weights with no effect on actions.
++2. **Compact the tied input embedding.** The decoder only embeds the token ids
++   that occur in the prompt; the frozen `calibration["token_ids"]` covers all
++   ten LIBERO-Spatial instructions plus the fixed action/embodied tokens. The
++   151936 x 2048 BF16 `embed_tokens` matrix is replaced by a table with only
++   those rows, and the unused tied `lm_head` is replaced by `nn.Identity()`
++   so the original matrix is actually freed. Unseen ids map to a zero row
++   instead of raising, so an unexpected token cannot crash a rollout.
++3. **INT8 text decoder.** Every `nn.Linear` in the Qwen language model is
++   stored as per-group symmetric INT8 (group 64) with BF16 scales and
++   dequantized at call time. This halves the 3.44 GiB decoder weight storage.
++4. **NF4 vision tower and action head.** Every `nn.Linear` in the Qwen visual
++   tower and the DiT action head (except the tiny timestep encoder and
++   sub-64-wide projections) is stored with bitsandbytes NF4 and BF16 compute.
++   The decoder stays INT8 because full NF4 on the decoder was measurably worse
++   (see below).
++
++The returned object is the same policy instance, so `select_action` and
++`predict_action_chunk` keep working.
++
++## Why
++
++The untouched policy scores 0 by construction. The world model and LM head are
++provably dead at inference, so removing them is free. The remaining live
++weights are then quantized only where a smoke rollout still passes the 8/10
++gate. The decoder is the most sensitive component, so it gets the gentler INT8
++treatment; the vision tower and action head tolerate NF4 on the fixed smoke
++episodes.
++
++## Last check output
++
++`cd /tmp/work && /tmp/venv/bin/python tools/check.py`:
++
++```
++status: ok
++memory removed: 68.3% (resident 1753640790 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.0947266
++latency ms: median 143.66, p95 201.73
++```
++
++Smoke rollout of this candidate (`--phase smoke`, 10 episodes, one per task):
++**8/10 successes**, failures on tasks 0 and 8. The untouched baseline was run
++through the same evaluator on the same seeds and also scored **8/10** with the
++same two failures, so this candidate does not lose a baseline episode. A second
++smoke run of the final candidate reproduced **8/10** with the same two failures.
++
++Rejected intermediate: NF4 on the text decoder as well reached 66.5% memory
++removed but only **7/10** smoke successes (task 2 also failed), which would
++score 0. The final candidate keeps the decoder INT8 and pushes NF4 only into
++the vision tower and action head, reaching 68.3% while preserving 8/10.
++
++## Next
++
++- The repeat smoke run reproduced 8/10 with the same two failures, so the
++  candidate is stable on the fixed development seeds.
++- Try mixed INT8/NF4 per decoder layer (attention INT8, MLP NF4) or GPTQ on
++  the decoder to move past 68% without touching the sensitive attention path.
++- If the gate is ever given margin, quantize the timestep encoder and the
++  sub-64-wide action projections too (small additional savings).
+diff --git a/solution.py b/solution.py
+index 4ce7391..dad3181 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,14 +1,155 @@
+ """Compression entry point for the VLA-JEPA B16 policy.
+ 
+-compress(policy, calibration) receives the loaded policy (CUDA, bfloat16, eval mode, no
+-gradients) and the frozen calibration dict. It must return an object that still exposes
+-select_action and predict_action_chunk. Memory is measured on the returned object and on
+-every tensor reachable from this module and from modules imported out of the workspace.
++The inference path of VLA-JEPA uses only the Qwen vision tower, the Qwen text
++decoder and the DiT action head.  The V-JEPA world model (encoder, predictor,
++processor) is training-only, and the tied LM head is never called because the
++policy runs the inner ``Qwen3VLModel`` directly.  This solution removes that
++dead state, replaces the 151936-row input embedding with the handful of rows
++the LIBERO prompts actually use, stores the text decoder's Linear weights as
++per-group INT8 with a BF16 dequantization at call time, and stores the vision
++tower and action head in bitsandbytes NF4.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++import math
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++
++
++class _CompactEmbedding(nn.Module):
++    """Row-compacted embedding with an explicit zero row for unseen ids."""
++
++    def __init__(self, source: nn.Embedding, token_ids: torch.Tensor) -> None:
++        super().__init__()
++        device = source.weight.device
++        ids = torch.unique(token_ids.to(device=device, dtype=torch.long)).sort().values
++        # Row 0 is the fallback for ids outside the calibrated prompt vocabulary;
++        # kept ids are shifted by one so the fallback never aliases a real token.
++        lookup = torch.zeros(source.num_embeddings, device=device, dtype=torch.int32)
++        lookup[ids] = torch.arange(1, len(ids) + 1, device=device, dtype=torch.int32)
++        rows = torch.zeros(
++            (len(ids) + 1, source.embedding_dim),
++            device=device,
++            dtype=source.weight.dtype,
++        )
++        rows[1:] = source.weight.detach()[ids]
++        self.register_buffer("lookup", lookup)
++        self.weight = nn.Parameter(rows, requires_grad=False)
++        self.num_embeddings, self.embedding_dim = rows.shape
++
++    def forward(self, ids: torch.Tensor) -> torch.Tensor:
++        mapped = self.lookup[ids].long()
++        return F.embedding(mapped, self.weight)
++
++
++class _Int8Linear(nn.Module):
++    """Per-group symmetric INT8 weight with on-the-fly BF16 dequantization."""
++
++    def __init__(self, source: nn.Linear, group_size: int = 64) -> None:
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        weight = source.weight.detach().float()
++        groups = math.ceil(self.in_features / group_size)
++        padded = groups * group_size
++        if padded != self.in_features:
++            weight = F.pad(weight, (0, padded - self.in_features))
++        blocks = weight.reshape(self.out_features, groups, group_size)
++        scale = blocks.abs().amax(-1).clamp_min(1e-8) / 127.0
++        q = (blocks / scale[..., None]).round().clamp(-127, 127).to(torch.int8)
++        self.register_buffer("weight_int8", q.reshape(self.out_features, padded))
++        self.register_buffer("scales", scale.to(torch.bfloat16))
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++
++    def forward(self, x: torch.Tensor) -> torch.Tensor:
++        groups = self.weight_int8.reshape(self.out_features, -1, self.group_size)
++        weight = (groups.to(x.dtype) * self.scales[:, :, None].to(x.dtype)).reshape(
++            self.out_features, -1
++        )
++        if weight.shape[1] != self.in_features:
++            weight = weight[:, : self.in_features]
++        return F.linear(x, weight, self.bias)
++
++
++def _drop_world_model(model: nn.Module) -> None:
++    """Remove the training-only V-JEPA modules; inference never calls them."""
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++
++
++def _compact_embedding(policy: nn.Module, calibration: dict) -> None:
++    """Keep only the calibrated prompt rows and release the tied LM head."""
++    qwen = policy.model.qwen.model
++    language = qwen.model.language_model
++    language.embed_tokens = _CompactEmbedding(language.embed_tokens, calibration["token_ids"])
++    # lm_head shares the original full embedding matrix; the inference path calls
++    # the inner Qwen3VLModel, so the head is dead weight that would otherwise keep
++    # that matrix alive through the tie.
++    qwen.lm_head = nn.Identity()
++
++
++def _quantize_linears(module: nn.Module, skip: tuple[str, ...] = ()) -> None:
++    """Replace every Linear under `module` with the INT8 storage module."""
++    for name, linear in list(module.named_modules()):
++        if not isinstance(linear, nn.Linear):
++            continue
++        if any(name == prefix or name.startswith(prefix + ".") for prefix in skip):
++            continue
++        parent_name, _, leaf = name.rpartition(".")
++        parent = module.get_submodule(parent_name) if parent_name else module
++        setattr(parent, leaf, _Int8Linear(linear).eval())
++
++
++def _quantize_linears_nf4(module: nn.Module, skip: tuple[str, ...] = ()) -> None:
++    """Replace every Linear under `module` with bitsandbytes NF4 storage."""
++    import bitsandbytes as bnb
++
++    for name, linear in list(module.named_modules()):
++        if not isinstance(linear, nn.Linear):
++            continue
++        if any(name == prefix or name.startswith(prefix + ".") for prefix in skip):
++            continue
++        if linear.in_features < 64 or linear.out_features < 64:
++            continue
++        parent_name, _, leaf = name.rpartition(".")
++        parent = module.get_submodule(parent_name) if parent_name else module
++        replacement = bnb.nn.Linear4bit(
++            linear.in_features,
++            linear.out_features,
++            bias=linear.bias is not None,
++            compute_dtype=torch.bfloat16,
++            compress_statistics=True,
++            quant_type="nf4",
++        )
++        replacement.weight = bnb.nn.Params4bit(
++            linear.weight.detach().cpu(),
++            requires_grad=False,
++            compress_statistics=True,
++            quant_type="nf4",
++        )
++        if linear.bias is not None:
++            replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
++        setattr(parent, leaf, replacement.to(device=linear.weight.device).eval())
++
+ 
+ def compress(policy, calibration):
+-    """Return a policy with less resident memory; the identity keeps the baseline."""
++    """Return the policy with inference-dead state removed in place."""
++    _drop_world_model(policy.model)
++    _compact_embedding(policy, calibration)
++    _quantize_linears(policy.model.qwen.model.model.language_model)
++    _quantize_linears_nf4(policy.model.qwen.model.model.visual)
++    _quantize_linears_nf4(policy.model.action_model, skip=("model.timestep_encoder",))
++    gc.collect()
++    if torch.cuda.is_available():
++        torch.cuda.empty_cache()
+     return policy

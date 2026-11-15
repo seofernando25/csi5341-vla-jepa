@@ -1,0 +1,144 @@
+diff --git a/proposal.md b/proposal.md
+index b9426f9..023b390 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,54 +1,47 @@
+-# Proposal (iter_001-b1-a1)
++# Proposal (iter_001-b1-a2)
+ 
+-## Change relative to parent (`iter_001-b1-a0`)
++## Change relative to parent (`iter_001-b1-a1`, score 0.7955)
+ 
+-The parent removes the JEPA world model and the tied vocabulary head, compacts the text
+-embedding, and applies LLM.int8 to every text-decoder Linear and every vision-tower Linear.
+-This node keeps those exact removals but changes the bit allocation to the measured block
+-sensitivity:
++The parent keeps text decoder layers 0-2 and 27 at LLM.int8 and puts layers 3-26 in NF4.
++This node removes the last int8 text layers:
+ 
+-1. **Text decoder layers 0-2 and 27 stay LLM.int8.**  The calibration's block-influence
+-   measurement is dominated by `text.0`, `text.1`, `text.2` and `text.27`; these are the
+-   layers whose perturbations matter most.
+-2. **Text decoder layers 3-26 use NF4.**  These 24 low-influence layers hold most of the
+-   decoder's 1.4 GB of int8 weights.  NF4 halves that storage.
+-3. **The vision tower uses NF4** instead of LLM.int8, saving a further ~0.2 GB.
+-4. **The action head uses NF4 with `compress_statistics=False`** and a zero-element bf16
+-   anchor on its timestep encoder.  LLM.int8 on the action head was rejected: it took ~3 s
+-   per prediction (vs ~150 ms for NF4) and retained extra storage.  NF4 is both faster and
+-   slightly lower action error in the offline screen.
++1. **Remove the training-only JEPA world model** (`video_encoder`, `video_predictor`,
++   `video_processor`) exactly as the parent did.
++2. **Compact the text embedding** to the 53 calibrated prompt token ids and drop the unused
++   tied LM head, exactly as the parent did.
++3. **All 28 text decoder layers now use NF4** (the parent kept 0-2 and 27 at int8).
++4. **The vision tower and action head stay NF4**, as in the parent.
+ 
+-All changes are in place on the evaluator's own policy object, so no compressed copy is left
+-beside the original.
++Everything is replaced in place on the evaluator's own policy object, so no compressed copy
++is left beside the original.
+ 
+ ## Why
+ 
+-The gate has no margin (the untouched policy passes about 8/10), so the bit allocation follows
+-the calibration's block influence rather than a uniform scheme.  The parent's uniform int8
+-scored 61.4%.  Offline screening of alternatives on the evaluator's 80 held-out frames gave:
++The parent's 79.6% result was dominated by the four remaining int8 text layers (~0.22 GB).
++Moving them to NF4 is the last large, low-risk storage win on the inference path.  The
++calibration block influence is dominated by `text.0`-`text.2` (DeepStack injection) and
++`text.27`, but the offline action error barely moved (0.0781 -> 0.0820), and the full
++10-episode smoke gate still passes with exactly the same two failures as the untouched
++policy (tasks 0 and 8, both 280-step timeouts).  The 4-bit kernel is also faster than the
++int8 path on these layers (median 147 ms vs 172 ms).
+ 
+-| candidate | action err | latency |
+-|---|---|---|
+-| parent: text int8 + vision int8 | 0.0303 | 326 ms |
+-| text 3-26 NF4 + vision int8 | 0.105 | 171 ms |
+-| text 3-26 NF4 + vision NF4 | 0.0859 | 117 ms |
+-| text 3-26 NF4 + vision NF4 + action NF4 (chosen) | 0.0781 | 153 ms |
+-| text 2-27 NF4 + vision NF4 (no action NF4) | 0.0977 | 125 ms |
++## Rejected experiment
+ 
+-The chosen candidate has both the best official memory result and the lowest action error
+-among the 4-bit variants, because the high-influence text ends stay at int8.  Quantizing
+-`text.2` or `text.27` was deliberately avoided: those are the two largest text block
+-influences after the outlier at `text.0`.
++I also built a custom packed 2-bit kernel (group 64, four values per byte, four alternating
++least-squares refits of scale/zero) for the 14 lowest-influence text MLPs (layers 3-16).
++It reached 83.3% removed (resident 925881998 bytes) and action error 0.229, but the smoke
++gate fell to **7/10**: task 4, which passes with the untouched policy, failed.  That variant
++was reverted; the submitted solution is the verified 81.3% all-NF4 variant.
+ 
+ ## Last check output
+ 
+-`python tools/check.py`:
++`python tools/check.py` on the submitted solution:
+ 
+ ```
+ status: ok
+-memory removed: 79.6% (resident 1131170374 of baseline 5532276502 bytes)
+-action error (max normalized difference): 0.078125
+-latency ms: median 162.85, p95 207.80
++memory removed: 81.3% (resident 1033404854 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.0820312
++latency ms: median 146.86, p95 186.51
+ ```
+ 
+ Final smoke phase (`evaluation.compression.study solution --phase smoke`):
+@@ -59,15 +52,17 @@ per task: 0: 0/1, 1: 1/1, 2: 1/1, 3: 1/1, 4: 1/1,
+           5: 1/1, 6: 1/1, 7: 1/1, 8: 0/1, 9: 1/1
+ ```
+ 
+-The same two tasks fail as for the untouched policy (0 and 8, both 280-step timeouts), so the
+-compression introduced no new episode failure.  A second identical smoke run reproduced
+-8/10 with the same per-task pattern and the same 1131170374-byte resident measurement.
++The same two tasks fail as for the untouched policy, so this change introduced no new
++episode failure.  The resident measurement reproduced exactly (1033404854 bytes) in the
++smoke run.
+ 
+ ## What I would try next
+ 
+-- The remaining memory is mostly the 24 NF4 text layers and the NF4 vision tower.  A custom
+-  packed INT4 kernel (the repo's `PackedInt4`) could remove bitsandbytes metadata overhead,
+-  but it needs a fresh 10-episode smoke check before it is worth the risk.
+-- Try text layers 2-27 at NF4 (keeping only 0-1 and 27 at int8) for another ~1 percentage
+-  point, but only with a paired smoke run: `text.2` has a very large measured influence.
+-- Do not use LLM.int8 on the action head: it is far too slow for the episode budget.
++- A 3-bit (rather than 2-bit) packed kernel for the layers 3-16 MLPs is the obvious next
++  step: it saves about 50 MB (roughly 82.3% removed) while keeping 8 levels per weight, so
++  it should be much closer to the all-NF4 action error than the failed 2-bit variant.  It
++  still needs a fresh 10-episode smoke check because the gate has no margin.
++- Alternatively, pack the NF4 weights with a custom group-128 kernel to remove
++  bitsandbytes metadata overhead; the expected gain is only ~20-30 MB.
++- Do not quantize the action head with LLM.int8: it is far too slow for the episode budget.
++- Do not skip whole text layers: even four skipped layers changed actions by 0.29.
+diff --git a/solution.py b/solution.py
+index 3dec8d1..90d9083 100644
+--- a/solution.py
++++ b/solution.py
+@@ -4,8 +4,7 @@ The inference path never touches the JEPA world model, and the tied vocabulary o
+ is never evaluated.  We free both, restrict the token embedding to the prompt vocabulary seen
+ during calibration, and quantize the remaining inference weights:
+ 
+-* text decoder layers 0-2 and 27 (the high-influence ends of the stack) stay LLM.int8;
+-* text decoder layers 3-26 use NF4, which is where nearly all of the decoder's 1.4 GB lives;
++* all 28 text decoder layers use NF4;
+ * the vision tower uses NF4;
+ * the action head uses NF4 with a bfloat16 activation-dtype anchor.
+ 
+@@ -133,11 +132,9 @@ def compress(policy, calibration):
+ 
+     inner = policy.model.qwen.model.model
+     text = inner.language_model
+-    # The first three and last decoder layers carry most of the measured block influence;
+-    # keep them at int8 and put the 24 low-influence middle layers in NF4.
+-    for index in (0, 1, 2, 27):
+-        _quantize_int8(text.layers[index])
+-    for index in range(3, 27):
++    # Every decoder layer goes to NF4.  The high-influence ends (0-2, 27) were int8 in the
++    # parent; NF4 there is the last large storage win left on the text path.
++    for index in range(28):
+         _quantize_nf4(text.layers[index])
+ 
+     _quantize_nf4(inner.visual)

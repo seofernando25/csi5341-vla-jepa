@@ -58,6 +58,9 @@ filterwarnings = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Agent-written policies and their frozen reference copies under studies/ are evidence, identified
+# by the sha256 recorded in selection.json. Reformatting them would change the recorded artifact.
+extend-exclude = ["studies/program-v1/policies"]
 
 [tool.hatch.metadata]
 allow-direct-references = true

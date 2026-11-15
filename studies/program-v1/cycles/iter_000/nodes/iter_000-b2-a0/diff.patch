@@ -1,0 +1,463 @@
+diff --git a/proposal.md b/proposal.md
+new file mode 100644
+index 0000000..29524e9
+--- /dev/null
++++ b/proposal.md
+@@ -0,0 +1,85 @@
++# Node iter_000-b2-a0
++
++## Change relative to parent (root template)
++
++The parent was the identity template. `solution.py` now mutates the loaded B16 policy
++in place and returns it; no compressed copy is retained.
++
++1. **Drop the training-only V-JEPA world model.** `policy.model.video_encoder`,
++   `video_predictor` and `video_processor` are set to `None`. `predict_action` and
++   `select_action` never call them, so inference is unchanged. This frees
++   483,423,616 bfloat16 parameters (~0.97 GB).
++2. **Drop the unused tied LM head and compact the token embedding.** The policy reads
++   the last decoder hidden state through a hook and never calls `lm_head`, so it is
++   replaced by `nn.Identity()`. `language_model.embed_tokens` is replaced by a
++   53-row embedding (the token ids in `calibration["token_ids"]`) plus one mean
++   fallback row and an int32 lookup. This frees the 151936x2048 embedding (~0.62 GB).
++3. **Quantize the remaining inference core.**
++   - Text decoder Linears: groupwise int4 (group 128) with an AWQ-style per-channel
++     input scale chosen by a 10-point alpha search on `calibration["linear_inputs"]`,
++     using PyTorch's Ampere tinygemm int4 kernel.
++   - Vision encoder Linears: the same packed int4 scheme.
++   - Action-head Linears: the same packed int4 scheme, except the tiny
++     `action_encoder.layer1` interface whose 7-wide input cannot use 128-wide int4
++     groups; that one stays row-wise symmetric int8.
++
++The only difference from the best previous node (`iter_000-b0-a0`, 79.57%) is that
++this node also packs the action head to int4 instead of int8. That removes another
++~77 MB. The text/vision int4 recipe is the one that already passed 8/10.
++
++All replacements happen in place, so the original storages are freed. `compress`
++performs no file I/O and keeps no calibration tensors on the GPU.
++
++## Last check output
++
++`python tools/check.py` on the final workspace:
++
++```
++status: ok
++memory removed: 80.6% (resident 1074000318 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.150391
++latency ms: median 193.04, p95 313.88
++```
++
++Smoke rollout (10 LIBERO-Spatial episodes, one per task) on this exact recipe:
++
++```
++status: ok, successes 8/10
++failed tasks: 0 and 8; tasks 1-7 and 9 succeeded
++```
++
++Tasks 0 and 8 are the same two failures as the untouched policy, so this is the
++8/10 gate with the same per-task pattern as the parent baseline.
++
++## Variants tried and rejected
++
++- **Action head int8 (the b0 recipe):** 79.6% removed, action error 0.117, smoke
++  8/10. Safe, but lower score.
++- **Action head int4:** 80.6% removed, action error 0.150, smoke 8/10. This is the
++  deployed recipe.
++- **Prune 4 low-influence text layers (3-6):** 82.5% removed but action error
++  0.592; not smoke-tested because the error is far outside the safe range.
++- **Prune 14 low-influence text layers (3-16):** 87.4% removed, action error 1.016;
++  rejected.
++- **HQQ 3-bit text+vision:** 82.9% removed, action error 2.012; rejected.
++- **HQQ 2-bit on text layers 3-16:** 83.4% removed, action error 0.858; rejected.
++- **HQQ 3-bit on text layers 3-16 + 3-bit vision:** 82.0% removed, action error
++  0.163, but the smoke rollout failed task 4 (7/10), so it was reverted. The extra
++  0.013 action error over the deployed recipe was enough to flip a task.
++
++The block-influence ranking was misleading for this policy: layers with tiny mean
++residual influence still matter for the embodied-action token positions, and
++2/3-bit HQQ on them raises the action error sharply.
++
++## What I would try next
++
++- Smoke-test **vision-only 3-bit HQQ** with text/action int4. It should land near
++  81.9% and may keep the 8/10 pattern; the combined text+vision 3-bit variant was
++  only 0.013 action-error above the deployed recipe but failed task 4, so the vision
++  part alone is the remaining cheap gain.
++- Use the 20 calibration states to collect real per-layer input covariances and run
++  GPTQ/error-compensated int4 or int3 instead of weight-only AWQ. That is the most
++  promising route to 85%+ without the layer-pruning error seen here.
++- If a larger structural gain is needed, prune text layers only with a
++  distillation/correction step on the calibration bank; pruning alone is not viable
++  at this gate.
+diff --git a/solution.py b/solution.py
+index 4ce7391..54772c3 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,14 +1,362 @@
+ """Compression entry point for the VLA-JEPA B16 policy.
+ 
+-compress(policy, calibration) receives the loaded policy (CUDA, bfloat16, eval mode, no
+-gradients) and the frozen calibration dict. It must return an object that still exposes
+-select_action and predict_action_chunk. Memory is measured on the returned object and on
+-every tensor reachable from this module and from modules imported out of the workspace.
++The policy is mutated in place: the training-only V-JEPA world model is dropped, the
++151936-row token embedding is replaced by the 53 rows the LIBERO prompts use, the
++remaining decoder/vision/action Linears are packed to low-bit weights, and the original
++storages are released.  No compressed copy of the policy is kept.
++
++`compress(policy, calibration)` is the only required entry point.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++import math
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++
++try:  # optional HQQ core for 2/3-bit experiments; not shipped in the final workspace
++    from hqq.core.quantize import Quantizer as _HQQQuantizer
++except Exception:  # pragma: no cover - only used for 2/3-bit variants
++    _HQQQuantizer = None
++
++
++# ---------------------------------------------------------------------------
++# Experiment configuration.  The values here are the deployed recipe.
++# ---------------------------------------------------------------------------
++
++CONFIG = {
++    # bits per root: 4 = packed tinygemm int4, 8 = row-wise int8, 3/2 = HQQ
++    "text_bits": 4,
++    "vision_bits": 4,
++    "action_bits": 4,
++    # optional per-block overrides, keyed by block index
++    "text_layer_bits": {},
++    "vision_block_bits": {},
++    "action_block_bits": {},
++    # block indices replaced by identity (text 0-2 carry DeepStack injections and 27
++    # feeds the policy's last-layer hook, so those are never pruned by default)
++    "prune_text": (),
++    "prune_vision": (),
++    "prune_action": (),
++    # AWQ alpha grid for packed int4; 0 disables the search and uses alpha=0.5
++    "awq_points": 10,
++    # HQQ group size for 2/3-bit weights
++    "hqq_group": 64,
++}
++
++
++# ---------------------------------------------------------------------------
++# Small modules
++# ---------------------------------------------------------------------------
++
++
++class _SkipBlock(nn.Module):
++    """Identity block that preserves the layer list length and DeepStack positions."""
++
++    def forward(self, hidden_states=None, *args, **kwargs):
++        return hidden_states if hidden_states is not None else args[0]
++
++
++class _CompactEmbedding(nn.Module):
++    """Only the prompt token rows used by the fixed LIBERO task set, plus a mean fallback."""
++
++    def __init__(self, source, token_ids):
++        super().__init__()
++        device = source.weight.device
++        ids = torch.unique(token_ids.to(device)).sort().values
++        self.register_buffer("original_ids", ids.to(torch.int64))
++        lookup = torch.full(
++            (source.num_embeddings,), len(ids), device=device, dtype=torch.int32
++        )
++        lookup[ids] = torch.arange(len(ids), device=device, dtype=torch.int32)
++        self.register_buffer("lookup", lookup)
++        weight = source.weight.detach()[ids].clone()
++        fallback = source.weight.detach().float().mean(0, keepdim=True).to(weight.dtype)
++        self.weight = nn.Parameter(torch.cat([weight, fallback], 0), requires_grad=False)
++        self.num_embeddings, self.embedding_dim = self.weight.shape
++
++    def forward(self, ids):
++        return F.embedding(self.lookup[ids].long(), self.weight)
++
++
++class _PackedInt4(nn.Module):
++    """Groupwise asymmetric int4 using PyTorch's Ampere tinygemm kernel."""
++
++    def __init__(self, source, values, scales, zeros, group_size=128, input_scale=None):
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        k = math.ceil(self.in_features / 1024) * 1024
++        n = math.ceil(self.out_features / 8) * 8
++        self.padded_k, self.padded_n = k, n
++        q = torch.full((n, k), 8, device=values.device, dtype=torch.uint8)
++        q[: self.out_features, : self.in_features] = values.to(torch.uint8)
++        packed = (q[:, ::2] << 4) | q[:, 1::2]
++        self.register_buffer(
++            "packed_weight", torch._convert_weight_to_int4pack(packed.contiguous(), 8)
++        )
++        scale = torch.ones((n, k // group_size), device=values.device, dtype=torch.float32)
++        zero = torch.zeros_like(scale)
++        groups = self.in_features // group_size
++        scale[: self.out_features, :groups] = scales
++        zero[: self.out_features, :groups] = scales * (8 - zeros)
++        self.register_buffer(
++            "scales_zeros",
++            torch.stack((scale, zero), -1).transpose(0, 1).contiguous().to(torch.bfloat16),
++        )
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++        if input_scale is not None:
++            self.register_buffer("input_scale", input_scale.to(torch.bfloat16))
++        else:
++            self.input_scale = None
++
++    def forward(self, x):
++        if self.input_scale is not None:
++            x = x / self.input_scale
++        flat = x.reshape(-1, self.in_features).to(torch.bfloat16)
++        if self.padded_k != self.in_features:
++            flat = F.pad(flat, (0, self.padded_k - self.in_features))
++        output = torch._weight_int4pack_mm(
++            flat, self.packed_weight, self.group_size, self.scales_zeros
++        )
++        output = output[:, : self.out_features].reshape(*x.shape[:-1], self.out_features)
++        return output if self.bias is None else output + self.bias
++
++
++class _PackedInt8(nn.Module):
++    """Row-wise symmetric int8 weights, dequantized one layer per forward."""
++
++    def __init__(self, source):
++        super().__init__()
++        weight = source.weight.detach().float()
++        scales = weight.abs().amax(1).clamp_min(1e-8) / 127.0
++        self.register_buffer(
++            "values", (weight / scales[:, None]).round().clamp(-127, 127).to(torch.int8)
++        )
++        self.register_buffer("scales", scales)
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++
++    def forward(self, x):
++        weight = (self.values.float() * self.scales[:, None]).to(torch.bfloat16)
++        return F.linear(x.to(torch.bfloat16), weight, self.bias)
++
++
++class _HQQLinear(nn.Module):
++    """HQQ packed 2/3-bit weights, dequantized one layer per forward."""
++
++    def __init__(self, source, bits, group_size):
++        super().__init__()
++        if _HQQQuantizer is None:
++            raise RuntimeError("HQQ core is not importable")
++        values, meta = _HQQQuantizer.quantize(
++            source.weight.detach(),
++            nbits=bits,
++            group_size=group_size,
++            axis=1,
++            optimize=True,
++            round_zero=False,
++            bitpack=True,
++            compute_dtype=torch.bfloat16,
++            device=str(source.weight.device),
++        )
++        self.register_buffer("packed_weight", values)
++        self.register_buffer("scales", meta["scale"].to(torch.bfloat16))
++        self.register_buffer("zeros", meta["zero"].to(torch.bfloat16))
++        self.meta = {
++            k: v for k, v in meta.items() if k not in {"scale", "zero"}
++        }
++        self.meta["compute_dtype"] = torch.bfloat16
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++
++    def forward(self, x):
++        weight = _HQQQuantizer.dequantize(
++            self.packed_weight,
++            {**self.meta, "scale": self.scales, "zero": self.zeros},
++        )
++        return F.linear(x.to(torch.bfloat16), weight, self.bias)
++
++
++# ---------------------------------------------------------------------------
++# Quantization helpers
++# ---------------------------------------------------------------------------
++
++
++def _affine_quantize(weight, group_size=128):
++    groups = weight.float().reshape(weight.shape[0], -1, group_size)
++    low = torch.minimum(groups.amin(-1), torch.zeros_like(groups[..., 0]))
++    high = torch.maximum(groups.amax(-1), torch.zeros_like(groups[..., 0]))
++    scales = ((high - low) / 15).clamp_min(1e-8)
++    zeros = (-low / scales).round().clamp(0, 15)
++    q = (groups / scales[..., None] + zeros[..., None]).round().clamp(0, 15)
++    reconstructed = ((q - zeros[..., None]) * scales[..., None]).reshape_as(weight)
++    return q.reshape_as(weight).to(torch.uint8), scales, zeros, reconstructed
++
++
++def _awq_int4(source, activation, points=10):
++    """AWQ-style diagonal input-energy scale search, then packed int4."""
++    weight = source.weight.detach().float()
++    activation = activation.to(weight.device).clamp_min(1e-8)
++    best = None
++    alphas = (
++        torch.linspace(0, 0.9, points).tolist() if points and points > 1 else [0.5]
++    )
++    for alpha in alphas:
++        scale = activation.sqrt().pow(alpha).clamp_min(1e-4)
++        scale = scale / (scale.amin() * scale.amax()).sqrt()
++        q, s, z, reconstruction = _affine_quantize(weight * scale)
++        error = float(
++            ((reconstruction / scale - weight).square() * activation[None]).mean()
++        )
++        if best is None or error < best[0]:
++            best = (error, scale, q, s, z)
++    _, scale, q, s, z = best
++    return _PackedInt4(source, q, s, z, input_scale=scale)
++
++
++def _make_linear(source, bits, full, calibration):
++    if bits == 4 and source.in_features % 128:
++        # tinygemm int4 needs 128-wide groups; tiny action-encoder interfaces stay int8.
++        bits = 8
++    if bits == 4:
++        return _awq_int4(
++            source,
++            calibration["linear_inputs"][full],
++            points=CONFIG.get("awq_points", 10),
++        )
++    if bits == 8:
++        return _PackedInt8(source)
++    if bits in (2, 3):
++        return _HQQLinear(source, bits, CONFIG.get("hqq_group", 64))
++    raise ValueError(f"Unsupported bit width {bits}")
++
++
++def _root_modules(policy):
++    inner = policy.model.qwen.model.model
++    return {
++        "text": inner.language_model,
++        "vision": inner.visual,
++        "action": policy.model.action_model,
++    }
++
++
++def _block_list(policy, scope):
++    return {
++        "text": policy.model.qwen.model.model.language_model.layers,
++        "vision": policy.model.qwen.model.model.visual.blocks,
++        "action": policy.model.action_model.model.transformer_blocks,
++    }[scope]
++
++
++def _replace(root, name, module):
++    parent, _, leaf = name.rpartition(".")
++    setattr(root.get_submodule(parent) if parent else root, leaf, module)
++
++
++def _scope_bits(scope, block_index):
++    base = CONFIG[f"{scope}_bits"]
++    overrides = CONFIG.get(f"{scope}_layer_bits" if scope == "text" else f"{scope}_block_bits", {})
++    return overrides.get(block_index, base)
++
++
++def _block_index(scope, name):
++    if scope == "text":
++        prefix = "layers."
++    elif scope == "vision":
++        prefix = "blocks."
++    else:
++        prefix = "model.transformer_blocks."
++    if not name.startswith(prefix):
++        return None
++    head = name[len(prefix) :].split(".", 1)[0]
++    return int(head) if head.isdigit() else None
++
++
++def _quantize_scope(policy, scope, calibration):
++    root = _root_modules(policy)[scope]
++    for name, module in list(root.named_modules()):
++        if not isinstance(module, nn.Linear):
++            continue
++        full = f"{scope}.{name}"
++        index = _block_index(scope, name)
++        bits = _scope_bits(scope, index) if index is not None else CONFIG[f"{scope}_bits"]
++        _replace(root, name, _make_linear(module, bits, full, calibration))
++
++
++def _prune(policy, scope, indices):
++    if not indices:
++        return
++    blocks = _block_list(policy, scope)
++    for index in sorted(set(indices)):
++        if not 0 <= index < len(blocks):
++            raise ValueError(f"block index {index} outside {scope}")
++        if scope == "text" and index in (0, 1, 2, 27):
++            raise ValueError("refusing to prune a DeepStack or final text layer")
++        blocks[index] = _SkipBlock()
++
++
++def _guard_action_dtype(policy):
++    encoder = policy.model.action_model.model.timestep_encoder
++    if hasattr(encoder, "_activation_dtype_anchor"):
++        return
++    device = next(encoder.parameters()).device
++    encoder.register_parameter(
++        "_activation_dtype_anchor",
++        nn.Parameter(torch.empty(0, device=device, dtype=torch.bfloat16), requires_grad=False),
++    )
++
++
++# ---------------------------------------------------------------------------
++# Entry point
++# ---------------------------------------------------------------------------
++
+ 
+ def compress(policy, calibration):
+-    """Return a policy with less resident memory; the identity keeps the baseline."""
++    """Compress the loaded policy in place and return it."""
++    # 1. The world model is training-only and unreachable from predict_action.
++    policy.model.video_encoder = None
++    policy.model.video_predictor = None
++    policy.model.video_processor = None
++
++    # 2. The policy calls the inner Qwen3VLModel, so the tied output head is unused.
++    policy.model.qwen.model.lm_head = nn.Identity()
++
++    # 3. Restrict the token embedding to the fixed LIBERO prompt vocabulary.
++    inner = policy.model.qwen.model.model
++    inner.language_model.embed_tokens = _CompactEmbedding(
++        inner.language_model.embed_tokens, calibration["token_ids"]
++    )
++
++    # 4. Structural removal happens before quantization so pruned weights are never packed.
++    _prune(policy, "text", CONFIG["prune_text"])
++    _prune(policy, "vision", CONFIG["prune_vision"])
++    _prune(policy, "action", CONFIG["prune_action"])
++
++    # 5. Pack the remaining inference core.
++    _quantize_scope(policy, "text", calibration)
++    _quantize_scope(policy, "vision", calibration)
++    _quantize_scope(policy, "action", calibration)
++    _guard_action_dtype(policy)
++
++    gc.collect()
++    torch.cuda.empty_cache()
+     return policy

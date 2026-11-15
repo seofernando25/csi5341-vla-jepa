@@ -1,0 +1,192 @@
+diff --git a/proposal.md b/proposal.md
+index 0176c2e..d481495 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,83 +1,77 @@
+-# Node iter_001-b2-a1 — calibration-ranked mixed 2/3/4-bit packing
+-
+-## Change relative to parent (`iter_001-b2-a0`)
+-
+-The parent keeps text layers 0–2 and 17–27 at int8 and packs only the text MLP of layers
+-3–16 to INT4; text attention and the whole vision tower stay int8, the action head bf16.
+-This node replaces that uniform split with a calibration-ranked mixed-precision allocation
+-over the whole inference core:
+-
+-1. Remove the training-only JEPA world model (`video_encoder`, `video_predictor`,
+-   `video_processor`) and the unused tied LM head, and compact the 151936-row text
+-   embedding to the 53 calibrated prompt ids plus one zero fallback row.
+-2. Text decoder: all 28 layers use bitsandbytes NF4 (4-bit), except the MLP projections of
+-   layers 3–16, which use HQQ 3-bit packing.  Text attention stays NF4 everywhere.
+-3. Vision tower: all 24 blocks use NF4, except blocks 12–22, which use HQQ 2-bit packing.
+-4. Action head: all blocks use NF4, except blocks 3–11, which use HQQ 2-bit packing; a
+-   zero-element bf16 activation-dtype anchor keeps the timestep encoder in bf16.
+-5. HQQ's proximal quantizer is vendored into the workspace (`hqq/`, 61 KB, no file over
+-   1 MiB) so `compress` never imports from `/tmp/repo`.
+-
+-All changes are in place on the evaluator's own policy object, so no compressed copy is
+-left beside the original.
+-
+-## Why
+-
+-The parent's 65.9% leaves most of the text decoder at int8.  The 0.7955 sibling showed that
+-NF4 over text layers 3–26 plus the vision tower holds the 8/10 gate with the same two
+-baseline failures (tasks 0 and 8).  This node starts from that allocation, then spends the
+-remaining accuracy budget where calibration says it is cheap:
+-
+-- `text.2` (influence 1575) and `vision.23` (16.2) stay at 4-bit, never 2-bit.
+-- Text layers 3–16 have influence 4e-5 … 7e-4, so their MLP can take 3-bit while their
+-  attention stays 4-bit.
+-- Vision blocks 12–22 have influence 0.05–0.14, so they can take 2-bit.
+-- Action blocks 3–11 have influence 0.002–0.02, so they can take 2-bit.
+-
+-Screening on the evaluator's 80 held-out frames (action error, max normalized difference):
+-
+-| candidate | removed | action error |
+-|---|---|---|
+-| parent b2-a0 | 65.9% | 0.0576 |
+-| b1-a1 NF4 text 3–26 + vision + action | 79.7% | 0.0781 |
+-| all text NF4 (incl. 0–2, 27) | 81.4% | 0.0781 |
+-| 3-bit MLP text 3–16, rest NF4 | 82.0% | 0.0957 |
+-| 2-bit MLP text 3–16, rest NF4 | 83.4% | 0.334 |
+-| 2-bit whole text 3–16, rest NF4 | 84.0% | 0.977 |
+-| chosen: 3-bit MLP 3–16 + 2-bit vision 12–22 + 2-bit action 3–11 | 82.8% | 0.1133 |
+-
+-The chosen candidate is the most aggressive variant that still reproduced the untouched
+-policy's exact 8/10 smoke pattern.
++# Node iter_001-b2-a2 — 3-bit text MLP 3–26 with group-128 HQQ metadata
++
++## Change relative to parent (`iter_001-b2-a1`, score 0.8277)
++
++The parent removes the training-only JEPA world model, drops the unused tied LM head,
++compacts the text embedding to the 53 calibrated prompt ids, and applies a calibration-ranked
++mixed 2/3/4-bit allocation: NF4 text, HQQ 3-bit text MLP 3–16, HQQ 2-bit vision 12–22 and
++action 3–11.  This node keeps those structural removals and the vision/action allocation,
++and makes two changes:
++
++1. **The 3-bit text-MLP range is extended from layers 3–16 to layers 3–26.**  Text attention
++   and the sensitive MLP layers 0–2/27 stay at NF4.  This is the parent's suggested next
++   step: the parent measured 3-bit MLP over 3–26 at action error 0.117 (vs 0.096 for 3–16),
++   so the extra ten layers are cheap.
++2. **The HQQ group size is 128 instead of 64.**  Scale and zero metadata are stored once per
++   group, so this halves that overhead on every packed layer (text MLP, 2-bit vision blocks
++   12–22, 2-bit action blocks 3–11) without changing the number of weight levels.
++
++All changes are in place on the evaluator's own policy object, so no compressed copy is left
++beside the original.
++
++## Rejected experiments
++
++- **Remove text layers 3–16 as identity blocks.**  Their calibration residual influence is
++  only 4.6e-5 … 6.8e-4, two orders of magnitude below layers 17–26, and no earlier node had
++  isolated that range.  The check reached 88.8% removed (617.6 MB resident) but action error
++  was **1.011**.  The influence average is dominated by image tokens; the embodied-action
++  tokens do depend on those blocks.  Reverted.
++- **All text Linears at 3-bit (including attention).**  Check: 83.6% removed, action error
++  **1.586**.  Text attention is far more sensitive than the MLP.  Reverted.
++- **Group 64 vs 128.**  Group 64 with the same bit plan gave 83.1% removed and action error
++  0.146; group 128 gives 83.8% and 0.184.  Both passed the 10-episode gate, so the smaller
++  group-128 footprint was kept.
++- **Vision blocks 3–11 at 2-bit.**  Extending the 2-bit range from 12–22 to 3–22 reached
++  84.3% removed but action error jumped to 0.284; adding action blocks 12–15 as well gave
++  84.4% and 0.284.  The vision blocks 3–11 are the cause, so the parent's 12–22 range was
++  kept.
+ 
+ ## Last check output
+ 
+-`python tools/check.py`:
++`python tools/check.py` on the submitted group-128 solution:
+ 
+ ```
+ status: ok
+-memory removed: 82.8% (resident 953115990 of baseline 5532276502 bytes)
+-action error (max normalized difference): 0.113281
+-latency ms: median 178.91, p95 216.36
++memory removed: 83.8% (resident 897751902 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.183594
++latency ms: median 236.10, p95 295.26
+ ```
+ 
++The final default-plan check reproduced the resident measurement exactly
++(897751902 bytes) after the group-128 setting was written into `solution.py`.
++
+ Final smoke phase (`evaluation.compression.study solution --phase smoke`):
+ 
+ ```
+ status: ok, successes 8/10
+ per task: 0: 0/1, 1: 1/1, 2: 1/1, 3: 1/1, 4: 1/1,
+           5: 1/1, 6: 1/1, 7: 1/1, 8: 0/1, 9: 1/1
+-resident 953115990 bytes, size reduction 0.827717
++resident 897751902 bytes, size reduction 0.837724686812843
+ ```
+ 
+ The same two tasks fail as for the untouched policy (0 and 8, both 280-step timeouts), so
+-the compression introduced no new episode failure.
++the compression introduced no new episode failure.  The group-64 variant of the same plan
++also passed 8/10 at 932938590 bytes (0.831364), so the group-128 change is gate-safe on this
++run.
+ 
+ ## What I would try next
+ 
+-- Push text layers 17–20 from NF4 to 3-bit MLP: the check error was 0.117 for 3-bit MLP
+-  over 3–26, so this is a small additional gain (~0.3 pp) with a modest error increase.
+-- Try 2-bit on action blocks 12–15 (influence 0.02 and below) for another ~0.2 pp.
+-- Do not use 2-bit on the whole text layer or on text attention: 2-bit whole layers gave
+-  action error 0.977, and 2-bit MLP-only gave 0.334, both far outside the safe band.
+-- Keep `text.2` and `vision.23` at 4-bit; their influence is two orders of magnitude above
+-  every other block.
++- Try group 256 on the text MLP only (≈14 MB more) while keeping group 128 on vision/action,
++  then re-check and re-run smoke.
++- Move only action blocks 12–15 to 2-bit (≈5 MB).  The combined vision+action experiment
++  showed the error came entirely from the vision extension, so this small action change is
++  likely safe, but it needs its own smoke run.
++- Do not extend 2-bit vision below block 12: blocks 3–11 raised action error to 0.284.
++- Do not lower text attention below NF4: 3-bit attention alone gave action error 1.59.
++- Do not remove text layers 3–16: their mean influence is misleading because it is dominated
++  by image tokens.
+diff --git a/solution.py b/solution.py
+index 95f36d4..68b7bfb 100644
+--- a/solution.py
++++ b/solution.py
+@@ -7,6 +7,12 @@ vocabulary, and the inference Linears are replaced by packed low-bit modules.
+ The bit allocation is deliberately non-uniform.  Calibration block influence is extremely
+ skewed (text.2 dominates the text stack; vision.23 dominates the vision tower), so the
+ sensitive ends stay at 8-bit while the low-influence middle is packed to 4-bit or 2-bit.
++
++This node extends the parent's 3-bit text-MLP allocation from layers 3-16 to layers 3-26,
++keeps text attention and the sensitive MLP layers 0-2/27 at NF4, and doubles the HQQ group
++size from 64 to 128 to halve the scale/zero metadata on every packed layer.  More
++aggressive variants were measured and rejected: all-3-bit text (including attention) gave
++action error 1.59, and removing text layers 3-16 as identity blocks gave 1.01.
+ """
+ 
+ from __future__ import annotations
+@@ -22,15 +28,18 @@ from torch.nn import functional as F
+ 
+ # Default plan: the measured 8/10-safe mixed allocation.  VLA_PLAN is only for local
+ # screening; the evaluator sees the default.
+-_TEXT_3BIT_MLP = {str(i): {"mlp": 3, "attn": 4} for i in range(3, 17)}
+ _VISION_2BIT = {str(i): 2 for i in range(12, 23)}
+ _ACTION_2BIT = {str(i): 2 for i in range(3, 12)}
+ _DEFAULT_PLAN = {
+-    "text": {"default": 4, **_TEXT_3BIT_MLP},
++    # Text attention stays NF4: 3-bit attention alone drove action error to 1.59.
++    # The MLP of layers 3-26 is 3-bit; the sensitive 0-2 and 27 MLPs stay NF4.
++    "text": {"default": 4, **{str(i): {"mlp": 3} for i in range(3, 27)}},
+     "vision": {"default": 4, **_VISION_2BIT},
+     "action": {"default": 4, **_ACTION_2BIT},
+     "group_size": 64,
+-    "hqq_group": 64,
++    # Group 128 halves the HQQ scale/zero metadata on every packed layer; the measured
++    # action error rises from 0.146 to 0.184 but the 10-episode gate still passes 8/10.
++    "hqq_group": 128,
+     "double_quant": True,
+     "hqq_optimize": True,
+ }
+@@ -264,6 +273,7 @@ def compress(policy, calibration):
+         roots["text"].embed_tokens, calibration["token_ids"]
+     )
+ 
++
+     # The action timestep encoder takes its activation dtype from its first parameter;
+     # keep a zero-element bf16 anchor once that parameter becomes integer data.
+     encoder = roots["action"].model.timestep_encoder

@@ -1,0 +1,257 @@
+diff --git a/proposal.md b/proposal.md
+new file mode 100644
+index 0000000..237982b
+--- /dev/null
++++ b/proposal.md
+@@ -0,0 +1,50 @@
++# Node iter_001-b2-a0 — 4-bit middle-layer text MLP on top of the int8 parent
++
++## Change relative to parent (`root`)
++
++The parent is the untouched B16 policy.  This node mutates the evaluator's policy object in
++place:
++
++1. Remove the training-only JEPA world model (`video_encoder`, `video_predictor`,
++   `video_processor`) and the unused tied LM head.
++2. Replace the 151936-row text embedding with a compact table for the calibrated prompt ids
++   plus one zero fallback row.
++3. Pack the text MLP projections (`gate_proj`, `up_proj`, `down_proj`) of layers **3–16** to
++   groupwise asymmetric INT4 (group 128) using PyTorch's tinygemm `_weight_int4pack_mm`.
++   Layers 0–2 and 17–27 keep int8 MLP weights: layer 2 carries the DeepStack visual
++   injection and layer 27 has the largest calibrated residual influence.
++4. Keep text attention and the whole vision tower in LLM.int8 (bitsandbytes); the action head
++   stays bfloat16.
++
++## Why
++
++The 0.614 node showed int8 text + int8 vision preserves the 8/10 gate.  Quantizing the whole
++text MLP to INT4 reached 70.4% removed but failed a new episode (smoke 7/10, task 5).  The
++calibration block-influence ranking is extremely skewed: layers 3–16 are the least
++influential, while layers 0–2 and 27 dominate.  Restricting INT4 to the 14 least influential
++layers removes another 0.25 GB while keeping the sensitive layers and the action head at
++higher precision.  A full 10-episode smoke run of this exact plan passed 8/10 with the same
++two failures as the untouched policy (tasks 0 and 8).
++
++## Last check output
++
++`python tools/check.py`:
++
++```
++status: ok
++memory removed: 65.9% (resident 1886736918 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.0576172
++latency ms: median 256.49, p95 271.10
++```
++
++Smoke phase (`evaluation.compression.study solution --phase smoke`): `status: ok`,
++successes 8/10, per-task failures only 0 and 8 — identical to the untouched policy.
++
++## What I would try next
++
++- The all-MLP INT4 plan reached 67.4% removed but its smoke run was invalidated by a test
++  log file created in `/tmp` during `compress`; rerun it with clean stdout to see whether it
++  also holds the gate.
++- Try INT4 only on `gate_proj`/`up_proj` (67.0% removed, action error 0.040) and on the
++  least-influential half of the vision blocks.
++- Do not quantize the action head with bitsandbytes: it added action error and resident bytes.
+diff --git a/solution.py b/solution.py
+index 4ce7391..006411e 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,14 +1,190 @@
+-"""Compression entry point for the VLA-JEPA B16 policy.
++"""In-place compression for the VLA-JEPA B16 LIBERO policy.
+ 
+-compress(policy, calibration) receives the loaded policy (CUDA, bfloat16, eval mode, no
+-gradients) and the frozen calibration dict. It must return an object that still exposes
+-select_action and predict_action_chunk. Memory is measured on the returned object and on
+-every tensor reachable from this module and from modules imported out of the workspace.
++The evaluator's policy object is mutated in place: the training-only world model and the
++unused tied LM head are dropped, the text embedding is compacted to the calibrated prompt
++vocabulary, the text MLP projections are packed to 4-bit (group 128), and the text attention
++and vision tower Linears use LLM.int8.  The action head stays bfloat16.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++import json
++import math
++import os
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++
++_PLAN = json.loads(
++    os.environ.get(
++        "VLA_PLAN",
++        '{"text_mlp": 8, "text_mlp_layers": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], "text_attn": 8, "vision": 8, "group_size": 128}',
++    )
++)
++
++
++def _affine_quantize(weight, group_size=128):
++    groups = weight.float().reshape(weight.shape[0], -1, group_size)
++    low = torch.minimum(groups.amin(-1), torch.zeros_like(groups[..., 0]))
++    high = torch.maximum(groups.amax(-1), torch.zeros_like(groups[..., 0]))
++    scales = ((high - low) / 15).clamp_min(1e-8)
++    zeros = (-low / scales).round().clamp(0, 15)
++    q = (groups / scales[..., None] + zeros[..., None]).round().clamp(0, 15)
++    return q.reshape_as(weight).to(torch.uint8), scales, zeros
++
++
++class _Int4Linear(nn.Module):
++    """Groupwise asymmetric INT4 weight, dequantized by the Ampere tinygemm kernel."""
++
++    def __init__(self, source, values, scales, zeros, group_size=128):
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        k = math.ceil(self.in_features / 1024) * 1024
++        n = math.ceil(self.out_features / 8) * 8
++        self.padded_k, self.padded_n = k, n
++        q = torch.full((n, k), 8, device=values.device, dtype=torch.uint8)
++        q[: self.out_features, : self.in_features] = values
++        packed = (q[:, ::2] << 4) | q[:, 1::2]
++        self.register_buffer(
++            "packed_weight", torch._convert_weight_to_int4pack(packed.contiguous(), 8)
++        )
++        scale = torch.ones((n, k // group_size), device=values.device, dtype=torch.float32)
++        zero = torch.zeros_like(scale)
++        groups = self.in_features // group_size
++        scale[: self.out_features, :groups] = scales
++        zero[: self.out_features, :groups] = scales * (8 - zeros)
++        self.register_buffer(
++            "scales_zeros",
++            torch.stack((scale, zero), -1).transpose(0, 1).contiguous().to(torch.bfloat16),
++        )
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++        self._compression_logical_parameter_elements = (
++            self.in_features * self.out_features + (self.out_features if source.bias is not None else 0)
++        )
++
++    def forward(self, x):
++        shape = x.shape
++        x2 = x.reshape(-1, self.in_features).to(torch.bfloat16)
++        if not x2.is_contiguous():
++            x2 = x2.contiguous()
++        if self.padded_k != self.in_features:
++            x2 = F.pad(x2, (0, self.padded_k - self.in_features))
++        out = torch._weight_int4pack_mm(
++            x2, self.packed_weight, self.group_size, self.scales_zeros
++        )
++        out = out[:, : self.out_features].reshape(*shape[:-1], self.out_features)
++        return out if self.bias is None else out + self.bias
++
++
++class _CompactEmbedding(nn.Module):
++    """Rows for the calibrated LIBERO prompt ids plus one zero row for unseen ids."""
++
++    def __init__(self, source, token_ids):
++        super().__init__()
++        ids = torch.unique(token_ids.to(source.weight.device)).sort().values
++        lookup = torch.full(
++            (source.num_embeddings,), len(ids), device=ids.device, dtype=torch.int32
++        )
++        lookup[ids] = torch.arange(len(ids), device=ids.device, dtype=torch.int32)
++        self.register_buffer("lookup", lookup)
++        weight = source.weight.detach()[ids].clone()
++        zero = torch.zeros((1, source.embedding_dim), device=weight.device, dtype=weight.dtype)
++        self.weight = nn.Parameter(torch.cat([weight, zero], 0), requires_grad=False)
++        self.num_embeddings, self.embedding_dim = self.weight.shape
++
++    def forward(self, ids):
++        return F.embedding(self.lookup[ids].long(), self.weight)
++
++
++def _bnb_linear(linear):
++    """LLM.int8 replacement, matching the published Q8 arm."""
++    import bitsandbytes as bnb
++
++    weight = linear.weight.detach().cpu()
++    replacement = bnb.nn.Linear8bitLt(
++        linear.in_features,
++        linear.out_features,
++        bias=linear.bias is not None,
++        has_fp16_weights=False,
++        threshold=6.0,
++    )
++    replacement.weight = bnb.nn.Int8Params(
++        weight, requires_grad=False, has_fp16_weights=False
++    )
++    if linear.bias is not None:
++        replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
++    return replacement.to(device=linear.weight.device).eval()
++
++
++def _quantize_linear(linear, bits, group_size):
++    if bits == 8:
++        return _bnb_linear(linear)
++    if bits == 4:
++        if linear.in_features % group_size:
++            return linear
++        values, scales, zeros = _affine_quantize(linear.weight.detach(), group_size)
++        return _Int4Linear(linear, values, scales, zeros, group_size)
++    return linear
++
++
++def _bits_for(name, plan, root_name):
++    default = plan.get(root_name, 0)
++    if ".self_attn." in name or ".attn." in name or ".attn1." in name:
++        return plan.get(root_name + "_attn", default)
++    if ".mlp." in name or ".ff." in name:
++        if root_name == "text" and "text_mlp_layers" in plan:
++            parts = name.split(".")
++            index = int(parts[1]) if len(parts) > 2 and parts[0] == "layers" else -1
++            if index in plan["text_mlp_layers"]:
++                return plan.get("text_mlp_selected_bits", 4)
++            return plan.get("text_mlp", 8)
++        if root_name == "text" and (".down_proj" in name):
++            return plan.get("text_down", plan.get("text_mlp", default))
++        if root_name == "text" and (".gate_proj" in name or ".up_proj" in name):
++            return plan.get("text_gate_up", plan.get("text_mlp", default))
++        return plan.get(root_name + "_mlp", default)
++    return default
++
+ 
+ def compress(policy, calibration):
+-    """Return a policy with less resident memory; the identity keeps the baseline."""
++    """Mutate the evaluator's policy in place and return it."""
++    policy.model.video_encoder = None
++    policy.model.video_predictor = None
++    policy.model.video_processor = None
++    policy.model.qwen.model.lm_head = nn.Identity()
++
++    inner = policy.model.qwen.model.model
++    roots = {
++        "text": inner.language_model,
++        "vision": inner.visual,
++        "action": policy.model.action_model,
++    }
++    roots["text"].embed_tokens = _CompactEmbedding(
++        roots["text"].embed_tokens, calibration["token_ids"]
++    )
++
++    for root_name, root in roots.items():
++        for name, module in list(root.named_modules()):
++            if not isinstance(module, nn.Linear):
++                continue
++            bits = _bits_for(name, _PLAN, root_name)
++            if bits not in (4, 8):
++                continue
++            replacement = _quantize_linear(module, bits, int(_PLAN.get("group_size", 128)))
++            if replacement is module:
++                continue
++            parent_name, _, leaf = name.rpartition(".")
++            parent = root.get_submodule(parent_name) if parent_name else root
++            setattr(parent, leaf, replacement)
++
++    gc.collect()
++    torch.cuda.empty_cache()
+     return policy

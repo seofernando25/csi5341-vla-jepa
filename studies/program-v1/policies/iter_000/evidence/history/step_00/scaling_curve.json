@@ -1,0 +1,46 @@
+{
+  "lambda_parallel": 0.05,
+  "max_parallelism": 2,
+  "mean_v": 0.467,
+  "policy_sha256": "1188aed644b47b03fb81a932fe03a8fd4c5964e376f40f7f49ee529b52ea8ca7",
+  "worlds": {
+    "dream-iter_000": {
+      "degenerate": false,
+      "hypervolume": 0.5,
+      "penalty": 0.6599999999999999,
+      "points": [
+        {
+          "attainment": 1.0,
+          "beta": 0.0,
+          "probes": 4,
+          "rounds": 4
+        },
+        {
+          "attainment": 1.0,
+          "beta": 0.25,
+          "probes": 5,
+          "rounds": 4
+        },
+        {
+          "attainment": 1.0,
+          "beta": 0.5,
+          "probes": 8,
+          "rounds": 4
+        },
+        {
+          "attainment": 1.0,
+          "beta": 0.75,
+          "probes": 8,
+          "rounds": 4
+        },
+        {
+          "attainment": 1.0,
+          "beta": 1.0,
+          "probes": 8,
+          "rounds": 4
+        }
+      ],
+      "v": 0.467
+    }
+  }
+}

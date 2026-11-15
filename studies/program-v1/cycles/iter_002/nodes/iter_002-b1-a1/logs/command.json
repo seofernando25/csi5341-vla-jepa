@@ -1,0 +1,10 @@
+{
+  "backend": "pi",
+  "model": "mistral/deepseek-v4-1-flash-1017",
+  "effort": "max",
+  "tools": "read,write,edit,bash",
+  "cli_version": "1.5.2",
+  "returncode": -1,
+  "network": true,
+  "use_bwrap": true
+}

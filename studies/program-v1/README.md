@@ -90,12 +90,38 @@ Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rs
 (`read,write,edit,bash`), `dream_rsi.policy_dev_tools` (`read,write,edit`), `agent_timeout_s`,
 `eval_timeout_s` (1800 each) and `gpu_slots` (2). `allowed_methods` and `agent_tools` were removed.
 
+## Dream-RSI run, 2026-11-15: invalid nodes, preliminary results
+
+One run, 3 cycles, 24 probes, 7.55 h. Evidence: `cycles/` (trees, manifests, per-node scores) and
+`policies/` (policy steps, replay evidence).
+
+**Invalid nodes.** `iter_002-b1-a3`, `iter_002-b2-a1` and `iter_002-b2-a2` scored 1.0 with 0
+resident bytes through an evaluator exploit, not through compression: the workspace parked the bf16
+weights on the CPU and restored them on the first inference call, after the memory measurement. The
+loop's `best_score` 1.0 and the cycle-3 promotion (`iter_002-b2-a1`) are therefore not results. Do
+not report or plot them. The exploit and the evaluator fix are recorded in
+[exploit/README.md](exploit/README.md).
+
+**Preliminary results, pending re-measurement.** Development phase, 100 trials per node, same
+states:
+
+| Node | Memory removed | Development |
+|---|---:|---:|
+| `iter_000-b0-a3` | 86.9 % | 80/100 |
+| `iter_001-b1-a3` | 84.0 % | 84/100 |
+| reference `B16` (uncompressed) | — | 82/100 |
+
+A keyword scan of every `proposal.md` found no hiding or restore language in cycles 1 and 2, and
+their resident bytes are 0.72 to 3.9 GB. A scan is not an audit: these numbers stay preliminary
+until each reported node is re-measured with the fixed evaluator. Reserved-500 has not run.
+
 ## Status
 
 - Protocol frozen.
 - Precision-surface pre-registration: [precision_surface_plan.json](precision_surface_plan.json).
 - Recipes: 13 precision arms under `recipes/`.
-- Evidence: none yet. No smoke or development run has been launched.
+- Evidence: one Dream-RSI run (3 cycles, 24 probes); three cycle-3 nodes invalid, two development
+  winners preliminary (see the section above).
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.
 

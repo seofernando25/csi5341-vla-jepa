@@ -1,0 +1,318 @@
+diff --git a/proposal.md b/proposal.md
+index 8d97806..75a41cd 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,26 +1,30 @@
+-# Node iter_000-b0-a2
+-
+-## Change relative to parent (iter_000-b0-a1)
+-
+-The parent compresses text+vision to groupwise int3 and the action head to int4, scoring
+-0.846808 with 8/10 episodes.  This node keeps the parent's structural changes (drop the
+-training-only world model, compact the token embedding, drop the unused LM head) and makes
+-two changes:
+-
+-1. **Action head: groupwise int3 instead of int4.**  The action head is 155 M parameters,
+-   so moving it from 4 to 3 bits removes another ~35 MB.  It is the only precision change
+-   in the deployed variant; the text decoder and vision encoder keep the parent's int3
+-   recipe.  The action head is the most sensitive part, so this was smoke-tested rather
+-   than combined with any text/vision change.
+-2. **Exact zero-point storage.**  For the int3/int2 unpacking paths, the per-group zero
+-   points are small integers (0..7 / 0..3), so they are stored as uint8 instead of bf16
+-   and converted back to bf16 in `forward`.  This is bit-exact: the dequantized weights
+-   are identical, but the stored metadata is halved.  It removes ~15 MB.
+-
+-`solution.py` also contains a real 2-bit packing path (`PackedInt2`) and per-linear
+-overrides (`TEXT_INT2_SUFFIXES`, `TEXT_INT2_LAYERS`, `VISION_INT2_BLOCKS`) for the
+-mixed-precision experiments.  The deployed constants leave all of those overrides empty,
+-so the deployed model is text int3 / vision int3 / action int3.
++# Node iter_000-b0-a3
++
++## Change relative to parent (iter_000-b0-a2)
++
++The parent scored 0.855983 with text/vision/action all at groupwise int3, after dropping
++the training-only world model, compacting the token embedding and dropping the unused LM
++head.  This node keeps all of those changes and adds two new ones:
++
++1. **Structured pruning of text-MLP intermediate channels.**  Every Qwen3 text MLP has a
++   6144-wide intermediate activation.  The frozen calibration stores the mean squared
++   input of `down_proj`, i.e. the activation energy of each intermediate channel.  For
++   each layer I score each channel by
++   `E[a_j^2] * ||down_proj[:, j]||^2` (its expected squared contribution to the layer
++   output), keep the best 5376 channels and physically slice the `gate_proj`/`up_proj`
++   output rows and the `down_proj` input columns.  That removes 12.5% of the text-MLP
++   weights (about 132 M parameters) and their quantizer side data.  The calibration
++   vector for `down_proj` is sliced to the same channels so the AWQ scale search stays
++   consistent.
++2. **Compact int3 quantizer metadata.**  The parent stores one bf16 scale and one uint8
++   zero per 128-weight group (3 bytes/group, ~46 MB in total).  This node stores the
++   per-row scales as an 8-bit affine code with one fp16 min and step per row, and packs
++   the 3-bit zero points eight per three bytes.  Metadata drops to 1.375 bytes/group
++   (~21 MB), a lossless-to-within-0.5% change in the dequantized weights.
++
++The deployed bit widths are unchanged: text int3, vision int3, action int3.  The
++structural removal of the world model, the compact 53-row embedding and the unused LM
++head are inherited from the parent.
+ 
+ All replacements happen in place, so the original storages are freed; no compressed copy
+ is kept.  `compress` performs no file I/O and writes no files.
+@@ -31,46 +35,40 @@ is kept.  `compress` performs no file I/O and writes no files.
+ 
+ ```
+ status: ok
+-memory removed: 85.6% (resident 796742630 of baseline 5532276502 bytes)
+-action error (max normalized difference): 0.207031
+-latency ms: median 447.26, p95 493.11
++memory removed: 86.9% (resident 724667303 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.240234
++latency ms: median 873.80, p95 1019.57
+ ```
+ 
+-Size reduction: `1 - 796742630 / 5532276502 = 0.85598`.
++Size reduction: `1 - 724667303 / 5532276502 = 0.869011`.
+ 
+ ## Smoke rollout (the evaluator's 10-episode phase)
+ 
+-The action-head-int3 variant with bf16 zero points (the only difference from this final
+-workspace is the exact uint8 zero-point storage) was smoke-tested:
+-
+ ```
+ status: ok, successes 8/10
++resident 724,667,303 bytes, size_reduction 0.8690110115
+ per task: 0:0, 1:1, 2:1, 3:1, 4:1, 5:1, 6:1, 7:1, 8:0, 9:1
+ ```
+ 
+-The two failures are tasks 0 and 8, exactly the two the untouched policy and the parent
+-also fail; every task the parent passed still passes.  The uint8 zero-point change is
+-bit-exact, so the final workspace has the same forward outputs and the same 8/10 pattern.
++The two failures are tasks 0 and 8, exactly the two the untouched policy and every
++previous node also fail; every task the parent passed still passes.  This is the
++deployed recipe.
+ 
+ ## Experiments tried and rejected
+ 
+-- **Vision encoder int2 (all blocks):** 85.6% removed, action error 0.442; rejected.
+-- **Text `down_proj` int2 (all layers):** 85.5% removed, action error 0.302.  Smoke
+-  rollout failed tasks 1, 4 and 8 (7/10 at best), so it was rejected.  This is the key
+-  negative result: even 2-bit on only the MLP down-projections is enough to flip a task.
+-- **Text MLP int2 (gate/up/down):** 87.1% removed, action error 0.663; rejected.
+-- **Text attention int2 (q/k/v/o):** 85.5% removed, action error 0.541; rejected.
+-- **All text int2:** 87.9% removed, action error 0.980; rejected.
++- **25% text-MLP pruning (keep 4608):** 87.8% removed, action error 0.260, but the smoke
++  rollout failed task 5 (7/10: tasks 0, 5 and 8 failed).  Reverted to 12.5%.
++- The 12.5% prune is the largest tested width that kept the parent's exact 8/10 per-task
++  pattern.  The parent's int2 experiments (text down_proj int2, vision int2, all-text
++  int2) were not repeated; they were already rejected for action error and smoke
++  failures.
+ 
+ ## What I would try next
+ 
+-- A per-group 4-centroid codebook for int2 (instead of the affine 4-level quantizer)
+-  should reduce the 2-bit error substantially.  The smoke result above shows the current
+-  affine int2 is just over the quality edge even on `down_proj`; a codebook or GPTQ-style
+-  error compensation is the main remaining route to 87%+ without structural pruning.
+-- A diagonal-Hessian-weighted int3 quantizer could improve the text decoder enough to
+-  make a few low-influence layers safe at 2 bits, but each candidate needs a smoke
+-  rollout because the 8/10 gate has no margin.
+-- The exact zero-point trick could also be applied to the int4 action head by storing
+-  zero points separately and rebuilding the tinygemm `scales_zeros` buffer per forward;
+-  the saving is small (~2.4 MB) and the extra per-forward allocation is not worth it here.
++- Try an intermediate text-MLP width (18.75%, keep 4992) or 25% only in the late layers
++  whose calibration energy removal is smallest; the 25% all-layer variant was just over
++  the edge at task 5.
++- Add 12.5% vision-MLP pruning (about 10 MB, +0.18 points) if a smoke rollout confirms
++  it does not flip a task.
++- The remaining large gain is still 2-bit text/vision with a per-group codebook or
++  GPTQ-style error compensation; the affine int2 paths in the parent were too lossy.
+diff --git a/solution.py b/solution.py
+index cec40eb..2424c97 100644
+--- a/solution.py
++++ b/solution.py
+@@ -7,9 +7,12 @@ because the policy reads the last decoder hidden state directly.  This solution:
+ 1. drops the world encoder/predictor (and its processor) that inference never calls;
+ 2. drops the unused tied LM head and replaces the 151936-row token embedding with a
+    compact embedding containing only the prompt token ids in the frozen calibration;
+-3. quantizes the text decoder, vision encoder and action head with groupwise affine
++3. prunes the lowest-contribution 12.5% of text-MLP intermediate channels, using the
++   calibration activation energy of each channel and its down-projection norm;
++4. quantizes the text decoder, vision encoder and action head with groupwise affine
+    low-bit packing (2/3/4 bits), an activation-aware per-channel input scale, and a
+-   per-linear bit allocation.
++   per-linear bit allocation.  Int3 side data uses an 8-bit per-row scale code and
++   packed 3-bit zero points.
+ 
+ Everything is done in place on the loaded policy so the original storages are freed.
+ """
+@@ -27,6 +30,12 @@ from torch import nn
+ TEXT_BITS = 3
+ VISION_BITS = 3
+ ACTION_BITS = 3
++# Structured pruning: keep this many intermediate MLP channels per layer.  The text
++# MLP width is 6144; 5376 removes the 12.5% of channels with the smallest expected
++# output contribution (calibration activation energy times down-projection norm).
++TEXT_MLP_KEEP = 5376
++# Vision MLP width is 4096; 4096 disables vision pruning.
++VISION_MLP_KEEP = 4096
+ # Optional mixed-precision overrides.  A text linear whose full calibration name
+ # ends with one of these suffixes uses 2 bits instead of TEXT_BITS.
+ TEXT_INT2_SUFFIXES = ()
+@@ -151,12 +160,45 @@ class PackedInt4(nn.Module):
+         return output if self.bias is None else output + self.bias
+ 
+ 
++def _pack_3bit(values):
++    """Pack eight 3-bit integers per row into three uint8 bytes (exact)."""
++    out_features, groups = values.shape
++    padded = (-groups) % 8
++    if padded:
++        values = F.pad(values, (0, padded))
++    v = values.to(torch.int16).reshape(out_features, -1, 8)
++    b0 = (v[..., 0] << 5) | (v[..., 1] << 2) | (v[..., 2] >> 1)
++    b1 = ((v[..., 2] & 1) << 7) | (v[..., 3] << 4) | (v[..., 4] << 1) | (v[..., 5] >> 2)
++    b2 = ((v[..., 5] & 3) << 6) | (v[..., 6] << 3) | v[..., 7]
++    return torch.stack((b0, b1, b2), dim=-1).reshape(out_features, -1).to(torch.uint8)
++
++
++def _unpack_3bit(packed, groups):
++    """Inverse of _pack_3bit; returns the first `groups` 3-bit values per row."""
++    out_features = packed.shape[0]
++    b = packed.reshape(out_features, -1, 3).to(torch.int16)
++    v0 = b[..., 0] >> 5
++    v1 = (b[..., 0] >> 2) & 7
++    v2 = ((b[..., 0] & 3) << 1) | (b[..., 1] >> 7)
++    v3 = (b[..., 1] >> 4) & 7
++    v4 = (b[..., 1] >> 1) & 7
++    v5 = ((b[..., 1] & 1) << 2) | (b[..., 2] >> 6)
++    v6 = (b[..., 2] >> 3) & 7
++    v7 = b[..., 2] & 7
++    return torch.stack((v0, v1, v2, v3, v4, v5, v6, v7), dim=-1).reshape(
++        out_features, -1
++    )[:, :groups]
++
++
+ class PackedInt3(nn.Module):
+     """Groupwise affine int3 with real 3-bit packing, dequantized per forward.
+ 
+     Eight consecutive input columns are packed into three uint8 bytes.  The kernel is
+     an unpack + bf16 matmul; latency is higher than the int4 tinygemm kernel but the
+-    stored weight is 3/8 byte per parameter.
++    stored weight is 3/8 byte per parameter.  Quantizer side data is compact: scales
++    are an 8-bit per-row affine code (plus one fp16 min and step per row) and zero
++    points are packed 3-bit, so metadata is 1.375 bytes per 128-weight group instead
++    of the 3 bytes used by bf16 scales plus uint8 zeros.
+     """
+ 
+     def __init__(self, source, values, scales, zeros, group_size=128, input_scale=None):
+@@ -173,9 +215,16 @@ class PackedInt3(nn.Module):
+             self.out_features, self.in_features * 3 // 8
+         )
+         self.register_buffer("packed_weight", packed.to(torch.uint8).contiguous())
+-        self.register_buffer("scales", scales.to(torch.bfloat16))
+-        # Zero points are small integers; uint8 is exact and half the bytes of bf16.
+-        self.register_buffer("zeros", zeros.to(torch.uint8))
++        # 8-bit affine code for the per-group scales, with one fp16 min/step per row.
++        s = scales.float()
++        s_min = s.amin(dim=1)
++        s_step = ((s.amax(dim=1) - s_min) / 255.0).clamp_min(1e-12)
++        s_q = ((s - s_min[:, None]) / s_step[:, None]).round().clamp(0, 255)
++        self.register_buffer("scale_q", s_q.to(torch.uint8).contiguous())
++        self.register_buffer("scale_min", s_min.to(torch.float16).contiguous())
++        self.register_buffer("scale_step", s_step.to(torch.float16).contiguous())
++        self.zero_groups = zeros.shape[1]
++        self.register_buffer("zeros_packed", _pack_3bit(zeros.to(torch.uint8)))
+         self.bias = (
+             nn.Parameter(source.bias.detach().clone(), requires_grad=False)
+             if source.bias is not None
+@@ -203,15 +252,20 @@ class PackedInt3(nn.Module):
+             self.out_features, self.in_features
+         )
+ 
++    def _scales(self):
++        return (
++            self.scale_min.float()[:, None]
++            + self.scale_q.float() * self.scale_step.float()[:, None]
++        ).to(torch.bfloat16)
++
+     def forward(self, x):
+         if self.input_scale is not None:
+             x = x / self.input_scale
+         q = self._unpack().to(torch.bfloat16)
+         groups = self.in_features // self.group_size
+-        scale = self.scales[:, :groups].repeat_interleave(self.group_size, dim=1)
+-        zero = self.zeros[:, :groups].to(torch.bfloat16).repeat_interleave(
+-            self.group_size, dim=1
+-        )
++        scale = self._scales()[:, :groups].repeat_interleave(self.group_size, dim=1)
++        zero = _unpack_3bit(self.zeros_packed, self.zero_groups)[:, :groups]
++        zero = zero.to(torch.bfloat16).repeat_interleave(self.group_size, dim=1)
+         weight = (q - zero) * scale
+         return F.linear(x.to(torch.bfloat16), weight, self.bias)
+ 
+@@ -308,6 +362,52 @@ def _bits_for(full, default_bits, int2_suffixes=(), int2_layers=()):
+     return default_bits
+ 
+ 
++def _slice_linear(linear, keep, dim):
++    """Keep the selected output rows (dim=0) or input columns (dim=1) of a Linear."""
++    weight = linear.weight.detach()
++    if dim == 0:
++        weight = weight[keep].contiguous()
++        linear.out_features = len(keep)
++        if linear.bias is not None:
++            linear.bias = nn.Parameter(
++                linear.bias.detach()[keep].contiguous(), requires_grad=False
++            )
++    else:
++        weight = weight[:, keep].contiguous()
++        linear.in_features = len(keep)
++    linear.weight = nn.Parameter(weight, requires_grad=False)
++
++
++def _prune_text_mlp(text, calibration, keep_count):
++    """Prune text-MLP intermediate channels by expected output contribution.
++
++    The down-projection input energy in the frozen calibration is the mean squared
++    activation of each intermediate channel; multiplying it by the squared norm of
++    that channel's down-projection column gives the expected squared contribution to
++    the layer output.  The lowest-scoring channels are removed from gate/up outputs
++    and down inputs.  The calibration vector for down_proj is sliced to match, so the
++    activation-aware quantizer sees the pruned channel set.
++    """
++    pruned = 0
++    for index, layer in enumerate(text.layers):
++        mlp = layer.mlp
++        full = f"text.layers.{index}.mlp.down_proj"
++        activation = calibration["linear_inputs"].get(full)
++        if activation is None or keep_count >= mlp.intermediate_size:
++            continue
++        down = mlp.down_proj
++        weight = down.weight.detach().float()
++        score = activation.to(weight.device).float() * weight.square().sum(dim=0)
++        keep = torch.topk(score, keep_count, largest=True).indices.sort().values
++        _slice_linear(mlp.gate_proj, keep, 0)
++        _slice_linear(mlp.up_proj, keep, 0)
++        _slice_linear(mlp.down_proj, keep, 1)
++        mlp.intermediate_size = keep_count
++        calibration["linear_inputs"][full] = activation[keep.cpu()].clone()
++        pruned += 1
++    return pruned
++
++
+ def _quantize_lowbit(
+     module,
+     prefix,
+@@ -361,7 +461,13 @@ def compress(policy, calibration):
+     text = qwen.model.model.language_model
+     text.embed_tokens = CompactEmbedding(text.embed_tokens, calibration["token_ids"])
+ 
+-    # 3. Activation-aware low-bit quantization.  Any Linear without calibration data
++    # 3. Structured pruning of text-MLP intermediate channels.  This removes whole
++    #    gate/up rows and down columns, so the pruned weights are never stored.
++    _prune_text_mlp(text, calibration, TEXT_MLP_KEEP)
++    gc.collect()
++    torch.cuda.empty_cache()
++
++    # 4. Activation-aware low-bit quantization.  Any Linear without calibration data
+     #    (or a conversion failure) falls back to int8.
+     try:
+         _quantize_lowbit(

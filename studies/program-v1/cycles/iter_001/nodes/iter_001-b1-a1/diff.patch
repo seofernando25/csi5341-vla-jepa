@@ -1,0 +1,249 @@
+diff --git a/proposal.md b/proposal.md
+index 2a96460..b9426f9 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,65 +1,73 @@
+-# Proposal (iter_001-b1-a0)
+-
+-## Change relative to parent (`root`, identity)
+-
+-The parent returns the untouched B16 policy.  This node makes four in-place changes on the
+-object the evaluator already holds:
+-
+-1. **Remove the JEPA world model** (`video_encoder`, `video_predictor`, `video_processor`).
+-   `predict_action_chunk`/`select_action` only call `_encode_qwen` and the action head; the
+-   world model is used exclusively by the training loss.  Frees ~0.97 GB of bf16 weights.
+-2. **Compact token embedding + drop the tied output head.**  `calibration["token_ids"]`
+-   contains exactly the 53 unique ids used by all 100 observation-bank inputs (verified by
+-   running `prepared_inputs` over the whole bank: missing = [], extra = []).  The `lm_head`
+-   is tied to the embedding and is never evaluated because the policy calls the inner
+-   `Qwen3VLModel`.  Replacing both frees the 151936 x 2048 bf16 vocabulary (622 MB) and
+-   stores 53 rows instead.
+-3. **LLM.int8 (bitsandbytes) on every text-decoder Linear** (the repo's Q8 arm).
+-4. **LLM.int8 on every vision-tower Linear.**  The vision tower is 402M params; int8 cuts it
+-   roughly in half.  The action head is deliberately left in bf16: quantizing it *increased*
+-   resident bytes (bitsandbytes overhead on many small Linears: 2.38 GB vs 2.14 GB) and did
+-   not reduce action error.
++# Proposal (iter_001-b1-a1)
++
++## Change relative to parent (`iter_001-b1-a0`)
++
++The parent removes the JEPA world model and the tied vocabulary head, compacts the text
++embedding, and applies LLM.int8 to every text-decoder Linear and every vision-tower Linear.
++This node keeps those exact removals but changes the bit allocation to the measured block
++sensitivity:
++
++1. **Text decoder layers 0-2 and 27 stay LLM.int8.**  The calibration's block-influence
++   measurement is dominated by `text.0`, `text.1`, `text.2` and `text.27`; these are the
++   layers whose perturbations matter most.
++2. **Text decoder layers 3-26 use NF4.**  These 24 low-influence layers hold most of the
++   decoder's 1.4 GB of int8 weights.  NF4 halves that storage.
++3. **The vision tower uses NF4** instead of LLM.int8, saving a further ~0.2 GB.
++4. **The action head uses NF4 with `compress_statistics=False`** and a zero-element bf16
++   anchor on its timestep encoder.  LLM.int8 on the action head was rejected: it took ~3 s
++   per prediction (vs ~150 ms for NF4) and retained extra storage.  NF4 is both faster and
++   slightly lower action error in the offline screen.
+ 
+ All changes are in place on the evaluator's own policy object, so no compressed copy is left
+ beside the original.
+ 
+ ## Why
+ 
+-The gate has no margin (baseline passes 8/10), so every candidate was checked on the actual
+-10-episode smoke phase, not just action error.  Measured alternatives:
++The gate has no margin (the untouched policy passes about 8/10), so the bit allocation follows
++the calibration's block influence rather than a uniform scheme.  The parent's uniform int8
++scored 61.4%.  Offline screening of alternatives on the evaluator's 80 held-out frames gave:
+ 
+-| candidate | resident | removed | action err | smoke |
+-|---|---|---|---|---|
+-| safe (world + compact vocab only) | 3.944 GB | 28.7% | 0.0 | 8/10 (fails 0, 8) |
+-| text int8 (Q8) | 2.537 GB | 54.1% | 0.0244 | 8/10 (fails 0, 8) |
+-| text int8 + vision int8 (chosen) | 2.135 GB | 61.4% | 0.0303 | 8/10 (fails 0, 8) |
+-| text NF4 (Q4) | 1.853 GB | 66.5% | 0.1172 | 7/10 (fails 0, 2, 8) |
+-| text int8 + action int8 | 2.383 GB | 56.9% | 0.0303 | not run (worse memory) |
+-| skip text layers 3..27 | 1.427 GB | 74.2% | 1.027 | rejected |
+-| skip text layers 24..27 | 3.541 GB | 36.0% | 0.291 | rejected |
+-| skip action blocks 1..15 | 3.668 GB | 33.7% | 0.902 | rejected |
++| candidate | action err | latency |
++|---|---|---|
++| parent: text int8 + vision int8 | 0.0303 | 326 ms |
++| text 3-26 NF4 + vision int8 | 0.105 | 171 ms |
++| text 3-26 NF4 + vision NF4 | 0.0859 | 117 ms |
++| text 3-26 NF4 + vision NF4 + action NF4 (chosen) | 0.0781 | 153 ms |
++| text 2-27 NF4 + vision NF4 (no action NF4) | 0.0977 | 125 ms |
+ 
+-The chosen candidate fails exactly the same two smoke tasks as the exact-output safe set
+-(tasks 0 and 8, both 280-step timeouts), so the int8 changes did not add a new failure.
++The chosen candidate has both the best official memory result and the lowest action error
++among the 4-bit variants, because the high-influence text ends stay at int8.  Quantizing
++`text.2` or `text.27` was deliberately avoided: those are the two largest text block
++influences after the outlier at `text.0`.
+ 
+ ## Last check output
+ 
++`python tools/check.py`:
++
+ ```
+ status: ok
+-memory removed: 61.4% (resident 2135262142 of baseline 5532276502 bytes)
+-action error (max normalized difference): 0.0302734
+-latency ms: median 262.09, p95 272.25
++memory removed: 79.6% (resident 1131170374 of baseline 5532276502 bytes)
++action error (max normalized difference): 0.078125
++latency ms: median 162.85, p95 207.80
+ ```
+ 
+ Final smoke phase (`evaluation.compression.study solution --phase smoke`):
+-`status: ok`, successes 8/10, same per-task pattern as the safe baseline (0 and 8 fail).
++
++```
++status: ok, successes 8/10
++per task: 0: 0/1, 1: 1/1, 2: 1/1, 3: 1/1, 4: 1/1,
++          5: 1/1, 6: 1/1, 7: 1/1, 8: 0/1, 9: 1/1
++```
++
++The same two tasks fail as for the untouched policy (0 and 8, both 280-step timeouts), so the
++compression introduced no new episode failure.  A second identical smoke run reproduced
++8/10 with the same per-task pattern and the same 1131170374-byte resident measurement.
+ 
+ ## What I would try next
+ 
+-- Mixed precision: NF4 only on the late text layers or only on the vision tower, keeping Q8
+-  on the sensitive early layers, then re-run the 10-episode smoke gate.  Q4 everywhere is
+-  too aggressive (7/10), but a mixed variant might recover the 66% memory level at 8/10.
+-- Quantize only the large vision Linears (`qkv`, `proj`, `fc1`, `fc2`) to avoid bitsandbytes
+-  overhead on the small ones.
+-- Do not pursue structural layer skipping: calibrated block influence was misleading, and
+-  even four skipped text layers changed actions by 0.29.
++- The remaining memory is mostly the 24 NF4 text layers and the NF4 vision tower.  A custom
++  packed INT4 kernel (the repo's `PackedInt4`) could remove bitsandbytes metadata overhead,
++  but it needs a fresh 10-episode smoke check before it is worth the risk.
++- Try text layers 2-27 at NF4 (keeping only 0-1 and 27 at int8) for another ~1 percentage
++  point, but only with a paired smoke run: `text.2` has a very large measured influence.
++- Do not use LLM.int8 on the action head: it is far too slow for the episode budget.
+diff --git a/solution.py b/solution.py
+index abb1191..3dec8d1 100644
+--- a/solution.py
++++ b/solution.py
+@@ -2,9 +2,16 @@
+ 
+ The inference path never touches the JEPA world model, and the tied vocabulary output head
+ is never evaluated.  We free both, restrict the token embedding to the prompt vocabulary seen
+-during calibration, and apply LLM.int8 to the text decoder and vision tower.  The action head
+-stays in bfloat16: quantizing it increased resident memory (bitsandbytes overhead on many
+-small Linears) and did not improve the action error.
++during calibration, and quantize the remaining inference weights:
++
++* text decoder layers 0-2 and 27 (the high-influence ends of the stack) stay LLM.int8;
++* text decoder layers 3-26 use NF4, which is where nearly all of the decoder's 1.4 GB lives;
++* the vision tower uses NF4;
++* the action head uses NF4 with a bfloat16 activation-dtype anchor.
++
++Everything is replaced in place on the evaluator's own policy object.  The action head stays
++in a fast 4-bit kernel rather than LLM.int8: bnb int8 on its many small Linears took ~3 s per
++prediction, while NF4 is ~150 ms and slightly lowers the observed action error.
+ """
+ 
+ from __future__ import annotations
+@@ -48,15 +55,24 @@ def _compact_vocabulary(policy, calibration):
+     policy.model.qwen.model.lm_head = nn.Identity()
+ 
+ 
+-def _quantize_int8(module):
+-    """LLM.int8 (bitsandbytes) on every Linear leaf of one module."""
+-    import bitsandbytes as bnb
+-
++def _replace_linears(module, make_replacement):
++    """Replace every Linear leaf of `module` in place; `make_replacement` builds the new module."""
+     for name, linear in list(module.named_modules()):
+         if not isinstance(linear, nn.Linear):
+             continue
+         parent_name, _, leaf = name.rpartition(".")
+         parent = module.get_submodule(parent_name) if parent_name else module
++        replacement = make_replacement(linear)
++        if linear.bias is not None:
++            replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
++        setattr(parent, leaf, replacement.to(device=linear.weight.device).eval())
++
++
++def _quantize_int8(module):
++    """LLM.int8 (bitsandbytes) on every Linear leaf of one module."""
++    import bitsandbytes as bnb
++
++    def make(linear):
+         weight = linear.weight.detach().cpu()
+         replacement = bnb.nn.Linear8bitLt(
+             linear.in_features,
+@@ -68,17 +84,65 @@ def _quantize_int8(module):
+         replacement.weight = bnb.nn.Int8Params(
+             weight, requires_grad=False, has_fp16_weights=False
+         )
+-        if linear.bias is not None:
+-            replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
+-        setattr(parent, leaf, replacement.to(device=linear.weight.device).eval())
++        return replacement
++
++    _replace_linears(module, make)
++
++
++def _quantize_nf4(module, compress_statistics=True):
++    """NF4 (bitsandbytes) on every Linear leaf of one module."""
++    import bitsandbytes as bnb
++
++    def make(linear):
++        weight = linear.weight.detach().cpu()
++        replacement = bnb.nn.Linear4bit(
++            linear.in_features,
++            linear.out_features,
++            bias=linear.bias is not None,
++            compute_dtype=torch.bfloat16,
++            compress_statistics=compress_statistics,
++            quant_type="nf4",
++        )
++        replacement.weight = bnb.nn.Params4bit(
++            weight,
++            requires_grad=False,
++            compress_statistics=compress_statistics,
++            quant_type="nf4",
++        )
++        return replacement
++
++    _replace_linears(module, make)
++
++
++def _guard_action_dtype(policy):
++    """Give the action timestep encoder a bf16 parameter so its dtype contract survives NF4."""
++    encoder = policy.model.action_model.model.timestep_encoder
++    if hasattr(encoder, "_activation_dtype_anchor"):
++        return
++    device = next(encoder.parameters()).device
++    encoder.register_parameter(
++        "_activation_dtype_anchor",
++        nn.Parameter(torch.empty(0, device=device, dtype=torch.bfloat16), requires_grad=False),
++    )
+ 
+ 
+ def compress(policy, calibration):
+-    """Return the same policy object with unused weights released and used ones int8-packed."""
++    """Return the same policy object with unused weights released and used ones packed."""
+     _remove_world_model(policy)
+     _compact_vocabulary(policy, calibration)
++
+     inner = policy.model.qwen.model.model
+-    _quantize_int8(inner.language_model)
+-    _quantize_int8(inner.visual)
++    text = inner.language_model
++    # The first three and last decoder layers carry most of the measured block influence;
++    # keep them at int8 and put the 24 low-influence middle layers in NF4.
++    for index in (0, 1, 2, 27):
++        _quantize_int8(text.layers[index])
++    for index in range(3, 27):
++        _quantize_nf4(text.layers[index])
++
++    _quantize_nf4(inner.visual)
++    _guard_action_dtype(policy)
++    _quantize_nf4(policy.model.action_model, compress_statistics=False)
++
+     torch.cuda.empty_cache()
+     return policy

@@ -1,0 +1,86 @@
+{
+  "protocol": "dream-rsi-policy-dev",
+  "cycle_id": "iter_000",
+  "recorded_utc": "2026-11-15T17:39:39.371629+00:00",
+  "num_worlds": 1,
+  "world_ids": [
+    "dream-iter_000"
+  ],
+  "max_parallelism": 2,
+  "lambda_parallel": 0.05,
+  "selected_slot": "m3_llm",
+  "selected_policy_path": "policies/iter_000/selected_policy.py",
+  "incumbent_in_sample_V": 0.467,
+  "selected_in_sample_V": 0.808372,
+  "in_sample_V_by_slot": {
+    "m0_incumbent": 0.467,
+    "m2_llm": 0.79983,
+    "m3_llm": 0.808372
+  },
+  "heldout": {
+    "num_worlds": 24,
+    "mean_V_by_slot": {
+      "m0_incumbent": 0.524548,
+      "m2_llm": 0.542394,
+      "m3_llm": 0.532615
+    }
+  },
+  "heldout_delta_vs_incumbent": 0.008067,
+  "lowo": null,
+  "variants": [
+    {
+      "slot": "m0_incumbent",
+      "step": 0,
+      "status": "incumbent",
+      "mean_v": 0.467,
+      "delta_vs_best": 0.0,
+      "error": null,
+      "attempts": 0,
+      "policy_path": "policies/iter_000/step_00/candidate.py",
+      "policy_sha256": "1188aed644b47b03fb81a932fe03a8fd4c5964e376f40f7f49ee529b52ea8ca7"
+    },
+    {
+      "slot": "m1_llm",
+      "step": 1,
+      "status": "rejected",
+      "mean_v": null,
+      "delta_vs_best": null,
+      "error": "Sandboxed process timed out after 1200.0s",
+      "attempts": 1,
+      "policy_path": null,
+      "policy_sha256": null
+    },
+    {
+      "slot": "m2_llm",
+      "step": 2,
+      "status": "accepted",
+      "mean_v": 0.7998298596853151,
+      "delta_vs_best": 0.33282985968531503,
+      "error": null,
+      "attempts": 1,
+      "policy_path": "policies/iter_000/step_02/candidate.py",
+      "policy_sha256": "c3f4dce3bb445b4bc34c4d99d7f3ff3b504075aa481942c20159511409f2ee61"
+    },
+    {
+      "slot": "m3_llm",
+      "step": 3,
+      "status": "accepted",
+      "mean_v": 0.8083723947639863,
+      "delta_vs_best": 0.008542535078671198,
+      "error": null,
+      "attempts": 1,
+      "policy_path": "policies/iter_000/step_03/candidate.py",
+      "policy_sha256": "b4b2b753f5dc76fb2e1ebbd356fbb6dbbe365e017f4afdce51f31b9616d69c4f"
+    }
+  ],
+  "agent": {
+    "backend": "pi",
+    "model": "mistral/deepseek-v4-1-flash-1017",
+    "effort": "max",
+    "tools": "read,write,edit",
+    "cli_version": "1.5.2",
+    "calls": 2,
+    "num_turns": 66,
+    "cost_usd": 1.613649
+  }
+}
