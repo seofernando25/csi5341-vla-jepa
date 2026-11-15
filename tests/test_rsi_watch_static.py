@@ -58,7 +58,6 @@ PURE_MODULES = (
     "views/meta.js",
     "story/model.js",
     "story/model_dream.js",
-    "story/nav.js",
 )
 FORBIDDEN_IN_PURE = ("document", "window", "localStorage", "fetch")
 FORBIDDEN_IN_REDUCER = ("Date.now", "Math.random")
