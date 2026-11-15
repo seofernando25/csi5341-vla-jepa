@@ -17,9 +17,9 @@ Run bounded recursive self-improvement rounds over the open Qwen compression tra
 
 Each round is one self-contained cycle (`<= 6` probes per arm unless budgeted explicitly):
 
-1. **Propose:** Inspect prior `studies/dream-rsi/live_round*.json` failure modes (`smoke`, `dev-100`, task breakdown) and archive updated `OptimalPolicy` revisions (`rsi/develop.py`) or add a bounded round builder (`build_round<N>_candidates` in `rsi/live.py` + `ROUND_BUILDERS` in `rsi/live_round.py`). State the expected size/latency/success trade-off up front.
+1. **Propose:** Run `uv run --no-sync vla-rsi-propose --round <rN> --n <B> --dry-run` to inspect the history digest and bounded action space (`rsi/action_space.py`), then generate and validate `studies/dream-rsi/proposals/<rN>.json` with `uv run --no-sync vla-rsi-propose --round <rN> --n <B>` using either the command transport (`--proposer-cmd scripts/proposer_opencode.sh` / `RSI_PROPOSER_CMD` + `RSI_PROPOSER_MODEL`) or an OpenAI-compatible HTTP endpoint (`--base-url` `https://openrouter.ai/api/v1` or `http://127.0.0.1:1234/v1` + `--model`, key in `$RSI_PROPOSER_API_KEY`; repo-root `.env` loaded if present, real env wins). Archive updated `OptimalPolicy` revisions (`rsi/develop.py`) as needed; legacy `r1`–`r6` builders stay frozen in `rsi/live.py`.
 2. **Budget check:** Declare a hard GPU wall-clock and probe cap before starting (`--budget-each <= 6` for initial screen). One GPU owner at a time.
-3. **Run live round:** Execute `uv run --no-sync vla-rsi-round --round <rN> --budget-each <B> --screen-promoted --output studies/dream-rsi/live_round<N>.json` (control vs selected on identical states and seeds).
+3. **Run live round:** Execute `uv run --no-sync vla-rsi-round --round <rN> --budget-each <B> --screen-promoted --output studies/dream-rsi/live_round<N>.json` (loads `studies/dream-rsi/proposals/<rN>.json` automatically for proposed rounds; control vs selected on identical states and seeds).
 4. **Gate & record:**
    - Check Wilson 95% CIs, size (MB), and pipeline median/p95 latency cleanly (`reporting-results` checklist).
    - Never pool `screen` (`10`), `development` (`100`), or `final` (`500`) phases.

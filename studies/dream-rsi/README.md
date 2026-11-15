@@ -177,6 +177,10 @@ bases; Round 4 uses the report's full-vocabulary `C1` base (not the report's C1/
 
 Reproduce one round: `uv run --no-sync vla-rsi-round --round r1 --output studies/dream-rsi/live_round1.json`.
 
+### Automated candidate proposal (`r7+`)
+
+Hand-written grids (`r1`–`r6`) are replaced for new rounds by `vla-rsi-propose` ([propose.py](../../rsi/propose.py), [digest.py](../../rsi/digest.py), [action_space.py](../../rsi/action_space.py)), which builds a deterministic JSON digest of all probed cells, gates, failing tasks, and `B16`/`C1`/`C2` baselines, proposes candidates over a bounded action space (`T2`, `C1`, `C2` bases; text/vision MLP pruning, `group_size`, `vision_bits`, `action_precision`, `solver_steps`), validates strictly with one repair retry (rejecting unknown keys, out-of-range values, invalid combos, duplicates, or `< half` full-vocab candidates), and writes `studies/dream-rsi/proposals/<round_id>.json` for `vla-rsi-round --round <round_id>`. Supports both an external command transport (`--proposer-cmd`, e.g. [proposer_opencode.sh](../../scripts/proposer_opencode.sh)) and an OpenAI-compatible HTTP endpoint (`--base-url`, e.g. `https://openrouter.ai/api/v1` or `http://127.0.0.1:1234/v1`, plus `--model` and env-var API key).
+
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 
 Using `OptimalPolicy` (`W=4`, $\beta=1.0$) in [qwen_search.py](../../rsi/qwen_search.py) over 5
