@@ -84,17 +84,13 @@ def state(recipe, phase, measurements_root=None):
     return "done" if read_json(path).get("status") == "completed" else "failed"
 
 
-def measured_outcome(record):
+def measured_outcome(attempt):
     """A nonfinite-action rejection is a measured outcome; anything else is a runtime failure."""
     return bool(
-        record
-        and record.get("error_type") == "ValueError"
-        and str(record.get("error", "")).startswith("Nonfinite actions")
+        attempt
+        and attempt.get("error_type") == "ValueError"
+        and str(attempt.get("error", "")).startswith("Nonfinite actions")
     )
-
-
-def estimate_minutes(queue):
-    return sum(PHASE_MINUTES[cell["phase"]] for cell in queue["cells"])
 
 
 def split_reserved(queue, allow_reserved):
