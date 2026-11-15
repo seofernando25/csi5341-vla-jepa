@@ -13,17 +13,25 @@ Run bounded recursive self-improvement rounds over the open Qwen compression tra
 2. **CPU baseline first:** Run `uv run --no-sync vla-rsi benchmark` and check `studies/dream-rsi/README.md` before designing a new round. Leave-one-world-out replay $V$ chooses the search policy—it does not prove LIBERO task success.
 3. **Closed arms stay closed:** Do not restart SmolVLM backbone training/swaps (`82df05d`) without an explicit new experimental plan.
 
-## Bounded Loop
+## Bounded Loops
+
+### Dream-RSI v2 (`studies/dream-rsi-v2/`, recommended)
+
+1. **Dry / CPU check:** Confirm `bwrap` and `pi` work cleanly (`uv run --no-sync pytest -q tests/test_dream_rsi_v2.py`) and ensure `AGENT_BOARD.jsonl` shows no competing GPU owner.
+2. **Run bounded cycle or outer loop:**
+   - Single cycle: `uv run --no-sync vla-rsi cycle --cycle-id iter_000 --probe-budget 8 --promote-top-k 1`
+   - Full outer loop (`plan_grid` -> online `bwrap`+`pi` expansion -> `develop_policies_llm` monotonic update): `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8 --promote-top-k 1`
+   - Offline policy dev only: `uv run --no-sync vla-rsi develop --cycle-id iter_000 --m 4`
+3. **Inspect artifacts:** `studies/dream-rsi-v2/cycles/<cid>/live_cycle_manifest.json`, `tree.json`, and `policies/<cid>/selection.json`. Resume uses cached per-node `eval.json` automatically; to restart fresh, use a clean `--study-dir` (or clear the `iter_*` directories and matching `measurements/iter_*`).
+
+### Legacy v1 Rounds (`studies/dream-rsi/`, `r1`–`r7`)
 
 Each round is one self-contained cycle (`<= 6` probes per arm unless budgeted explicitly):
 
-1. **Propose:** Run `uv run --no-sync vla-rsi-propose --round <rN> --n <B> --dry-run` to inspect the history digest and bounded action space (`rsi/action_space.py`), then generate and validate `studies/dream-rsi/proposals/<rN>.json` with `uv run --no-sync vla-rsi-propose --round <rN> --n <B>` using either the command transport (`--proposer-cmd scripts/proposer_opencode.sh` / `RSI_PROPOSER_CMD` + `RSI_PROPOSER_MODEL`) or an OpenAI-compatible HTTP endpoint (`--base-url` `https://openrouter.ai/api/v1` or `http://127.0.0.1:1234/v1` + `--model`, key in `$RSI_PROPOSER_API_KEY`; repo-root `.env` loaded if present, real env wins). Archive updated `OptimalPolicy` revisions (`rsi/develop.py`) as needed; legacy `r1`–`r6` builders stay frozen in `rsi/live.py`.
+1. **Propose:** Run `uv run --no-sync vla-rsi-propose --round <rN> --n <B> --dry-run`, then generate and validate `studies/dream-rsi/proposals/<rN>.json` with `uv run --no-sync vla-rsi-propose --round <rN> --n <B>`. Legacy `r1`–`r6` builders stay frozen in `rsi/live.py`.
 2. **Budget check:** Declare a hard GPU wall-clock and probe cap before starting (`--budget-each <= 6` for initial screen). One GPU owner at a time.
-3. **Run live round:** Execute `uv run --no-sync vla-rsi-round --round <rN> --budget-each <B> --screen-promoted --output studies/dream-rsi/live_round<N>.json` (loads `studies/dream-rsi/proposals/<rN>.json` automatically for proposed rounds; control vs selected on identical states and seeds).
-4. **Gate & record:**
-   - Check Wilson 95% CIs, size (MB), and pipeline median/p95 latency cleanly (`reporting-results` checklist).
-   - Never pool `screen` (`10`), `development` (`100`), or `final` (`500`) phases.
-   - Commit the reproducible JSON journal (`studies/dream-rsi/live_round<N>.json`) and update `studies/dream-rsi/README.md`; never commit raw weights, `.pt` checkpoints, or `outputs/`.
+3. **Run live round:** Execute `uv run --no-sync vla-rsi-round --round <rN> --budget-each <B> --screen-promoted --output studies/dream-rsi/live_round<N>.json`.
+4. **Gate & record:** Check Wilson 95% CIs, size (MB), and pipeline median/p95 latency cleanly (`reporting-results`); never pool `screen`/`development`/`final`. Commit journals/configs; never commit checkpoints or `outputs/`.
 
 ## Hard Locks & Stop Rules
 

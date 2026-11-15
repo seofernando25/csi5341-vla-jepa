@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any
 
@@ -458,3 +459,505 @@ def validate_proposal(
                 f"got {full_vocab}/{len(normalized)}"
             )
     return normalized
+
+
+# ---------------------------------------------------------------------------
+# Free-form Dream-RSI v2 recipe space & proper physical application order
+# ---------------------------------------------------------------------------
+
+RECIPE_TOP_KEYS = frozenset({"id", "family", "changes", "engine", "engine_options"})
+CHANNEL_SCOPES = frozenset({"text_mlp", "vision_mlp", "merger", "action_mlp"})
+HEAD_SCOPES = frozenset({"text_attention", "vision_attention", "action_attention"})
+LAYER_SCOPES = frozenset({"text", "vision", "action"})
+LINEAR_SCOPES = frozenset(
+    {
+        "all",
+        "text",
+        "vision",
+        "action",
+        "text_mlp",
+        "text_attention",
+        "vision_blocks",
+        "merger",
+        "vision_mlp",
+        "vision_attention",
+        "action_mlp",
+        "action_attention",
+        "action_interfaces",
+    }
+)
+
+_SCOPE_CHILDREN: dict[str, frozenset[str]] = {
+    "all": LINEAR_SCOPES - {"all"},
+    "text": frozenset({"text_mlp", "text_attention"}),
+    "vision": frozenset({"vision_blocks", "merger", "vision_mlp", "vision_attention"}),
+    "vision_blocks": frozenset({"vision_mlp", "vision_attention"}),
+    "action": frozenset({"action_mlp", "action_attention", "action_interfaces"}),
+}
+
+STRUCTURAL_METHODS = frozenset({"channels", "heads", "layers"})
+SPARSITY_METHODS = frozenset({"magnitude", "wanda", "sparsegpt"})
+QUANT_METHODS = frozenset({"bnb", "hqq", "awq_diagonal", "gptq", "attention_matching"})
+EMBEDDING_METHODS = frozenset({"int8_embedding", "compact_embedding"})
+
+
+def scopes_overlap(scope_a: str, scope_b: str) -> bool:
+    """Return True if two linear/module scopes intersect on at least one Linear."""
+    if scope_a == scope_b:
+        return True
+    if scope_b in _SCOPE_CHILDREN.get(scope_a, ()):
+        return True
+    return scope_a in _SCOPE_CHILDREN.get(scope_b, ())
+
+
+def _validate_quantizer_dict(q: Any, label: str) -> dict[str, Any]:
+    if not isinstance(q, dict):
+        raise TypeError(f"{label}: must be an object")
+    method = q.get("method")
+    if method == "bnb":
+        scope = q.get("scope")
+        bits = q.get("bits")
+        if scope not in LINEAR_SCOPES:
+            raise ValueError(f"{label}: unsupported bnb scope {scope!r}")
+        if not _is_int(bits) or bits not in {4, 8}:
+            raise ValueError(f"{label}: bnb bits must be 4 or 8, got {bits!r}")
+        return {"method": "bnb", "scope": scope, "bits": int(bits)}
+    if method == "hqq":
+        scope = q.get("scope")
+        bits = q.get("bits")
+        axis = q.get("axis", 1)
+        gs = q.get("group_size", 64)
+        backend = q.get("backend", "pytorch")
+        if scope not in LINEAR_SCOPES:
+            raise ValueError(f"{label}: unsupported hqq scope {scope!r}")
+        if not _is_int(bits) or bits not in {2, 3, 4}:
+            raise ValueError(f"{label}: hqq bits must be 2, 3, or 4, got {bits!r}")
+        if not _is_int(axis) or axis not in {0, 1}:
+            raise ValueError(f"{label}: hqq axis must be 0 or 1, got {axis!r}")
+        if not _is_int(gs) or gs not in {32, 64, 128}:
+            raise ValueError(f"{label}: hqq group_size must be 32, 64, or 128, got {gs!r}")
+        if backend not in {"pytorch", "gemlite"}:
+            raise ValueError(
+                f"{label}: hqq backend must be 'pytorch' or 'gemlite', got {backend!r}"
+            )
+        if backend == "gemlite" and (axis != 1 or bits not in {2, 4}):
+            raise ValueError(
+                f"{label}: gemlite backend requires axis=1 and bits in {{2, 4}}, "
+                f"got axis={axis}, bits={bits}"
+            )
+        return {
+            "method": "hqq",
+            "scope": scope,
+            "bits": int(bits),
+            "axis": int(axis),
+            "group_size": int(gs),
+            "backend": backend,
+        }
+    if method in {"awq_diagonal", "gptq"}:
+        scope = q.get("scope")
+        if scope not in LINEAR_SCOPES:
+            raise ValueError(f"{label}: unsupported {method} scope {scope!r}")
+        return {"method": method, "scope": scope}
+    raise ValueError(f"{label}: unsupported quantizer method {method!r}")
+
+
+def _validate_change_item(raw: Any, idx: int) -> dict[str, Any]:
+    prefix = f"changes[{idx}]"
+    if not isinstance(raw, dict):
+        raise TypeError(f"{prefix}: change entry must be an object")
+    method = raw.get("method")
+    if not isinstance(method, str) or not method:
+        raise ValueError(f"{prefix}: missing valid 'method' string")
+
+    if method == "world_remove":
+        return {"method": "world_remove"}
+    if method in EMBEDDING_METHODS:
+        return {"method": method}
+
+    if method == "channels":
+        scope = raw.get("scope")
+        frac = raw.get("fraction")
+        if scope not in CHANNEL_SCOPES:
+            raise ValueError(f"{prefix}: channels scope {scope!r} not in {sorted(CHANNEL_SCOPES)}")
+        if not _is_number(frac) or not (0.0 < float(frac) <= 0.75):
+            raise ValueError(f"{prefix}: channels fraction {frac!r} must be in (0.0, 0.75]")
+        return {"method": "channels", "scope": scope, "fraction": round(float(frac), 6)}
+
+    if method == "heads":
+        scope = raw.get("scope")
+        frac = raw.get("fraction")
+        if scope not in HEAD_SCOPES:
+            raise ValueError(f"{prefix}: heads scope {scope!r} not in {sorted(HEAD_SCOPES)}")
+        if not _is_number(frac) or not (0.0 < float(frac) <= 0.75):
+            raise ValueError(f"{prefix}: heads fraction {frac!r} must be in (0.0, 0.75]")
+        return {"method": "heads", "scope": scope, "fraction": round(float(frac), 6)}
+
+    if method == "layers":
+        scope = raw.get("scope")
+        if scope not in LAYER_SCOPES:
+            raise ValueError(f"{prefix}: layers scope {scope!r} not in {sorted(LAYER_SCOPES)}")
+        criterion = raw.get("criterion", "block_influence")
+        if criterion not in {"block_influence", "cka"}:
+            raise ValueError(
+                f"{prefix}: layers criterion must be 'block_influence' or 'cka', got {criterion!r}"
+            )
+        out: dict[str, Any] = {"method": "layers", "scope": scope, "criterion": criterion}
+        if "count" in raw:
+            cnt = raw["count"]
+            if not _is_int(cnt) or not (1 <= cnt <= 24):
+                raise ValueError(f"{prefix}: layers count {cnt!r} must be int in [1, 24]")
+            out["count"] = int(cnt)
+        elif "fraction" in raw:
+            frac = raw["fraction"]
+            if not _is_number(frac) or not (0.0 < float(frac) <= 0.75):
+                raise ValueError(f"{prefix}: layers fraction {frac!r} must be in (0.0, 0.75]")
+            out["fraction"] = round(float(frac), 6)
+        else:
+            raise ValueError(f"{prefix}: layers requires 'count' or 'fraction'")
+        return out
+
+    if method in SPARSITY_METHODS:
+        scope = raw.get("scope")
+        if scope not in LINEAR_SCOPES:
+            raise ValueError(f"{prefix}: {method} scope {scope!r} not supported")
+        pattern = raw.get("pattern")
+        sparse_kernel = bool(raw.get("sparse_kernel", False))
+        if pattern is not None and pattern != "2:4":
+            raise ValueError(f"{prefix}: unsupported sparsity pattern {pattern!r}; expected '2:4'")
+        if sparse_kernel and pattern != "2:4":
+            raise ValueError(f"{prefix}: sparse_kernel=True requires pattern='2:4'")
+        out = {"method": method, "scope": scope}
+        if pattern is not None:
+            out["pattern"] = pattern
+        else:
+            frac = raw.get("fraction")
+            if not _is_number(frac) or not (0.0 < float(frac) <= 0.90):
+                raise ValueError(f"{prefix}: {method} fraction {frac!r} must be in (0.0, 0.90]")
+            out["fraction"] = round(float(frac), 6)
+        if sparse_kernel:
+            out["sparse_kernel"] = True
+        return out
+
+    if method in {"bnb", "hqq", "awq_diagonal", "gptq"}:
+        return _validate_quantizer_dict(raw, prefix)
+
+    if method == "attention_matching":
+        control = bool(raw.get("control", False))
+        out = {"method": "attention_matching"}
+        if control:
+            out["control"] = True
+            return out
+        if "quantizer" not in raw:
+            raise ValueError(
+                f"{prefix}: attention_matching requires 'quantizer' unless control=True"
+            )
+        out["quantizer"] = _validate_quantizer_dict(raw["quantizer"], f"{prefix}.quantizer")
+        out["atm"] = bool(raw.get("atm", True))
+        out["ohb"] = bool(raw.get("ohb", False))
+        return out
+
+    if method == "visual_tokens":
+        frac = raw.get("fraction")
+        criterion = raw.get("criterion", "magnitude")
+        if not _is_number(frac) or not (0.0 < float(frac) <= 0.85):
+            raise ValueError(f"{prefix}: visual_tokens fraction {frac!r} must be in (0.0, 0.85]")
+        if criterion not in {"magnitude", "uniform"}:
+            raise ValueError(
+                f"{prefix}: visual_tokens criterion must be 'magnitude' or 'uniform', got {criterion!r}"
+            )
+        return {
+            "method": "visual_tokens",
+            "fraction": round(float(frac), 6),
+            "criterion": criterion,
+        }
+
+    if method == "conditioning_tokens":
+        scope = raw.get("scope")
+        if scope == "latent":
+            return {"method": "conditioning_tokens", "scope": "latent"}
+        cnt = raw.get("count")
+        if not _is_int(cnt) or not (0 <= cnt <= 32):
+            raise ValueError(
+                f"{prefix}: conditioning_tokens requires scope='latent' or int count in [0, 32]"
+            )
+        return {"method": "conditioning_tokens", "count": int(cnt)}
+
+    if method == "solver_steps":
+        cnt = raw.get("count")
+        if not _is_int(cnt) or not (1 <= cnt <= 16):
+            raise ValueError(f"{prefix}: solver_steps count {cnt!r} must be int in [1, 16]")
+        return {"method": "solver_steps", "count": int(cnt)}
+
+    if method == "action_horizon":
+        cnt = raw.get("count")
+        if not _is_int(cnt) or not (1 <= cnt <= 7):
+            raise ValueError(f"{prefix}: action_horizon count {cnt!r} must be int in [1, 7]")
+        return {"method": "action_horizon", "count": int(cnt)}
+
+    if method == "replanning":
+        cnt = raw.get("count")
+        if not _is_int(cnt) or not (1 <= cnt <= 7):
+            raise ValueError(f"{prefix}: replanning count {cnt!r} must be int in [1, 7]")
+        return {"method": "replanning", "count": int(cnt)}
+
+    if method == "compile_linears":
+        scope = raw.get("scope")
+        if scope not in LINEAR_SCOPES:
+            raise ValueError(f"{prefix}: compile_linears scope {scope!r} not supported")
+        out = {"method": "compile_linears", "scope": scope}
+        gemm = raw.get("gemm_backend")
+        if gemm is not None:
+            if gemm != "triton":
+                raise ValueError(f"{prefix}: compile_linears gemm_backend must be null or 'triton'")
+            out["gemm_backend"] = gemm
+        return out
+
+    raise ValueError(f"{prefix}: unknown compression method {method!r}")
+
+
+def _change_scope(ch: dict[str, Any]) -> str | None:
+    if ch["method"] == "attention_matching":
+        q = ch.get("quantizer")
+        return q.get("scope") if isinstance(q, dict) else "action"
+    return ch.get("scope")
+
+
+def validate_change_order(
+    changes: list[dict[str, Any]],
+    *,
+    engine: str | None = None,
+) -> None:
+    """Enforce physically valid stage ordering across `evaluation/compression/recipes.py` handlers."""
+    seen_embed: set[str] = set()
+    world_removed = False
+    quantized_scopes: list[str] = []
+    sparse_kernel_scopes: list[str] = []
+    width_shrunk_scopes: list[str] = []
+    compiled_scopes: list[str] = []
+    horizon_val: int | None = None
+    replan_seen = False
+
+    for idx, ch in enumerate(changes):
+        m = ch["method"]
+        scope = _change_scope(ch)
+
+        if m == "world_remove":
+            if world_removed:
+                raise ValueError(f"changes[{idx}]: duplicate 'world_remove'")
+            world_removed = True
+        elif m in EMBEDDING_METHODS:
+            if seen_embed:
+                raise ValueError(
+                    f"changes[{idx}]: conflicting/duplicate embedding transform {m!r} "
+                    f"(already have {sorted(seen_embed)})"
+                )
+            seen_embed.add(m)
+        elif m in STRUCTURAL_METHODS:
+            assert scope is not None
+            if any(scopes_overlap(scope, qs) for qs in quantized_scopes):
+                raise ValueError(
+                    f"changes[{idx}]: structural pruning ({m} on {scope!r}) must run BEFORE "
+                    f"weight quantization on overlapping scopes {quantized_scopes}"
+                )
+            if any(scopes_overlap(scope, cs) for cs in compiled_scopes):
+                raise ValueError(
+                    f"changes[{idx}]: structural pruning ({m} on {scope!r}) cannot follow compile_linears"
+                )
+            if m in {"channels", "heads"}:
+                width_shrunk_scopes.append(scope)
+        elif m in SPARSITY_METHODS:
+            assert scope is not None
+            if any(scopes_overlap(scope, qs) for qs in quantized_scopes):
+                raise ValueError(
+                    f"changes[{idx}]: sparsity ({m} on {scope!r}) must run BEFORE quantization"
+                )
+            if m == "wanda" and any(scopes_overlap(scope, ws) for ws in width_shrunk_scopes):
+                raise ValueError(
+                    f"changes[{idx}]: wanda on {scope!r} reads calibration['linear_inputs'] widths "
+                    f"and cannot follow channels/heads width slicing on {width_shrunk_scopes}"
+                )
+            if ch.get("sparse_kernel"):
+                sparse_kernel_scopes.append(scope)
+        elif m in QUANT_METHODS:
+            if (
+                m == "awq_diagonal"
+                and scope is not None
+                and any(scopes_overlap(scope, ws) for ws in width_shrunk_scopes)
+            ):
+                raise ValueError(
+                    f"changes[{idx}]: awq_diagonal on {scope!r} reads original calibration "
+                    f"input widths and cannot follow channels/heads slicing on {width_shrunk_scopes}"
+                )
+            if scope is not None:
+                if any(scopes_overlap(scope, sks) for sks in sparse_kernel_scopes):
+                    raise ValueError(
+                        f"changes[{idx}]: {m} on {scope!r} cannot quantize a sparse_kernel=True linear"
+                    )
+                if any(scopes_overlap(scope, cs) for cs in compiled_scopes):
+                    raise ValueError(
+                        f"changes[{idx}]: {m} on {scope!r} must precede compile_linears"
+                    )
+                if any(scopes_overlap(scope, qs) for qs in quantized_scopes):
+                    raise ValueError(
+                        f"changes[{idx}]: {m} on {scope!r} overlaps already-quantized scope {quantized_scopes}"
+                    )
+                quantized_scopes.append(scope)
+        elif m == "visual_tokens":
+            if engine == "graph":
+                raise ValueError(
+                    f"changes[{idx}]: visual_tokens uses decoder forward hooks bypassed by engine='graph'"
+                )
+        elif m == "action_horizon":
+            if replan_seen:
+                raise ValueError(
+                    f"changes[{idx}]: action_horizon must precede replanning so horizon bounds are set"
+                )
+            horizon_val = int(ch["count"])
+        elif m == "replanning":
+            replan_seen = True
+            if horizon_val is not None and int(ch["count"]) > horizon_val:
+                raise ValueError(
+                    f"changes[{idx}]: replanning count {ch['count']} exceeds action_horizon {horizon_val}"
+                )
+        elif m == "compile_linears":
+            assert scope is not None
+            if engine == "graph":
+                raise ValueError(
+                    f"changes[{idx}]: compile_linears conflicts with engine='graph' (use engine_options.use_compile)"
+                )
+            if any(qs == scope or scope in _SCOPE_CHILDREN.get(qs, ()) for qs in quantized_scopes):
+                raise ValueError(
+                    f"changes[{idx}]: compile_linears on {scope!r} has no unquantized nn.Linear "
+                    f"modules left after quantization of {quantized_scopes}"
+                )
+            compiled_scopes.append(scope)
+
+
+def recipe_vocab_type(changes: list[dict[str, Any]]) -> str:
+    """Return 'restricted' if recipe uses compact_embedding, else 'full'."""
+    if any(c.get("method") == "compact_embedding" for c in changes):
+        return "restricted"
+    return "full"
+
+
+def canonical_recipe_signature(recipe: dict[str, Any]) -> tuple[Any, ...]:
+    """Deterministic canonical signature preserving physical execution order & engine options."""
+    engine = recipe.get("engine")
+    eng_opts = recipe.get("engine_options") or {}
+    opt_items = tuple(sorted((str(k), eng_opts[k]) for k in eng_opts))
+    changes_sig = tuple(
+        json.dumps(ch, sort_keys=True, separators=(",", ":")) for ch in recipe.get("changes", [])
+    )
+    return (engine, opt_items, changes_sig)
+
+
+def validate_freeform_recipe(
+    raw_recipe: Any,
+    *,
+    expected_id: str | None = None,
+    seen_signatures: dict[tuple[Any, ...], str] | None = None,
+    vocab_mode: str = "any",
+) -> dict[str, Any]:
+    """Strictly validate an unrestricted compression recipe and its application order."""
+    if not isinstance(raw_recipe, dict):
+        raise TypeError(f"recipe must be a JSON object, got {type(raw_recipe).__name__}")
+    unknown = sorted(set(raw_recipe) - RECIPE_TOP_KEYS)
+    if unknown:
+        raise ValueError(f"recipe has unknown top-level keys {unknown}")
+    for req in ("id", "family", "changes"):
+        if req not in raw_recipe:
+            raise ValueError(f"recipe missing required key {req!r}")
+
+    cid = raw_recipe["id"]
+    if not isinstance(cid, str) or not ID_RE.match(cid):
+        raise ValueError(f"invalid recipe id {cid!r}; must match {ID_RE.pattern}")
+    if expected_id is not None and cid != expected_id:
+        raise ValueError(f"recipe id {cid!r} must match assigned node id {expected_id!r}")
+
+    family = raw_recipe["family"]
+    if not isinstance(family, str) or not family.strip():
+        raise ValueError("recipe 'family' must be a non-empty string")
+
+    engine = raw_recipe.get("engine")
+    if engine is not None and engine != "graph":
+        raise ValueError(f"unsupported engine {engine!r}; only None or 'graph' allowed")
+
+    raw_opts = raw_recipe.get("engine_options")
+    norm_opts: dict[str, Any] | None = None
+    if raw_opts is not None:
+        if engine != "graph":
+            raise ValueError("engine_options is only valid when engine='graph'")
+        if not isinstance(raw_opts, dict):
+            raise TypeError("engine_options must be an object")
+        allowed_opts = {"use_compile", "dense"}
+        bad_opts = sorted(set(raw_opts) - allowed_opts)
+        if bad_opts:
+            raise ValueError(f"unknown engine_options keys {bad_opts}")
+        norm_opts = {}
+        if "use_compile" in raw_opts:
+            norm_opts["use_compile"] = bool(raw_opts["use_compile"])
+        if "dense" in raw_opts:
+            norm_opts["dense"] = bool(raw_opts["dense"])
+
+    raw_changes = raw_recipe["changes"]
+    if not isinstance(raw_changes, list) or not raw_changes:
+        raise ValueError("recipe 'changes' must be a non-empty list")
+
+    norm_changes = [_validate_change_item(ch, idx) for idx, ch in enumerate(raw_changes)]
+    validate_change_order(norm_changes, engine=engine)
+
+    vocab = recipe_vocab_type(norm_changes)
+    if vocab_mode == "full" and vocab != "full":
+        raise ValueError("vocab_mode='full' forbids 'compact_embedding'; use 'int8_embedding'")
+    if vocab_mode == "restricted" and vocab != "restricted":
+        raise ValueError("vocab_mode='restricted' requires 'compact_embedding'")
+
+    normalized: dict[str, Any] = {
+        "id": cid,
+        "family": family.strip(),
+        "changes": norm_changes,
+    }
+    if engine is not None:
+        normalized["engine"] = engine
+        if norm_opts is not None:
+            normalized["engine_options"] = norm_opts
+
+    if seen_signatures is not None:
+        sig = canonical_recipe_signature(normalized)
+        if sig in seen_signatures:
+            raise ValueError(
+                f"recipe configuration duplicates already-proposed/probed cell '{seen_signatures[sig]}'"
+            )
+    return normalized
+
+
+def freeform_action_space_doc() -> str:
+    """Concise, accurate specification of compression handlers, scopes, and ordering rules."""
+    spec = {
+        "recipe_schema": {
+            "id": "<assigned cell_id string>",
+            "family": "<short mechanism family slug>",
+            "engine": "optional 'graph' (CUDA-graph execution; set engine_options.dense=false to keep packed NF4 small, dense=true trades ~3 GB extra VRAM for speed)",
+            "engine_options": {
+                "use_compile": "bool (default true)",
+                "dense": "bool (default true)",
+            },
+            "changes": "<ordered list of handler dicts below>",
+        },
+        "proper_order": [
+            "1. world_remove + embedding (int8_embedding for full-vocab, compact_embedding for LIBERO-Spatial restricted-vocab; never both).",
+            "2. Structural shape/layer surgery FIRST: channels, heads, layers (before quantization or wanda/awq_diagonal on overlapping scopes).",
+            "3. Sparsity BEFORE weight quantization: magnitude, wanda, sparsegpt (2:4 or unstructured; sparse_kernel=true requires pattern='2:4' and cannot be followed by quantization).",
+            "4. Weight quantization: bnb (4|8), hqq (bits 2|3|4, axis 0|1, group_size 32|64|128, backend pytorch|gemlite [gemlite needs axis=1, bits 2|4]), awq_diagonal, gptq, attention_matching.",
+            "5. Optional execution/compile: visual_tokens (incompatible with engine='graph'), conditioning_tokens, solver_steps, action_horizon (must precede replanning), replanning, compile_linears (only on unquantized nn.Linear scopes; incompatible with engine='graph').",
+        ],
+        "scopes": {
+            "channels": sorted(CHANNEL_SCOPES),
+            "heads": sorted(HEAD_SCOPES),
+            "layers": sorted(LAYER_SCOPES),
+            "linear_scopes (bnb/hqq/awq/gptq/wanda/magnitude/sparsegpt/compile_linears)": sorted(
+                LINEAR_SCOPES
+            ),
+        },
+    }
+    return json.dumps(spec, indent=2)
