@@ -16,14 +16,30 @@ reported. Goal set by Fernando: every result for the report measured within 24 h
   `ac06d1b`.
 - A subagent lead can die without reporting. Tell leads to commit and write a status file per phase.
 
+## Update 11:00 EST
+
+- **New watch site is live on http://127.0.0.1:8787/** (Story and Workbench modes), served from the
+  UI worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-9b47f0bb-dbf1394910d9ca21`, branch
+  `t3/dream-rsi-story-workbench` (head `2a62059`; 140 watch tests, 477 full). Unit `rsi-watch-8787`.
+  The old page and the 8788 preview are stopped. Merge the branch when Dream-RSI stops; it
+  supersedes `t3/dream-rsi-watch-workbench`.
+- UI left undone: the Dreaming chapter shows a pending state until cycle 1 ends (ready state was
+  checked only on calibration data and `?demo=1`); overlapping attainment series; some story CSS
+  over 300 lines; deep links re-scroll for about 2 s. The run does not record the system prompt,
+  per-turn timing, per-step policy prompts or per-step cost, so those show "not recorded".
+- Dream-RSI at 1 h 25 min: cycle 1, 6 of 8 probes scored, best smoke score 85.6 % memory removed,
+  two agents in parallel confirmed, no timeouts seen. `vla-rsi status` prints `agent_cost_usd: 0.0`
+  while the page sums $0.57 from node records: the status total is wrong, the node records are right.
+- Measurement queue: active, 12 cell records written.
+- No subagents are running. Fernando asked for no new ones in this session.
+
 ## What is running
 
 | What | Where | Unit | Check |
 |---|---|---|---|
 | Dream-RSI evidence run | main checkout, `studies/program-v1` | `rsi-home-fer-documents-csi5341-vla-jepa-studies-program-v1` | `uv run --no-sync vla-rsi status --study-dir studies/program-v1` |
 | Measurement queue (59 cells, about 7 h) | worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-47d8aac7-cc6d9f8583d98cf2`, branch `t3/clean-room-measurement-queue` | `vla-measure-queue` | log `/tmp/opencode/measure-queue.log`; results in that worktree's `studies/program-v1/measurements/` |
-| Old watch page on the live run | main checkout | `rsi-watch-8787` | http://127.0.0.1:8787/ |
-| Work-in-progress workbench preview | worktree `…/t3-c7925b83-7143b82d68312975` | `rsi-watch-8788` | http://127.0.0.1:8788/ (may not load live data) |
+| New watch site on the live run | UI worktree (see update) | `rsi-watch-8787` | http://127.0.0.1:8787/ |
 
 Dream-RSI launch command (started 09:34 EST, tag `program-v1-cleanroom` = `200982b`, provenance
 clean):
