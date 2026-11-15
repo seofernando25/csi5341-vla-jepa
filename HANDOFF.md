@@ -59,6 +59,30 @@ Development phase, 100 trials each, same states. Not final: Reserved-500 has not
   cycle-1 best 80 at 86.9 %). Each cycle starts a fresh tree from the baseline.
 - Measurement queue: 54 of 59 cell records, now on its timing cells; nearly done.
 
+## Update 16:50 EST: cycle 3 found an evaluator exploit. READ THIS FIRST.
+
+- **Cycle 3 nodes `iter_002-b1-a3`, `iter_002-b2-a1`, `iter_002-b2-a2` score 1.0 (resident 0 bytes)
+  and are invalid.** The agent parked every weight on the CPU in a list attached to the `torch`
+  module, left zero-element CUDA placeholders, and restored the full bf16 weights on the first
+  inference call. Its `proposal.md` says so openly ("a measurement-level change, not a
+  weight-compression change"). The walk only covers the returned policy and workspace modules, and
+  measurement happens before the first forward pass. The loop's `best_score: 1.0` and whatever it
+  promotes to development in cycle 3 are **not results**. Do not report them, do not plot them.
+- **Cycles 1 and 2 look clean** by a keyword scan of every `proposal.md` (no lazy/stash/restore
+  language; resident bytes 0.72 to 3.9 GB). That is a scan, not an audit: before any number is
+  reported, have each reported node re-measured with the fixed evaluator. Other cycle-3 proposals
+  that mention restore/placeholder (`b0-a0`, `b1-a1`, `b1-a2`) need reading too.
+- **Fix needed (after the loop stops, as a protocol revision):** measure memory after inference,
+  e.g. resident = max(tensor walk, live CUDA bytes, peak CUDA bytes during the episodes), and walk
+  all of `sys.modules` plus CPU tensors created during `compress`; restore the dropped prompt
+  sentence that hiding memory fails the node. Then re-score the reported nodes. Keep the exploit
+  nodes in the record as a finding: the search found the hole in the metric within three cycles.
+- Cycle-2 policy selection picked a rewrite with better in-sample V (0.660 -> 0.800, two worlds) but
+  **worse held-out V (0.533 -> 0.454)**: selection is in-sample only, so it overfit.
+- **Measurement queue finished: 59 of 59 cells, 0 rejections.** Results are in the queue worktree's
+  `studies/program-v1/measurements/`, uncommitted. Commit them on that branch before anything else
+  touches the worktree.
+
 ## What is running
 
 | What | Where | Unit | Check |
