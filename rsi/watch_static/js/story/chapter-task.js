@@ -9,7 +9,7 @@ export const id = "task";
 export const number = "01";
 export const title = "The task";
 export const dek =
-  "An agent compresses the policy; LIBERO rollouts decide whether it still works, and the score is their success rate.";
+  "An agent compresses the policy; LIBERO rollouts decide whether it still works, and the score is the memory it removed.";
 
 const NB = "\u00a0";
 
@@ -122,11 +122,11 @@ export function mount(root, ctx) {
     }
 
     counts.append(
-      "A probe counts only if it clears ",
+      "A probe scores only if it clears ",
       gatePhrase(model.gate, model.trials),
-      " smoke trials, then ",
+      " smoke trials; otherwise it scores zero. The best probe of a cycle is then tested against ",
       gatePhrase(model.devGate, model.devTrials),
-      " development trials. The score is LIBERO success rate, not loss.",
+      " development trials.",
     );
 
     if (model.cell && model.cycleId) {
