@@ -1,0 +1,309 @@
+/* Inspector: selected source facts, lineage, score chart. 272px column (--inspector-w),
+   the body scrolls internally; the shell owns the region frame. */
+
+.inspector-body {
+  padding-bottom: 18px;
+}
+
+/* Header ------------------------------------------------------------------- */
+.insp-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px 3px;
+}
+
+.insp-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.insp-head .pill {
+  flex: none;
+  margin-top: 1px;
+}
+
+.insp-sub {
+  padding: 0 12px 8px;
+  color: var(--fg-subtle);
+  font-size: 10.5px;
+}
+
+.insp-selected {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 12px 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--ok-soft);
+  color: var(--ok);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+/* Stats -------------------------------------------------------------------- */
+.insp-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 12px 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.insp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 5px 8px;
+  background: var(--bg);
+}
+
+.insp-stat-label {
+  color: var(--fg-subtle);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.insp-stat-value {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Sections ----------------------------------------------------------------- */
+.insp-section {
+  padding: 8px 12px 0;
+}
+
+.insp-section + .insp-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.insp-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  color: var(--fg-subtle);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Lineage ------------------------------------------------------------------ */
+.insp-lineage {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1px 2px;
+  min-width: 0;
+}
+
+.insp-crumb {
+  max-width: 100%;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.insp-crumb:hover {
+  background: var(--bg-hover);
+  text-decoration: underline;
+}
+
+.insp-crumb.is-current {
+  background: var(--bg-active);
+  color: var(--fg);
+}
+
+.insp-sep {
+  color: var(--fg-subtle);
+  font-size: 10px;
+}
+
+/* Facts -------------------------------------------------------------------- */
+.insp-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.insp-fact {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 6px;
+  align-items: baseline;
+}
+
+.insp-fact-label {
+  color: var(--fg-subtle);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.insp-fact-value {
+  min-width: 0;
+  font-size: 11.5px;
+}
+
+.insp-link {
+  max-width: 100%;
+  padding: 0 2px;
+  border-radius: 2px;
+  color: var(--accent);
+  font-size: 10.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.insp-link:hover {
+  background: var(--bg-hover);
+  text-decoration: underline;
+}
+
+.insp-reason {
+  color: var(--fg-muted);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* Score chart -------------------------------------------------------------- */
+.insp-chart {
+  width: 100%;
+  min-height: 120px;
+}
+
+.insp-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--fg-subtle);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.insp-key {
+  flex: none;
+}
+
+.insp-key[data-kind="dot"] {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+}
+
+.insp-key[data-kind="line"] {
+  width: 10px;
+  height: 0;
+  border-top: 1.5px solid var(--accent);
+}
+
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: 120px;
+  animation: chart-in 0.18s ease-out;
+}
+
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.chart-axis {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+.chart-tick,
+.chart-xtick {
+  fill: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+}
+
+.chart-best {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+
+.chart-dot {
+  fill: var(--fg-muted);
+  stroke: var(--bg-raised);
+  stroke-width: 1;
+}
+
+.chart-dot.is-hl {
+  fill: var(--accent);
+  stroke: var(--bg-raised);
+  stroke-width: 1.5;
+}
+
+.chart-dot.is-missing {
+  fill: var(--bg-raised);
+  stroke: var(--fg-subtle);
+  stroke-width: 1.2;
+}
+
+.chart-halo {
+  fill: var(--accent-soft);
+}
+
+.chart-guide {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  opacity: 0.45;
+}
+
+.chart-gate {
+  stroke: var(--warn);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart-gate-label {
+  fill: var(--warn);
+  font-family: var(--font-ui);
+  font-size: 8.5px;
+}
+
+.chart-empty {
+  fill: var(--fg-subtle);
+  font-family: var(--font-ui);
+  font-size: 10px;
+}
+
+@keyframes chart-in {
+  from {
+    opacity: 0;
+  }
+}
