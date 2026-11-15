@@ -40,6 +40,18 @@ Dream-RSI closes a recursive self-improvement loop at the **exploration-policy l
 | Cross-cycle grid plan | `plan_grid` sizes next rollout capacity | [rsi/online_cycle.py](../rsi/online_cycle.py), [rsi/policies/optimal.py](../rsi/policies/optimal.py) | **Static plan.** `run_online_cycle()` reads `dream_rsi.grid_plan` from the study's `protocol.json`. `OptimalPolicy.plan_grid` returns the configured plan and raises if none is set. No adaptive heuristic. |
 | Archived Sep. harness | Discovery agent + policy-dev rewriting `policy.py` | Git commit `82df05d` (`studies/dream-rsi/attempts.jsonl`) | **Closer loop, wrong objective:** used SmolVLM held-out prediction loss (did not transfer to LIBERO success) |
 
+### Known deviations
+
+Seven deviations the table above does not state, as of 2026-11-15:
+
+- **Live-CUDA floor.** Resident bytes are `max(tensor walk, live CUDA bytes of the process)`, so a compressed copy beside the original scores ~0 ([evaluation/compression/solution.py](../evaluation/compression/solution.py)).
+- **No replay probe budget or round cap.** Replay calls `solve(..., budget=None)` and `ReplayQuestion` has no round limit; the policy must stop itself ([rsi/objective.py](../rsi/objective.py), [rsi/tree.py](../rsi/tree.py)).
+- **Replay parallelism is the CLI flag.** `--max-parallelism` defaults to 4 and is passed straight to replay; the live cycle uses `min(CLI, protocol)` = 2 ([rsi/__main__.py](../rsi/__main__.py), [rsi/durable_loop.py](../rsi/durable_loop.py)).
+- **Beta is not updated between cycles.** `recommend_next_beta` is never called; each cycle records only `baked_in_beta` ([rsi/dream.py](../rsi/dream.py), [rsi/online_cycle.py](../rsi/online_cycle.py)).
+- **Smoke is not a separate state set.** Both phases roll out on the development states and seeds, 1 vs 10 episodes per task ([evaluation/compression/solution.py](../evaluation/compression/solution.py)).
+- **The development gate is recorded for promoted nodes only.** `promote_top_k` writes `development.json`; no selection reads it ([rsi/online_cycle.py](../rsi/online_cycle.py), [rsi/expansion.py](../rsi/expansion.py)).
+- **Lambda and the beta grid live in code.** `0.05` and `(0.0, 0.25, 0.5, 0.75, 1.0)` are defaults in [rsi/objective.py](../rsi/objective.py), now also recorded in [studies/program-v1/protocol.json](../studies/program-v1/protocol.json); replay does not read the protocol values.
+
 ---
 
 ## 3. Reporting & Provenance Boundaries
