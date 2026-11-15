@@ -4,11 +4,12 @@ run_solution loads the B16 policy and frozen calibration, hashes the workspace, 
 solution.py as a fresh module and calls compress under a wall-clock limit. The returned
 object is measured: resident bytes are every tensor reachable from it, from the solution
 module and from modules imported out of the workspace, each storage counted once, and the
-larger of that and the live CUDA storage in the process. Size is compared with the same walk
-on the untouched policy. Violations: off-device or meta tensors, memory maps, and files the
-solution opens or creates outside the workspace. Those are detected by diffing open fds,
-/proc/self/maps and directory listings of the workspace, out_dir and the temp dir around
-compress, so a file opened and closed without touching a watched tree is not seen.
+larger of that and the live CUDA storage in the process, plus every workspace file over 1 MiB
+as it stands after compress. Size is compared with the same tensor walk on the untouched
+policy. Violations: off-device or meta tensors, memory maps, and files the solution opens or
+creates outside the workspace. Those are detected by diffing open fds, /proc/self/maps and
+directory listings of the workspace, out_dir and the temp dir around compress, so a file
+opened and closed without touching a watched tree is not seen.
 """
 
 from __future__ import annotations
@@ -43,6 +44,7 @@ from evaluation.rollout import rollout
 PHASES = ("check", "smoke", "development")
 DEFAULT_TIME_LIMIT_S = 900.0
 HASH_FILE_LIMIT = 50 << 20
+WORKSPACE_FILE_CHARGE_BYTES = 1 << 20
 REQUIRED_DEVICE = "cuda"
 PROTOCOL_PATH = calib.STUDY / "protocol.json"
 ALWAYS_ALLOWED = ("/dev", "/proc", "/sys")
@@ -85,6 +87,16 @@ def _workspace_files(workspace: Path) -> list[Path]:
     files = [p for p in workspace.rglob("*") if p.is_file()]
     kept = [p for p in files if "__pycache__" not in p.relative_to(workspace).parts]
     return sorted(kept, key=lambda p: p.relative_to(workspace).as_posix())
+
+
+def workspace_file_bytes(workspace: Path) -> int:
+    """Total size of workspace files over the charge threshold, `__pycache__` excluded."""
+    total = 0
+    for path in _workspace_files(workspace):
+        size = path.stat().st_size
+        if size > WORKSPACE_FILE_CHARGE_BYTES:
+            total += size
+    return total
 
 
 def measure(policy: object, roots: tuple[object, ...]) -> dict:
@@ -291,14 +303,16 @@ class _Run:
         with self.stage("measure"):
             roots = (vars(module), *(vars(m) for m in _workspace_modules(self.workspace)))
             sized = measure(returned, roots)
+            file_bytes = workspace_file_bytes(self.workspace)
         peak = torch.cuda.max_memory_allocated() if REQUIRED_DEVICE == "cuda" else 0
-        resident = sized["resident_bytes"]
+        resident = sized["resident_bytes"] + file_bytes
         reduction = max(0.0, 1 - resident / self.baseline_bytes) if self.baseline_bytes else 0.0
         record["sizes"] = {
             "resident_bytes": resident,
             "baseline_resident_bytes": self.baseline_bytes,
             "size_reduction": reduction,
             "peak_cuda_bytes": peak,
+            "workspace_file_bytes": file_bytes,
         }
         new = Counter(sized["violations"]) - self.baseline_violations
         violations = opened + sorted(new.elements())

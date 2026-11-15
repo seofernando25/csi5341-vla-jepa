@@ -169,6 +169,31 @@ def compress(policy, calibration):
     assert "created or changed" in result["error"]
 
 
+def test_workspace_file_over_one_mib_is_charged(cpu_env):
+    source = """
+import pathlib
+import torch
+PACKED = pathlib.Path(__file__).with_name("packed.bin")
+PACKED.write_bytes(b"x" * (2 << 20))
+def compress(policy, calibration):
+    policy.lin.weight = torch.nn.Parameter(torch.zeros(1))
+    return policy
+"""
+    result = run(cpu_env, source)
+    assert result["status"] == "ok"
+    assert result["sizes"]["workspace_file_bytes"] == 2 << 20
+    assert result["sizes"]["resident_bytes"] == (2 << 20) + TINY + 256 * 4
+    assert result["sizes"]["size_reduction"] == 0.0
+
+
+def test_small_workspace_files_are_not_charged(cpu_env):
+    source = "def compress(policy, calibration):\n    return policy\n"
+    result = run(cpu_env, source, helper="X = 1\n")
+    assert result["status"] == "ok"
+    assert result["sizes"]["workspace_file_bytes"] == 0
+    assert result["sizes"]["size_reduction"] == pytest.approx(0.0, abs=1e-6)
+
+
 def test_walk_counts_cuda_requirement_against_cpu_tensor():
     walk = ResidentWalk("cuda")
     walk.add(FakePolicy())
