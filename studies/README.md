@@ -29,3 +29,21 @@ Hardware for all local runs: [HARDWARE.md](HARDWARE.md).
   seeds. Failed and interrupted runs stay recorded and separate from task failures.
 - Keep weights, datasets, raw logs and runtime state outside Git (`outputs/`).
 - Write new results to a new path; do not overwrite another participant's records.
+
+## Table I decision rules (full)
+
+The report's Table I abbreviates these; the question column is the plain-language scaffold.
+
+- **E1 (H1)** — decoder linear precision BF16/INT8/NF4; 500 reserved rollouts per arm. Paired
+  bootstrap; pass if memory reduction ≥25% and Δ ≥ −5 pp.
+- **E2 (H2)** — module × method × strength, 201 recipes; 80 fixed frames, 10-trial smoke (163),
+  100-trial development (24). Development gate ≥77/100 (B16 control 82/100 minus 5); selection
+  frozen before E3.
+- **E3** — two frozen joint recipes; 500 reserved rollouts each. Wilson and paired intervals;
+  report regardless of outcome.
+- **E4 (H3)** — all E1/E3 arms; 3×500 timed predictions. Median and p95 latency vs peak memory.
+- **E5 (H4)** — per-episode outcomes; 80-frame action change. Paired transitions per task; Spearman ρ.
+- **E6** — SmolVLM2-500M + adapter, 10k fine-tuning steps; 500 reserved rollouts. Same rule as E1.
+- **E7 (H3)** — execution engine (stock/CUDA graph), flow steps (4/1), dense/packed NF4; 3×500
+  timed predictions per variant, 500 reserved for C2. Same as E1; the one-step setting comes from
+  the E2 smoke screen.

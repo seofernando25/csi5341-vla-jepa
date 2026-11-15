@@ -72,24 +72,25 @@ def fig_sensitivity() -> dict:
             mfc=fill,
             lw=1.1,
             color=COLORS[comp_name],
-            label={
-                "language": "language decoder",
-                "vision": "vision blocks",
-                "action": "action MLP",
-            }[comp_name],
         )
         ledger["bits"][comp_name] = dict(zip(xs, best, strict=True))
     a.set_xscale("log", base=2)
     a.set(
         xticks=[2, 3, 4, 8, 16],
         xticklabels=["2", "3", "4", "8", "16"],
+        xlim=(1.7, 17.8),
         ylim=(-0.5, 10.5),
         xlabel="Weight bits",
         ylabel="Successes / 10 trials",
     )
     a.minorticks_off()
     a.set_title("(a) Bit width", loc="left")
-    a.legend(loc="lower right", handlelength=1.2, borderaxespad=0.1, fontsize=6)
+    for comp_name, label, y, va in [
+        ("language", "language decoder", 9.4, "bottom"),
+        ("vision", "vision blocks", 8.6, "bottom"),
+        ("action", "action MLP", 7.4, "top"),
+    ]:
+        a.text(17, y, label, ha="right", va=va, fontsize=7, color=COLORS[comp_name])
     # (b–d) structural removal per module.
     struct_series = {
         "language": {
@@ -146,6 +147,17 @@ def fig_sensitivity() -> dict:
         "layers": (":", "^"),
     }
     hollow = {"KV heads", "heads"}
+    end_labels = {
+        ("language", "MLP channels"): ("MLP\nchannels", 2, 0.0, "left", "center"),
+        ("language", "KV heads"): ("KV heads", 0, -0.8, "right", "center"),
+        ("language", "layers"): ("layers", 2, 0.0, "left", "center"),
+        ("vision", "MLP channels"): ("MLP\nchannels", 2, 0.95, "left", "bottom"),
+        ("vision", "heads"): ("heads", 2, -0.5, "left", "top"),
+        ("vision", "layers"): ("layers", 2, -0.8, "left", "top"),
+        ("action", "MLP channels"): ("MLP\nchannels", 2, -0.2, "left", "center"),
+        ("action", "heads"): ("heads", 2, 1.2, "left", "bottom"),
+        ("action", "layers"): ("layers", 2, 0.0, "left", "center"),
+    }
     for ax, (comp_name, series) in zip(axes[1:], struct_series.items(), strict=True):
         ledger["structure"][comp_name] = {}
         for name, pts in series.items():
@@ -161,16 +173,29 @@ def fig_sensitivity() -> dict:
                 mfc="white" if name in hollow else COLORS[comp_name],
                 lw=1.1,
                 color=COLORS[comp_name],
-                label=name,
+            )
+            label, dx, dy, ha, va = end_labels[(comp_name, name)]
+            ax.text(
+                xs[-1] * 100 + dx,
+                ys[-1] + dy,
+                label,
+                ha=ha,
+                va=va,
+                fontsize=7,
+                color=COLORS[comp_name],
             )
             ledger["structure"][comp_name][name] = dict(
                 zip([round(x, 3) for x in xs], ys, strict=True)
             )
-        ax.set(xlim=(-3, 78), ylim=(-0.5, 10.5), xlabel="Fraction removed (%)")
+        ax.set(
+            xticks=[0, 25, 50, 75],
+            xlim=(-3, 127),
+            ylim=(-1.9, 10.5),
+            xlabel="Fraction removed (%)",
+        )
         ax.set_title(
             f"({'bcd'[list(struct_series).index(comp_name)]}) {comp_name.capitalize()}", loc="left"
         )
-        ax.legend(loc="lower left", handlelength=1.6, borderaxespad=0.1, fontsize=6)
     for ax in axes:
         ax.axhline(base, color=MUTED, lw=0.6, ls=(0, (1, 2)), zorder=0)
     fig.savefig(OUT / "sensitivity.pdf")

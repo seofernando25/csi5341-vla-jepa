@@ -26,7 +26,7 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         ylabel="Successes / 10 trials",
     )
     ax.axvline(floor * 1.6, color=GRID, lw=0.6)
-    ax.text(floor * 1.1, 0.0, "identical\nactions", fontsize=5.8, color=MUTED, ha="left")
+    ax.text(floor * 1.1, 0.0, "identical\nactions", fontsize=7, color=MUTED, ha="left")
     ax.text(
         0.98,
         0.97,
@@ -34,7 +34,7 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         transform=ax.transAxes,
         ha="right",
         va="top",
-        fontsize=6.6,
+        fontsize=7,
         color=INK,
     )
     ax.legend(
@@ -42,7 +42,7 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         ncol=5,
         handletextpad=0.1,
         columnspacing=0.6,
-        fontsize=6,
+        fontsize=7,
         bbox_to_anchor=(0, 1.0, 1, 0.1),
         mode="expand",
         borderaxespad=0.2,

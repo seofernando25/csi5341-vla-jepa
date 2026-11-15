@@ -31,13 +31,13 @@ def fig_budget(census: dict, ceiling: dict, n: dict) -> None:
             yy,
             f"{params[k] / 1e9:.2f}B params ({100 * params[k] / total:.0f}%)",
             va="center",
-            fontsize=6.2,
+            fontsize=7,
             color=INK,
         )
     a.set(
         yticks=y,
         yticklabels=[names[k][0] for k in keys],
-        xlim=(0, 4.2),
+        xlim=(0, 4.9),
         xlabel="BF16 weight storage (GB)",
     )
     a.invert_yaxis()
@@ -50,19 +50,13 @@ def fig_budget(census: dict, ceiling: dict, n: dict) -> None:
     ]
     ideal = [ceiling["INT8"]["ceiling_pct"], ceiling["NF4"]["ceiling_pct"]]
     y2 = np.arange(2)
-    b.barh(y2 - 0.19, ideal, height=0.36, color="#e4e7eb", label="ideal: decoder weights only")
-    b.barh(
-        y2 + 0.19,
-        measured,
-        height=0.36,
-        color=[COLORS["Q8"], COLORS["Q4"]],
-        label="measured peak memory",
-    )
+    b.barh(y2 - 0.19, ideal, height=0.36, color="#e4e7eb")
+    b.barh(y2 + 0.19, measured, height=0.36, color=[COLORS["Q8"], COLORS["Q4"]])
     for yy, i, m in zip(y2, ideal, measured, strict=True):
-        b.text(i + 0.5, yy - 0.19, f"{i:.1f}%", va="center", fontsize=6.2, color=MUTED)
-        b.text(m + 0.5, yy + 0.19, f"{m:.1f}%", va="center", fontsize=6.2, color=INK)
+        b.text(i + 0.5, yy - 0.19, f"ceiling {i:.1f}%", va="center", fontsize=7, color=MUTED)
+        b.text(m + 0.5, yy + 0.19, f"measured {m:.1f}%", va="center", fontsize=7, color=INK)
     b.axvline(25, color=INK, lw=0.7, ls=(0, (3, 2)))
-    b.text(24.5, -0.72, "proposal target", fontsize=6, color=INK, va="center", ha="right")
+    b.text(24.5, -0.72, "25% target (H1)", fontsize=7, color=INK, va="center", ha="right")
     b.set(
         yticks=y2,
         yticklabels=["Q8 (INT8)", "Q4 (NF4)"],
@@ -71,7 +65,6 @@ def fig_budget(census: dict, ceiling: dict, n: dict) -> None:
         xlabel="Peak-memory reduction vs B16 (%)",
     )
     b.grid(axis="y", visible=False)
-    b.legend(loc="upper right", handlelength=1, borderaxespad=0.1, fontsize=6)
-    b.set_title("(b) Measured savings sit at the weight-only ceiling", loc="left")
+    b.set_title("(b) Measured savings sit just below the weight-only ceiling", loc="left")
     fig.savefig(OUT / "budget.pdf")
     plt.close(fig)

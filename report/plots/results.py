@@ -22,7 +22,7 @@ def fig_tradeoff(n: dict) -> None:
         "target: ≥25% less memory,\n≤5 pp success loss",
         ha="right",
         va="bottom",
-        fontsize=6.3,
+        fontsize=7,
         color="#047857",
     )
     for k in keys:
@@ -99,18 +99,22 @@ def fig_tasks(n: dict) -> None:
     keys = ["B16", "Q8", "Q4", "C1", "C2"]
     mat = np.array([rows[k]["per_task"] for k in keys]).T * 2  # percent of 50 trials
     fig, ax = plt.subplots(figsize=(COL, 1.6))
-    cmap = mpl.colors.LinearSegmentedColormap.from_list("s", ["#b91c1c", "#fde68a", "#f8fafc"])
+    cmap = mpl.colormaps["viridis"]
     ax.imshow(mat.T, aspect="auto", cmap=cmap, vmin=55, vmax=100)
     for i in range(mat.shape[0]):
         for j in range(mat.shape[1]):
+            # White text below the WCAG contrast crossover with INK (~0.22 luminance).
+            rgb = np.array(cmap((mat[i, j] - 55) / 45)[:3])
+            lin = np.where(rgb <= 0.03928, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+            lum = lin @ [0.2126, 0.7152, 0.0722]
             ax.text(
                 i,
                 j,
                 f"{mat[i, j]:.0f}",
                 ha="center",
                 va="center",
-                fontsize=6.4,
-                color="white" if mat[i, j] < 75 else INK,
+                fontsize=7,
+                color="white" if lum < 0.22 else INK,
             )
     ax.set(
         xticks=range(10),

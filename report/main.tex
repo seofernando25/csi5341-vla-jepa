@@ -27,13 +27,13 @@
 \maketitle
 
 \begin{abstract}
-VLA-JEPA couples a 2B-parameter vision--language model with a flow-matching action head and reaches 95\% success on LIBERO-Spatial, with a measured peak of 5.6\,GB allocated GPU memory at batch size one. We test whether post-training compression keeps that success on this suite. Quantizing only the language-decoder linear layers to NF4 cuts peak memory by 36.9\% with a paired success change of $+0.8$ points (95\% CI $-0.6$ to $+2.2$, 500 trials). LLM.int8 cuts 23.3\% and misses our 25\% target, which equals the ideal INT8 saving for the decoder weights. A sweep of 201 compression recipes finds that the language decoder is the precision bottleneck, while vision and action weights survive 2-bit quantization. Two joint recipes keep 96.8--98.0\% success at 1.38--1.51\,GB (73--75\% less memory) and use no calibration data. Under the stock execution path every compressed policy is 1.2--2.0$\times$ slower, because that path is launch-bound. A CUDA-graph engine speeds up B16 itself from 77.5 to 28.5\,ms; the NF4 policy C2 then runs at 31.6\,ms in 1.51\,GB with 98.0\% success. Offline action divergence on fixed frames predicts gross failure ($\rho=-0.67$, 163 recipes) but cannot rank near-lossless ones. Replacing the backbone with SmolVLM2-500M failed (2.2\%).
+VLA-JEPA couples a 2B-parameter vision--language model with a flow-matching action head and reaches 95\% success on LIBERO-Spatial, with a measured peak of 5.6\,GB allocated GPU memory at batch size one. We test whether post-training compression keeps that success on this suite. Quantizing only the language-decoder linear layers to NF4 cuts peak memory by 36.9\% with no detectable success change (500 paired trials; the interval includes zero). LLM.int8 cuts 23.3\% and misses our 25\% target, which equals the ideal INT8 saving for the decoder weights. A sweep of 201 compression recipes finds that the language decoder is the precision bottleneck, while vision and action weights survive 2-bit quantization. Two joint recipes keep $\geq$96\% success below 1.6\,GB (about three quarters less memory) and use no calibration data. Under the stock execution path every compressed policy is slower, because that path is launch-bound. A CUDA-graph engine makes B16 itself 2.7$\times$ faster; the NF4 policy C2 then runs at 31.6\,ms in 1.51\,GB with 98.0\% success. Offline action divergence on fixed frames predicts gross failure but cannot rank near-lossless ones. Replacing the backbone with SmolVLM2-500M failed (2.2\%).
 \end{abstract}
 
 \section{Introduction}
 Vision--language--action (VLA) policies map camera images and an instruction to robot actions~\cite{openvla,pi0}. VLA-JEPA~\cite{vlajepa} adds a V-JEPA~2 latent world model~\cite{vjepa2} during training to a Qwen3-VL-2B backbone~\cite{qwen3vl} and a flow-matching action head. Its weights alone occupy 5.5\,GB in BF16, which excludes many embedded GPUs. We ask how far the \emph{trained} policy can be compressed without retraining, and what breaks first.
 
-Our proposal stated one hypothesis. The feedback asked for justified thresholds and more depth, so we test four:
+We test four hypotheses:
 \begin{itemize}
 \item[\h1] Quantizing the language-decoder linear layers reduces peak inference memory by $\geq$25\% and lowers LIBERO-Spatial success by $\leq$5 points.
 \item[\h2] Tolerance to compression differs by module: the language decoder is more sensitive than the vision encoder or action head.
@@ -54,12 +54,12 @@ Our proposal stated one hypothesis. The feedback asked for justified thresholds 
 ID & Question & Varied & Sample & Analysis and decision rule \\
 \midrule
 E1 (\h1) & Does decoder quantization keep success? & Decoder linear precision: BF16, INT8, NF4 & 500 reserved rollouts per arm & Paired bootstrap; pass if memory reduction $\geq$25\% and $\Delta\geq-5$ pp \\
-E2 (\h2) & Which modules tolerate compression? & Module $\times$ method $\times$ strength; 201 recipes & 80 fixed frames; 10-trial smoke (163); 100-trial development (24) & Development gate $\geq$77/100 (B16 82 $-$5); selection frozen before E3 \\
+E2 (\h2) & Which modules tolerate compression? & Module $\times$ method $\times$ strength; 201 recipes & 80 fixed frames; 10-trial smoke (163); 100-trial development (24) & Development gate $\geq$77/100; selection frozen before E3 \\
 E3 & Do joint recipes hold on reserved trials? & Two frozen joint recipes & 500 reserved rollouts each & Wilson and paired intervals; report regardless of outcome \\
 E4 (\h3) & Does lower memory mean faster? & All E1/E3 arms & $3\times500$ timed predictions & Median and p95 latency vs.\ peak memory \\
 E5 (\h4) & Where and why do arms fail? & --- & Per-episode outcomes; 80-frame action change & Paired transitions per task; Spearman $\rho$ \\
-E6 & Can a smaller backbone replace Qwen? & SmolVLM2-500M + adapter, 10k fine-tuning steps & 500 reserved rollouts & Same as E1 \\
-E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock or CUDA graph), flow steps (4 or 1), dense or packed NF4 weights & $3\times500$ timed predictions per variant; 500 reserved rollouts for C2 & Same as E1; the one-step setting comes from the E2 smoke screen \\
+E6 & Can a smaller backbone replace Qwen? & SmolVLM2-500M + adapter, 10k steps & 500 reserved rollouts & Same as E1 \\
+E7 (\h3) & Is the slowdown intrinsic to quantization? & Engine (stock/graph), flow steps (4/1), dense/packed NF4 & $3\times500$ timed predictions per variant; 500 reserved rollouts for C2 & Same as E1; one-step setting from the E2 smoke \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -74,17 +74,16 @@ E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock 
 \section{Method}
 \begin{figure}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[
-  font=\footnotesize, node distance=4mm and 5mm,
-  box/.style={draw=ink!55, rounded corners=2pt, fill=ink!4, align=center, minimum height=10mm, inner sep=3pt},
+  font=\small, node distance=3mm and 2.5mm,
+  box/.style={draw=ink!55, rounded corners=2pt, fill=ink!4, align=center, minimum height=9mm, inner sep=2pt},
   tag/.style={font=\scriptsize, align=center},
   arr/.style={-{Stealth[length=4pt]}, draw=ink!70, line width=.6pt}]
-\node[box, text width=14mm] (in) {Images +\\instruction};
-\node[box, right=of in, text width=14mm, draw=vis, fill=vis!10] (vis) {Vision\\encoder};
-\node[box, right=of vis, text width=15mm, draw=lang, fill=lang!10] (lm) {Language\\decoder};
-\node[box, right=of lm, text width=17mm, draw=act, fill=act!10] (act) {Flow-matching\\action head};
-\node[right=4mm of act, align=center] (out) {7-action\\chunk};
+\node[box, text width=15mm] (in) {Images +\\instruction};
+\node[box, right=of in, text width=12mm, draw=vis, fill=vis!10] (vis) {Vision\\encoder};
+\node[box, right=of vis, text width=13mm, draw=lang, fill=lang!10] (lm) {Language\\decoder};
+\node[box, right=of lm, text width=16mm, draw=act, fill=act!10] (act) {Flow-matching\\action head};
+\node[right=2.5mm of act, align=center] (out) {7-action\\chunk};
 \draw[arr] (in) -- (vis); \draw[arr] (vis) -- (lm); \draw[arr] (lm) -- (act); \draw[arr] (act) -- (out);
 \node[tag, below=1mm of vis, text=vis] {0.41B};
 \node[tag, below=1mm of lm, text=lang] {1.41B linear\\0.31B embed.};
@@ -93,16 +92,16 @@ E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock 
 \draw[muted, line width=.5pt] ($(vis.north west)+(0,2mm)$) -- ($(lm.north east)+(0,2mm)$);
 \node[tag, text=muted, above] at ($(vis.north)!0.5!(lm.north)+(0,2mm)$) {Qwen3-VL-2B backbone};
 \node[box, dashed, fill=white, draw=muted, text=muted, minimum height=6mm,
-  below=11mm of lm, text width=78mm]
+  below=10mm of lm, text width=78mm]
   (wm) {World model: V-JEPA 2 encoder + latent predictor (0.49B), used only in training};
-\end{tikzpicture}}%
+\end{tikzpicture}%
 \caption{VLA-JEPA inference path with parameter counts. Colored modules are the compression targets; mergers connect vision features to the decoder. The world model is loaded by default but unused at inference.}
 \label{fig:arch}
 \end{figure}
 
 \textbf{Policy.} We use the released LIBERO checkpoint of the LeRobot port~\cite{lerobot} (\texttt{VLA-JEPA-LIBERO}), pinned by revision (Fig.~\ref{fig:arch}). The policy predicts seven actions with four Euler flow steps and executes all seven before replanning. Nothing in this report retrains Qwen.
 
-\textbf{Compression arms.} \emph{Study A} quantizes every \texttt{nn.Linear} in the 28-layer Qwen decoder after the checkpoint loads: Q8 with LLM.int8 (outlier threshold 6) and Q4 with NF4 (double quantization, BF16 compute). Every other module stays BF16. \emph{Study B} applies 201 recipes to individual modules and joint deployments: bitsandbytes INT8/NF4, HQQ 2--4 bit, GPTQ, AWQ-style scaling, TorchAO W8A8, magnitude/Wanda/SparseGPT sparsity, and structured removal of MLP channels, attention heads, layers and tokens. Calibrated methods use 20 development frames; no recipe sees reserved trials. Joint deployments also drop the unused world model. Some sweep recipes restrict the vocabulary to the 53 token IDs of the LIBERO instructions; we report none of them as a result.
+\textbf{Compression arms.} \emph{Study A} quantizes every \texttt{nn.Linear} in the 28-layer Qwen decoder after the checkpoint loads: Q8 with LLM.int8 (outlier threshold 6) and Q4 with NF4 (double quantization, BF16 compute). Every other module stays BF16. \emph{Study B} applies 201 recipes to individual modules and joint deployments: bitsandbytes INT8/NF4, HQQ 2--4 bit, GPTQ, AWQ-style scaling, TorchAO W8A8, magnitude/Wanda/SparseGPT sparsity, and structured removal of MLP channels, attention heads, layers and tokens. Calibrated methods use 20 development frames; no recipe sees reserved trials. Joint deployments also drop the unused world model. Some sweep recipes restrict the vocabulary to the 53 token IDs of the LIBERO instructions; we report none of them as a reserved or deployable result; \S\ref{subsec:dreamrsi} reports one as development-stage search evidence.
 
 \begin{figure}[t]
 \centering\includegraphics[width=\columnwidth]{figures/budget.pdf}
@@ -110,7 +109,7 @@ E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock 
 \label{fig:budget}
 \end{figure}
 
-\textbf{Protocol.} Table~\ref{tab:design} lists the experiments. All runs use one RTX~3090, PyTorch 2.11, Transformers 5.5.4 and bitsandbytes 0.50.2. Rollouts use the ten LIBERO-Spatial tasks~\cite{libero} and the 50 official initial states per task, with fixed per-episode seeds and a 280-step limit. Development trials use 10 different states per task, disjoint by hash. Success intervals are Wilson intervals~\cite{wilson}. Differences from B16 use a task-stratified paired bootstrap (10{,}000 resamples) over identical states and seeds. Latency is the synchronized observation-to-action time over $3\times500$ predictions after 20 warm-ups and excludes simulation. Memory is the peak allocated by PyTorch's CUDA allocator, in GB ($10^9$ bytes).
+\textbf{Protocol.} Table~\ref{tab:design} lists the experiments. All runs use one RTX~3090, PyTorch 2.11, Transformers 5.5.4 and bitsandbytes 0.50.2. Rollouts use the ten LIBERO-Spatial tasks~\cite{libero} and the 50 official initial states per task, with fixed per-episode seeds and a 280-step limit. Development trials use 10 different states per task, disjoint by hash. Success intervals are Wilson intervals (confidence intervals for a success proportion)~\cite{wilson}. Differences from B16 use a task-stratified paired bootstrap (10{,}000 resamples) over identical states and seeds. Latency is the synchronized observation-to-action time over $3\times500$ predictions after 20 warm-ups and excludes simulation. Memory is the peak allocated by PyTorch's CUDA allocator, in GB ($10^9$ bytes).
 
 
 
@@ -137,9 +136,9 @@ E7 (\h3) & Is the slowdown intrinsic to quantization? & Execution engine (stock 
 
 \section{Results}
 \subsection{Decoder quantization (\h1)}
-Both quantized decoders keep success: neither paired interval excludes zero, and both exclude the 5-point bound (Table~\ref{tab:results}). Q4 passes \h1 with 36.9\% less memory. Q8 fails on memory: 23.3\% against a 25.1\% ceiling. The measured savings sit 1.8 and 0.4 points below the weight-only ceilings for INT8 and NF4 (Fig.~\ref{fig:budget}b). Activations, quantization scales and LLM.int8's FP16 outlier path are the likely sources of the gap; we did not profile them separately. The decoder holds only 51\% of the weights, so decoder-only quantization cannot save more than about 37\%. Larger savings require compressing the other modules.
+Both quantized decoders keep success: neither paired interval excludes zero, and both exclude the 5-point bound (Table~\ref{tab:results}). Q4 passes \h1; Q8 fails the memory target (Table~\ref{tab:results}). Measured savings sit just below the weight-only ceilings (Fig.~\ref{fig:budget}b). Activations, quantization scales and LLM.int8's FP16 outlier path are the likely sources of the gap; we did not profile them separately. The decoder holds only 51\% of the weights, so decoder-only quantization cannot save more than about 37\%. Larger savings require compressing the other modules.
 
-Our B16 reaches 95.0\%, against 96.2\% reported for LIBERO-Spatial~\cite{vlajepa}. We use the LeRobot port and our own evaluator, not the authors' evaluator.
+Our B16 is consistent with the published 96.2\% for LIBERO-Spatial~\cite{vlajepa} (the 95\% interval includes it; Table~\ref{tab:results}). We use the LeRobot port and our own evaluator, not the authors' evaluator.
 
 \begin{figure*}[t]
 \centering\includegraphics[width=\textwidth]{figures/tradeoff.pdf}
@@ -148,7 +147,7 @@ Our B16 reaches 95.0\%, against 96.2\% reported for LIBERO-Spatial~\cite{vlajepa
 \end{figure*}
 
 \subsection{Where compression fails (\h2)}
-Fig.~\ref{fig:sens} shows 10-trial smoke results; B16 scores 8/10 on the same states. The language decoder is the precision bottleneck. Its best 3-bit and 2-bit variants score 7/10 and 1/10, and 3-bit results vary with the quantization axis (7/10 versus 0/10). Vision blocks and action MLPs keep 8/10 at 2 bits under every tested variant. Structure behaves the same way. Removing 8 of 28 language layers or 50\% of its key--value heads scores 0/10 and 2/10, respectively. Vision keeps 8/10 with 50\% of channels or heads removed and with 8 of 24 layers removed. Action modules degrade gradually. These smoke screens are coarse. At 100 development trials, removing 75\% of action attention heads scores 69/100 and fails the 77/100 gate, although its smoke score was 7/10. Combining individually safe cuts also fails: joint channel and depth reductions score 70/100 and 65/100.
+Fig.~\ref{fig:sens} shows 10-trial smoke results; B16 scores 8/10 on the same states. The language decoder is the precision bottleneck: its best 3-bit variant nearly matches B16 but 2-bit collapses, and 3-bit results vary with the quantization axis. Vision blocks and action MLPs match B16 at 2 bits under every tested variant. Structure behaves the same way. Removing 8 of 28 language layers or 50\% of its key--value heads collapses success, while vision tolerates 50\% of channels or heads removed and 8 of 24 layers removed. Action modules degrade gradually. These smoke screens are coarse. At 100 development trials, removing 75\% of action attention heads scores 69/100 and fails the 77/100 gate (the minimum development score for selection), although its smoke score was 7/10. Combining individually safe cuts also fails: joint channel and depth reductions score 70/100 and 65/100.
 
 \begin{figure*}[t]
 \centering\includegraphics[width=\textwidth]{figures/sensitivity.pdf}
@@ -156,12 +155,12 @@ Fig.~\ref{fig:sens} shows 10-trial smoke results; B16 scores 8/10 on the same st
 \label{fig:sens}
 \end{figure*}
 
-These results guided the joint recipes. C1 keeps NF4 in the language decoder and uses 2-bit HQQ in the vision and action modules, with an INT8 embedding table: 1.29\,GB of weights and 1.38\,GB peak memory. C2 uses NF4 everywhere with an INT8 embedding table. Both pass \h1 on reserved trials (Fig.~\ref{fig:tradeoff}a).
+These results guided the joint recipes. C1 keeps NF4 in the language decoder and uses 2-bit HQQ in the vision and action modules, with an INT8 embedding table. C2 uses NF4 everywhere with an INT8 embedding table. Both pass \h1 on reserved trials (Table~\ref{tab:results}, Fig.~\ref{fig:tradeoff}a).
 
 \subsection{Memory is not speed (\h3)}
-Under the stock execution path every compressed policy is slower than B16 (Fig.~\ref{fig:tradeoff}b). Q8 doubles latency (1.99$\times$), Q4 costs 1.18$\times$, and C1 costs 1.84$\times$. The cause is launch overhead, not arithmetic. A profile of one stock prediction (\texttt{launch\_profile.json}) shows B16 launching 4{,}989 kernels with the GPU busy 36\,ms of 79\,ms. Q4 adds a dequantization kernel per linear layer (5{,}576 launches). LLM.int8 launches 9{,}302 kernels and synchronizes with the host 691 times (B16: 118): its 192 \texttt{nonzero} calls (B16: 11) force the host to wait for the GPU.
+Under the stock execution path every compressed policy is slower than B16 (Fig.~\ref{fig:tradeoff}b). Q8 doubles latency (1.99$\times$), Q4 costs 1.18$\times$, and C1 costs 1.84$\times$. The cause is launch overhead, not arithmetic. A profile of one stock prediction (\texttt{launch\_profile.json}) shows B16 launching 4{,}989 kernels with the GPU busy 36 of 71.6\,ms profiled wall. Q4 adds a dequantization kernel per linear layer (5{,}576 launches). LLM.int8 launches 9{,}302 kernels and synchronizes with the host 691 times (B16: 118): its 192 \texttt{nonzero} calls (B16: 11) force the host to wait for the GPU.
 
-We therefore wrote a CUDA-graph engine (\texttt{evaluation/fastpath.py}). It precomputes everything that depends only on the instruction, captures one graph per prompt, fuses elementwise kernels with \texttt{torch.compile}, and dequantizes NF4 with one Triton kernel that matches bitsandbytes bit for bit. Table~\ref{tab:ladder} separates its effect from the compression. The engine alone takes B16 from 77.5 to 28.5\,ms. On that fair baseline NF4 weights cost latency: 36.8\,ms with four flow steps against 28.5\,ms, in exchange for 3.8$\times$ less peak memory (1.51 versus 5.70\,GB). Dense bf16 copies of the NF4-rounded weights remove the dequantization (24.7\,ms) at 5.45\,GB. C2 combines NF4 on all modules, an INT8 embedding table, no pruning, no calibration data and one flow step; we chose these to remove task-specific components, not by tuning on outcomes. It runs at 31.6\,ms in 1.51\,GB. The engine captures one graph per instruction; priming ten prompts took 109\,s, which the latencies exclude. \h3 holds for the stock path: memory and latency are independent, and execution sets latency.
+We therefore wrote a CUDA-graph engine (\texttt{evaluation/fastpath.py}). It precomputes everything that depends only on the instruction, captures one graph per prompt, fuses elementwise kernels with \texttt{torch.compile}, and dequantizes NF4 with one Triton kernel that matches bitsandbytes bit for bit. Table~\ref{tab:ladder} separates its effect from the compression. The engine alone sharply reduces B16 latency. On that fair baseline NF4 weights cost latency with four flow steps, in exchange for 3.8$\times$ less peak memory. Dense bf16 copies of the NF4-rounded weights remove the dequantization but restore much of the memory (Table~\ref{tab:ladder}). C2 combines NF4 on all modules, an INT8 embedding table, no pruning, no calibration data and one flow step; we chose these to remove task-specific components, not by tuning on outcomes. The engine captures one graph per instruction; priming ten prompts took 109\,s, which the latencies exclude. \h3 holds for the stock path: memory and latency are independent, and execution sets latency.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -198,10 +197,14 @@ NF4 all, graph, packed (C2) & 1 & 31.6 (32.0) & 1.51 & 490 \\
 \label{fig:div}
 \end{figure}
 
-\textbf{Offline divergence screens, but does not rank.} For each recipe we measured the mean squared change in physical arm commands against B16 on 80 fixed frames, which needs no simulator. Across 163 recipes it correlates with smoke success ($\rho=-0.67$, $p<10^{-21}$; Fig.~\ref{fig:div}). Below $10^{-4}$, 64 of 65 recipes score $\geq$7/10; above $10^{-3}$, only 30 of 62 do. Among the 24 recipes that reached development trials, the correlation is weak and not significant ($\rho=-0.27$, $p=0.21$). \h4 holds for screening but not for ranking: closed-loop trials remain necessary among near-lossless recipes.
+\textbf{Offline divergence screens, but does not rank.} For each recipe we measured the mean squared change in physical arm commands against B16 on 80 fixed frames, which needs no simulator. Across 163 recipes it correlates with smoke success (rank correlation $\rho$, from $-1$ to $+1$; here $\rho=-0.67$, $p<10^{-21}$; Fig.~\ref{fig:div}). Below $10^{-4}$, 64 of 65 recipes score $\geq$7/10; above $10^{-3}$, only 30 of 62 do. Among the 24 recipes that reached development trials, the correlation is weak and not significant ($\rho=-0.27$, $p=0.21$). \h4 holds for screening but not for ranking: closed-loop trials remain necessary among near-lossless recipes.
 
 \subsection{Negative result: smaller backbone}
-We replaced Qwen with SmolVLM2-500M~\cite{smolvlm} plus a trained adapter and fine-tuned the adapter, action head and predictor for 10{,}000 steps. It reached 2.2\% on reserved trials and was 16$\times$ slower than B16, because SmolVLM tiles each image into 17 crops of 512 pixels. A later study fixed an image-scaling bug and adapted all decoder layers. It reached 31/100 development successes against 82/100 for B16. Within our budget, compressing the trained policy beats replacing its backbone.
+We replaced Qwen with SmolVLM2-500M~\cite{smolvlm} plus a trained adapter and fine-tuned the adapter, action head and predictor for 10{,}000 steps. It failed on reserved trials (Table~\ref{tab:results}) and was 16$\times$ slower than B16, because SmolVLM tiles each image into 17 crops of 512 pixels. A later study fixed an image-scaling bug and adapted all decoder layers. It reached 31/100 development successes against 82/100 for B16. Within our budget, compressing the trained policy beats replacing its backbone.
+
+\subsection{Dream-RSI search evidence}
+\label{subsec:dreamrsi}
+Noah Sprenger's Dream-RSI engine (\texttt{rsi/}) searched a restricted-vocabulary recipe grid with a replay-guided policy. The smallest candidate to pass the smoke gate, \texttt{s2-c2-t10-v25}, scored 85/100 development trials (gate $\geq$77/100) at 904.8\,MB of resident weights (memory held by the weights at run time) on an RTX~5060 Ti. Unlike C1--C2 it prunes MLP channels. This is development-stage search evidence on a restricted vocabulary and a different GPU, not a reserved or deployable result, and is not comparable to C1--C2.
 
 \section{Recommendations}
 \begin{enumerate}
@@ -217,6 +220,9 @@ We replaced Qwen with SmolVLM2-500M~\cite{smolvlm} plus a trained adapter and fi
 We evaluated one suite (LIBERO-Spatial), one checkpoint, one GPU and one seed per state. Success on Object, Goal or Long suites, on other hardware, and on a real robot is untested. Development and smoke selection used 10--100 trials, so sensitivity curves are coarse. Neither joint recipe uses pruning, calibration data or a task-specific vocabulary. We chose every arm on smoke and development states, never on reserved trials, but the same 500 reserved states score all arms with no multiple-comparison correction. The graph engine assumes one observation, two equal-size images and unpadded prompts per call, and its fused kernels change bf16 rounding, so we measured success through the engine. Compressed archives are rebuilt from the original checkpoint plus a recipe and are not standalone Hugging Face checkpoints.
 
 Post-training compression is effective for VLA-JEPA. NF4 decoder quantization meets our memory and success targets. Joint recipes keep $\geq$96\% success in under 1.6\,GB, a 3.7--4.1$\times$ reduction. The language decoder limits further compression, and a single hard task drives most differences between arms. Latency rises under the stock path; a graph engine removes the overhead for every variant, and C2 runs at 31.6\,ms in 1.51\,GB. Fused 4-bit GEMM kernels and evaluation on longer-horizon suites are the next steps.
+
+\section*{Acknowledgment}
+Noah Sprenger built the Dream-RSI engine and ran the searches; Fernando Nogueira ran the compression study and wrote the report.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}

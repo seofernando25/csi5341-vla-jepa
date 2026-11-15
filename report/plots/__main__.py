@@ -7,7 +7,15 @@ Every number quoted in report/main.tex is written to report/data/numbers.json.
 import argparse
 import json
 
-from report.plots.data import DATA, collect, divergence, memory_ceiling, parameter_census
+from report.plots.data import (
+    DATA,
+    collect,
+    divergence,
+    dream_rsi_stage2,
+    launch_profile,
+    memory_ceiling,
+    parameter_census,
+)
 from report.plots.divergence import fig_divergence
 from report.plots.memory import fig_budget
 from report.plots.results import fig_tasks, fig_tradeoff
@@ -27,6 +35,8 @@ def main() -> None:
     fig_budget(census, n["memory_ceiling"], n)
     n["sensitivity"] = fig_sensitivity()
     n["divergence"] = fig_divergence(divergence())
+    n["dream_rsi"] = dream_rsi_stage2()
+    n["launch_profile"] = launch_profile()
     fig_tasks(n)
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")
