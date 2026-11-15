@@ -56,6 +56,9 @@ PURE_MODULES = (
     "actions.js",
     "format.js",
     "views/meta.js",
+    "story/model.js",
+    "story/model_dream.js",
+    "story/nav.js",
 )
 FORBIDDEN_IN_PURE = ("document", "window", "localStorage", "fetch")
 FORBIDDEN_IN_REDUCER = ("Date.now", "Math.random")
@@ -173,6 +176,18 @@ def test_index_assets_are_relative_and_allowlisted() -> None:
         served = watch.static_path("/" + ref)
         assert served is not None, f"{ref} is not served by static_path"
         assert served.resolve() == target.resolve(), f"{ref} resolves outside the static tree"
+
+
+def test_story_fixture_is_allowlisted(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The Story demo fixture is served beside `fixture.json`; other root files stay closed."""
+    root = tmp_path / "static"
+    root.mkdir()
+    (root / "index.html").write_text("<!doctype html>", encoding="utf-8")
+    (root / "fixture_story.json").write_text("{}", encoding="utf-8")
+    (root / "story.json").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(watch, "STATIC_INDEX", root / "index.html")
+    assert watch.static_path("/fixture_story.json") == (root / "fixture_story.json").resolve()
+    assert watch.static_path("/story.json") is None
 
 
 def test_no_markup_injection_helpers() -> None:
