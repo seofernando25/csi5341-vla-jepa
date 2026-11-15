@@ -48,7 +48,9 @@ Background waiters of the old session die with it. Start new ones.
 - `t3/dream-rsi-watch-workbench` (`a680fd4`, WIP): IDE-style watch page. A second UI lead is
   finishing it and adding a Story mode in a new worktree; its status file is
   `/tmp/opencode/ui3/STATUS.md`.
-- A docs-cleanup worktree (AGENTS.md, skills, docs) is in progress; merge when it reports.
+- `t3/9987b3ae` (`9019518`, `aa79ba9`): docs cleanup, done, net 538 lines removed (AGENTS.md, skills,
+  `docs/COMPRESSION_PROGRAM.md` cut to 115 lines, `vla-rsi start` row fixed). Docs only; merge when
+  Dream-RSI stops. Until then the main checkout's docs are the old ones.
 - `t3/placeholder`: already cherry-picked, can be deleted.
 
 ## Facts worth knowing
