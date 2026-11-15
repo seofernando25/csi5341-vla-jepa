@@ -90,8 +90,9 @@ uv run --no-sync vla-compress-queue --queue studies/program-v1/queue-reserved.js
 ```
 
 `queue.json` is the default: B16 screen/smoke/development, the precision ladder, the joint cell,
-the format curve, then the execution-ladder benchmarks. [queue-reserved.json](queue-reserved.json)
-holds the reserved-500 cells and is never run by default.
+the format curve, then the execution-ladder benchmarks. Benchmark runs already serialize the packed
+archive, so no separate `size` cell is queued. [queue-reserved.json](queue-reserved.json) holds the
+reserved-500 cells and is never run by default.
 
 ## Recipes
 
@@ -128,7 +129,7 @@ Readings taken where the plan was ambiguous:
 - Precision-surface pre-registration: [precision_surface_plan.json](precision_surface_plan.json).
 - Protocol additions dated 2026-11-15 (agent tools, timeouts, GPU slots) are recorded in
   [protocol.json](protocol.json) under `dream_rsi`.
-- Recipes: 22 arms under `recipes/`; queue: 60 cells, 433 estimated minutes.
+- Recipes: 22 arms under `recipes/`; queue: 59 cells, 431 estimated minutes.
 - Evidence: none yet. No smoke or development run has been launched.
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.

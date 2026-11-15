@@ -37,7 +37,7 @@ def test_committed_queue_is_ordered_baseline_ladder_joint_formats_benchmarks():
     assert order[0] == "B16"
     assert order.index("precision-joint-va-hqq2") > order.index("precision-action-hqq2")
     assert order.index("format-lang-hqq4") > order.index("precision-joint-va-hqq2")
-    assert cells[-1]["phase"] == "size"
+    assert cells[-1]["phase"] == "benchmark"
     assert {cell["phase"] for cell in cells} <= set(q.PHASES)
 
 

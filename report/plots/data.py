@@ -191,6 +191,8 @@ def compact(candidate: str, phases: dict, family: str | None) -> dict:
     size = phases.get("size", {}).get("summary")
     if size:
         row["weights_gb"] = size["serialized_weights"]["bytes"] / GB
+    elif benchmark and "serialized_weights" in benchmark:
+        row["weights_gb"] = benchmark["serialized_weights"]["bytes"] / GB
     pair = reserved_pair(candidate)
     if pair is not None:
         row["final_paired_pp"] = [pair["difference_pp"], *pair["ci95_pp"]]

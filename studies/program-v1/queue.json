@@ -75,8 +75,6 @@
     {"recipe": "ladder-b16-graph-1step", "phase": "benchmark"},
     {"recipe": "ladder-nf4-graph-4step", "phase": "benchmark"},
     {"recipe": "ladder-nf4-graph-1step-dense", "phase": "benchmark"},
-    {"recipe": "ladder-nf4-graph-1step-packed", "phase": "benchmark"},
-
-    {"recipe": "ladder-nf4-graph-1step-packed", "phase": "size"}
+    {"recipe": "ladder-nf4-graph-1step-packed", "phase": "benchmark"}
   ]
 }
