@@ -51,6 +51,14 @@ Development phase, 100 trials each, same states. Not final: Reserved-500 has not
 - **Before committing evidence:** `selection.json` stores an absolute `selected_policy_path` under
   the home directory. Redact or relativise it first (rule: no machine-specific paths).
 
+## Update 14:45 EST: cycle 2
+
+- Cycle 2 probes done (8 valid, all 8/10 smoke, no timeouts); policy development for cycle 2 running
+  at 5.1 h elapsed. Cycle 3 should finish near the 8 h cap (checked only between stages).
+- Best cycle-2 node `iter_001-b1-a3`: 84.0 % memory removed, **84/100 development** (reference 82,
+  cycle-1 best 80 at 86.9 %). Each cycle starts a fresh tree from the baseline.
+- Measurement queue: 54 of 59 cell records, now on its timing cells; nearly done.
+
 ## What is running
 
 | What | Where | Unit | Check |
