@@ -6,14 +6,100 @@ import pandas as pd
 from matplotlib.lines import Line2D
 
 from evaluation.analysis import wilson
-from report.plots.data import COMP, sensitivity_dev_failures, smoke
+from report.plots.data import STUDY, smoke
 from report.plots.style import COLORS, FULL, INK_2, MUTED, OUT, SPINE, panel_label, style_axes, tint
 
+BITS = {
+    "language": {
+        8: ["text-bnb8"],
+        4: ["text-bnb4", "text-hqq4-axis1-pytorch"],
+        3: ["text-hqq3-axis0-pytorch", "text-hqq3-axis1-pytorch"],
+        2: ["text-hqq2-axis0-pytorch", "text-hqq2-axis1-pytorch", "text-hqq2-axis1-gemlite"],
+    },
+    "vision": {
+        8: ["vision_blocks-bnb8"],
+        4: ["vision_blocks-bnb4", "vision_blocks-hqq4-axis1-pytorch"],
+        3: ["vision_blocks-hqq3-axis0-pytorch", "vision_blocks-hqq3-axis1-pytorch"],
+        2: [
+            "vision_blocks-hqq2-axis0-pytorch",
+            "vision_blocks-hqq2-axis1-pytorch",
+            "vision_blocks-hqq2-axis1-gemlite",
+        ],
+    },
+    "action": {
+        8: ["action_mlp-bnb8"],
+        4: ["action_mlp-bnb4", "action_mlp-hqq4-axis1-pytorch"],
+        3: ["action_mlp-hqq3-axis0-pytorch", "action_mlp-hqq3-axis1-pytorch"],
+        2: [
+            "action_mlp-hqq2-axis0-pytorch",
+            "action_mlp-hqq2-axis1-pytorch",
+            "action_mlp-hqq2-axis1-gemlite",
+        ],
+    },
+}
 
-def fig_sensitivity(dev_fails: dict | None = None) -> dict:
-    if dev_fails is None:
-        dev_fails = sensitivity_dev_failures()
-    comp = pd.read_csv(COMP / "summary.csv").set_index("candidate")
+STRUCT_SERIES = {
+    "language": {
+        "MLP channels": [
+            (0.125, "text_mlp-channels-125"),
+            (0.25, "text_mlp-channels-250"),
+            (0.5, "text_mlp-channels-500"),
+            (0.75, "text_mlp-channels-750"),
+        ],
+        "KV heads": [
+            (0.125, "text-heads-125"),
+            (0.25, "text-heads-250"),
+            (0.5, "text-heads-500"),
+        ],
+        "layers": [
+            (1 / 28, "text-layers-1"),
+            (4 / 28, "text-layers-4"),
+            (8 / 28, "text-layers-8"),
+            (20 / 28, "text-layers-20"),
+        ],
+    },
+    "vision": {
+        "MLP channels": [
+            (0.125, "vision_mlp-channels-125"),
+            (0.5, "vision_mlp-channels-500"),
+            (0.75, "vision_mlp-channels-750"),
+        ],
+        "heads": [
+            (0.125, "vision_attention-heads-125"),
+            (0.5, "vision_attention-heads-500"),
+            (0.75, "vision_attention-heads-750"),
+        ],
+        "layers": [
+            (1 / 24, "vision-layers-1"),
+            (8 / 24, "vision-layers-8"),
+            (12 / 24, "vision-layers-12"),
+            (16 / 24, "vision-layers-16"),
+        ],
+    },
+    "action": {
+        "MLP channels": [(0.125, "action_mlp-channels-125"), (0.75, "action_mlp-channels-750")],
+        "heads": [(0.125, "action_attention-heads-125"), (0.75, "action_attention-heads-750")],
+        "layers": [
+            (1 / 16, "action-layers-1"),
+            (8 / 16, "action-layers-8"),
+            (12 / 16, "action-layers-12"),
+        ],
+    },
+}
+
+REQUIRED = {name for table in BITS.values() for names in table.values() for name in names} | {
+    cand for series in STRUCT_SERIES.values() for pts in series.values() for _, cand in pts
+}
+
+
+def fig_sensitivity(dev_fails: dict | None = None) -> dict | None:
+    """Bit width and structural sensitivity; None until the clean-room smoke grid exists."""
+    comp_path = STUDY / "summary.csv"
+    if dev_fails is None or not comp_path.exists():
+        return None
+    comp = pd.read_csv(comp_path).set_index("candidate")
+    if not REQUIRED | {"B16"} <= set(comp.index):
+        return None
     base = smoke(comp, "B16")
     ci_lo, ci_hi = (10.0 * v for v in wilson(int(base), 10))
 
@@ -26,34 +112,7 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
     fig.subplots_adjust(left=0.065, right=0.80, top=0.77, bottom=0.24)
 
     # (a) weight bit width; best of tested variants at each width.
-    bits = {
-        "language": {
-            8: ["text-bnb8"],
-            4: ["text-bnb4", "text-hqq4-axis1-pytorch"],
-            3: ["text-hqq3-axis0-pytorch", "text-hqq3-axis1-pytorch"],
-            2: ["text-hqq2-axis0-pytorch", "text-hqq2-axis1-pytorch", "text-hqq2-axis1-gemlite"],
-        },
-        "vision": {
-            8: ["vision_blocks-bnb8"],
-            4: ["vision_blocks-bnb4", "vision_blocks-hqq4-axis1-pytorch"],
-            3: ["vision_blocks-hqq3-axis0-pytorch", "vision_blocks-hqq3-axis1-pytorch"],
-            2: [
-                "vision_blocks-hqq2-axis0-pytorch",
-                "vision_blocks-hqq2-axis1-pytorch",
-                "vision_blocks-hqq2-axis1-gemlite",
-            ],
-        },
-        "action": {
-            8: ["action_mlp-bnb8"],
-            4: ["action_mlp-bnb4", "action_mlp-hqq4-axis1-pytorch"],
-            3: ["action_mlp-hqq3-axis0-pytorch", "action_mlp-hqq3-axis1-pytorch"],
-            2: [
-                "action_mlp-hqq2-axis0-pytorch",
-                "action_mlp-hqq2-axis1-pytorch",
-                "action_mlp-hqq2-axis1-gemlite",
-            ],
-        },
-    }
+    bits = BITS
     ledger: dict = {"bits": {}, "structure": {}}
     a = axes[0]
     offsets = {"language": -0.10, "vision": 0.0, "action": 0.10}
@@ -130,54 +189,7 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
     )
 
     # (b-d) structural removal per module; shared legend strip above panels b-d.
-    struct_series = {
-        "language": {
-            "MLP channels": [
-                (0.125, "text_mlp-channels-125"),
-                (0.25, "text_mlp-channels-250"),
-                (0.5, "text_mlp-channels-500"),
-                (0.75, "text_mlp-channels-750"),
-            ],
-            "KV heads": [
-                (0.125, "text-heads-125"),
-                (0.25, "text-heads-250"),
-                (0.5, "text-heads-500"),
-            ],
-            "layers": [
-                (1 / 28, "text-layers-1"),
-                (4 / 28, "text-layers-4"),
-                (8 / 28, "text-layers-8"),
-                (20 / 28, "text-layers-20"),
-            ],
-        },
-        "vision": {
-            "MLP channels": [
-                (0.125, "vision_mlp-channels-125"),
-                (0.5, "vision_mlp-channels-500"),
-                (0.75, "vision_mlp-channels-750"),
-            ],
-            "heads": [
-                (0.125, "vision_attention-heads-125"),
-                (0.5, "vision_attention-heads-500"),
-                (0.75, "vision_attention-heads-750"),
-            ],
-            "layers": [
-                (1 / 24, "vision-layers-1"),
-                (8 / 24, "vision-layers-8"),
-                (12 / 24, "vision-layers-12"),
-                (16 / 24, "vision-layers-16"),
-            ],
-        },
-        "action": {
-            "MLP channels": [(0.125, "action_mlp-channels-125"), (0.75, "action_mlp-channels-750")],
-            "heads": [(0.125, "action_attention-heads-125"), (0.75, "action_attention-heads-750")],
-            "layers": [
-                (1 / 16, "action-layers-1"),
-                (8 / 16, "action-layers-8"),
-                (12 / 16, "action-layers-12"),
-            ],
-        },
-    }
+    struct_series = STRUCT_SERIES
     line_style = {"MLP channels": "-", "KV heads": "--", "heads": "--", "layers": ":"}
     for ax, (comp_name, series) in zip(axes[1:], struct_series.items(), strict=True):
         ledger["structure"][comp_name] = {}

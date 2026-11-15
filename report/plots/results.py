@@ -46,11 +46,18 @@ def _plot_latency_row(ax: plt.Axes, y: float, med: float, p95: float, color: str
     ax.scatter([med], [y], s=18, color=color, edgecolor="white", linewidth=0.6, zorder=4)
 
 
-def fig_ladder(n: dict) -> None:
+def fig_ladder(n: dict) -> dict | None:
+    """Memory and latency ladder; None until every clean-room ladder row exists."""
     rows = n["rows"]
     ladder = n["latency_ladder"]
+    needed_rows = {key for key, _, _ in STOCK_RUNGS} | {"B16", "C2"}
+    needed_ladder = {key for key, _, _ in GRAPH_RUNGS}
+    if not needed_rows <= set(rows) or not needed_ladder <= set(ladder):
+        return None
     ceiling = n["memory_ceiling"]
-    prof = n["launch_profile"]["variants"]
+    prof = n.get("launch_profile", {}).get("variants") or {}
+    if not {"B16", "Q8", "Q4"} <= set(prof):
+        return None
 
     b16_peak = rows["B16"]["peak_allocated_gb"]
     h1_mem = 0.75 * b16_peak
@@ -318,3 +325,4 @@ def fig_ladder(n: dict) -> None:
 
     fig.savefig(OUT / "ladder.pdf")
     plt.close(fig)
+    return {"status": "ok"}

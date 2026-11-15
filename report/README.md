@@ -16,7 +16,7 @@ cd report && latexmk -pdf main.tex
 |---|---|
 | `main.tex`, `refs.bib` | Active report skeleton |
 | `legacy/` | Old report source; history only, not evidence |
-| `plots/` | Figure builders; must be rewritten for program-v1 |
+| `plots/` | Figure builders; read `studies/program-v1/` and `studies/evaluation/`, skip figures whose evidence is absent, and write `data/numbers.json` |
 | `data/parameter_census.json` | Parameter counts from the checkpoint header; not a result |
 
 Every number in the active report must trace to a committed record under `studies/program-v1/`.

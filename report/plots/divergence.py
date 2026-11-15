@@ -5,11 +5,14 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from report.plots.data import COMP
+from report.plots.data import STUDY
 from report.plots.style import COL, COLORS, GRID, INK, INK_2, MUTED, OUT, style_axes
 
 
-def fig_divergence(div: pd.DataFrame) -> dict:
+def fig_divergence(div: pd.DataFrame) -> dict | None:
+    """Offline arm change vs closed-loop success; None until the divergence record exists."""
+    if div.empty:
+        return None
     floor = 2e-8
     rng = np.random.default_rng(0)
     fig, ax = plt.subplots(figsize=(COL, 1.85))
@@ -32,7 +35,7 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         )
 
     rho, p = spearmanr(div.arm_mse, div.smoke)
-    comp = pd.read_csv(COMP / "summary.csv").set_index("candidate")
+    comp = pd.read_csv(STUDY / "summary.csv").set_index("candidate")
     dev = div.join(comp.development_successes, on="candidate").dropna(
         subset=["development_successes"]
     )
