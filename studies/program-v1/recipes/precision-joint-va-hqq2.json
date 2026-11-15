@@ -17,16 +17,6 @@
       "axis": 1,
       "group_size": 64,
       "backend": "pytorch"
-    },
-    {
-      "method": "bnb",
-      "scope": "action_attention",
-      "bits": 4
-    },
-    {
-      "method": "bnb",
-      "scope": "action_interfaces",
-      "bits": 4
     }
   ]
 }

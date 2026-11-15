@@ -1,0 +1,14 @@
+{
+  "id": "format-lang-hqq4",
+  "family": "format-language",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "text",
+      "bits": 4,
+      "axis": 0,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

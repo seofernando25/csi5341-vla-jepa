@@ -1,0 +1,15 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "purpose": "Reserved-500 queue. Claim evidence only: selection must be frozen before this runs. Never pass --allow-reserved casually.",
+  "order": [
+    "B16 reserved: the paired control for every reserved claim",
+    "Q8 (decoder INT8) and Q4 (decoder NF4) reserved anchors",
+    "ladder packed NF4 1-step: the pre-registered deployment arm of the execution ladder"
+  ],
+  "cells": [
+    {"recipe": "B16", "phase": "final"},
+    {"recipe": "precision-lang-int8", "phase": "final"},
+    {"recipe": "precision-lang-nf4", "phase": "final"},
+    {"recipe": "ladder-nf4-graph-1step-packed", "phase": "final"}
+  ]
+}
