@@ -51,6 +51,13 @@
       "at": "2026-11-15",
       "field": "dream_rsi.evaluator+prompts",
       "reason": "Pre-launch audit: workspace files over 1 MiB now count as memory; prompts state the enforced contract; replay beta grid and lambda_parallel recorded. No evidence run had been launched."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.policy_timeout_s",
+      "from": "240 (CLI default, tuned for Haiku)",
+      "to": "1200",
+      "reason": "Calibration cleanroom-v1 on synthetic worlds: all three DeepSeek max-thinking policy-development steps timed out at 300 s. Passed as --policy-timeout. No evidence run had been launched."
     }
   ],
   "dream_rsi": {
@@ -76,6 +83,7 @@
     "policy_dev_tools": "read,write,edit",
     "agent_timeout_s": 1800,
     "eval_timeout_s": 1800,
+    "policy_timeout_s": 1200,
     "gpu_slots": 2
   },
   "old_evidence": {
