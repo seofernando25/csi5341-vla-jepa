@@ -1,0 +1,31 @@
+{
+  "candidate": {
+    "id": "precision-lang-int8",
+    "family": "precision-language",
+    "changes": []
+  },
+  "phase": "smoke",
+  "status": "completed",
+  "summary": {
+    "synthetic": true,
+    "modules": {
+      "text": {
+        "resident_tensor_storage_bytes": 1000000000,
+        "logical_parameter_elements": 1000000000
+      },
+      "vision": {
+        "resident_tensor_storage_bytes": 1000000000,
+        "logical_parameter_elements": 500000000
+      },
+      "action": {
+        "resident_tensor_storage_bytes": 400000000,
+        "logical_parameter_elements": 200000000
+      }
+    },
+    "resident_tensor_storage_bytes": 5610000000.0,
+    "inference_core_logical_parameter_elements": 1700000000.0,
+    "successes": 8,
+    "episodes": 10,
+    "phase": "smoke"
+  }
+}

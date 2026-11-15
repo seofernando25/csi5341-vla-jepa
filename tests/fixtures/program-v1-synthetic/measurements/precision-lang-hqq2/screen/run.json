@@ -1,0 +1,33 @@
+{
+  "candidate": {
+    "id": "precision-lang-hqq2",
+    "family": "precision-language",
+    "changes": []
+  },
+  "phase": "screen",
+  "status": "completed",
+  "summary": {
+    "synthetic": true,
+    "modules": {
+      "text": {
+        "resident_tensor_storage_bytes": 300000000,
+        "logical_parameter_elements": 1000000000
+      },
+      "vision": {
+        "resident_tensor_storage_bytes": 1000000000,
+        "logical_parameter_elements": 500000000
+      },
+      "action": {
+        "resident_tensor_storage_bytes": 400000000,
+        "logical_parameter_elements": 200000000
+      }
+    },
+    "resident_tensor_storage_bytes": 5610000000.0,
+    "inference_core_logical_parameter_elements": 1700000000.0,
+    "peak_allocated_bytes": 3400000000,
+    "pipeline_median_ms": 81.0,
+    "pipeline_p95_ms": 84.24000000000001,
+    "mean_physical_arm_change_mse": 0.003,
+    "mean_gripper_disagreement": 0.12
+  }
+}

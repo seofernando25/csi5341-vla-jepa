@@ -1,107 +1,67 @@
-"""Unified BF16-to-C2 ablation ladder: peak memory and latency attribution (Figure 2)."""
+"""Execution ladder: peak memory and latency by plan id (Figure 3).
+
+Timing only. The one-step B16 arm is a control whose success is not measured; the report must
+not read it as a success arm.
+"""
 
 import matplotlib.pyplot as plt
 
-from report.plots.style import (
-    COLORS,
-    FULL,
-    GRID,
-    INK,
-    INK_2,
-    MUTED,
-    OUT,
-    panel_label,
-    tint,
-)
+from report.plots.style import COLORS, FULL, INK, MUTED, OUT, panel_label, tint
 
-STOCK_RUNGS = [
-    ("B16c", "B16 stock (4 steps)", COLORS["B16"]),
-    ("Q8", "Q8: INT8 dec.", COLORS["Q8"]),
-    ("Q4", "Q4: NF4 dec.", COLORS["Q4"]),
-    ("C1", "C1: NF4 + HQQ2", COLORS["C1"]),
+# (plan id, label, palette key)
+LADDER = [
+    ("B16", "B16 stock, 4 steps", "B16"),
+    ("precision-lang-int8", "Q8: INT8 decoder", "Q8"),
+    ("precision-lang-nf4", "Q4: NF4 decoder", "Q4"),
+    ("ladder-b16-graph-4step", "B16 graph, 4 steps", "B16"),
+    ("ladder-nf4-graph-4step", "NF4 graph, 4 steps", "Q4"),
+    ("ladder-b16-graph-1step", "B16 graph, 1 step (timing)", "B16"),
+    ("ladder-nf4-graph-1step-dense", "NF4 dense, 1 step", "other"),
+    ("ladder-nf4-graph-1step-packed", "NF4 packed, 1 step", "C2"),
 ]
-
-GRAPH_RUNGS = [
-    ("B16 graph, 4 steps", "B16 graph, 4 steps", COLORS["B16"]),
-    ("NF4 graph, 4 steps", "N4: NF4 graph, 4 steps", tint(COLORS["C2"], 0.35)),
-    ("B16 graph, 1 step", "B16 graph, 1 step", COLORS["B16"]),
-    ("NF4 graph, 1 step, dense", "NF4 dense, 1 step", "#64748B"),
-    ("NF4 graph, 1 step, packed (C2)", "C2: NF4 packed, 1 step", COLORS["C2"]),
-]
-
-
-def _style_barh(ax: plt.Axes, labels: list[str], xticks: list[int], xlim: tuple[float, float]):
-    ax.set(yticks=range(len(labels)), yticklabels=labels, xlim=xlim, xticks=xticks)
-    ax.invert_yaxis()
-    ax.xaxis.grid(True)
-    ax.yaxis.grid(False)
-    ax.spines["left"].set_visible(False)
-    ax.tick_params(axis="y", length=0, pad=4)
-
-
-def _plot_latency_row(ax: plt.Axes, y: float, med: float, p95: float, color: str):
-    ax.barh(y, med, height=0.52, color=tint(color, 0.25), zorder=2)
-    ax.plot([med, p95], [y, y], color=color, lw=1.2, zorder=3)
-    ax.scatter([p95], [y], marker="|", s=28, color=color, lw=1.1, zorder=4)
-    ax.scatter([med], [y], s=18, color=color, edgecolor="white", linewidth=0.6, zorder=4)
 
 
 def fig_ladder(n: dict) -> dict | None:
-    """Memory and latency ladder; None until every clean-room ladder row exists."""
-    rows = n["rows"]
-    ladder = n["latency_ladder"]
-    needed_rows = {key for key, _, _ in STOCK_RUNGS} | {"B16", "C2"}
-    needed_ladder = {key for key, _, _ in GRAPH_RUNGS}
-    if not needed_rows <= set(rows) or not needed_ladder <= set(ladder):
+    """Peak memory and latency per ladder rung; None until every rung has a benchmark cell."""
+    rows, ladder = n["rows"], n["latency_ladder"]
+    missing = [key for key, _, _ in LADDER if key not in ladder or key not in rows]
+    if missing:
         return None
-    ceiling = n["memory_ceiling"]
-    prof = n.get("launch_profile", {}).get("variants") or {}
-    if not {"B16", "Q8", "Q4"} <= set(prof):
-        return None
-
-    b16_peak = rows["B16"]["peak_allocated_gb"]
-    h1_mem = 0.75 * b16_peak
-    nf4_ceil_mem = b16_peak - ceiling["NF4"]["saved_gb"]
 
     fig, axes = plt.subplots(
+        1,
         2,
-        2,
-        figsize=(FULL, 2.9),
-        gridspec_kw={
-            "height_ratios": [4, 5.4],
-            "width_ratios": [1.0, 1.28],
-            "hspace": 0.46,
-            "wspace": 0.08,
-        },
+        figsize=(FULL, 2.15),
+        gridspec_kw={"wspace": 0.10, "width_ratios": [1.0, 1.0]},
     )
-    fig.subplots_adjust(left=0.205, right=0.985, top=0.86, bottom=0.145)
-    a1, b1 = axes[0]
-    a2, b2 = axes[1]
-
-    # --- Left column: Peak allocated GPU memory (GB) ---
-    mem_xlim = (0.0, 8.35)
-    mem_xticks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-    stock_labels = [lbl for _, lbl, _ in STOCK_RUNGS]
-    graph_labels = [lbl for _, lbl, _ in GRAPH_RUNGS]
+    fig.subplots_adjust(left=0.205, right=0.985, top=0.82, bottom=0.19)
+    memory, latency = axes
+    labels = [label for _, label, _ in LADDER]
+    positions = range(len(LADDER))
     halo = {"facecolor": "white", "alpha": 0.90, "edgecolor": "none", "pad": 0.6}
 
-    for ax in (a1, a2):
-        ax.axvline(h1_mem, color=MUTED, lw=0.75, ls=(0, (3, 2)), zorder=1)
-        ax.axvline(nf4_ceil_mem, color=COLORS["Q4"], lw=0.75, ls=(0, (2, 2)), alpha=0.85, zorder=1)
+    ceiling = n.get("memory_ceiling") or {}
+    b16_peak = rows["B16"]["benchmark_peak_allocated_gb"]
+    target = 0.75 * b16_peak
+    for ax in axes:
+        ax.axvline(target, color=MUTED, lw=0.75, ls=(0, (3, 2)), zorder=1)
+        if "NF4" in ceiling:
+            ax.axvline(
+                b16_peak - ceiling["NF4"]["saved_gb"],
+                color=COLORS["Q4"],
+                lw=0.75,
+                ls=(0, (2, 2)),
+                alpha=0.85,
+                zorder=1,
+            )
 
-    for i, (key, _, col) in enumerate(STOCK_RUNGS):
-        val = rows[key]["peak_allocated_gb"]
-        a1.barh(i, val, height=0.54, color=col, zorder=3)
-        note = {
-            "B16c": f"{val:.2f}",
-            "Q8": f"{val:.2f} (-23%, misses target)",
-            "Q4": f"{val:.2f} (-37%)",
-            "C1": f"{val:.2f} (-75%)",
-        }[key]
-        a1.text(
-            val + 0.10,
-            i,
-            note,
+    for index, (key, _, palette) in enumerate(LADDER):
+        value = rows[key]["benchmark_peak_allocated_gb"]
+        memory.barh(index, value, height=0.54, color=COLORS[palette], zorder=3)
+        memory.text(
+            value + 0.08,
+            index,
+            f"{value:.2f}",
             va="center",
             ha="left",
             fontsize=6.5,
@@ -109,220 +69,76 @@ def fig_ladder(n: dict) -> dict | None:
             bbox=halo,
             zorder=4,
         )
-
-    _style_barh(a1, stock_labels, mem_xticks, mem_xlim)
-    a1.set_ylim(3.55, -0.55)
-    a1.tick_params(axis="x", labelbottom=False, length=0)
-    a1.spines["bottom"].set_color(GRID)
-    panel_label(a1, "a", "Peak allocated GPU memory (GB)", x=0.0, y=1.18)
-    a1.text(
-        0.0,
-        1.03,
-        "Stock path",
-        transform=a1.transAxes,
-        fontsize=6.5,
-        fontweight="medium",
-        color=INK_2,
-        va="bottom",
-        ha="left",
+    memory.set(
+        xlim=(0, max(rows[key]["benchmark_peak_allocated_gb"] for key, _, _ in LADDER) * 1.22)
     )
-
-    for i, (lkey, _, col) in enumerate(GRAPH_RUNGS):
-        val = ladder[lkey]["peak_allocated_gb"]
-        a2.barh(i, val, height=0.54, color=col, zorder=3)
-        if lkey == "NF4 graph, 1 step, dense":
-            note = f"{val:.2f} (dense)"
-        elif lkey == "NF4 graph, 1 step, packed (C2)":
-            note = f"{val:.2f} (-73%)"
-        else:
-            note = f"{val:.2f}"
-        a2.text(
-            val + 0.10,
-            i,
-            note,
-            va="center",
-            ha="left",
-            fontsize=6.5,
-            color=INK,
-            bbox=halo,
-            zorder=4,
-        )
-
-    # Ceiling annotations placed in the open space below row 4 (C2).
-    a2.text(
-        h1_mem + 0.08,
-        4.92,
-        f"25% target ({h1_mem:.2f} GB)",
+    memory.text(
+        target + 0.06,
+        len(LADDER) - 0.55,
+        "25% target",
         fontsize=6.5,
         color=MUTED,
         va="center",
         ha="left",
     )
-    a2.text(
-        nf4_ceil_mem - 0.08,
-        4.92,
-        "NF4 ceiling (-37%)",
-        fontsize=6.5,
-        color=COLORS["Q4"],
-        va="center",
-        ha="right",
-    )
 
-    _style_barh(a2, graph_labels, mem_xticks, mem_xlim)
-    a2.set_ylim(5.38, -0.55)
-    a2.set_xlabel("Peak allocated GPU memory (GB)")
-    a2.text(
-        0.0,
-        1.03,
-        "CUDA-graph engine",
-        transform=a2.transAxes,
-        fontsize=6.5,
-        fontweight="medium",
-        color=INK_2,
-        va="bottom",
-        ha="left",
-    )
-
-    # --- Right column: Latency (median bar, p95 whisker) ---
-    b1_xlim = (0.0, 290.0)
-    b1_xticks = [0, 50, 100, 150, 200, 250]
-    b1.axvspan(0, 78, color=tint(COLORS["C2"], 0.92), lw=0, zorder=0)
-    b1.axvline(78, color=GRID, lw=0.7, zorder=1)
-
-    for i, (key, _, col) in enumerate(STOCK_RUNGS):
-        r = rows[key]
-        _plot_latency_row(b1, i, r["median_ms"], r["p95_ms"], col)
-
-    # Session A B16 tick overlay on B16 stock row (y=0).
-    a_med, a_p95 = rows["B16"]["median_ms"], rows["B16"]["p95_ms"]
-    b_med = rows["B16c"]["median_ms"]
-    b1.plot([a_med, a_p95], [-0.19, -0.19], color=MUTED, lw=0.9, zorder=4)
-    b1.scatter(
-        [a_med], [-0.19], marker="D", s=11, color="white", edgecolor=MUTED, linewidth=0.9, zorder=5
-    )
-
-    b1.text(
-        rows["B16"]["p95_ms"] + 4,
-        0,
-        f"two sessions: {a_med:.1f} / {b_med:.1f} ms",
-        va="center",
-        ha="left",
-        fontsize=6.5,
-        color=INK,
-    )
-    for row_idx, key in [(1, "Q8"), (2, "Q4"), (3, "C1")]:
-        b1.text(
-            rows[key]["p95_ms"] + 4,
-            row_idx,
-            f"{rows[key]['median_ms']:.1f}",
+    for index, (key, _, palette) in enumerate(LADDER):
+        rung = ladder[key]
+        color = COLORS[palette]
+        latency.barh(index, rung["median_ms"], height=0.54, color=tint(color, 0.25), zorder=2)
+        latency.plot(
+            [rung["median_ms"], rung["p95_ms"]],
+            [index, index],
+            color=color,
+            lw=1.2,
+            zorder=3,
+        )
+        latency.scatter([rung["p95_ms"]], [index], marker="|", s=28, color=color, lw=1.1, zorder=4)
+        latency.scatter(
+            [rung["median_ms"]],
+            [index],
+            s=18,
+            color=color,
+            edgecolor="white",
+            linewidth=0.6,
+            zorder=4,
+        )
+        latency.text(
+            rung["p95_ms"] + 1.5,
+            index,
+            f"{rung['median_ms']:.1f}",
             va="center",
             ha="left",
             fontsize=6.5,
             color=INK,
         )
-    for row_idx, key in [(0, "B16"), (1, "Q8"), (2, "Q4")]:
-        b1.text(
-            0.995,
-            row_idx,
-            f"{prof[key]['kernel_launches']:,.0f} · {prof[key]['host_syncs']:.0f}",
-            transform=b1.get_yaxis_transform(),
-            va="center",
-            ha="right",
-            fontsize=6.5,
-            color=INK_2,
-        )
+    latency.set(xlim=(0, max(rung["p95_ms"] for rung in ladder.values()) * 1.28))
 
-    _style_barh(b1, stock_labels, b1_xticks, b1_xlim)
-    b1.set_ylim(3.55, -0.55)
-    b1.tick_params(axis="y", labelleft=False)
-    panel_label(b1, "b", "Latency: median (dot) to p95 (whisker), ms", x=0.0, y=1.18)
-    b1.text(
-        0.0,
-        1.03,
-        "Stock path",
-        transform=b1.transAxes,
-        fontsize=6.5,
-        color=INK_2,
-        va="bottom",
-        ha="left",
-    )
-    b1.text(
-        0.995,
-        1.03,
-        "kernel launches · host syncs per action",
-        transform=b1.transAxes,
-        fontsize=6.5,
-        color=INK_2,
-        va="bottom",
-        ha="right",
-    )
-
-    # Bottom right: CUDA-graph engine (zoomed 0..78 ms)
-    b2_xlim = (0.0, 78.0)
-    b2_xticks = [0, 10, 20, 30, 40, 50, 60, 70]
-    for i, (lkey, _, col) in enumerate(GRAPH_RUNGS):
-        d = ladder[lkey]
-        _plot_latency_row(b2, i, d["median_ms"], d["p95_ms"], col)
-        txt = f"{d['median_ms']:.1f}"
-        if lkey == "NF4 graph, 1 step, packed (C2)":
-            txt = f"{d['median_ms']:.1f} · C2 {rows['C2']['successes']}/500"
-        b2.text(d["p95_ms"] + 1.0, i, txt, va="center", ha="left", fontsize=6.5, color=INK)
-
-    # Bracket for +6.8 ms NF4 weight unpacking cost: NF4 dense (24.75 ms) vs C2 packed (31.59 ms).
-    x_dense = ladder["NF4 graph, 1 step, dense"]["median_ms"]
-    x_c2 = ladder["NF4 graph, 1 step, packed (C2)"]["median_ms"]
-    tax = x_c2 - x_dense
-    b2.plot([x_dense, x_dense], [3.26, 3.60], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
-    b2.plot([x_c2, x_c2], [3.40, 3.74], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
-    b2.annotate(
-        "",
-        xy=(x_c2, 3.50),
-        xytext=(x_dense, 3.50),
-        arrowprops={
-            "arrowstyle": "<->",
-            "color": COLORS["C2"],
-            "lw": 0.9,
-            "shrinkA": 0,
-            "shrinkB": 0,
-        },
-        zorder=5,
-    )
-    b2.text(
-        x_c2 + 1.2,
-        3.50,
-        f"+{tax:.1f} ms to unpack NF4 weights (1 step)",
-        va="center",
-        ha="left",
-        fontsize=6.5,
-        color=COLORS["C2"],
-        fontweight="medium",
-    )
-
-    _style_barh(b2, graph_labels, b2_xticks, b2_xlim)
-    b2.set_ylim(5.38, -0.55)
-    b2.tick_params(axis="y", labelleft=False)
-    b2.set_xlabel("Observation-to-action latency (ms, zoomed)")
-    b2.text(
-        0.0,
-        1.03,
-        "CUDA-graph engine (zoomed 0–78 ms)",
-        transform=b2.transAxes,
-        fontsize=6.5,
-        color=INK_2,
-        va="bottom",
-        ha="left",
-    )
-    b2.text(
-        0.01,
-        5.05,
-        "How to read: compression cuts memory; CUDA graphs cut latency.",
-        ha="left",
-        va="center",
-        fontsize=6.5,
-        color=INK_2,
-        style="italic",
-    )
+    for ax, xlabel in (
+        (memory, "Peak allocated GPU memory (GB)"),
+        (latency, "Observation-to-action latency (ms)"),
+    ):
+        ax.set(yticks=list(positions), xlim=ax.get_xlim(), xlabel=xlabel)
+        ax.set_ylim(len(LADDER) - 0.40, -0.62)
+        ax.xaxis.grid(True)
+        ax.yaxis.grid(False)
+        ax.spines["left"].set_visible(False)
+        ax.tick_params(axis="y", length=0, pad=4)
+    memory.set_yticklabels(labels)
+    latency.set_yticklabels([])
+    panel_label(memory, "a", "Peak memory", x=0.0, y=1.06)
+    panel_label(latency, "b", "Latency: median (dot) to p95 (whisker)", x=0.0, y=1.06)
 
     fig.savefig(OUT / "ladder.pdf")
     plt.close(fig)
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "rungs": {
+            key: {
+                "peak_allocated_gb": rows[key]["benchmark_peak_allocated_gb"],
+                "median_ms": ladder[key]["median_ms"],
+                "p95_ms": ladder[key]["p95_ms"],
+            }
+            for key, _, _ in LADDER
+        },
+    }
