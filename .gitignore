@@ -76,3 +76,14 @@ studies/*/policies/*/step_*/logs/
 # Required presentation clips, explicitly retained for the offline viewer.
 !/web/presentation/assets/droid-demonstration.mp4
 !/web/presentation/assets/human-demonstration.mp4
+
+# Dream-RSI loop launcher state
+studies/*/loop.lock
+studies/*/loop.log
+studies/*/loop.pid
+studies/*/loop_state.json
+studies/*/loop_summary.json
+studies/*/service.json
+studies/*/STOP
+studies/*/policies/*/heldout/
+studies/*/policies/*/step_*/replay/
