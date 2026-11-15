@@ -22,20 +22,15 @@ export function mount(root, ctx) {
   ]);
   const line = svg("polyline", { class: "disc-line", "vector-effect": "non-scaling-stroke" });
   const dots = el("div", { class: "disc-dots" });
-  const gateLabel = el("span", { class: "disc-gate-label" });
-  const gateLine = el("div", { class: "disc-gate", hidden: true }, [gateLabel]);
   const empty = el("p", { class: "disc-empty" }, "no scored probes");
   const svgBox = svg("svg", { class: "disc-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none", "aria-hidden": "true" }, [line]);
-  const plot = el("div", { class: "disc-plot", attrs: { role: "img" } }, [svgBox, dots, gateLine, empty]);
+  const plot = el("div", { class: "disc-plot", attrs: { role: "img" } }, [svgBox, dots, empty]);
   const cycleLabel = el("span", { class: "disc-cycle" });
-  const gateMark = el("span", { class: "disc-key-mark disc-key-gate" });
-  const gateText = el("span", {}, "smoke gate");
   const side = el("div", { class: "disc-side" }, [
     el("div", { class: "disc-side-head" }, [el("span", {}, "Best score"), el("span", {}, "probe index")]),
     el("div", { class: "disc-chart" }, [axis, plot]),
     el("div", { class: "disc-legend" }, [
       el("span", { class: "disc-key" }, [el("span", { class: "disc-key-mark" }), "best"]),
-      el("span", { class: "disc-key" }, [gateMark, gateText]),
     ]),
   ]);
 
@@ -141,15 +136,9 @@ export function mount(root, ctx) {
     const best = points.length ? points[points.length - 1].best : null;
     const label = points.length
       ? `Best score by probe: ${fmt.pct(best, 0)} after ${points.length} scored ${points.length === 1 ? "probe" : "probes"}.`
-      : "Best score by probe: no scored probes yet.";
+      : "Best score by probe: no scored probes.";
     plot.setAttribute("aria-label", label);
 
-    gateLine.hidden = gateMark.hidden = gate == null;
-    if (gate) {
-      gateLine.style.bottom = `${gate.value * 100}%`;
-      setText(gateLabel, gate.label);
-      setText(gateText, `smoke gate ${gate.label}`);
-    }
     const scored = prefix[frame] || 0;
     setText(counter, `probe ${scored} / ${Math.max(budget ?? prefix[count - 1] ?? 0, scored)}`);
     range.max = String(Math.max(count - 1, 0));
@@ -202,9 +191,11 @@ export function mount(root, ctx) {
   }
 
   function stateText(state) {
+    if (!cycle) return "No cycle recorded.";
+    if (!(cycle.nodes || []).length) return "No tree recorded for this cycle.";
     const line = fmt.titleCase(ctx.sel.statusLine(state) || "waiting for state");
-    const label = cycle ? (cycle.iteration != null ? `Cycle ${cycle.iteration + 1}` : cycle.cycle_id) : "";
-    return label ? `${label}: ${line}.` : `${line}.`;
+    const label = cycle.iteration != null ? `Cycle ${cycle.iteration + 1}` : cycle.cycle_id;
+    return `${label}: ${line}.`;
   }
 
   playBtn.addEventListener("click", () => (playing ? stop() : start()));

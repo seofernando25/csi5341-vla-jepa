@@ -199,14 +199,19 @@
 
 /* Units sit tight against the numeral; the mono space is a full cell. */
 .task-best .u,
-.task-from .u {
-  margin-left: 0.14em;
+.task-from .u,
+.task-delta .u {
+  margin-left: 0.16em;
   font-size: 0.42em;
   letter-spacing: 0;
 }
 
 .task-from .u {
   font-size: 0.62em;
+}
+
+.task-delta .u {
+  font-size: 0.5em;
 }
 
 @media (max-width: 560px) {

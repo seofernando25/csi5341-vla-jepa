@@ -159,7 +159,7 @@ export function mount(root, ctx) {
           ? el("span", { class: "ctx-badge" }, "not recorded")
           : el("span", { class: "ctx-sec-size num" }, sectionSize(section)),
         el("span", { class: "ctx-grow" }),
-        copyWrap(() => sectionText(section), "Copy section"),
+        section.recorded === false ? null : copyWrap(() => sectionText(section), "Copy section"),
       ]),
     );
 

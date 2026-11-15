@@ -272,7 +272,7 @@ export function mount(root, ctx) {
           }
         }
       }
-      if (before == null) {
+      if (before == null && incumbentStep == null) {
         before = textOf(await ctx.story.artifact(source, "seed"));
         beforeKind = "seed";
         beforeLabel = `step_${pad(step)} · seed`;

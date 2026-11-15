@@ -87,7 +87,7 @@ export function mount(root, ctx) {
     clear(foot);
     if (!probe) {
       head.append(el("span", {}, "probe"));
-      idRow.append(el("p", { class: "probe-empty" }, "No probe recorded in this run yet."));
+      idRow.append(el("p", { class: "probe-empty" }, "No probe recorded."));
       return;
     }
     const node = probe.node;

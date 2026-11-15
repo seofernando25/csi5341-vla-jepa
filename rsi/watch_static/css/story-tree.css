@@ -163,21 +163,6 @@
   box-shadow: 0 0 0 2px var(--bg-raised), 0 0 0 3px var(--accent-line);
 }
 
-.disc-gate { position: absolute; right: 0; left: 0; border-top: 1px dashed var(--border-strong); }
-.disc-gate[hidden] { display: none; }
-
-.disc-gate-label {
-  position: absolute;
-  right: 0;
-  bottom: 2px;
-  padding: 0 2px;
-  background: var(--bg-raised);
-  color: var(--fg-muted);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1.2;
-}
-
 .disc-empty {
   position: absolute;
   inset: 0;

@@ -38,14 +38,15 @@ export function firstHeading(text) {
 export function proposalBody(text) {
   const lines = String(text).split("\n");
   const start = lines.findIndex((line) => /^#\s+\S/.test(line.trim()));
-  return lines
+  const body = lines
     .slice(start >= 0 ? start + 1 : 0)
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith("#"))
-    .map((line) => line.replace(/^([-*]|\d+\.)\s+/, "").replace(/`/g, ""))
-    .slice(0, 2)
-    .join(" ")
-    .trim();
+    .map((line) => line.replace(/^([-*]|\d+\.)\s+/, "").replace(/`/g, ""));
+  const shown = body.slice(0, 2).join(" ").trim();
+  if (!shown) return "";
+  const cut = body.length > 2 || !/[.!?:]$/.test(shown);
+  return cut ? `${shown.replace(/[,;:]$/, "")}…` : shown;
 }
 
 export function signature(probe, entry, pending, expanded) {

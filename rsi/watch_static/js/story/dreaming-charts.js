@@ -70,7 +70,6 @@ export function curvesFigure(model, worldId, selected) {
       el("span", { class: "dream-inline-item", dataset: { selected: String(item.candidate.slot === selected) } }, [
         swatch(item.index, 10),
         el("span", {}, item.candidate.slot || "—"),
-        item.candidate.slot === selected ? el("span", { class: "dream-inline-tag" }, "selected") : null,
       ]),
     )),
   );

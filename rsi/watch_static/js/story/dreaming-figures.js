@@ -146,7 +146,7 @@ export function pathsFigure({ payload, model, worldId, beta, selected, reduced }
       { x: 46 + colW * (layout.branches.indexOf(item.branch) + 0.5), y: top + item.depth * rowH },
     ]),
   );
-  const root = { x: width / 2, y: 12 };
+  const root = { x: width / 2, y: 20 };
   const statics = layout.items.flatMap((item) => {
     const to = pos.get(item.node.cell_id);
     const from = pos.get(item.node.parent_id) || root;
@@ -179,6 +179,7 @@ export function pathsFigure({ payload, model, worldId, beta, selected, reduced }
         swatch(index, 13),
         el("span", { class: "dream-legend-main" }, [el("span", { class: "dream-legend-slot" }, candidate.slot || "—"), live]),
         el("span", { class: "dream-legend-status" }, verdictWord(candidate.status)),
+        el("span", { class: "dream-legend-sep", "aria-hidden": "true" }, "·"),
         el("span", { class: "dream-legend-v" }, `V ${fixed(candidate.mean_v)}`),
       ]);
     })),
@@ -246,13 +247,18 @@ export function pathsFigure({ payload, model, worldId, beta, selected, reduced }
   play.addEventListener("click", () => {
     if (timer) return stop();
     if (last < 1) return;
+    if (reduced) {
+      range.value = String(last);
+      setFrame(last);
+      return;
+    }
     if (Number(range.value) >= last) {
       range.value = "1";
       setFrame(1);
     }
     play.dataset.on = "true";
     setText(playLabel, "Pause");
-    timer = setInterval(tick, reduced ? 1400 : 900);
+    timer = setInterval(tick, 900);
   });
   range.addEventListener("input", () => {
     stop();

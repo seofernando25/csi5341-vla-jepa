@@ -60,28 +60,13 @@ export function mount(root, ctx) {
     clear(foot);
 
     stats.append(
-      stat(
-        "baseline size",
-        model.baseBytes != null ? gbText(model.baseBytes) : "not recorded",
-        null,
-        model.baseBytes == null,
-      ),
-      stat(
-        "best probe",
-        model.bestMb != null ? sizeText(model.bestMb) : model.hasProbe ? "size not recorded" : "none",
-        model.reduction != null ? `−${ctx.fmt.pct(model.reduction)}` : null,
-        model.bestMb == null,
-      ),
       stat("smoke gate", pair(model.gate, model.trials)),
       stat("probe budget", model.budget != null ? String(model.budget) : "—"),
       stat("cycles", cyclesText(model)),
     );
 
     figure.append(
-      el("div", { class: "figure-head" }, [
-        el("span", {}, "Policy size"),
-        el("span", {}, unitLabel(model)),
-      ]),
+      el("div", { class: "figure-head" }, [el("span", {}, "Policy size")]),
     );
 
     const readout = el("div", { class: "task-readout" });
@@ -94,10 +79,15 @@ export function mount(root, ctx) {
     readout.append(
       model.bestMb != null
         ? el("span", { class: "task-best" }, amount(size(model.bestMb)))
-        : el("span", { class: "task-empty" }, model.hasProbe ? "size not recorded" : "no probe scored yet"),
+        : el("span", { class: "task-empty" }, model.hasProbe ? "size not recorded" : "no probe scored"),
     );
     if (model.reduction != null) {
-      readout.append(el("span", { class: "task-delta" }, `−${ctx.fmt.pct(model.reduction)}`));
+      readout.append(
+        el("span", { class: "task-delta" }, [
+          el("span", { class: "u-num" }, `−${ctx.fmt.pct(model.reduction).replace(/\s*%$/, "")}`),
+          el("span", { class: "u" }, "%"),
+        ]),
+      );
     }
     figure.append(readout);
 
@@ -241,14 +231,6 @@ function pair(gate, trials) {
   return `${gate} / ${trials}`;
 }
 
-function unitLabel(model) {
-  const baseGb = model.baseBytes != null && model.baseBytes >= 1e9;
-  const bestGb = model.bestMb != null && model.bestMb >= 1000;
-  if (model.baseBytes != null && model.bestMb != null && baseGb !== bestGb) return "GB / MB";
-  if (model.baseBytes != null) return baseGb ? "GB" : "MB";
-  if (model.bestMb != null) return bestGb ? "GB" : "MB";
-  return "";
-}
 
 function cyclesText(model) {
   if (model.cycleNo == null && model.cyclesTarget == null) return "—";
@@ -263,7 +245,7 @@ function gatePhrase(gate, trials) {
 
 function trackLabel(model, fill) {
   const base = model.baseBytes != null ? gbText(model.baseBytes) : "not recorded";
-  if (!model.hasProbe) return `Baseline ${base}; no probe scored yet.`;
+  if (!model.hasProbe) return `Baseline ${base}; no probe scored.`;
   if (model.bestMb == null) return `Baseline ${base}; best probe size not recorded.`;
   const pct = fill == null ? "" : `, ${(fill * 100).toFixed(1)}${NB}% of baseline`;
   return `Baseline ${base}; best probe ${sizeText(model.bestMb)}${pct}.`;

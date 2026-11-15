@@ -172,16 +172,29 @@ export function mountStory(root, ctx) {
     if (write) replaceHash(id);
   }
 
+  let anchor = null;
+
+  function pin(id) {
+    const section = sections.get(id);
+    if (!section) return;
+    section.scrollIntoView({ behavior: "auto", block: "start" });
+  }
+
   function go(chapter) {
     const id = rail.has(chapter) ? chapter : CHAPTERS[0].id;
     active = id;
     rail.setActive(id);
     replaceHash(id);
-    const section = sections.get(id);
-    if (!section) return;
+    if (!sections.has(id)) return;
     spy.lock(900);
-    section.scrollIntoView({ behavior: "auto", block: "start" });
-    requestAnimationFrame(() => section.scrollIntoView({ behavior: "auto", block: "start" }));
+    pin(id);
+    requestAnimationFrame(() => pin(id));
+    /* Chapters expand as their data lands; keep the deep link pinned briefly. */
+    anchor = id;
+    for (const delay of [250, 700, 1500]) setTimeout(() => anchor === id && pin(id), delay);
+    setTimeout(() => {
+      if (anchor === id) anchor = null;
+    }, 2200);
   }
 
   function chapterFromHash(hash) {
@@ -199,6 +212,7 @@ export function mountStory(root, ctx) {
   function update(state, prev) {
     renderTop(state);
     for (const handle of handles) handle?.update?.(state, prev);
+    if (anchor) requestAnimationFrame(() => anchor && pin(anchor));
   }
 
   function destroy() {
@@ -208,6 +222,8 @@ export function mountStory(root, ctx) {
     root.replaceChildren();
   }
 
+  storyEl.addEventListener("wheel", () => (anchor = null), { passive: true });
+  storyEl.addEventListener("touchstart", () => (anchor = null), { passive: true });
   root.replaceChildren(storyEl);
   update(ctx.store.getState(), null);
   const start = chapterFromHash(location.hash);
