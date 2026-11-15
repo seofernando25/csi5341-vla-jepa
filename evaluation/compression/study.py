@@ -34,13 +34,12 @@ ROLLOUT_EPISODES = {"smoke": 1, "development": 10, "final": 50}
 SCREEN_WARMUP = 10
 
 
-def screen(recipe, policy, calibration, predictions=80):
+def screen(policy, calibration, predictions=80, compiled=False):
     """Latency, memory and action change against B16 on bank frames outside calibration."""
     bank = observation_bank()
     references = torch.load(calib.REFERENCES, weights_only=True)
     pipeline = Pipeline(policy)
     test_indices = [i for i in range(len(bank)) if i not in calibration["bank_indices"]]
-    compiled = any(change["method"] == "compile_linears" for change in recipe["changes"])
     priming = prime_shapes(policy, pipeline, bank) if compiled else None
     gc.collect()
     torch.cuda.empty_cache()
@@ -140,10 +139,13 @@ def deployed_architecture(policy):
     }
 
 
-def run(recipe_path, phase, predictions):
+def run(recipe_path, phase, predictions, measurements_root=None):
     calib.setup()
     recipe = read_json(recipe_path)
-    folder = calib.STUDY / "measurements" / recipe["id"] / phase
+    root = (
+        Path(measurements_root) if measurements_root is not None else calib.STUDY / "measurements"
+    )
+    folder = root / recipe["id"] / phase
     if folder.exists():
         raise FileExistsError(f"Preserve previous {recipe['id']}/{phase}")
     folder.mkdir(parents=True)
@@ -164,7 +166,8 @@ def run(recipe_path, phase, predictions):
         torch.cuda.empty_cache()
         write_json(folder / "run.json", record)
         if phase == "screen":
-            record["summary"], rows = screen(recipe, policy, calibration, predictions)
+            compiled = any(change["method"] == "compile_linears" for change in recipe["changes"])
+            record["summary"], rows = screen(policy, calibration, predictions, compiled=compiled)
             write_json(folder / "observations.json", rows)
         elif phase == "benchmark":
             record["summary"] = benchmark(policy, recipe["id"], folder)
@@ -196,11 +199,28 @@ def main():
         "--phase", choices=["screen", *ROLLOUT_EPISODES, "size", "benchmark"], default="screen"
     )
     run_parser.add_argument("--predictions", type=int, default=80)
+    run_parser.add_argument(
+        "--measurements-root",
+        type=Path,
+        default=None,
+        help="Directory for <recipe>/<phase>/ results; default studies/program-v1/measurements.",
+    )
+    solution_parser = commands.add_parser("solution", help="Evaluate an agent-written solution.py")
+    solution_parser.add_argument("--workspace", type=Path, required=True)
+    solution_parser.add_argument(
+        "--phase", choices=["check", "smoke", "development"], required=True
+    )
+    solution_parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "calibrate":
         calib.calibrate()
+    elif args.command == "solution":
+        from evaluation.compression.solution import run_solution
+
+        result = run_solution(args.workspace, args.phase, args.out)
+        print(json.dumps({"status": result["status"], "phase": args.phase}))
     else:
-        run(args.recipe, args.phase, args.predictions)
+        run(args.recipe, args.phase, args.predictions, args.measurements_root)
 
 
 if __name__ == "__main__":
