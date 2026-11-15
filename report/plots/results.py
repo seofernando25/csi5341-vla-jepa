@@ -72,10 +72,11 @@ def fig_ladder(n: dict) -> None:
     a2, b2 = axes[1]
 
     # --- Left column: Peak allocated GPU memory (GB) ---
-    mem_xlim = (0.0, 6.85)
-    mem_xticks = [0, 1, 2, 3, 4, 5, 6]
+    mem_xlim = (0.0, 8.35)
+    mem_xticks = [0, 1, 2, 3, 4, 5, 6, 7, 8]
     stock_labels = [lbl for _, lbl, _ in STOCK_RUNGS]
     graph_labels = [lbl for _, lbl, _ in GRAPH_RUNGS]
+    halo = {"facecolor": "white", "alpha": 0.90, "edgecolor": "none", "pad": 0.6}
 
     for ax in (a1, a2):
         ax.axvline(h1_mem, color=MUTED, lw=0.75, ls=(0, (3, 2)), zorder=1)
@@ -86,11 +87,21 @@ def fig_ladder(n: dict) -> None:
         a1.barh(i, val, height=0.54, color=col, zorder=3)
         note = {
             "B16c": f"{val:.2f}",
-            "Q8": f"{val:.2f} (-23%, fail)",
+            "Q8": f"{val:.2f} (-23%, misses target)",
             "Q4": f"{val:.2f} (-37%)",
             "C1": f"{val:.2f} (-75%)",
         }[key]
-        a1.text(val + 0.10, i, note, va="center", ha="left", fontsize=6.5, color=INK)
+        a1.text(
+            val + 0.10,
+            i,
+            note,
+            va="center",
+            ha="left",
+            fontsize=6.5,
+            color=INK,
+            bbox=halo,
+            zorder=4,
+        )
 
     _style_barh(a1, stock_labels, mem_xticks, mem_xlim)
     a1.set_ylim(3.55, -0.55)
@@ -118,13 +129,23 @@ def fig_ladder(n: dict) -> None:
             note = f"{val:.2f} (-73%)"
         else:
             note = f"{val:.2f}"
-        a2.text(val + 0.10, i, note, va="center", ha="left", fontsize=6.5, color=INK)
+        a2.text(
+            val + 0.10,
+            i,
+            note,
+            va="center",
+            ha="left",
+            fontsize=6.5,
+            color=INK,
+            bbox=halo,
+            zorder=4,
+        )
 
     # Ceiling annotations placed in the open space below row 4 (C2).
     a2.text(
         h1_mem + 0.08,
         4.92,
-        f"H1 -25% ({h1_mem:.2f} GB)",
+        f"25% target ({h1_mem:.2f} GB)",
         fontsize=6.5,
         color=MUTED,
         va="center",
@@ -156,10 +177,10 @@ def fig_ladder(n: dict) -> None:
     )
 
     # --- Right column: Latency (median bar, p95 whisker) ---
-    b1_xlim = (0.0, 265.0)
+    b1_xlim = (0.0, 290.0)
     b1_xticks = [0, 50, 100, 150, 200, 250]
-    b1.axvspan(0, 72, color=tint(COLORS["C2"], 0.92), lw=0, zorder=0)
-    b1.axvline(72, color=GRID, lw=0.7, zorder=1)
+    b1.axvspan(0, 78, color=tint(COLORS["C2"], 0.92), lw=0, zorder=0)
+    b1.axvline(78, color=GRID, lw=0.7, zorder=1)
 
     for i, (key, _, col) in enumerate(STOCK_RUNGS):
         r = rows[key]
@@ -176,39 +197,33 @@ def fig_ladder(n: dict) -> None:
     b1.text(
         rows["B16"]["p95_ms"] + 4,
         0,
-        f"A: {a_med:.1f} / B: {b_med:.1f} · {prof['B16']['kernel_launches']:,.0f} kernels, {prof['B16']['host_syncs']:.0f} syncs",
+        f"two sessions: {a_med:.1f} / {b_med:.1f} ms",
         va="center",
         ha="left",
         fontsize=6.5,
         color=INK,
     )
-    b1.text(
-        rows["Q8"]["p95_ms"] + 4,
-        1,
-        f"{rows['Q8']['median_ms']:.1f} · {prof['Q8']['kernel_launches']:,.0f}, {prof['Q8']['host_syncs']:.0f}",
-        va="center",
-        ha="left",
-        fontsize=6.5,
-        color=INK,
-    )
-    b1.text(
-        rows["Q4"]["p95_ms"] + 4,
-        2,
-        f"{rows['Q4']['median_ms']:.1f} · {prof['Q4']['kernel_launches']:,.0f}, {prof['Q4']['host_syncs']:.0f}",
-        va="center",
-        ha="left",
-        fontsize=6.5,
-        color=INK,
-    )
-    b1.text(
-        rows["C1"]["p95_ms"] + 4,
-        3,
-        f"{rows['C1']['median_ms']:.1f}",
-        va="center",
-        ha="left",
-        fontsize=6.5,
-        color=INK,
-    )
+    for row_idx, key in [(1, "Q8"), (2, "Q4"), (3, "C1")]:
+        b1.text(
+            rows[key]["p95_ms"] + 4,
+            row_idx,
+            f"{rows[key]['median_ms']:.1f}",
+            va="center",
+            ha="left",
+            fontsize=6.5,
+            color=INK,
+        )
+    for row_idx, key in [(0, "B16"), (1, "Q8"), (2, "Q4")]:
+        b1.text(
+            0.995,
+            row_idx,
+            f"{prof[key]['kernel_launches']:,.0f} · {prof[key]['host_syncs']:.0f}",
+            transform=b1.get_yaxis_transform(),
+            va="center",
+            ha="right",
+            fontsize=6.5,
+            color=INK_2,
+        )
 
     _style_barh(b1, stock_labels, b1_xticks, b1_xlim)
     b1.set_ylim(3.55, -0.55)
@@ -217,16 +232,26 @@ def fig_ladder(n: dict) -> None:
     b1.text(
         0.0,
         1.03,
-        "Stock path (shaded 0–72 ms zoomed below)",
+        "Stock path",
         transform=b1.transAxes,
         fontsize=6.5,
         color=INK_2,
         va="bottom",
         ha="left",
     )
+    b1.text(
+        0.995,
+        1.03,
+        "kernel launches · host syncs per action",
+        transform=b1.transAxes,
+        fontsize=6.5,
+        color=INK_2,
+        va="bottom",
+        ha="right",
+    )
 
-    # Bottom right: CUDA-graph engine (zoomed 0..72 ms)
-    b2_xlim = (0.0, 72.0)
+    # Bottom right: CUDA-graph engine (zoomed 0..78 ms)
+    b2_xlim = (0.0, 78.0)
     b2_xticks = [0, 10, 20, 30, 40, 50, 60, 70]
     for i, (lkey, _, col) in enumerate(GRAPH_RUNGS):
         d = ladder[lkey]
@@ -236,16 +261,16 @@ def fig_ladder(n: dict) -> None:
             txt = f"{d['median_ms']:.1f} · C2 {rows['C2']['successes']}/500"
         b2.text(d["p95_ms"] + 1.0, i, txt, va="center", ha="left", fontsize=6.5, color=INK)
 
-    # Bracket for +6.8 ms NF4 dequant tax between 1-step B16/dense (24.8 ms) and C2 packed (31.6 ms).
-    x_b16_1 = ladder["B16 graph, 1 step"]["median_ms"]
+    # Bracket for +6.8 ms NF4 weight unpacking cost: NF4 dense (24.75 ms) vs C2 packed (31.59 ms).
+    x_dense = ladder["NF4 graph, 1 step, dense"]["median_ms"]
     x_c2 = ladder["NF4 graph, 1 step, packed (C2)"]["median_ms"]
-    tax = x_c2 - x_b16_1
-    b2.plot([x_b16_1, x_b16_1], [2.25, 3.55], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
-    b2.plot([x_c2, x_c2], [3.38, 3.80], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
+    tax = x_c2 - x_dense
+    b2.plot([x_dense, x_dense], [3.26, 3.60], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
+    b2.plot([x_c2, x_c2], [3.40, 3.74], color=COLORS["C2"], lw=0.75, ls=":", zorder=3)
     b2.annotate(
         "",
         xy=(x_c2, 3.50),
-        xytext=(x_b16_1, 3.50),
+        xytext=(x_dense, 3.50),
         arrowprops={
             "arrowstyle": "<->",
             "color": COLORS["C2"],
@@ -258,7 +283,7 @@ def fig_ladder(n: dict) -> None:
     b2.text(
         x_c2 + 1.2,
         3.50,
-        f"+{tax:.1f} ms NF4 dequant tax (31.6 vs 24.8)",
+        f"+{tax:.1f} ms to unpack NF4 weights (1 step)",
         va="center",
         ha="left",
         fontsize=6.5,
@@ -273,7 +298,7 @@ def fig_ladder(n: dict) -> None:
     b2.text(
         0.0,
         1.03,
-        "CUDA-graph engine (zoomed 0–72 ms)",
+        "CUDA-graph engine (zoomed 0–78 ms)",
         transform=b2.transAxes,
         fontsize=6.5,
         color=INK_2,

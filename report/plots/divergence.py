@@ -70,15 +70,19 @@ def fig_divergence(div: pd.DataFrame) -> dict:
             color=COLORS[comp_name],
         )
 
-    ax.text(
-        floor * 1.25,
-        0.15,
-        "identical\nactions",
+    halo = {"facecolor": "white", "alpha": 0.90, "edgecolor": "none", "pad": 1.0}
+    ax.annotate(
+        "identical actions",
+        xy=(floor * 1.1, 0.42),
+        xytext=(4.3e-8, 0.12),
+        arrowprops={"arrowstyle": "->", "color": MUTED, "lw": 0.7, "shrinkA": 1, "shrinkB": 0},
         fontsize=6.5,
         color=MUTED,
         ha="left",
         va="bottom",
         style="italic",
+        bbox=halo,
+        zorder=4,
     )
     ax.text(
         7.5e-5,
@@ -100,11 +104,10 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         color=INK,
         fontweight="medium",
     )
-    halo = {"facecolor": "white", "alpha": 0.85, "edgecolor": "none", "pad": 1.2}
     ax.text(
-        0.22,
-        0.54,
-        f"Spearman ρ = {rho:.2f} (n = {len(div)})\ndev n = {len(dev)}: ρ = {rho_dev:.2f} (n.s.)",
+        0.085,
+        0.64,
+        f"Spearman ρ = {rho:.2f} (n = {len(div)})\ndev ρ = {rho_dev:.2f} (n = {len(dev)}, n.s.)",
         transform=ax.transAxes,
         ha="left",
         va="top",
@@ -114,12 +117,12 @@ def fig_divergence(div: pd.DataFrame) -> dict:
         zorder=4,
     )
     ax.text(
-        0.22,
-        0.23,
-        "How to read: screens broken (>1e-3),\ncannot rank near-lossless (<1e-4).",
+        0.085,
+        0.41,
+        "How to read: screens (>1e-3),\ncannot rank near-lossless.",
         transform=ax.transAxes,
         ha="left",
-        va="center",
+        va="top",
         fontsize=6.5,
         color=INK_2,
         style="italic",

@@ -704,5 +704,57 @@
       73.33264161369925,
       88.29977450105363
     ]
+  },
+  "restricted_vocab_final": {
+    "deploy-nf4-vision-text-channels-restricted": {
+      "candidate": "deploy-nf4-vision-text-channels-restricted",
+      "successes": 467,
+      "trials": 500,
+      "success_pct": 93.4,
+      "wilson_pct": [
+        90.87605988391466,
+        95.26214736402262
+      ],
+      "resident_bytes": 837997298,
+      "resident_mb": 837.997298,
+      "peak_allocated_gb": 0.940727296,
+      "median_ms": 135.1303774972621,
+      "p95_ms": 137.998395847535,
+      "vocabulary_size": 53,
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "sources": [
+        "studies/compression/reserved_confirmation_milestone.json",
+        "studies/compression/calibration.json",
+        "studies/compression/recipes/deploy-nf4-vision-text-channels-restricted.json",
+        "studies/compression/measurements/deploy-nf4-vision-text-channels-restricted/final/run.json",
+        "studies/compression/measurements/deploy-nf4-vision-text-channels-restricted/benchmark/run.json",
+        "studies/compression/measurements/deploy-nf4-vision-text-channels-restricted/size/run.json"
+      ]
+    },
+    "deploy-hqq2-vision-action-restricted": {
+      "candidate": "deploy-hqq2-vision-action-restricted",
+      "successes": 490,
+      "trials": 500,
+      "success_pct": 98.0,
+      "wilson_pct": [
+        96.35798167531208,
+        98.91008164037892
+      ],
+      "resident_bytes": 977424050,
+      "resident_mb": 977.42405,
+      "peak_allocated_gb": 1.065880576,
+      "median_ms": 143.51764399907552,
+      "p95_ms": 146.06975524875452,
+      "vocabulary_size": 53,
+      "gpu": "NVIDIA GeForce RTX 3090",
+      "sources": [
+        "studies/compression/reserved_confirmation_milestone.json",
+        "studies/compression/calibration.json",
+        "studies/compression/recipes/deploy-hqq2-vision-action-restricted.json",
+        "studies/compression/measurements/deploy-hqq2-vision-action-restricted/final/run.json",
+        "studies/compression/measurements/deploy-hqq2-vision-action-restricted/benchmark/run.json",
+        "studies/compression/measurements/deploy-hqq2-vision-action-restricted/size/run.json"
+      ]
+    }
   }
 }

@@ -3,10 +3,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.lines import Line2D
 
 from evaluation.analysis import wilson
 from report.plots.data import COMP, sensitivity_dev_failures, smoke
-from report.plots.style import COLORS, FULL, INK_2, MUTED, OUT, panel_label, style_axes, tint
+from report.plots.style import COLORS, FULL, INK_2, MUTED, OUT, SPINE, panel_label, style_axes, tint
 
 
 def fig_sensitivity(dev_fails: dict | None = None) -> dict:
@@ -20,11 +21,11 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
         1,
         4,
         figsize=(FULL, 1.8),
-        gridspec_kw={"wspace": 0.14, "width_ratios": [1.08, 1.0, 1.0, 1.0]},
+        gridspec_kw={"wspace": 0.14, "width_ratios": [1.05, 1.0, 1.0, 1.0]},
     )
-    fig.subplots_adjust(left=0.065, right=0.985, top=0.86, bottom=0.23)
+    fig.subplots_adjust(left=0.065, right=0.80, top=0.77, bottom=0.24)
 
-    # (a) weight bit width; best of tested variants at each width, all variants shown faintly.
+    # (a) weight bit width; best of tested variants at each width.
     bits = {
         "language": {
             8: ["text-bnb8"],
@@ -60,15 +61,6 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
         xs, best = [16], [base]
         for b, names in table.items():
             vals = [smoke(comp, nm) for nm in names if not np.isnan(smoke(comp, nm))]
-            a.scatter(
-                [b + offsets[comp_name]] * len(vals),
-                vals,
-                s=7,
-                color=COLORS[comp_name],
-                alpha=0.32,
-                lw=0,
-                zorder=2,
-            )
             xs.append(b)
             best.append(max(vals))
         a.plot(
@@ -95,10 +87,10 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
     a.minorticks_off()
     style_axes(a, ylabel="Successes / 10 trials", xlabel="Weight bits", yticks=[0, 2, 4, 6, 8, 10])
     panel_label(a, "a", "Bit width")
-    a.text(1.9, 10.2, "B16 8/10 (95% CI)", fontsize=6.5, color=MUTED, va="top", ha="left")
+    a.text(1.85, 10.5, "B16 8/10 (CI)", fontsize=6.5, color=MUTED, va="top", ha="left")
     a.text(
         16.6,
-        8.65,
+        8.35,
         "vision blocks",
         ha="right",
         va="bottom",
@@ -108,7 +100,7 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
     )
     a.text(
         16.6,
-        7.25,
+        7.55,
         "action MLP",
         ha="right",
         va="top",
@@ -117,19 +109,19 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
         fontweight="medium",
     )
     a.text(
-        2.55,
-        4.3,
+        4.0,
+        6.5,
         "language\ndecoder",
         ha="left",
-        va="center",
+        va="top",
         fontsize=6.5,
         color=COLORS["language"],
         fontweight="medium",
     )
     a.text(
         17.0,
-        -0.2,
-        "How to read: decoder breaks\nfirst; vision & action hold.",
+        -0.4,
+        "How to read:\ndecoder breaks first;\nvision & action hold.",
         ha="right",
         va="bottom",
         fontsize=6.5,
@@ -137,7 +129,7 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
         style="italic",
     )
 
-    # (b-d) structural removal per module; series told apart by line style + direct label.
+    # (b-d) structural removal per module; shared legend strip above panels b-d.
     struct_series = {
         "language": {
             "MLP channels": [
@@ -187,17 +179,6 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
         },
     }
     line_style = {"MLP channels": "-", "KV heads": "--", "heads": "--", "layers": ":"}
-    end_labels = {
-        ("language", "MLP channels"): ("MLP\nchannels", 4, 0.4, "left", "center"),
-        ("language", "KV heads"): ("KV\nheads", -3, -0.5, "right", "center"),
-        ("language", "layers"): ("layers", 4, 0.0, "left", "center"),
-        ("vision", "MLP channels"): ("MLP\nchannels", 4, 0.4, "left", "bottom"),
-        ("vision", "heads"): ("heads", 4, 1.3, "left", "bottom"),
-        ("vision", "layers"): ("layers", -14, 1.6, "right", "center"),
-        ("action", "MLP channels"): ("MLP\nchannels", 4, 0.5, "left", "bottom"),
-        ("action", "heads"): ("heads", 4, -0.3, "left", "top"),
-        ("action", "layers"): ("layers", 4, 0.0, "left", "center"),
-    }
     for ax, (comp_name, series) in zip(axes[1:], struct_series.items(), strict=True):
         ledger["structure"][comp_name] = {}
         for name, pts in series.items():
@@ -216,58 +197,76 @@ def fig_sensitivity(dev_fails: dict | None = None) -> dict:
                 color=COLORS[comp_name],
                 zorder=3,
             )
-            label, dx, dy, ha, va = end_labels[(comp_name, name)]
-            ax.text(
-                xs[-1] * 100 + dx,
-                ys[-1] + dy,
-                label,
-                ha=ha,
-                va=va,
-                fontsize=6.5,
-                color=COLORS[comp_name],
-            )
             ledger["structure"][comp_name][name] = dict(
                 zip([round(x, 3) for x in xs], ys, strict=True)
             )
-        ax.set(xticks=[0, 25, 50, 75], xlim=(-4, 128), ylim=(-0.8, 10.6))
+        ax.set(xticks=[0, 25, 50, 75], xlim=(-5, 82), ylim=(-0.8, 10.6))
         style_axes(ax, yticks=[0, 2, 4, 6, 8, 10])
         ax.tick_params(axis="y", labelleft=False)
         panel_label(ax, "bcd"[list(struct_series).index(comp_name)], comp_name.capitalize())
 
     pos_b = axes[1].get_position()
     pos_d = axes[3].get_position()
+    mid_bcd = 0.5 * (pos_b.x0 + pos_d.x1)
+
+    handles = [
+        Line2D([0], [0], color=INK_2, lw=1.3, ls="-", label="MLP channels"),
+        Line2D([0], [0], color=INK_2, lw=1.3, ls="--", label="heads (KV in b)"),
+        Line2D([0], [0], color=INK_2, lw=1.3, ls=":", label="layers"),
+    ]
+    fig.legend(
+        handles=handles,
+        loc="upper center",
+        bbox_to_anchor=(mid_bcd, 0.995),
+        ncol=3,
+        fontsize=6.5,
+        handlelength=1.8,
+        handletextpad=0.45,
+        columnspacing=1.2,
+    )
+
+    # Span bracket + centered x-label across panels b-d.
+    fig.add_artist(
+        Line2D(
+            [pos_b.x0, pos_b.x0, pos_d.x1, pos_d.x1],
+            [0.145, 0.125, 0.125, 0.145],
+            transform=fig.transFigure,
+            color=SPINE,
+            lw=0.6,
+            clip_on=False,
+        )
+    )
     fig.text(
-        0.5 * (pos_b.x0 + pos_d.x1),
+        mid_bcd,
         0.04,
         "Fraction removed (%)",
         ha="center",
         va="bottom",
         fontsize=7.5,
         color=INK_2,
+        bbox={"facecolor": "white", "edgecolor": "none", "pad": 1.5},
     )
 
     callout = (
-        f"100-trial dev fails (<77):\n"
-        f"act heads -75%: {dev_fails['action_heads_75']}\n"
-        f"merger -75%: {dev_fails['merger_75']}\n"
-        f"combined NF4: {dev_fails['combined_channels']} & {dev_fails['combined_depth']}"
+        f"100-trial development,\ngate 77:\n"
+        f"act heads −75%: {dev_fails['action_heads_75']}\n"
+        f"merger −75%: {dev_fails['merger_75']}\n"
+        f"comb. NF4: {dev_fails['combined_channels']} & {dev_fails['combined_depth']}"
     )
-    axes[3].text(
-        0.02,
-        0.04,
+    fig.text(
+        0.818,
+        0.50,
         callout,
-        transform=axes[3].transAxes,
         ha="left",
-        va="bottom",
+        va="center",
         fontsize=6.5,
         color=INK_2,
         bbox={
-            "boxstyle": "round,pad=0.28",
+            "boxstyle": "round,pad=0.35",
             "facecolor": "#F8FAFC",
             "edgecolor": "#CBD5E1",
             "linewidth": 0.6,
         },
-        zorder=4,
     )
 
     for ax in axes:

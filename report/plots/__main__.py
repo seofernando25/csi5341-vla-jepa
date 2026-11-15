@@ -18,6 +18,7 @@ from report.plots.data import (
     parameter_census,
     recipe_funnel,
     recovery_dev,
+    restricted_vocab_final,
     sensitivity_dev_failures,
 )
 from report.plots.divergence import fig_divergence
@@ -44,6 +45,7 @@ def main() -> None:
     n["funnel"] = recipe_funnel()
     n["sensitivity_dev_failures"] = dev_fails
     n["recovery_dev"] = recovery_dev()
+    n["restricted_vocab_final"] = restricted_vocab_final()
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")
 

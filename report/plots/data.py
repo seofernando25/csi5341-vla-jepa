@@ -395,3 +395,59 @@ def dream_rsi_rounds() -> dict:
     if "r2" in by_round and "failed_resident_mb_range" in by_round["r2"]:
         out["r2_cliff_mb"] = by_round["r2"]["failed_resident_mb_range"]
     return out
+
+
+RESTRICTED_FINAL = (
+    "deploy-nf4-vision-text-channels-restricted",
+    "deploy-hqq2-vision-action-restricted",
+)
+
+
+def restricted_vocab_final() -> dict:
+    """500-trial held-out evaluations of the two restricted-vocabulary recipes."""
+    reserved = load_json(COMP / "reserved_confirmation_milestone.json")["candidates"]
+    cal = load_json(COMP / "calibration.json")
+    vocab_size = int(cal["token_count"])
+    out: dict = {}
+    for cand in RESTRICTED_FINAL:
+        res = reserved[cand]
+        succ = int(res["successes"])
+        trials = int(res["episodes"])
+        final_path = COMP / "measurements" / cand / "final" / "run.json"
+        bench_path = COMP / "measurements" / cand / "benchmark" / "run.json"
+        size_path = COMP / "measurements" / cand / "size" / "run.json"
+        recipe_path = COMP / "recipes" / f"{cand}.json"
+
+        final_run = load_json(final_path)
+        bench_run = load_json(bench_path)
+        size_run = load_json(size_path)
+        recipe = load_json(recipe_path)
+
+        bench_sum = bench_run["summary"]
+        resident_bytes = int(size_run["summary"]["resident_tensor_storage_bytes"])
+        peak_alloc_bytes = max(int(p["allocated_bytes"]) for p in bench_sum["memory_peaks"])
+        uses_compact = any(c.get("method") == "compact_embedding" for c in recipe["changes"])
+
+        out[cand] = {
+            "candidate": cand,
+            "successes": succ,
+            "trials": trials,
+            "success_pct": 100.0 * succ / trials,
+            "wilson_pct": [100.0 * v for v in wilson(succ, trials)],
+            "resident_bytes": resident_bytes,
+            "resident_mb": resident_bytes / 1e6,
+            "peak_allocated_gb": peak_alloc_bytes / GB,
+            "median_ms": float(bench_sum["pipeline"]["median_ms"]),
+            "p95_ms": float(bench_sum["pipeline"]["p95_ms"]),
+            "vocabulary_size": vocab_size if uses_compact else None,
+            "gpu": str(final_run["environment"]["gpu"]),
+            "sources": [
+                "studies/compression/reserved_confirmation_milestone.json",
+                "studies/compression/calibration.json",
+                str(recipe_path.relative_to(ROOT)),
+                str(final_path.relative_to(ROOT)),
+                str(bench_path.relative_to(ROOT)),
+                str(size_path.relative_to(ROOT)),
+            ],
+        }
+    return out
