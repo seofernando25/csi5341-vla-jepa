@@ -32,17 +32,36 @@ Dream-RSI closes a recursive self-improvement loop at the **exploration-policy l
 | Replay simulator | Deterministic prefix reveal over $\mathcal{T}_i$ | [rsi/tree.py](../rsi/tree.py), [rsi/policy_dev.py](../rsi/policy_dev.py) | **Faithful** (`DiscoveryTree`, `ReplayQuestion`, plus `tree.json` save/load for online cycles) |
 | Replay objective | Eq. (1) hypervolume $-\ \lambda \cdot \text{penalty}$ | [rsi/objective.py](../rsi/objective.py) | **Faithful** ($\lambda=0.05$, $\beta \in \{0,0.25,0.5,0.75,1\}$, $\lceil \|C\|/W \rceil$) |
 | Policy selection | $\arg\max_m V^m$ over $\mathcal{H}_t$ with $\pi_t^0$ | [rsi/dream.py](../rsi/dream.py), [rsi/policy_dev.py](../rsi/policy_dev.py) | **Faithful + stricter audits** (leave-one-world-out, $\lambda \times W$ grid, seed stability, AST + subprocess replay gate) |
-| Exploration policy | Dynamic portfolio `OptimalPolicy` | [rsi/policies/optimal.py](../rsi/policies/optimal.py) | **Faithful** to Appendix D.2 Listing 2; adds `gate_retry` (`gate_near_miss` at 7/10) |
+| Exploration policy | Dynamic portfolio `OptimalPolicy` | [rsi/policies/optimal.py](../rsi/policies/optimal.py) | **Faithful core**: dynamic portfolio and beta schedule. The old `gate_retry` addition was removed for the clean protocol. |
 | Policy improvement | LLM inspects traces & rewrites `method.py` ($M=4$) | [rsi/policy_dev.py](../rsi/policy_dev.py) | **Faithful:** headless `pi` inside `bwrap` reads `beta_sweep.json`, `policy_execution_traces.jsonl`, `live_cycle_manifests.json`, and frozen worlds; rewrites `OptimalPolicy` with AST/prefix audit + 1 retry + monotonic selection. |
 | Online tree expansion | Coding agent expands chosen $v \in C_t^k$ live | [rsi/online_cycle.py](../rsi/online_cycle.py), [rsi/sandbox.py](../rsi/sandbox.py) | **Faithful:** `OnlineDiscoveryQuestion.probe_batch()` expands chosen nodes at decision time via headless `pi` inside `bwrap`, inheriting `parent_context/`, enforcing full ordered recipe handlers (`validate_freeform_recipe`), and rejecting duplicates. |
 | Worker concurrency | $W$ concurrent workers online | [rsi/online_cycle.py](../rsi/online_cycle.py) | **Split:** `bwrap` discovery agents run concurrently via `ThreadPoolExecutor`; compression evaluation remains sequential on 1 GPU while Eq. (1) accounts batch size against $W$. |
-| Cross-cycle grid plan | `plan_grid` sizes next rollout capacity | [rsi/online_cycle.py](../rsi/online_cycle.py) | **Wired live:** `run_online_cycle()` calls `policy.plan_grid(...)` before building virtual slot capacity (`grid_plan.json`). |
+| Cross-cycle grid plan | `plan_grid` sizes next rollout capacity | [rsi/online_cycle.py](../rsi/online_cycle.py) | **Wired with a static plan:** `run_online_cycle()` reads the pre-registered `dream_rsi.grid_plan` from `studies/program-v1/protocol.json`. `OptimalPolicy.plan_grid` no longer contains the adaptive 6/4/plateau heuristic. |
 | Archived Sep. harness | Discovery agent + policy-dev rewriting `policy.py` | Git commit `82df05d` (`studies/dream-rsi/attempts.jsonl`) | **Closer loop, wrong objective:** used SmolVLM held-out prediction loss (did not transfer to LIBERO success) |
 
 ---
 
 ## 3. Reporting & Provenance Boundaries
 
-- **Provenance:** Records under `studies/dream-rsi/` keep their recorded semantics (static `r1`–`r6` grids, pre-round flat `attempt=0` roots for `r7`, and the deterministic config sweeps archived under `rsi/policies/revisions/`). Fresh full-loop runs live under `studies/dream-rsi-v2/` via `vla-rsi cycle`, `vla-rsi develop`, and `vla-rsi loop`.
+- **Provenance:** The pre-cleanroom Dream-RSI records and policy revisions were deleted from the working tree on 2026-11-15 and remain in git history at tag `pre-cleanroom-20261115`. They are not reused or cited. Fresh full-loop runs live under `studies/program-v1/` via `vla-rsi cycle`, `vla-rsi develop`, and `vla-rsi loop`. The clean protocol uses a pre-registered static `GridPlan`; it does not use the old adaptive planner or `gate_retry`.
 - **Replay $V$ vs. LIBERO accuracy:** Replay objective $V$ scores exploration policies over frozen `DiscoveryTree`s using gate-qualified size reduction; actual task performance is measured only by LIBERO rollouts (`smoke`, `development`, and manual post-search `final`).
 - **Sandbox boundary ([rsi/sandbox.py](../rsi/sandbox.py)):** Every headless `pi` discovery or policy-dev agent executes inside `bubblewrap` (`bwrap`) with the repository root masked (`--tmpfs`), `CUDA_VISIBLE_DEVICES=""`, read-only `/tmp/evidence/`, and writable scratch `/tmp/work/`.
+
+## 4. Clean-room fidelity ledger (2026-11-15)
+
+The paper specifies interfaces and contracts, not every implementation detail. For the clean-room
+rerun, label each choice:
+
+| Component | Source | Clean-room status |
+|---|---|---|
+| `plan_grid` interface | Appendix D.2 | Paper interface |
+| `plan_grid` adaptive rule (6/4, +2 on plateau, +1 depth) | Old repo heuristic | **Removed.** The clean run reads a static plan from `studies/program-v1/protocol.json` |
+| `gate_retry` / near-miss retry | Old repo addition | **Removed** from the clean policy |
+| Sequential C0/confirm gate | Old repo addition | **Not used** in the clean path |
+| Smoke score = size reduction if passed | Repo evaluator choice | **Protocol choice**, recorded in `studies/program-v1/protocol.json` |
+| `promote_top_k` ordering | Repo choice | **Protocol choice**, recorded per cycle |
+| AST audit and subprocess replay verification | Repo safety addition | **Kept** |
+| Virtual branch x attempt slots | Implementation detail | Kept; not a paper claim |
+
+A component is evidence only after its choice is pre-registered and its run is recorded under
+`studies/program-v1/`.

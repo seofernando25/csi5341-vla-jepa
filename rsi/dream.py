@@ -435,7 +435,7 @@ def _in_sample(terms: Terms, world_ids: list[str], lam: float) -> dict[str, Any]
 
 def run_benchmark(
     attempts_path: str | Path = "studies/dream-rsi/attempts.jsonl",
-    compression_summary_path: str | Path = "studies/compression/summary.csv",
+    compression_summary_path: str | Path = "studies/program-v1/summary.csv",
     output_path: str | Path | None = "studies/dream-rsi/dream_benchmark.json",
     parallelism_levels: tuple[int, ...] = PARALLELISM_GRID,
     measurements_dir: str | Path = MEASUREMENTS_DIR,

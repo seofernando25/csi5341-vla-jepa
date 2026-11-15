@@ -1,7 +1,7 @@
-"""Aggregate Study B per-recipe measurements into studies/compression/summary.csv.
+"""Aggregate Study B per-recipe measurements into studies/program-v1/summary.csv.
 
 Example: python -m evaluation.compression.analysis
-Reads studies/compression/recipes/*.json and measurements/<recipe>/<phase>/.
+Reads studies/program-v1/recipes/*.json and measurements/<recipe>/<phase>/.
 """
 
 import argparse
@@ -10,7 +10,7 @@ import csv
 from evaluation.analysis import paired_difference
 from evaluation.common import ROOT, read_json
 
-STUDY = ROOT / "studies/compression"
+STUDY = ROOT / "studies/program-v1"
 
 ROLLOUT_PHASES = ["smoke", "development", "final"]
 

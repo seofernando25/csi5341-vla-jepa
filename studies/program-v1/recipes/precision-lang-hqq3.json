@@ -1,0 +1,14 @@
+{
+  "id": "precision-lang-hqq3",
+  "family": "precision-language",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "text",
+      "bits": 3,
+      "axis": 0,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "precision-vision-int8",
+  "family": "precision-vision",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "vision_blocks",
+      "bits": 8
+    }
+  ]
+}

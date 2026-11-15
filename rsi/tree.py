@@ -452,7 +452,7 @@ def make_synthetic_tree(
 
 
 def from_compression_summary(
-    path: str | Path = "studies/compression/summary.csv",
+    path: str | Path = "studies/program-v1/summary.csv",
     smoke_gate: int = 8,
     dev_gate: int = 77,
 ) -> tuple[DiscoveryTree, DiscoveryTree]:
@@ -523,7 +523,7 @@ def from_compression_summary(
 
 
 def compression_smoke_by_family(
-    path: str | Path = "studies/compression/summary.csv",
+    path: str | Path = "studies/program-v1/summary.csv",
     smoke_gate: int = 8,
     min_nodes: int = 4,
 ) -> list[DiscoveryTree]:

@@ -2,11 +2,11 @@
 
 Examples:
   python -m evaluation.compression.study calibrate
-  python -m evaluation.compression.study run --recipe studies/compression/recipes/deploy-hqq2-vision-action.json --phase smoke
+  python -m evaluation.compression.study run --recipe studies/program-v1/recipes/<id>.json --phase smoke
 
 Phases: screen (action change on 80 fixed frames), smoke/development/final (1/10/50 rollouts
 per task), size (packed archive bytes), benchmark (latency and memory). Results go to
-studies/compression/measurements/<recipe>/<phase>/.
+studies/program-v1/measurements/<recipe>/<phase>/.
 """
 
 from __future__ import annotations

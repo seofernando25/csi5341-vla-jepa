@@ -1,18 +1,22 @@
 # Final report
 
-IEEE two-column, ≤5 pages ([main.pdf](main.pdf)). Every figure and quoted number is generated
-from committed evidence under `studies/`.
+Clean-room reset 2026-11-15. The old report source and generated artifacts were moved out of the
+active path. The old source is at [legacy/main.tex](legacy/main.tex) for history only; do not quote
+its numbers.
+
+The active [main.tex](main.tex) is a scaffold. It has no results until the clean runs land under
+`studies/program-v1/`.
 
 ```bash
-uv run --no-sync python -m report.plots   # figures/*.pdf and data/numbers.json
+uv run --no-sync python -m report.plots   # only after program-v1 evidence exists
 cd report && latexmk -pdf main.tex
 ```
 
 | File | Role |
 |---|---|
-| `main.tex`, `refs.bib` | Report source |
-| `plots/` | One module per figure plus `data.py` (evidence loading) and `style.py`; `__main__` writes every reported statistic to `data/numbers.json` |
-| `data/parameter_census.json` | Parameter counts by module, read from the checkpoint's safetensors header (cached so the build works without the checkpoint) |
+| `main.tex`, `refs.bib` | Active report skeleton |
+| `legacy/` | Old report source; history only, not evidence |
+| `plots/` | Figure builders; must be rewritten for program-v1 |
+| `data/parameter_census.json` | Parameter counts from the checkpoint header; not a result |
 
-After changing evidence or `plots/`, compare `data/numbers.json` against the text of
-`main.tex` before rebuilding the PDF.
+Every number in the active report must trace to a committed record under `studies/program-v1/`.

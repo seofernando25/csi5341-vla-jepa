@@ -1,6 +1,6 @@
 """Apply a compression recipe: an ordered list of changes, each handled by one method.
 
-Recipes live in studies/compression/recipes/<id>.json as {"id", "family", "changes": [...]}.
+Recipes live in studies/program-v1/recipes/<id>.json as {"id", "family", "changes": [...]}.
 A change names its method and, depending on it, a scope, fraction, bits, count or criterion.
 Changes are applied in memory to a loaded policy; published weights are never edited.
 """

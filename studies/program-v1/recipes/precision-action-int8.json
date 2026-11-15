@@ -1,0 +1,11 @@
+{
+  "id": "precision-action-int8",
+  "family": "precision-action",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "action_mlp",
+      "bits": 8
+    }
+  ]
+}

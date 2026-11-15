@@ -7,6 +7,7 @@ Every number quoted in report/main.tex is written to report/data/numbers.json.
 import argparse
 import json
 
+from evaluation.common import ROOT
 from report.plots.data import (
     DATA,
     collect,
@@ -29,6 +30,9 @@ from report.plots.style import OUT
 
 def main() -> None:
     argparse.ArgumentParser(description=__doc__).parse_args()
+    if not (ROOT / "studies/program-v1/summary.csv").exists():
+        print("No clean-room evidence yet; report figures were not rebuilt.")
+        return
     OUT.mkdir(parents=True, exist_ok=True)
     DATA.mkdir(parents=True, exist_ok=True)
     n = collect()

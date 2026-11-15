@@ -4,7 +4,7 @@ The grid spans the restricted-vocabulary bases T1
 (`deploy-nf4-vision-text-channels-restricted`) and T2
 (`deploy-hqq2-vision-action-restricted`) of the Study B compression track. Cell IDs
 keep their recorded `c1`/`c2` spelling because the committed measurements under
-`studies/compression/measurements/s2-*` use them. `stage2_smoke_world` reads only
+`studies/program-v1/measurements/s2-*` use them. `stage2_smoke_world` reads only
 committed 10-trial smoke `run.json` files, so the replay benchmark stays CPU-only.
 """
 
@@ -19,7 +19,7 @@ from rsi.api import gate_fail_class
 from rsi.runner import B16_RESIDENT_BYTES
 from rsi.tree import DiscoveryTree, TreeNode
 
-MEASUREMENTS_DIR = Path("studies/compression/measurements")
+MEASUREMENTS_DIR = Path("studies/program-v1/measurements")
 T2_BASE_ID = "deploy-hqq2-vision-action-restricted"
 
 

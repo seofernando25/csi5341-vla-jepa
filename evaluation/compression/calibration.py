@@ -14,7 +14,7 @@ from evaluation.compression.topology import blocks, roots, selected_linears
 from evaluation.models import load_policy
 from evaluation.pipeline import Pipeline, observation_bank
 
-STUDY = ROOT / "studies/compression"
+STUDY = ROOT / "studies/program-v1"
 RUNTIME = ROOT / "outputs/compression"
 CALIBRATION = RUNTIME / "calibration.pt"
 REFERENCES = RUNTIME / "references.pt"

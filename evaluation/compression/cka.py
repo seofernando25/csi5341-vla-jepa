@@ -1,6 +1,6 @@
 """Linear CKA between each block's input and output on the calibration states.
 
-Example: python -m evaluation.compression.cka   # writes studies/compression/cka.json
+Example: python -m evaluation.compression.cka   # writes studies/program-v1/cka.json
 Layer pruning with criterion "cka" removes the blocks whose output most resembles their input.
 """
 
@@ -26,7 +26,7 @@ def linear_cka(x, y):
 
 def main():
     argparse.ArgumentParser(description=__doc__).parse_args()
-    output = ROOT / "studies/compression/cka.json"
+    output = ROOT / "studies/program-v1/cka.json"
     if output.exists():
         raise FileExistsError("Preserve earlier CKA profile")
     setup()

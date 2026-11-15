@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 B16_RESIDENT_BYTES = 5532276494.0
-MEASUREMENTS_DIR = Path("studies/compression/measurements")
+MEASUREMENTS_DIR = Path("studies/program-v1/measurements")
 GPU_BACKOFF_USED_FRACTION = 0.85
 
 
@@ -55,7 +55,7 @@ def run_compression_subprocess(
     recipe_path = recipes_dir / f"{recipe['id']}.json"
     recipe_path.write_text(json.dumps(recipe, indent=2) + "\n")
 
-    run_json = Path("studies/compression/measurements") / recipe["id"] / phase / "run.json"
+    run_json = Path("studies/program-v1/measurements") / recipe["id"] / phase / "run.json"
     wall = 0.0
     if not run_json.exists():
         t0 = time.perf_counter()
@@ -91,7 +91,7 @@ def run_compression_subprocess(
     # Measure resident tensor storage bytes via --phase size if not yet measured
     resident_bytes = summary.get("resident_tensor_storage_bytes")
     if resident_bytes is None and phase in {"smoke", "development"}:
-        size_json = Path("studies/compression/measurements") / recipe["id"] / "size" / "run.json"
+        size_json = Path("studies/program-v1/measurements") / recipe["id"] / "size" / "run.json"
         if not size_json.exists():
             subprocess.run(
                 [

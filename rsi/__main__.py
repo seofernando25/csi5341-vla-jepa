@@ -1,24 +1,18 @@
-"""CLI entrypoint for Dream-RSI replay and benchmarking."""
+"""CLI entrypoint for the Dream-RSI clean-room cycle and policy development."""
 
 from __future__ import annotations
 
 import argparse
 import json
 
-from rsi.dream import run_benchmark
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m rsi", description="Dream-RSI CLI")
     sub = parser.add_subparsers(dest="cmd", required=True)
-    bench = sub.add_parser("benchmark", help="Run Dream-RSI replay & policy benchmark")
-    bench.add_argument("--attempts", default="studies/dream-rsi/attempts.jsonl")
-    bench.add_argument("--output", default="studies/dream-rsi/dream_benchmark.json")
-    bench.add_argument("--json", action="store_true", help="Print full JSON output")
 
     cyc = sub.add_parser("cycle", help="Run one Dream-RSI online per-node discovery cycle")
     cyc.add_argument("--cycle-id", default="iter_000")
-    cyc.add_argument("--study-dir", default="studies/dream-rsi-v2")
+    cyc.add_argument("--study-dir", default="studies/program-v1")
     cyc.add_argument("--policy", default=None, help="Path to active OptimalPolicy python file")
     cyc.add_argument("--iteration", type=int, default=0)
     cyc.add_argument("--probe-budget", type=int, default=8)
@@ -37,7 +31,7 @@ def main(argv: list[str] | None = None) -> int:
 
     dev = sub.add_parser("develop", help="Run LLM policy-code rewriting over frozen DiscoveryTrees")
     dev.add_argument("--cycle-id", default="iter_000")
-    dev.add_argument("--study-dir", default="studies/dream-rsi-v2")
+    dev.add_argument("--study-dir", default="studies/program-v1")
     dev.add_argument(
         "--incumbent", default=None, help="Incumbent policy.py (default rsi/policies/optimal.py)"
     )
@@ -51,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     dev.add_argument("--no-bwrap", action="store_true")
 
     loop = sub.add_parser("loop", help="Run full Dream-RSI outer loop (cycle + LLM policy dev)")
-    loop.add_argument("--study-dir", default="studies/dream-rsi-v2")
+    loop.add_argument("--study-dir", default="studies/program-v1")
     loop.add_argument("--cycles", type=int, default=3)
     loop.add_argument("--start-iteration", type=int, default=0)
     loop.add_argument("--probe-budget", type=int, default=8)
@@ -68,34 +62,6 @@ def main(argv: list[str] | None = None) -> int:
     loop.add_argument("--no-bwrap", action="store_true")
 
     args = parser.parse_args(argv)
-    if args.cmd == "benchmark":
-        payload = run_benchmark(attempts_path=args.attempts, output_path=args.output)
-        if args.json:
-            print(json.dumps(payload, indent=2))
-        else:
-            print(f"Dream-RSI benchmark completed in {payload['elapsed_ms']} ms")
-            inc = payload["incumbent"]
-            print("\nIn-sample replay score V (selection and score on the same worlds)")
-            for suite_name, suite_data in payload["in_sample"].items():
-                print(f"[{suite_name}]")
-                for w_key, row in suite_data.items():
-                    sel = row["selected_policy"]
-                    print(
-                        f"  {w_key}: {inc} V={row['policies'][inc]['reward']:.4f} | "
-                        f"selected={sel} V={row['policies'][sel]['reward']:.4f} "
-                        f"(dV={row['delta_reward']:+.4f})"
-                    )
-            print("\nLeave-one-world-out replay score V (mean over held-out worlds)")
-            for suite_name, suite_data in payload["held_out"].items():
-                print(f"[{suite_name}]")
-                for w_key, row in suite_data.items():
-                    print(
-                        f"  {w_key}: {inc} V={row['mean_incumbent_reward']:.4f} | "
-                        f"selected V={row['mean_selected_reward']:.4f} | selected beats/below "
-                        f"incumbent in {row['folds_selected_beats_incumbent']}/"
-                        f"{row['folds_selected_below_incumbent']} of {len(row['folds'])} folds"
-                    )
-        return 0
     if args.cmd == "cycle":
         from pathlib import Path
 

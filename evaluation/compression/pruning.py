@@ -217,7 +217,7 @@ def layers(policy, change, calibration):
     if scope == "text":
         candidates = candidates[3:]  # Qwen3-VL injects DeepStack visual features into layers 0-2.
     if change.get("criterion") == "cka":
-        scores = read_json(ROOT / "studies/compression/cka.json")["scores"]
+        scores = read_json(ROOT / "studies/program-v1/cka.json")["scores"]
         order = sorted(candidates, key=lambda i: -scores[f"{scope}.{i}"])
     else:
         influence = calibration["block_influence"]

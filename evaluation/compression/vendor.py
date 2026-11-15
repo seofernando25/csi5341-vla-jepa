@@ -1,4 +1,4 @@
-"""Upstream algorithm sources pinned by repository and revision in studies/compression/methods.json.
+"""Upstream algorithm sources pinned by repository and revision in studies/program-v1/methods.json.
 
 Sources are cloned on first use into the ignored outputs/compression/vendor/<method> folder.
 """
@@ -18,7 +18,7 @@ def git(*args: str) -> str:
 
 def upstream(method: str) -> tuple[Path, dict]:
     """Return the source folder checked out at the pinned revision and its methods.json entry."""
-    entry = read_json(ROOT / "studies/compression/methods.json")["upstream"][method]
+    entry = read_json(ROOT / "studies/program-v1/methods.json")["upstream"][method]
     folder = VENDOR / method
     if not folder.exists():
         staging = VENDOR / f".{method}.partial"

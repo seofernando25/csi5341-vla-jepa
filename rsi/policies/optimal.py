@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from rsi.api import (
-    GATE_NEAR_MISS,
     GridPlan,
     GridPlanningContext,
     LLMDesignedMethod,
@@ -46,7 +45,6 @@ class OptimalPolicy(LLMDesignedMethod):
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         super().__init__(config)
         self.beta = float(self.config.get("beta", 0.6))
-        self.gate_retry = bool(self.config.get("gate_retry", True))
 
     def _schedule(self, beta: float) -> dict[str, Any]:
         b = max(0.0, min(1.0, float(beta)))
@@ -119,10 +117,6 @@ class OptimalPolicy(LLMDesignedMethod):
                 and consec_fail <= sched["max_repairs"]
                 and (anchor is not None or len(items) <= 2)
             ):
-                cls = "repairable_failure"
-            elif self.gate_retry and latest.fail_class == GATE_NEAR_MISS and consec_fail == 1:
-                # One success short of a 10-trial gate is noise-compatible
-                # (P(<8/10 | p=0.87) = 0.13), so the branch gets one more probe before closing.
                 cls = "repairable_failure"
             else:
                 cls = "hard_unrecoverable"
@@ -285,23 +279,17 @@ class OptimalPolicy(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        """Deterministic cross-cycle grid planner based on prior manifests and sweeps."""
-        base_branches = 6
-        base_depth = 4
-        if context.recent_live_manifests:
-            last = context.recent_live_manifests[-1]
-            if last.get("plateaued", False):
-                base_branches += 2
-            if last.get("deepest_improvement", 0) >= 3:
-                base_depth += 1
-        w = max(1, context.max_parallelism)
-        rounds_cap = max(4, (base_branches * base_depth + w - 1) // w)
+        """Return the pre-registered grid plan; the clean protocol has no adaptive planner."""
+        plan = self.config.get("grid_plan")
+        if not isinstance(plan, dict):
+            raise TypeError(
+                "Clean protocol requires an explicit grid_plan in the policy config; "
+                "no adaptive planner is defined."
+            )
         return GridPlan(
-            max_branches=base_branches,
-            max_attempts_per_branch=base_depth,
-            max_parallelism=w,
-            rounds_cap=rounds_cap,
-            rationale=(
-                f"Iter {context.iteration}: branches={base_branches}, depth={base_depth}, W={w}."
-            ),
+            max_branches=int(plan["max_branches"]),
+            max_attempts_per_branch=int(plan["max_attempts_per_branch"]),
+            max_parallelism=int(plan["max_parallelism"]),
+            rounds_cap=int(plan["rounds_cap"]),
+            rationale=str(plan.get("rationale", "pre-registered static grid plan")),
         )

@@ -1,0 +1,14 @@
+{
+  "id": "precision-action-hqq3",
+  "family": "precision-action",
+  "changes": [
+    {
+      "method": "hqq",
+      "scope": "action_mlp",
+      "bits": 3,
+      "axis": 0,
+      "group_size": 64,
+      "backend": "pytorch"
+    }
+  ]
+}

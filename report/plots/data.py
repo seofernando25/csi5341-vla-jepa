@@ -442,8 +442,8 @@ def restricted_vocab_final() -> dict:
             "vocabulary_size": vocab_size if uses_compact else None,
             "gpu": str(final_run["environment"]["gpu"]),
             "sources": [
-                "studies/compression/reserved_confirmation_milestone.json",
-                "studies/compression/calibration.json",
+                "studies/program-v1/reserved_confirmation_milestone.json",
+                "studies/program-v1/calibration.json",
                 str(recipe_path.relative_to(ROOT)),
                 str(final_path.relative_to(ROOT)),
                 str(bench_path.relative_to(ROOT)),

@@ -1,0 +1,11 @@
+{
+  "id": "precision-lang-nf4",
+  "family": "precision-language",
+  "changes": [
+    {
+      "method": "bnb",
+      "scope": "text",
+      "bits": 4
+    }
+  ]
+}

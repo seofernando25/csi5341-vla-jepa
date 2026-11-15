@@ -1,0 +1,68 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "experiment": "precision-surface",
+  "frozen_at": "2026-11-15",
+  "status": "frozen",
+  "question": "Where does weight precision cost success in VLA-JEPA: language decoder, vision blocks, or action head?",
+  "context": {
+    "checkpoint_revision": "735d9f692981e286ade093b5046627eda876e5d0",
+    "suite": "libero_spatial",
+    "world_model_resident": true,
+    "embeddings": "bfloat16",
+    "untouched_modules": "all modules outside the named scope",
+    "calibration": "none for the precision surface",
+    "phase": "development"
+  },
+  "hypotheses": {
+    "H1": "Language decoder at 2 bits loses more than 10 percentage points against B16.",
+    "H2": "Vision blocks at 2 bits are non-inferior within 5 points.",
+    "H3": "Action MLP at 2 bits is non-inferior within 5 points.",
+    "H4": "Joint vision+action 2-bit is non-inferior within 5 points; the interaction is not superadditive."
+  },
+  "arms": [
+    "precision-lang-int8",
+    "precision-lang-nf4",
+    "precision-lang-hqq3",
+    "precision-lang-hqq2",
+    "precision-vision-int8",
+    "precision-vision-nf4",
+    "precision-vision-hqq3",
+    "precision-vision-hqq2",
+    "precision-action-int8",
+    "precision-action-nf4",
+    "precision-action-hqq3",
+    "precision-action-hqq2",
+    "precision-joint-va-hqq2"
+  ],
+  "phases": {
+    "screen": {"trials": 80, "purpose": "runtime and action-change rejection only"},
+    "smoke": {"trials": 10, "gate_min_successes": 8},
+    "development": {"trials": 100, "purpose": "curve estimation"},
+    "reserved": {"trials": 500, "purpose": "only after a deployment recipe is frozen"}
+  },
+  "primary_comparisons": ["H1", "H2", "H3", "H4"],
+  "analysis": {
+    "primary": "Wilson 95% interval per arm; task-stratified paired bootstrap against B16",
+    "secondary": "hierarchical Beta-Binomial with task random effects; posterior non-inferiority probability",
+    "effective_bits": "8 * resident_tensor_storage_bytes / logical_parameter_elements per module",
+    "multiplicity": "Holm correction for the four primary comparisons; all other comparisons exploratory"
+  },
+  "decision_rules": {
+    "screen_failure": "runtime failure or nonfinite actions stops the arm",
+    "smoke_failure": "6/10 or worse stops the arm",
+    "development_gate": "77/100 only for promotion, not for curve inclusion",
+    "reserved_gate": "paired 95% interval above -5 pp",
+    "reserved_lock": "no reserved trial may inform selection"
+  },
+  "artifacts": [
+    "run.json",
+    "episodes.csv",
+    "summary.json",
+    "recipe.json",
+    "effective_bits.json"
+  ],
+  "no_reuse": {
+    "old_evidence": "forbidden",
+    "git_tag": "pre-cleanroom-20261115"
+  }
+}

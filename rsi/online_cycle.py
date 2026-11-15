@@ -39,8 +39,8 @@ from rsi.runner import B16_RESIDENT_BYTES, gpu_name, gpu_tight, run_compression_
 from rsi.sandbox import run_sandboxed_agent
 from rsi.tree import DiscoveryTree, TreeNode
 
-DREAM_DIR = Path("studies/dream-rsi-v2")
-MEASUREMENTS_DIR = Path("studies/compression/measurements")
+DREAM_DIR = Path("studies/program-v1")
+MEASUREMENTS_DIR = Path("studies/program-v1/measurements")
 NUMBERS_PATH = Path("report/data/numbers.json")
 
 
@@ -803,6 +803,7 @@ def run_online_cycle(
     evaluator: Callable[[str, dict[str, Any], Path], dict[str, Any]] | None = None,
     promote_evaluator: Callable[[str, dict[str, Any], Path], dict[str, Any]] | None = None,
     direction_guidance: str = "",
+    grid_plan: GridPlan | None = None,
 ) -> dict[str, Any]:
     """Run one complete online Dream-RSI cycle (`plan_grid -> online solve -> promote -> tree`)."""
     study_root = Path(study_dir)
@@ -816,7 +817,20 @@ def run_online_cycle(
 
     manifests = _recent_manifests(study_root)
     sweeps = _recent_beta_sweeps(study_root)
-    plan = policy.plan_grid(
+    if grid_plan is None:
+        protocol_path = study_root / "protocol.json"
+        if protocol_path.is_file():
+            protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
+            plan_doc = protocol.get("dream_rsi", {}).get("grid_plan", {})
+            if plan_doc:
+                grid_plan = GridPlan(
+                    max_branches=int(plan_doc["max_branches"]),
+                    max_attempts_per_branch=int(plan_doc["max_attempts_per_branch"]),
+                    max_parallelism=int(plan_doc["max_parallelism"]),
+                    rounds_cap=int(plan_doc["rounds_cap"]),
+                    rationale=str(plan_doc.get("rationale", "pre-registered static grid plan")),
+                )
+    plan = grid_plan or policy.plan_grid(
         GridPlanningContext(
             iteration=iteration,
             max_parallelism=max_parallelism,

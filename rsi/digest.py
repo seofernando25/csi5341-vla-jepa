@@ -11,7 +11,7 @@ from typing import Any
 from rsi.action_space import canonical_signature_from_changes, extract_knobs_from_changes
 
 DREAM_DIR = Path("studies/dream-rsi")
-MEASUREMENTS_DIR = Path("studies/compression/measurements")
+MEASUREMENTS_DIR = Path("studies/program-v1/measurements")
 NUMBERS_PATH = Path("report/data/numbers.json")
 
 

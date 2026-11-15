@@ -8,8 +8,8 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Rollout (development, 100 trials) | `uv run --no-sync vla-parallel-rollout run --variant B16 --phase development --episodes 10 --workers 4` | `development` states, 10/task; GPU |
 | Rollout (reserved, 500 trials) | `uv run --no-sync vla-eval rollout --variant B16 --phase final --episodes 50` | Official 50/task states; GPU |
 | Timing (pipeline + policy) | `uv run --no-sync vla-eval benchmark --variant B16` | Requires `vla-eval collect` bank; GPU |
-| Compression recipe | `uv run --no-sync vla-compress run --recipe studies/compression/recipes/<id>.json --phase <phase>` | Phases: `screen`, `smoke`, `development`, `final`, `size`, `benchmark` |
-| Dream-RSI loop | `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8` | Online `bwrap`+`pi` per-node expansion + LLM policy rewriting under `studies/dream-rsi-v2/`; GPU |
+| Compression recipe | `uv run --no-sync vla-compress run --recipe studies/program-v1/recipes/<id>.json --phase <phase>` | Phases: `screen`, `smoke`, `development`, `final`, `size`, `benchmark` |
+| Dream-RSI loop | `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8` | Online `bwrap`+`pi` per-node expansion + LLM policy rewriting under `studies/program-v1/`; GPU |
 | Rebuild report plots | `uv run --no-sync vla-report-plots` | CPU only; writes `report/figures/*.pdf` and `report/data/numbers.json` |
 | Build report PDF | `cd report && latexmk -pdf main.tex` | Writes `report/main.pdf` |
 | Build presentation | `python3 web/presentation/tools/assemble.py` | After browser authoring export; serve with `python3 -m http.server 8000 --bind 127.0.0.1` |
@@ -27,7 +27,7 @@ All scripts accept `--help` without running GPU jobs or modifying outputs:
 - `vla-hardware` (`evaluation.hardware:main`): Capture portable hardware inventory JSON.
 - `vla-sources` (`evaluation.sources:main`): Download pinned model weights and simulator assets.
 - `vla-compress` (`evaluation.compression.study:main`): Calibrate (`calibrate`) and measure (`run`) Study B compression recipes.
-- `vla-compress-analyze` (`evaluation.compression.analysis:main`): Rebuild `studies/compression/summary.csv`.
-- `vla-compress-cka` (`evaluation.compression.cka:main`): Compute per-block linear CKA profile (`studies/compression/cka.json`).
-- `vla-rsi` (`rsi.__main__:main`): CPU replay benchmark (`benchmark`), online cycle (`cycle`), LLM policy-code rewriting (`develop`), and full outer loop (`loop`).
+- `vla-compress-analyze` (`evaluation.compression.analysis:main`): Rebuild `studies/program-v1/summary.csv`.
+- `vla-compress-cka` (`evaluation.compression.cka:main`): Compute per-block linear CKA profile (`studies/program-v1/cka.json`).
+- `vla-rsi` (`rsi.__main__:main`): clean-room online cycle (`cycle`), LLM policy-code rewriting (`develop`), and full outer loop (`loop`).
 - `vla-report-plots` (`report.plots.__main__:main`): Rebuild report figures and `report/data/numbers.json`.
