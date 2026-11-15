@@ -1,4 +1,4 @@
-// three.js layer: starfield, grid floor, particle brain with orbit rings, and the real Dream-RSI search tree.
+// three.js layer: starfield, grid floor, particle brain with orbit rings, and the protocol grid tree.
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -134,15 +134,17 @@ export function createStage(container, W, H, treeNodes) {
   // search tree
   const L = layoutTree(treeNodes);
   const NN = L.list.length;
+  // Keep the tree's visual mass roughly constant as the node count grows.
+  const nr = 0.17 * Math.min(1, Math.sqrt(27 / NN));
   const treeG = new THREE.Group();
   const nodeMesh = new THREE.InstancedMesh(
-    new THREE.IcosahedronGeometry(0.17, 1),
+    new THREE.IcosahedronGeometry(nr, 1),
     new THREE.MeshBasicMaterial({ transparent: true }),
     NN,
   );
   const baseCol = L.list.map((n) => {
     if (n.id === "root") return new THREE.Color(0xffffff);
-    if (n.id === "n0008") return new THREE.Color(0xffe14d);
+    if (n.status === "planned") return new THREE.Color(0x6a7cff);
     if (n.status === "ok") return new THREE.Color(0x3df0ff);
     if (n.status === "interrupted") return new THREE.Color(0x7a8199);
     return new THREE.Color(0xff4d4d);
@@ -158,7 +160,7 @@ export function createStage(container, W, H, treeNodes) {
   const runners = [];
   const runnerMat = new THREE.MeshBasicMaterial({ color: 0xffe14d });
   for (let k = 0; k < 4; k++) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 10), runnerMat);
+    const m = new THREE.Mesh(new THREE.SphereGeometry(nr * 0.76, 10, 10), runnerMat);
     m.visible = false;
     treeG.add(m);
     runners.push(m);
@@ -169,7 +171,8 @@ export function createStage(container, W, H, treeNodes) {
     for (let n = L.byId.get(id); n; n = n.parent ? L.byId.get(n.parent) : null) out.unshift(n.pos);
     return out;
   };
-  const runnerPaths = ["n0020", "n0008", "n0024", "n0016"].map(chain);
+  const leaves = L.list.filter((n) => !n.kids.length);
+  const runnerPaths = [0, 0.35, 0.65, 0.95].map((f) => chain(leaves[Math.floor(f * (leaves.length - 1))].id));
 
   const dummy = new THREE.Object3D();
   const tmp = new THREE.Color();

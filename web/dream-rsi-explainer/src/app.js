@@ -27,20 +27,20 @@ const POSE = {
   hook: [1, 2.3, 1.05, 0, 0, 0.7, 7.6, 0.3],
   idea: [0, 0, 0.8, 1, 2.2, 0.78, 8.2, 1.8],
   dream: [0, 0, 0.8, 1, -2.5, 0.78, 8.0, 2.0],
-  loop: [0, 0, 0.8, 0.28, 0, 0.95, 9.2, 2.4],
+  loop: [0, 0, 0.8, 0.22, 0, 0.6, 9.2, 2.4],
   project: [1, 3.0, 0.95, 0, 0, 0.75, 7.8, 0.4],
   fail: [0.9, -2.7, 0.85, 0, 0, 0.75, 8.0, 0.3],
   code: [0.9, -2.8, 0.85, 0, 0, 0.75, 8.0, 0.5],
-  arms: [0.4, 3.0, 0.65, 0, 0, 0.8, 8.4, 0.6],
-  audit: [0, 0, 0.8, 0.3, 0, 0.95, 9.0, 2.2],
-  fix: [0.6, 2.6, 0.8, 0.25, -1.5, 0.85, 8.2, 1.0],
+  protocol: [0.4, 3.0, 0.65, 0, 0, 0.8, 8.4, 0.6],
+  audit: [0, 0, 0.8, 0.12, 0, 0.95, 9.0, 2.2],
+  harness: [0.6, 2.6, 0.8, 0.12, -1.5, 0.85, 8.2, 1.0],
   live: [0.35, 3.1, 0.62, 0, 0, 0.75, 8.2, 0.3],
-  jump: [0.5, -2.8, 0.7, 0, 0, 0.8, 8.2, 0.5],
-  tasks: [0, 0, 0.8, 0.3, 0, 0.95, 9.0, 2.2],
+  axes: [0.5, -2.8, 0.7, 0, 0, 0.8, 8.2, 0.5],
+  loss: [0, 0, 0.8, 0.12, 0, 0.95, 9.0, 2.2],
   close: [0.95, 0, 0.95, 0.22, 0, 1.05, 7.8, 0.6],
 };
 
-const SLAM_TIMES = [cues.zero, cues.who, cues.never, cues.zero2, cues.lossnot, cues.r3, cues.fail6, cues.robot];
+const SLAM_TIMES = [cues.zero, cues.who, cues.never, cues.zero2, cues.lossnot, cues.gates, cues.lfreeze, cues.robot];
 
 function state3D(t) {
   const idx = sceneIndexAt(t, tl.scenes);
@@ -66,7 +66,7 @@ function state3D(t) {
   } else if (sc.id === "fail") {
     brainColor = COL.red;
     shatter = clamp((t - cues.zero2) / 1.4) * 0.95;
-  } else if (sc.id === "live" || sc.id === "close" || sc.id === "jump" || sc.id === "tasks" || sc.id === "fix") {
+  } else if (sc.id === "live" || sc.id === "close" || sc.id === "axes" || sc.id === "loss" || sc.id === "harness") {
     brainColor = COL.green;
   }
 

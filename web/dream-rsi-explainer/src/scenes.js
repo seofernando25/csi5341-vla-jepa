@@ -55,7 +55,7 @@ export function drawHUD(ctx, t, tl, cues, treeNodes, W, H) {
   ctx.save();
   ctx.translate(48, 38);
   ctx.scale(ce, ce);
-  pill(ctx, `0${idx + 1} · ${sc.chip}`, 0, 0, "#3df0ff", "#06070d", 16);
+  pill(ctx, `${String(idx + 1).padStart(2, "0")} · ${sc.chip}`, 0, 0, "#3df0ff", "#06070d", 16);
   ctx.restore();
   txt(ctx, "CSI 5341 · VLA-JEPA", W - 48, 38, 16, "rgba(255,255,255,0.55)", "right", 700, true);
   ctx.fillStyle = "rgba(255,255,255,0.12)";
@@ -72,14 +72,14 @@ export function drawHUD(ctx, t, tl, cues, treeNodes, W, H) {
   else if (id === "dream") drawDream(ctx, t, s0, cues, W);
   else if (id === "loop") drawLoop(ctx, t, s0, cues, W);
   else if (id === "code") drawCode(ctx, t, s0, cues, W);
-  else if (id === "arms") drawArms(ctx, t, s0, cues, W);
-  else if (id === "project") drawProject(ctx, t, s0, cues, treeNodes, W);
+  else if (id === "protocol") drawProtocol(ctx, t, s0, cues, W);
+  else if (id === "project") drawProject(ctx, t, s0, cues, W);
   else if (id === "fail") drawFail(ctx, t, s0, cues, W, H);
   else if (id === "audit") drawAudit(ctx, t, s0, cues, W);
-  else if (id === "fix") drawFix(ctx, t, s0, cues, W);
+  else if (id === "harness") drawHarness(ctx, t, s0, cues, W);
   else if (id === "live") drawLive(ctx, t, s0, cues, W);
-  else if (id === "jump") drawJump(ctx, t, s0, cues, W);
-  else if (id === "tasks") drawTasks(ctx, t, s0, cues, W);
+  else if (id === "axes") drawAxes(ctx, t, s0, cues, W);
+  else if (id === "loss") drawLoss(ctx, t, s0, cues, W);
   else if (id === "close") drawClose(ctx, t, s0, cues, tl.total, W, H);
 }
 
@@ -93,14 +93,14 @@ function drawHook(ctx, t, c, W, H) {
   card(ctx, 0, 0, 470, 290, kb > 0 ? "#5dff8f" : "rgba(61,240,255,0.5)");
   pill(ctx, "CANDIDATE n0008", 28, 42, "#3df0ff");
   txt(ctx, "HELD-OUT ACTION LOSS", 28, 92, 18, "#8fa3bf", "left", 700, true);
-  const v = lerp(0.32, 0.28, clamp((t - c.better) / 1.5));
+  const v = lerp(0.31, 0.27, clamp((t - c.better) / 1.5));
   txt(ctx, v.toFixed(2), 28, 165, 86, kb > 0 ? "#5dff8f" : "#ffffff", "left", 900, true);
-  txt(ctx, "baseline 0.32", 260, 180, 22, "#8fa3bf", "left", 700, true);
+  txt(ctx, "from 0.31", 260, 180, 22, "#8fa3bf", "left", 700, true);
   if (kb > 0) {
     ctx.save();
     ctx.translate(28, 240);
     ctx.scale(kb, kb);
-    pill(ctx, "✓ −13.6% LOSS · RANK #1 OF 27", 0, 0, "#5dff8f", "#06070d", 17);
+    pill(ctx, "✓ LOSS DOWN · BEST CANDIDATE", 0, 0, "#5dff8f", "#06070d", 17);
     ctx.restore();
   }
   ctx.restore();
@@ -170,7 +170,7 @@ function drawDream(ctx, t, s0, c, W) {
   ctx.scale(k0, k0);
   card(ctx, -310, 0, 620, 118, "rgba(122,140,255,0.6)");
   pill(ctx, "REPLAY SIMULATOR", -282, 34, "#7a8cff", "#06070d", 16);
-  txt(ctx, "27 recorded attempts → offline search tree", -282, 80, 22, "#ffffff", "left", 700);
+  txt(ctx, "recorded attempts → offline search tree", -282, 80, 22, "#ffffff", "left", 700);
   ctx.restore();
 
   const kw = outBack(appear(t, c.walk - 0.1, 0.35));
@@ -246,7 +246,7 @@ function drawLoop(ctx, t, s0, c, W) {
   ctx.restore();
 }
 
-function drawProject(ctx, t, s0, c, treeNodes, W) {
+function drawProject(ctx, t, s0, c, W) {
   const k0 = outBack(appear(t, s0 + 0.3, 0.4));
   const smol = appear(t, c.smol - 0.1, 0.45);
   ctx.save();
@@ -255,14 +255,13 @@ function drawProject(ctx, t, s0, c, treeNodes, W) {
   card(ctx, 0, 0, 560, 185, smol > 0 ? "#ff3d9a" : "#3df0ff");
   pill(ctx, smol > 0 ? "ARM 1 · BACKBONE SWAP" : "RELEASED BASELINE · B16", 24, 36, smol > 0 ? "#ff3d9a" : "#3df0ff", "#06070d", 15);
   txt(ctx, smol > 0 ? "Qwen3-VL  →  SmolVLM2-500M" : "VLA-JEPA (Qwen3-VL + Action Head)", 24, 82, 26, "#ffffff", "left", 800);
-  const mb = Math.round(lerp(5532, 3041, outCubic(smol)));
   ctx.fillStyle = "rgba(255,255,255,0.14)";
   rrect(ctx, 24, 118, 512, 42, 10);
   ctx.fill();
   ctx.fillStyle = smol > 0 ? "#ff3d9a" : "#3df0ff";
   rrect(ctx, 24, 118, 512 * lerp(1, 3041 / 5532, outCubic(smol)), 42, 10);
   ctx.fill();
-  txt(ctx, smol > 0 ? "500M params · 2.97 GiB peak" : `${mb} MB resident (5.5 GB)`, 40, 139, 19, "#ffffff", "left", 900, true);
+  txt(ctx, smol > 0 ? "500M · 2.97 GiB peak" : "5.5 GB resident", 40, 139, 19, "#ffffff", "left", 900, true);
   ctx.restore();
 
   const kl = outBack(appear(t, c.llm - 0.15, 0.4));
@@ -271,23 +270,24 @@ function drawProject(ctx, t, s0, c, treeNodes, W) {
     ctx.translate(64, 325);
     ctx.scale(kl, kl);
     card(ctx, 0, 0, 560, 190, "rgba(255,225,77,0.55)");
-    txt(ctx, "LLM-PROPOSED CONDITIONING ADAPTERS · 27 RUNS", 24, 32, 16, "#ffe14d", "left", 800, true);
-    const real = treeNodes.slice(1);
-    const rev = Math.floor(clamp((t - c.llm) / 2.2) * 27);
-    real.forEach((n, i) => {
-      const gx = 38 + (i % 9) * 36;
-      const gy = 76 + Math.floor(i / 9) * 38;
-      ctx.beginPath();
-      ctx.arc(gx, gy, i < rev ? (n.id === "n0008" ? 13 : 10) : 5, 0, Math.PI * 2);
-      ctx.fillStyle = i >= rev ? "rgba(255,255,255,0.18)" : n.id === "n0008" ? "#ffe14d" : n.status === "ok" ? "#3df0ff" : "#ff4d4d";
+    txt(ctx, "LLM-PROPOSED RESIDUAL ADAPTERS", 24, 32, 16, "#ffe14d", "left", 800, true);
+    const rev = clamp((t - c.llm) / 1.6);
+    for (let i = 0; i < 3; i++) {
+      const k = clamp(rev * 3 - i);
+      if (k <= 0) continue;
+      ctx.fillStyle = "rgba(255,255,255,0.14)";
+      rrect(ctx, 38, 62 + i * 34, 300, 22, 8);
       ctx.fill();
-    });
+      ctx.fillStyle = i === 2 ? "#ffe14d" : "#3df0ff";
+      rrect(ctx, 38, 62 + i * 34, 300 * outCubic(k), 22, 8);
+      ctx.fill();
+    }
     const kloss = appear(t, c.loss - 0.15, 0.45);
     if (kloss > 0) {
-      const v = lerp(0.3197, 0.2762, outCubic(kloss));
-      txt(ctx, "BEST n0008 LOSS", 365, 76, 15, "#8fa3bf", "left", 700, true);
+      const v = lerp(0.31, 0.27, outCubic(kloss));
+      txt(ctx, "BEST HELD-OUT LOSS", 365, 76, 15, "#8fa3bf", "left", 700, true);
       txt(ctx, v.toFixed(2), 365, 130, 58, "#5dff8f", "left", 900, true);
-      txt(ctx, "from 0.32", 495, 138, 17, "#8fa3bf", "left", 700, true);
+      txt(ctx, "from 0.31", 495, 138, 17, "#8fa3bf", "left", 700, true);
     }
     ctx.restore();
   }
@@ -389,101 +389,77 @@ function drawAudit(ctx, t, s0, c, W) {
   ctx.save();
   ctx.translate(W / 2, 300);
   ctx.scale(k0, k0);
-  card(ctx, -520, -185, 1040, 380, "#3df0ff");
-  pill(ctx, "FIDELITY AUDIT vs arXiv:2609.14858v2 · RTX 5060 Ti, commit ef1535e", -485, -142, "#3df0ff", "#06070d", 15);
-  txt(ctx, "Stage 2: post-training Qwen compression, 8 smoke probes", -485, -100, 20, "#8fa3bf", "left", 600);
+  card(ctx, -520, -190, 1040, 420, "#3df0ff");
+  pill(ctx, "FOUR WAYS A SEARCH MISLEADS · THE RULE THAT BLOCKS EACH", -485, -147, "#3df0ff", "#06070d", 15);
+  txt(ctx, "Audited against arXiv:2609.14858v2 before the clean run", -485, -104, 20, "#8fa3bf", "left", 600);
   const rows = [
-    ["Eq.(1) SCORING", "FAITHFUL ✓", "#5dff8f", c.faithful],
-    ["REPLAY COVERAGE", "IN-SAMPLE ✗", "#ff4d4d", c.insample],
-    ["BASE ARM", "T2 compact, NOT report C2 ✗", "#ff4d4d", c.t2],
-    ["8/10 SMOKE GATE", "13.08% FALSE KILLS ✗", "#ff4d4d", c.fkill],
-    ["M=4 REVISION + FROZEN CONTROL", "MISSING ✗", "#ffe14d", c.missing],
+    ["REPLAY COVERAGE", "OUT-OF-SAMPLE ONLY", c.replay2],
+    ["BASE ARM", "FROZEN IN THE RECIPE", c.base2],
+    ["PROMOTION GATE", "WRITTEN BEFORE THE PHASE", c.gatefix],
+    ["M=4 REVISION", "IN THE PLAN", c.rev],
+    ["FROZEN CONTROL", "PAIRED ON THE SAME STATES", c.control],
   ];
-  rows.forEach(([label, verdict, col, cue], i) => {
+  rows.forEach(([label, verdict, cue], i) => {
     const kr = outBack(appear(t, cue - 0.1, 0.32));
-    const y = -52 + i * 56;
+    const y = -50 + i * 56;
     ctx.save();
-    ctx.globalAlpha = kr > 0 ? 1 : 0.25;
-    const sc = kr > 0 ? kr : 0.9;
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    const sc = kr > 0.001 ? kr : 0.9;
     ctx.translate(-485, y);
     ctx.scale(sc, sc);
     txt(ctx, label, 0, 0, 20, "#ffffff", "left", 800, true);
-    txt(ctx, verdict, 430, 0, 21, kr > 0 ? col : "#56637a", "left", 900, true);
+    txt(ctx, verdict, 975, 0, 18, kr > 0.001 ? "#5dff8f" : "#6f7d95", "right", 900, true);
     ctx.restore();
   });
+  const kf = appear(t, c.fixed - 0.1, 0.35);
+  if (kf > 0) {
+    txt(ctx, "written before the first run", 0, 208, 19, `rgba(255,225,77,${kf})`, "center", 800);
+  }
   ctx.restore();
 }
-
-const ROUNDS = [
-  ["R1", "r1-t20-v45-g32", 83, 853.1, "124.7 MB under T2", "3 cells pass, control 0", false],
-  ["R2", "pruning cliff", 0, 832.5, "820-845 MB", "0/2 passes both arms", true],
-  ["R3", "r3-t15-v40-g32", 88, 885.1, "CI [80.2, 93.0]", "promoted", false],
-];
 
 function drawLive(ctx, t, s0, c, W) {
   const kp = outBack(appear(t, s0 + 0.25, 0.35));
   ctx.save();
-  ctx.translate(54, 100);
+  ctx.translate(54, 110);
   ctx.scale(kp, kp);
-  card(ctx, 0, 0, 610, 415, "rgba(61,240,255,0.45)");
-  pill(ctx, "LIVE SEARCH - RTX 3090 - M=4 + FROZEN CONTROL", 22, 34, "#3df0ff", "#06070d", 15);
+  card(ctx, 0, 0, 1170, 300, "rgba(61,240,255,0.45)");
+  pill(ctx, "CLEAN LOOP · NOT LAUNCHED · METHOD ONLY", 22, 34, "#3df0ff", "#06070d", 15);
 
-  const x0 = 32, bw = 150, gap = 32, base = 330, maxH = 200;
-  ROUNDS.forEach(([tag, name, sc, mb, note, sub, cliff], i) => {
-    const rev = clamp((t - (s0 + 0.5 + i * 1.1)) / 0.4);
-    const h = (cliff ? 0.06 : sc / 100) * maxH * outBack(rev);
+  const steps = [
+    ["01 · ONLINE", "run the current policy", c.online, "#3df0ff"],
+    ["02 · GATE", "smoke, then development", c.promote, "#ffe14d"],
+    ["03 · PROMOTE", "keep only what clears", c.promote, "#5dff8f"],
+    ["04 · RECORD", "every attempt stays", c.record, "#7a8cff"],
+  ];
+  const bw = 250, gap = 40, x0 = 25, y0 = 96;
+  steps.forEach(([label, sub, cue, col], i) => {
+    const kr = outBack(appear(t, cue - 0.12, 0.34));
     const x = x0 + i * (bw + gap);
-    const col = cliff ? "#ff4d4d" : sc >= 88 ? "#5dff8f" : "#3df0ff";
-    ctx.fillStyle = !rev ? "rgba(255,255,255,0.1)" : col;
-    rrect(ctx, x, base - h, bw, Math.max(6, h), 8);
-    ctx.fill();
-    if (rev > 0.3) {
-      const ly = cliff ? base - h - 18 : base - h + 30;
-      txt(ctx, cliff ? "0/2" : `${sc}/100`, x + bw / 2, ly, 24, cliff ? "#ff4d4d" : "#ffffff", "center", 900, true);
-      txt(ctx, tag, x + bw / 2, base + 22, 15, "#ffffff", "center", 900, true);
-      txt(ctx, name, x + bw / 2, base + 42, 12, "#8fa3bf", "center", 700, true);
-      txt(ctx, cliff ? note : `${mb} MB`, x + bw / 2, base + 60, 12, "#56637a", "center", 700, true);
+    ctx.save();
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    const sc = kr > 0.001 ? kr : 0.92;
+    ctx.translate(x, y0);
+    ctx.scale(sc, sc);
+    card(ctx, 0, 0, bw, 150, kr > 0.001 ? col : "rgba(255,255,255,0.18)", 14, "rgba(10,14,28,0.9)");
+    txt(ctx, label, 18, 40, 20, kr > 0.001 ? col : "#6f7d95", "left", 900, true);
+    txt(ctx, sub, 18, 92, 18, "#ffffff", "left", 600);
+    ctx.restore();
+    if (i < steps.length - 1) {
+      const ka = appear(t, cue + 0.25, 0.3);
+      if (ka > 0) txt(ctx, "→", x + bw + gap / 2, y0 + 75, 30, `rgba(255,255,255,${0.7 * ka})`, "center", 900, true);
     }
   });
-  const gy = base - 0.8 * maxH;
-  ctx.strokeStyle = "#ffe14d";
-  ctx.setLineDash([8, 6]);
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  ctx.moveTo(22, gy);
-  ctx.lineTo(588, gy);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  pill(ctx, "GATE 8/10 + EXACT-BINOMIAL", 340, gy - 26, "#ffe14d", "#06070d", 14);
+
+  const kf = outBack(appear(t, c.lfreeze - 0.1, 0.35));
+  if (kf > 0) {
+    ctx.save();
+    ctx.translate(25, 270);
+    ctx.scale(kf, kf);
+    pill(ctx, "SELECTION FREEZES BEFORE THE RESERVED READ", 0, 0, "#ffe14d", "#06070d", 17);
+    ctx.restore();
+  }
   ctx.restore();
-
-  const kr3 = appear(t, c.r3 - 0.1, 0.4);
-  if (kr3 > 0) {
-    const kw = outBack(kr3);
-    ctx.save();
-    ctx.translate(690, 100);
-    ctx.scale(kw, kw);
-    card(ctx, 0, 0, 536, 175, "#5dff8f");
-    pill(ctx, "PROMOTED - r3-t15-v40-g32", 22, 34, "#5dff8f", "#06070d", 16);
-    pill(ctx, "TEXT -15% - VISION -40%", 22, 82, "#3df0ff", "#06070d", 15);
-    pill(ctx, "GROUP SIZE 32", 300, 82, "#3df0ff", "#06070d", 15);
-    txt(ctx, "88 / 100 dev - 885.1 MB", 22, 140, 28, "#ffffff", "left", 900, true);
-    ctx.restore();
-  }
-
-  const kc = appear(t, c.cliff - 0.1, 0.35);
-  if (kc > 0) {
-    const k = outBack(kc);
-    ctx.save();
-    ctx.translate(690, 295);
-    ctx.scale(k, k);
-    card(ctx, 0, 0, 536, 220, "#ff4d4d");
-    txt(ctx, "PRUNING CLIFF", 24, 50, 30, "#ff4d4d", "left", 900, true);
-    txt(ctx, "820-845 MB - both arms fail", 24, 100, 22, "#ffffff", "left", 700);
-    txt(ctx, "R1: 3 cells pass vs control 0", 24, 140, 20, "#ffe14d", "left", 700);
-    txt(ctx, "83/100 - 853.1 MB - 124.7 vs T2", 24, 176, 20, "#8fa3bf", "left", 700);
-    ctx.restore();
-  }
 }
 
 function drawCode(ctx, t, s0, c, W) {
@@ -506,8 +482,8 @@ function drawCode(ctx, t, s0, c, W) {
     const kr = outBack(appear(t, cue - 0.1, 0.32));
     const gx = 24 + (i % 2) * 270, gy = 108 + Math.floor(i / 2) * 32;
     ctx.save();
-    ctx.globalAlpha = kr > 0 ? 1 : 0.3;
-    txt(ctx, name, gx, gy, 17, kr > 0 ? col : "#56637a", "left", 900, true);
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.3;
+    txt(ctx, name, gx, gy, 17, kr > 0.001 ? col : "#6f7d95", "left", 900, true);
     txt(ctx, desc, gx + 128, gy, 14, "#8fa3bf", "left", 600);
     ctx.restore();
   });
@@ -528,174 +504,182 @@ function drawCode(ctx, t, s0, c, W) {
   }
 }
 
-function drawArms(ctx, t, s0, c, W) {
+function drawProtocol(ctx, t, s0, c, W) {
   const k0 = outBack(appear(t, s0 + 0.25, 0.4));
   ctx.save();
-  ctx.translate(W / 2, 290);
+  ctx.translate(W / 2, 300);
   ctx.scale(k0, k0);
-  card(ctx, -520, -180, 1040, 370, "#5dff8f");
-  pill(ctx, "RESERVED-500 SCOREBOARD - NOBODY TUNES AGAINST THIS", -485, -137, "#5dff8f", "#06070d", 15);
-  const arms = [
-    ["B16 baseline", "475/500", "95.0%", "-", c.b16, "#8fa3bf"],
-    ["C1 full-vocab NF4/HQQ2", "484/500", "96.8%", "1.38 GB", c.c1, "#3df0ff"],
-    ["C2 CUDA-graph NF4", "490/500", "98.0%", "1.51 GB - 31.6 ms", c.c2, "#ffe14d"],
+  card(ctx, -520, -190, 1040, 390, "#5dff8f");
+  pill(ctx, "FOUR PHASES · NO PHASE IS POOLED", -485, -147, "#5dff8f", "#06070d", 15);
+  const rows = [
+    ["SCREEN", "80 fixed frames, no simulator", c.screen, "#8fa3bf"],
+    ["SMOKE", "10 trials · gate 8/10", c.smoke, "#3df0ff"],
+    ["DEVELOPMENT", "100 trials · guides selection", c.dev, "#ffe14d"],
+    ["RESERVED", "500 trials · final claim only", c.reserved, "#5dff8f"],
   ];
-  arms.forEach(([label, frac, pct, extra, cue, col], i) => {
+  rows.forEach(([label, note, cue, col], i) => {
     const kr = outBack(appear(t, cue - 0.12, 0.35));
-    const y = -70 + i * 96;
-    const w = (i === 0 ? 0.95 : i === 1 ? 0.968 : 0.98) * 560 * outCubic(kr);
+    const gate = i === 1 && t >= c.gate8 - 0.1;
+    const y = -85 + i * 72;
     ctx.save();
-    ctx.globalAlpha = kr > 0 ? 1 : 0.25;
-    txt(ctx, label, -485, y, 21, "#ffffff", "left", 800);
-    rrect(ctx, -185, y - 22, Math.max(10, w), 44, 10);
-    ctx.fillStyle = kr > 0 ? col : "#56637a";
-    ctx.fill();
-    if (kr > 0.4) {
-      txt(ctx, `${frac}  ${pct}`, -165 + w, y, 24, "#ffffff", "left", 900, true);
-      txt(ctx, extra, 330, y, 18, "#8fa3bf", "left", 700, true);
-    }
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    const sc = kr > 0.001 ? kr : 0.92;
+    ctx.translate(-485, y);
+    ctx.scale(sc, sc);
+    txt(ctx, label, 0, 0, 24, kr > 0.001 ? col : "#6f7d95", "left", 900, true);
+    txt(ctx, note, 250, 0, 21, gate ? "#5dff8f" : kr > 0.001 ? "#ffffff" : "#6f7d95", "left", gate ? 900 : 700);
     ctx.restore();
   });
+  const kn = appear(t, c.nopool - 0.1, 0.35);
+  if (kn > 0) {
+    ctx.save();
+    ctx.globalAlpha = kn;
+    txt(ctx, "reserved never guides selection", 0, 172, 20, "#ffe14d", "center", 800);
+    ctx.restore();
+  }
   ctx.restore();
 }
 
-function drawFix(ctx, t, s0, c, W) {
+function drawHarness(ctx, t, s0, c, W) {
   const k0 = outBack(appear(t, s0 + 0.25, 0.4));
   ctx.save();
   ctx.translate(64, 110);
   ctx.scale(k0, k0);
   card(ctx, 0, 0, 1152, 400, "#3df0ff");
-  pill(ctx, "TONIGHT - RTX 3090 - ALL FOUR REPAIRS", 24, 36, "#3df0ff", "#06070d", 15);
+  pill(ctx, "CLEAN HARNESS · ONE NODE AT A TIME", 24, 36, "#3df0ff", "#06070d", 15);
   const items = [
-    ["LEAVE-ONE-WORLD-OUT REPLAY", "33+ worlds", c.worlds, "#3df0ff"],
-    ["10/10 COARSE FOLDS WON", "0.3854 vs 0.2192", c.coarse, "#5dff8f"],
-    ["5/5 LIVE FOLDS WON", "0.2047 vs 0.0964", c.live5, "#5dff8f"],
-    ["M=4 REVISION GENERATOR", "rsi/develop.py", c.m4gen, "#7a8cff"],
-    ["EXACT-BINOMIAL GATE", "false kills 13.08 to 4.43%", c.fk, "#ffe14d"],
-    ["PARALLEL ROLLOUT HARNESS", "evaluation/parallel_rollout", c.par, "#ff3d9a"],
+    ["EXPANSION", "rsi/expansion.py · fork, agent, freeze", c.exp, "#3df0ff"],
+    ["REPLAY", "rsi/replay_worker.py · offline, no GPU", c.rp, "#5dff8f"],
+    ["POLICY DEV", "rsi/policy_dev.py · replay-gated", c.pdev, "#7a8cff"],
+    ["GATES", "rsi/gate.py · 8/10, 77/100, Wilson", c.gates, "#ffe14d"],
+    ["PARALLEL ROLLOUT", "evaluation/parallel_rollout.py", c.par, "#ff3d9a"],
+    ["CYCLE RECORD", "tree, manifest, policy hash", c.rec, "#8fa3bf"],
   ];
   items.forEach(([label, val, cue, col], i) => {
     const kr = outBack(appear(t, cue - 0.1, 0.32));
     const gx = 24 + (i % 2) * 576, gy = 92 + Math.floor(i / 2) * 100;
     ctx.save();
-    ctx.globalAlpha = kr > 0 ? 1 : 0.22;
-    const sc = kr > 0 ? kr : 0.92;
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    const sc = kr > 0.001 ? kr : 0.92;
     ctx.translate(gx, gy);
     ctx.scale(sc, sc);
-    card(ctx, 0, 0, 548, 84, kr > 0 ? col : "rgba(255,255,255,0.18)", 12, "rgba(10,14,28,0.9)");
-    txt(ctx, label, 18, 30, 19, kr > 0 ? col : "#56637a", "left", 900, true);
-    txt(ctx, val, 18, 60, 17, "#ffffff", "left", 700, true);
+    card(ctx, 0, 0, 548, 84, kr > 0.001 ? col : "rgba(255,255,255,0.18)", 12, "rgba(10,14,28,0.9)");
+    txt(ctx, label, 18, 30, 19, kr > 0.001 ? col : "#6f7d95", "left", 900, true);
+    txt(ctx, val, 18, 60, 16, "#ffffff", "left", 700, true);
     ctx.restore();
   });
   ctx.restore();
 }
 
-function drawJump(ctx, t, s0, c, W) {
+function drawAxes(ctx, t, s0, c, W) {
   const k0 = outBack(appear(t, s0 + 0.25, 0.4));
   ctx.save();
   ctx.translate(64, 100);
   ctx.scale(k0, k0);
-  card(ctx, 0, 0, 560, 420, "#3df0ff");
-  pill(ctx, "ROUND 4 - FULL-VOCAB C1 BASE", 22, 34, "#3df0ff", "#06070d", 15);
-  txt(ctx, "int8_embedding replaces compact_embedding", 22, 78, 18, "#8fa3bf", "left", 700);
-  const kf = outBack(appear(t, c.five5 - 0.1, 0.35));
-  txt(ctx, "smoke: 5/5 probes pass 8/10", 22, 118, 22, kf > 0 ? "#5dff8f" : "#56637a", "left", 800);
-  const kr4 = outBack(appear(t, c.r4 - 0.1, 0.35));
-  if (kr4 > 0) {
+  card(ctx, 0, 0, 1152, 420, "#3df0ff");
+  pill(ctx, "PRECISION SURFACE · PRE-REGISTERED ARMS", 22, 34, "#3df0ff", "#06070d", 15);
+  const cols = [
+    ["LANGUAGE", c.lang],
+    ["VISION", c.vision],
+    ["ACTION", c.action],
+  ];
+  const fmts = ["INT8", "NF4", "HQQ3", "HQQ2"];
+  cols.forEach(([label, cue], i) => {
+    const kr = outBack(appear(t, cue - 0.1, 0.35));
+    const x = 22 + i * 376;
     ctx.save();
-    ctx.translate(22, 150);
-    ctx.scale(kr4, kr4);
-    card(ctx, 0, 0, 516, 130, "#5dff8f");
-    txt(ctx, "r4-c1-t15-v35-g32", 18, 34, 24, "#5dff8f", "left", 900, true);
-    txt(ctx, "86/100 dev [77.9, 91.5] - 1199.6 MB", 18, 74, 20, "#ffffff", "left", 800);
-    txt(ctx, "88.8 MB under C1 (1288.4 MB, 87/100)", 18, 104, 17, "#8fa3bf", "left", 700);
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    card(ctx, x, 66, 352, 186, kr > 0.001 ? "#3df0ff" : "rgba(255,255,255,0.18)", 12, "rgba(10,14,28,0.9)");
+    txt(ctx, label, x + 18, 96, 20, kr > 0.001 ? "#3df0ff" : "#6f7d95", "left", 900, true);
+    fmts.forEach((f, j) => {
+      const kk = outBack(appear(t, cue - 0.1 + j * 0.12, 0.3));
+      if (kk <= 0) return;
+      ctx.save();
+      ctx.translate(x + 18 + (j % 2) * 168, 146 + Math.floor(j / 2) * 54);
+      ctx.scale(kk, kk);
+      pill(ctx, f, 0, 0, kr > 0.001 ? "#7a8cff" : "#6f7d95", "#06070d", 16);
+      ctx.restore();
+    });
+    ctx.restore();
+  });
+
+  const kj = outBack(appear(t, c.joint - 0.1, 0.35));
+  if (kj > 0) {
+    ctx.save();
+    ctx.translate(22, 284);
+    ctx.scale(kj, kj);
+    pill(ctx, "JOINT VISION + ACTION 2-BIT CELL", 0, 0, "#ff3d9a", "#ffffff", 17);
     ctx.restore();
   }
-  const ks1 = outBack(appear(t, c.s1 - 0.1, 0.35));
-  if (ks1 > 0) {
-    ctx.save();
-    ctx.translate(22, 295);
-    ctx.scale(ks1, ks1);
-    pill(ctx, "solver_steps=1 PASSES 8/10", 0, 0, "#ffe14d", "#06070d", 17);
-    ctx.restore();
+  const kc = appear(t, c.curve - 0.1, 0.35);
+  if (kc > 0) txt(ctx, "success against effective bits, not nominal bits", 22, 336, 20, `rgba(255,255,255,${kc})`, "left", 700);
+  const ke = appear(t, c.exec - 0.1, 0.35);
+  if (ke > 0) {
+    txt(ctx, "EXECUTION LADDER", 22, 382, 17, `rgba(255,225,77,${ke})`, "left", 800, true);
+    txt(ctx, "stock / CUDA graph · dense / packed · 1 / 4 flow steps", 250, 382, 18, `rgba(255,255,255,${ke})`, "left", 700);
   }
   ctx.restore();
-
-  const kh = appear(t, c.ctrl - 0.12, 0.4);
-  if (kh > 0) {
-    const k = outBack(kh);
-    const kf6 = appear(t, c.fail6 - 0.1, 0.35);
-    ctx.save();
-    ctx.translate(656, 100);
-    ctx.scale(k, k);
-    card(ctx, 0, 0, 560, 420, "#ff3d9a");
-    pill(ctx, "ROUND 5 - UNTOUCHED AXES", 22, 34, "#ff3d9a", "#ffffff", 15);
-    txt(ctx, "HQQ 3-bit vision: 85/100 dev", 22, 92, 24, "#ffffff", "left", 900, true);
-    txt(ctx, "876.0 MB", 22, 130, 24, "#5dff8f", "left", 800);
-    txt(ctx, "tasks 0, 5, 8: 5, 7, 4 /10", 22, 172, 20, "#ffe14d", "left", 800);
-    txt(ctx, "control-bottlenecked, not bitwidth", 22, 206, 18, "#ffffff", "left", 700);
-    if (kf6 > 0) {
-      txt(ctx, "12.5% head pruning: 6/10 FAILS", 22, 252, 20, "#ff4d4d", "left", 900, true);
-      txt(ctx, "attention heads are load-bearing", 22, 284, 18, "#8fa3bf", "left", 700);
-    }
-    ctx.restore();
-  }
 }
 
-function drawTasks(ctx, t, s0, c, W) {
+function drawLoss(ctx, t, s0, c, W) {
   const k0 = outBack(appear(t, s0 + 0.25, 0.4));
   ctx.save();
   ctx.translate(64, 110);
   ctx.scale(k0, k0);
   card(ctx, 0, 0, 1152, 400, "#ffe14d");
-  pill(ctx, "PER-TASK DIAGNOSIS - WHY DEV RUNS STALL AT 83-88", 24, 36, "#ffe14d", "#06070d", 15);
-  const scores = [55, 95, 95, 95, 92, 60, 95, 97, 45, 93];
-  const bad = { 0: c.t0, 5: c.t5, 8: c.t8 };
-  const x0 = 40, bw = 92, gap = 16, base = 420, maxH = 220;
-  scores.forEach((sc, i) => {
-    const cue = bad[i] !== undefined ? bad[i] : s0 + 1.2;
-    const rev = clamp((t - (cue - 0.15)) / 0.35);
-    const h = (sc / 100) * maxH * outBack(Math.max(0, rev));
-    const isBad = sc < 80;
-    const x = x0 + i * (bw + gap);
-    ctx.fillStyle = !rev ? "rgba(255,255,255,0.12)" : isBad ? "#ff4d4d" : "#5dff8f";
-    rrect(ctx, x, base - h, bw, Math.max(6, h), 8);
-    ctx.fill();
-    if (rev > 0.3) {
-      txt(ctx, isBad ? "40-70" : "90+", x + bw / 2, base - h - 16, isBad ? 18 : 20, isBad ? "#ff4d4d" : "#ffffff", "center", 900, true);
-      txt(ctx, `T${i}`, x + bw / 2, base + 24, 15, isBad ? "#ff4d4d" : "#8fa3bf", "center", 900, true);
-    }
+  pill(ctx, "THREE SUSPECTS · SEPARATED BY THE PROTOCOL", 24, 36, "#ffe14d", "#06070d", 15);
+  const items = [
+    ["WEIGHT PRECISION", "does the drop track effective bits?", "measured by the surface", c.w, "#3df0ff"],
+    ["EXECUTION PATH", "does it track the runtime path?", "measured by the ladder", c.e, "#7a8cff"],
+    ["SEARCH PROCEDURE", "does it track the selected policy?", "measured by the cycle", c.s, "#ff3d9a"],
+  ];
+  items.forEach(([label, sub, note, cue, col], i) => {
+    const kr = outBack(appear(t, cue - 0.1, 0.35));
+    const x = 24 + i * 376;
+    ctx.save();
+    ctx.globalAlpha = kr > 0.001 ? 1 : 0.55;
+    const sc = kr > 0.001 ? kr : 0.92;
+    ctx.translate(x, 92);
+    ctx.scale(sc, sc);
+    card(ctx, 0, 0, 352, 180, kr > 0.001 ? col : "rgba(255,255,255,0.18)", 14, "rgba(10,14,28,0.9)");
+    txt(ctx, label, 18, 48, 21, kr > 0.001 ? col : "#6f7d95", "left", 900, true);
+    txt(ctx, sub, 18, 100, 17, "#ffffff", "left", 600);
+    txt(ctx, note, 18, 146, 15, "#8fa3bf", "left", 700, true);
+    ctx.restore();
   });
-  const gy = base - 0.9 * maxH;
-  ctx.strokeStyle = "rgba(255,255,255,0.35)";
-  ctx.setLineDash([8, 6]);
-  ctx.beginPath();
-  ctx.moveTo(24, gy);
-  ctx.lineTo(1128, gy);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  txt(ctx, "the gripper, not the quantization, is the ceiling", 576, 462, 20, "#ffffff", "center", 700);
+  const kq = appear(t, c.q - 0.1, 0.35);
+  if (kq > 0) {
+    txt(ctx, "per-task results name the ceiling: the gripper or the quantization", 24, 320, 21, `rgba(255,255,255,${kq})`, "left", 700);
+  }
+  const kr2 = outBack(appear(t, c.robot2 - 0.1, 0.35));
+  if (kr2 > 0) {
+    ctx.save();
+    ctx.translate(24, 366);
+    ctx.scale(kr2, kr2);
+    pill(ctx, "ONLY THE ROBOT DECIDES", 0, 0, "#5dff8f", "#06070d", 17);
+    ctx.restore();
+  }
   ctx.restore();
 }
 
 function drawClose(ctx, t, s0, c, total, W, H) {
-  const k1 = outBack(appear(t, s0 + 0.25, 0.4));
-  const k2 = outBack(appear(t, s0 + 1.6, 0.4));
-  const k3 = outBack(appear(t, s0 + 2.8, 0.4));
+  const k1 = outBack(appear(t, c.locked - 0.1, 0.4));
+  const k2 = outBack(appear(t, c.untouched - 0.1, 0.4));
+  const k3 = outBack(appear(t, c.freeze + 0.4, 0.4));
   ctx.save();
   ctx.translate(150, 175);
   ctx.scale(k1, k1);
   card(ctx, -130, -55, 260, 110, "#7a8cff");
-  txt(ctx, "ROUND 6 STAGED", 0, -14, 22, "#7a8cff", "center", 900, true);
-  txt(ctx, "C2 + full-precision grid", 0, 22, 16, "#ffffff", "center", 600);
+  txt(ctx, "SELECTION FROZEN", 0, -14, 22, "#7a8cff", "center", 900, true);
+  txt(ctx, "before the reserved read", 0, 22, 16, "#ffffff", "center", 600);
   ctx.restore();
 
   ctx.save();
   ctx.translate(640, 175);
   ctx.scale(k2, k2);
   card(ctx, -170, -55, 340, 110, "#ffe14d");
-  txt(ctx, "500 RESERVED: 100% UNTOUCHED", 0, -14, 18, "#ffe14d", "center", 900, true);
-  txt(ctx, "experiments freeze here", 0, 22, 17, "#ffffff", "center", 600);
+  txt(ctx, "500 RESERVED · LOCKED", 0, -14, 18, "#ffe14d", "center", 900, true);
+  txt(ctx, "experiments stop here", 0, 22, 17, "#ffffff", "center", 600);
   ctx.restore();
 
   ctx.save();
@@ -707,7 +691,7 @@ function drawClose(ctx, t, s0, c, total, W, H) {
   ctx.restore();
 
   const kr = appear(t, c.robot - 0.15, 0.4);
-  if (kr > 0) {
+  if (kr > 0.001) {
     const s = outBack(kr, 2.3);
     ctx.save();
     ctx.translate(W / 2, 370);
