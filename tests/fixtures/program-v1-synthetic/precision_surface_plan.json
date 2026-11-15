@@ -1,0 +1,34 @@
+{
+  "protocol": "synthetic-fixture",
+  "experiment": "precision-surface",
+  "status": "synthetic",
+  "arms": [
+    "B16",
+    "format-lang-gptq",
+    "format-lang-hqq4",
+    "ladder-b16-graph-1step",
+    "ladder-b16-graph-4step",
+    "ladder-nf4-graph-1step-dense",
+    "ladder-nf4-graph-1step-packed",
+    "ladder-nf4-graph-4step",
+    "precision-action-hqq2",
+    "precision-action-int8",
+    "precision-action-nf4",
+    "precision-joint-va-hqq2",
+    "precision-lang-hqq2",
+    "precision-lang-int8",
+    "precision-lang-nf4",
+    "precision-vision-hqq2",
+    "precision-vision-int8",
+    "precision-vision-nf4"
+  ],
+  "hypotheses": {
+    "H1": "synthetic",
+    "H2": "synthetic",
+    "H3": "synthetic",
+    "H4": "synthetic"
+  },
+  "decision_rules": {
+    "smoke_failure": "synthetic"
+  }
+}

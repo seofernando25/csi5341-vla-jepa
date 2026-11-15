@@ -9,6 +9,7 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Rollout (reserved, 500 trials) | `uv run --no-sync vla-eval rollout --variant B16 --phase final --episodes 50` | Official 50/task states; GPU |
 | Timing (pipeline + policy) | `uv run --no-sync vla-eval benchmark --variant B16` | Requires `vla-eval collect` bank; GPU |
 | Compression recipe | `uv run --no-sync vla-compress run --recipe studies/program-v1/recipes/<id>.json --phase <phase>` | Phases: `screen`, `smoke`, `development`, `final`, `size`, `benchmark` |
+| Compression queue | `uv run --no-sync vla-compress-queue --dry-run` then `uv run --no-sync vla-compress-queue` | Ordered cells from `studies/program-v1/queue.json`; resumable; stops on a runtime failure; `--allow-reserved` is required for `queue-reserved.json` |
 | Agent-written solution (`compress(policy, calibration)`) | `uv run --no-sync vla-compress solution --workspace DIR --phase {check,smoke,development} --out DIR` | Fixed evaluator; writes `DIR/result.json`, `DIR/log.txt`; GPU |
 | Dream-RSI loop | `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8 --max-parallelism 2 --promote-top-k 0` | Online per-node workspace expansion (discovery agent in `bwrap`, fixed `solution` evaluator in the GPU sandbox) + LLM policy rewriting under `studies/program-v1/`; GPU. Agent flags: `--backend {claude,pi}`, `--model`, `--effort` (default: protocol `dream_rsi.agent`, pi on `mistral/deepseek-v4-1-flash-1017` at max thinking); timeouts default to protocol `dream_rsi.agent_timeout_s` / `eval_timeout_s` |
 | Dream-RSI detached run | `uv run --no-sync vla-rsi start --study-dir studies/program-v1 -- loop --cycles 3 --max-hours 8 --max-agent-usd 20 --max-parallelism 2 --promote-top-k 0` | Launches `loop` as a `systemd --user` unit (restart on failure; `setsid` fallback); appends `DIR/loop.log`; GPU. Re-running resumes from `DIR/loop_state.json`. `--` separates `start` flags from `loop` flags |
@@ -33,6 +34,7 @@ All scripts accept `--help` without running GPU jobs or modifying outputs:
 - `vla-hardware` (`evaluation.hardware:main`): Capture portable hardware inventory JSON.
 - `vla-sources` (`evaluation.sources:main`): Download pinned model weights and simulator assets.
 - `vla-compress` (`evaluation.compression.study:main`): Calibrate (`calibrate`) and measure (`run`) Study B compression recipes.
+- `vla-compress-queue` (`evaluation.compression.queue:main`): Run an ordered (recipe, phase) queue from `studies/program-v1/queue.json`; `--dry-run` prints the plan and estimated minutes.
 - `vla-compress-analyze` (`evaluation.compression.analysis:main`): Rebuild `studies/program-v1/summary.csv`.
 - `vla-compress-cka` (`evaluation.compression.cka:main`): Compute per-block linear CKA profile (`studies/program-v1/cka.json`).
 - `vla-rsi` (`rsi.__main__:main`): clean-room online cycle (`cycle`), LLM policy-code rewriting (`develop`), and full outer loop (`loop`).

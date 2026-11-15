@@ -5,13 +5,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
-from report.plots.data import STUDY
 from report.plots.style import COL, COLORS, GRID, INK, INK_2, MUTED, OUT, style_axes
 
 
-def fig_divergence(div: pd.DataFrame) -> dict | None:
-    """Offline arm change vs closed-loop success; None until the divergence record exists."""
-    if div.empty:
+def fig_divergence(div: pd.DataFrame, rows: dict) -> dict | None:
+    """Offline arm change vs closed-loop success; None until screen and smoke cells exist."""
+    if len(div) < 3:  # a rank correlation needs more than two recipes
         return None
     floor = 2e-8
     rng = np.random.default_rng(0)
@@ -35,11 +34,15 @@ def fig_divergence(div: pd.DataFrame) -> dict | None:
         )
 
     rho, p = spearmanr(div.arm_mse, div.smoke)
-    comp = pd.read_csv(STUDY / "summary.csv").set_index("candidate")
-    dev = div.join(comp.development_successes, on="candidate").dropna(
-        subset=["development_successes"]
-    )
-    rho_dev, p_dev = spearmanr(dev.arm_mse, dev.development_successes)
+    dev = div.assign(
+        development_successes=[rows.get(c, {}).get("development_successes") for c in div.candidate]
+    ).dropna(subset=["development_successes"])
+    if len(dev) >= 3:
+        rho_dev, p_dev = spearmanr(dev.arm_mse, dev.development_successes)
+        dev_note = f"dev ρ = {rho_dev:.2f} (n = {len(dev)})"
+    else:
+        rho_dev, p_dev = float("nan"), float("nan")
+        dev_note = f"dev ρ not computed (n = {len(dev)})"
     clean = div[div.arm_mse < 1e-4]
     noisy = div[div.arm_mse >= 1e-3]
     clean_ge7 = int((clean.smoke >= 7).sum())
@@ -110,7 +113,7 @@ def fig_divergence(div: pd.DataFrame) -> dict | None:
     ax.text(
         0.085,
         0.64,
-        f"Spearman ρ = {rho:.2f} (n = {len(div)})\ndev ρ = {rho_dev:.2f} (n = {len(dev)}, n.s.)",
+        f"Spearman ρ = {rho:.2f} (n = {len(div)})\n{dev_note}",
         transform=ax.transAxes,
         ha="left",
         va="top",
@@ -140,15 +143,19 @@ def fig_divergence(div: pd.DataFrame) -> dict | None:
         "p_value": float(p),
         "n": len(div),
         "rho_gripper": float(spearmanr(div.gripper, div.smoke)[0]),
-        "development": {"n": len(dev), "spearman_rho": float(rho_dev), "p_value": float(p_dev)},
+        "development": (
+            {"n": len(dev), "spearman_rho": float(rho_dev), "p_value": float(p_dev)}
+            if len(dev) >= 3
+            else {"n": len(dev), "spearman_rho": None, "p_value": None}
+        ),
         "below_1e-4": {
             "n": len(clean),
-            "mean_smoke": float(clean.smoke.mean()),
-            "share_ge7": float((clean.smoke >= 7).mean()),
+            "mean_smoke": float(clean.smoke.mean()) if len(clean) else None,
+            "share_ge7": float((clean.smoke >= 7).mean()) if len(clean) else None,
         },
         "above_1e-3": {
             "n": len(noisy),
-            "mean_smoke": float(noisy.smoke.mean()),
-            "share_ge7": float((noisy.smoke >= 7).mean()),
+            "mean_smoke": float(noisy.smoke.mean()) if len(noisy) else None,
+            "share_ge7": float((noisy.smoke >= 7).mean()) if len(noisy) else None,
         },
     }

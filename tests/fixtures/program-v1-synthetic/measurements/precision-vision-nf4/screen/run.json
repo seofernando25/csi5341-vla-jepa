@@ -1,0 +1,33 @@
+{
+  "candidate": {
+    "id": "precision-vision-nf4",
+    "family": "precision-vision",
+    "changes": []
+  },
+  "phase": "screen",
+  "status": "completed",
+  "summary": {
+    "synthetic": true,
+    "modules": {
+      "text": {
+        "resident_tensor_storage_bytes": 2000000000,
+        "logical_parameter_elements": 1000000000
+      },
+      "vision": {
+        "resident_tensor_storage_bytes": 262500000,
+        "logical_parameter_elements": 500000000
+      },
+      "action": {
+        "resident_tensor_storage_bytes": 400000000,
+        "logical_parameter_elements": 200000000
+      }
+    },
+    "resident_tensor_storage_bytes": 5610000000.0,
+    "inference_core_logical_parameter_elements": 1700000000.0,
+    "peak_allocated_bytes": 4600000000,
+    "pipeline_median_ms": 79.1,
+    "pipeline_p95_ms": 82.264,
+    "mean_physical_arm_change_mse": 2.2e-06,
+    "mean_gripper_disagreement": 0.0
+  }
+}

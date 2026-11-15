@@ -2,51 +2,58 @@
 
 Usage: python -m report.plots   (repository root; CPU only, no model loading)
 Every number quoted in report/main.tex is written to report/data/numbers.json.
-Figures whose clean-room evidence is absent are skipped and recorded under `figures`.
+A figure whose clean-room evidence is absent is skipped, named on stdout, and recorded under
+`figures`; no number from a skipped figure reaches numbers.json.
 """
 
 import argparse
 import json
 
+from report.plots.cycles import dream_rsi_cycles
 from report.plots.data import (
     DATA,
     STUDY,
     collect,
     divergence,
-    dream_rsi_cycles,
-    launch_profile,
     memory_ceiling,
     parameter_census,
+    plan,
     recovery_dev,
 )
 from report.plots.divergence import fig_divergence
+from report.plots.precision import fig_format, fig_precision
 from report.plots.results import fig_ladder
-from report.plots.sensitivity import fig_sensitivity
 from report.plots.style import OUT
 
 
-def _built(result) -> str:
-    return "ok" if result is not None else "skipped: evidence absent"
+def build(name, builder, *args) -> str:
+    """Run one figure builder; report a skip by name instead of failing the whole build."""
+    result = builder(*args)
+    if result is None:
+        print(f"skip {name}: evidence absent")
+        return "skipped: evidence absent"
+    return "ok"
 
 
 def main() -> None:
     argparse.ArgumentParser(description=__doc__).parse_args()
-    if not (STUDY / "summary.csv").exists():
-        print("No clean-room evidence yet; report figures were not rebuilt.")
+    if not (STUDY / "measurements").is_dir():
+        print("No clean-room measurements yet; report figures were not rebuilt.")
         return
     OUT.mkdir(parents=True, exist_ok=True)
     DATA.mkdir(parents=True, exist_ok=True)
     n = collect()
     census = parameter_census()
     n["census"] = census
+    n["plan"] = plan()
     b16 = n["rows"].get("B16") or {}
-    if "peak_allocated_gb" in b16:
-        n["memory_ceiling"] = memory_ceiling(census, b16["peak_allocated_gb"])
-    n["launch_profile"] = launch_profile()
+    if "benchmark_peak_allocated_gb" in b16:
+        n["memory_ceiling"] = memory_ceiling(census, b16["benchmark_peak_allocated_gb"])
     n["figures"] = {
-        "ladder": _built(fig_ladder(n)),
-        "sensitivity": _built(fig_sensitivity()),
-        "divergence": _built(fig_divergence(divergence())),
+        "precision": build("precision", fig_precision, n),
+        "format": build("format", fig_format, n),
+        "ladder": build("ladder", fig_ladder, n),
+        "divergence": build("divergence", fig_divergence, divergence(), n["rows"]),
     }
     n["dream_rsi"] = dream_rsi_cycles()
     n["recovery_dev"] = recovery_dev()

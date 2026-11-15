@@ -23,7 +23,7 @@ import torch
 from evaluation.common import PROTOCOL, environment, read_json, recorded_run, write_json
 from evaluation.compression import calibration as calib
 from evaluation.compression.inventory import serialize, storage_inventory
-from evaluation.compression.recipes import apply
+from evaluation.compression.recipes import apply, validate
 from evaluation.fastpath import attach
 from evaluation.models import load_policy
 from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
@@ -141,7 +141,7 @@ def deployed_architecture(policy):
 
 def run(recipe_path, phase, predictions, measurements_root=None):
     calib.setup()
-    recipe = read_json(recipe_path)
+    recipe = validate(read_json(recipe_path), recipe_path)
     root = (
         Path(measurements_root) if measurements_root is not None else calib.STUDY / "measurements"
     )

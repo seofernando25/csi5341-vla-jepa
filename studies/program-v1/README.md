@@ -75,20 +75,53 @@ uv run --no-sync vla-compress run --recipe studies/program-v1/recipes/<id>.json 
 uv run --no-sync vla-compress-analyze
 ```
 
-Dream-RSI:
+`--phase final` is the reserved-500 phase; the queue runner refuses it without `--allow-reserved`.
+
+## Measurement queue
+
+`vla-compress-queue` runs ordered (recipe, phase) cells from [queue.json](queue.json). It skips a
+cell whose `run.json` says `completed`, stops on the first failure that is not a measured outcome
+(a nonfinite-action screen is one), and refuses reserved cells unless `--allow-reserved` is passed.
 
 ```sh
-uv run --no-sync vla-rsi --help
+uv run --no-sync vla-compress-queue --dry-run
+uv run --no-sync vla-compress-queue
+uv run --no-sync vla-compress-queue --queue studies/program-v1/queue-reserved.json --allow-reserved
 ```
 
-The pre-GPU check is the test suite. The first live pilot was a harness check in a scratch
-directory, not evidence (2026-11-15): 4 nodes, 2 rounds, 6 min 14 s wall, agent cost $0.03. All four
-solutions were agent-written INT8 variants scoring 8/10 on smoke, removing 25.4 %, 35.5 %, 38.6 %
-and 44.2 % of memory. Do not cite these numbers as results.
+`queue.json` is the default: B16 screen/smoke/development, the precision ladder, the joint cell,
+the format curve, then the execution-ladder benchmarks. Benchmark runs already serialize the packed
+archive, so no separate `size` cell is queued. [queue-reserved.json](queue-reserved.json) holds the
+reserved-500 cells and is never run by default.
 
-Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rsi.discovery_tools`
-(`read,write,edit,bash`), `dream_rsi.policy_dev_tools` (`read,write,edit`), `agent_timeout_s`,
-`eval_timeout_s` (1800 each) and `gpu_slots` (2). `allowed_methods` and `agent_tools` were removed.
+## Recipes
+
+22 files under `recipes/`, all validated by `evaluation.compression.recipes.validate`, which
+`vla-compress run` calls before loading a model.
+
+| Group | Files |
+|---|---|
+| Baseline | `B16` (no changes) |
+| Precision ladder | `precision-{lang,vision,action}-{int8,nf4,hqq3,hqq2}` |
+| Joint cell | `precision-joint-va-hqq2` (vision HQQ2 + action HQQ2, language BF16) |
+| Format curve | `format-lang-{hqq4,gptq,awq}` (decoder only) |
+| Execution ladder | `ladder-b16-graph-{4step,1step}`, `ladder-nf4-graph-{4step,1step-dense,1step-packed}` |
+
+Readings taken where the plan was ambiguous:
+
+- The joint cell is the factorial cell the H4 interaction needs: vision HQQ2 plus action HQQ2 only.
+  The earlier file also quantized action attention and interfaces at 4 bits, which no single-module
+  arm shares.
+- Q4 and Q8 are the decoder-only NF4 and INT8 arms, so the reserved anchors and the ladder rows
+  reuse `precision-lang-nf4` and `precision-lang-int8` instead of duplicating them.
+- The format curve holds HQQ axis at 0, the pre-registered precision-ladder axis, so format is the
+  only variable. The plan names no axis for HQQ4.
+- The ladder NF4 arms use the deployment shape the 1.5 GB rungs measure: `world_remove`,
+  `int8_embedding`, NF4 on text, vision blocks, merger and action. `world_remove` stays out of the
+  module curves.
+- C1/C2 are not authored: the plan defines them by development outcomes. Append their cells to the
+  reserved queue after selection, then freeze. The packed NF4 one-step ladder arm is the
+  pre-registered stand-in for the deployment claim.
 
 ## Dream-RSI run, 2026-11-15: invalid nodes, preliminary results
 
@@ -119,7 +152,9 @@ until each reported node is re-measured with the fixed evaluator. Reserved-500 h
 
 - Protocol frozen.
 - Precision-surface pre-registration: [precision_surface_plan.json](precision_surface_plan.json).
-- Recipes: 13 precision arms under `recipes/`.
+- Protocol additions dated 2026-11-15 (agent tools, timeouts, GPU slots) are recorded in
+  [protocol.json](protocol.json) under `dream_rsi`.
+- Recipes: 22 arms under `recipes/`; queue: 59 cells, 431 estimated minutes. All 59 cells ran.
 - Evidence: one Dream-RSI run (3 cycles, 24 probes); three cycle-3 nodes invalid, two development
   winners preliminary (see the section above).
 - Report: stale. Do not quote pre-cleanroom numbers.
