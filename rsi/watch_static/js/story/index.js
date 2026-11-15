@@ -57,8 +57,8 @@ export function mountStory(root, ctx) {
 
   const top = el("header", { class: "story-top" }, [
     el("div", { class: "story-brand" }, [
+      el("span", { class: "brand-mark", "aria-hidden": "true" }, "R"),
       el("a", { class: "story-wordmark", href: storyHash(CHAPTERS[0].id) }, "Dream-RSI"),
-      el("span", { class: "story-wordmark-sub" }, "Watch"),
     ]),
     run,
     el("div", { class: "story-top-actions" }, [

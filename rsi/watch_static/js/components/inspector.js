@@ -77,17 +77,24 @@ export function mount(root, ctx) {
       el("p", { class: "insp-sub" }, subtitle(cycle, node)),
     );
 
-    const stats = el("dl", { class: "insp-stats" });
-    stat(stats, "score", fmt.pct(node.score));
-    stat(
-      stats,
-      "smoke",
-      node.successes == null || node.episodes == null ? "—" : `${node.successes}/${node.episodes}`,
-    );
-    stat(stats, "cost", fmt.usd(node.agent_cost_usd));
-    if (node.elapsed_s != null) stat(stats, "elapsed", fmt.dur(node.elapsed_s));
-    else stat(stats, "agent", fmt.dur(node.agent_seconds));
-    body.append(stats);
+    const filled = [node.score, node.successes, node.agent_cost_usd, node.elapsed_s ?? node.agent_seconds].filter(
+      (value) => value != null,
+    ).length;
+    if (filled < 2) {
+      body.append(el("p", { class: "insp-empty" }, "Not scored yet"));
+    } else {
+      const stats = el("dl", { class: "insp-stats" });
+      stat(stats, "score", fmt.pct(node.score));
+      stat(
+        stats,
+        "smoke",
+        node.successes == null || node.episodes == null ? "—" : `${node.successes}/${node.episodes}`,
+      );
+      stat(stats, "cost", fmt.usd(node.agent_cost_usd));
+      if (node.elapsed_s != null) stat(stats, "elapsed", fmt.dur(node.elapsed_s));
+      else stat(stats, "agent", fmt.dur(node.agent_seconds));
+      body.append(stats);
+    }
 
     const chain = sel.lineage(state, tab.cycle, node.cell_id);
     if (chain.length > 1) body.append(section("Lineage", lineageNav(tab, chain, go)));

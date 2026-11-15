@@ -147,7 +147,7 @@ def _node_sections(
             "Task prompt",
             task,
             path=rel(study, task_path),
-            note="Written by the harness to evidence/TASK.md; the agent reads it in full.",
+            note="evidence/TASK.md",
         )
         if task is not None
         else _not_recorded(
@@ -158,7 +158,7 @@ def _node_sections(
         _not_recorded(
             "system",
             "System prompt",
-            "The agent CLI's own system prompt is not written to the study.",
+            "Not written to the study.",
         ),
         message,
         *_evidence_sections(study, ndir / "evidence"),
@@ -180,7 +180,7 @@ def _policy_sections(
             "Task prompt",
             task,
             path=rel(study, task_path),
-            note="Shared by every step: policies/<cycle>/evidence/TASK.md holds the most recent prompt.",
+            note="policies/<cycle>/evidence/TASK.md",
         )
         if task is not None
         else _not_recorded(
@@ -195,7 +195,7 @@ def _policy_sections(
         _not_recorded(
             "system",
             "System prompt",
-            "The agent CLI's own system prompt is not written to the study.",
+            "Not written to the study.",
         ),
         message,
         _text_section(

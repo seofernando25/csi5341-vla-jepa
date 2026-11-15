@@ -307,3 +307,9 @@ button.insp-crumb:hover {
     opacity: 0;
   }
 }
+
+.insp-empty {
+  margin: 2px 0 10px;
+  color: var(--fg-muted);
+  font-size: 12px;
+}

@@ -112,6 +112,27 @@ export function mount(root, ctx) {
       ]),
     );
 
+    const tasks = perTask(node);
+    if (tasks.length) {
+      view.append(
+        el("section", { class: "eval-tasks" }, [
+          el("span", { class: "eval-tasks-label" }, "tasks"),
+          ...tasks.map((task) =>
+            el(
+              "span",
+              {
+                class: "eval-task",
+                dataset: { tone: task.ok ? "ok" : "err" },
+                "aria-label": `task ${task.id}: ${task.successes} of ${task.episodes}`,
+                title: `task ${task.id} · ${task.successes} / ${task.episodes}`,
+              },
+              [el("span", { class: "eval-task-id num" }, task.id), el("span", { class: "dot" })],
+            ),
+          ),
+        ]),
+      );
+    }
+
     if (failClass && failClass !== "ok") {
       view.append(
         el("div", { class: "eval-fail", dataset: { tone: failTone(failClass) } }, [
@@ -240,4 +261,18 @@ function phaseTone(state, node) {
   if (phase === "agent" || phase === "evaluating") return "live";
   if (phase === "stopped") return "warn";
   return "idle";
+}
+
+/* Per-task smoke results: one chip per task id, in numeric order. */
+function perTask(node) {
+  const raw = node?.per_task;
+  if (!raw || typeof raw !== "object") return [];
+  return Object.entries(raw)
+    .map(([id, value]) => ({
+      id,
+      successes: value?.successes ?? 0,
+      episodes: value?.episodes ?? 0,
+      ok: (value?.successes ?? 0) >= (value?.episodes ?? 0) && (value?.episodes ?? 0) > 0,
+    }))
+    .sort((a, b) => Number(a.id) - Number(b.id));
 }

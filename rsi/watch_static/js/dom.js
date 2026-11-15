@@ -24,7 +24,12 @@ function apply(node, props, isSvg = false) {
     if (key === "class") node.setAttribute("class", value);
     else if (key === "text") node.textContent = cleanText(value);
     else if (key === "dataset") for (const [k, v] of Object.entries(value)) node.dataset[k] = String(v);
-    else if (key === "style") Object.assign(node.style, value);
+    else if (key === "style") {
+      for (const [name, v] of Object.entries(value)) {
+        if (name.startsWith("--")) node.style.setProperty(name, String(v));
+        else node.style[name] = v;
+      }
+    }
     else if (key === "on") for (const [name, fn] of Object.entries(value)) node.addEventListener(name, fn);
     else if (key === "attrs") for (const [k, v] of Object.entries(value)) node.setAttribute(k, String(v));
     else if (key === "value") node.value = value;

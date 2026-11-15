@@ -59,8 +59,7 @@
 }
 
 .task-delta {
-  margin-left: auto;
-  color: var(--accent);
+  color: var(--fg);
   font-family: var(--font-mono);
   font-size: clamp(22px, 2.8vw, 34px);
   font-variant-numeric: tabular-nums;
@@ -196,4 +195,16 @@
   .task-link:hover .task-link-arrow {
     transform: none;
   }
+}
+
+/* Units sit tight against the numeral; the mono space is a full cell. */
+.task-best .u,
+.task-from .u {
+  margin-left: 0.14em;
+  font-size: 0.42em;
+  letter-spacing: 0;
+}
+
+.task-from .u {
+  font-size: 0.62em;
 }

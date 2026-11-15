@@ -307,3 +307,48 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Per-task smoke strip ------------------------------------------------------ */
+.eval-tasks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 10px 0 2px;
+  border-top: 1px solid var(--border);
+}
+
+.eval-tasks-label {
+  margin-right: 4px;
+  color: var(--fg-subtle);
+  font: 500 10.5px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eval-task {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-raised);
+  font-size: 11px;
+}
+
+.eval-task .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fg-subtle);
+}
+
+.eval-task[data-tone="ok"] .dot {
+  background: var(--ok);
+}
+
+.eval-task[data-tone="err"] .dot {
+  background: var(--err);
+}

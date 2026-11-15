@@ -20,10 +20,7 @@ export function mount(root, ctx) {
   const counts = el("p", { class: "chapter-body task-counts" });
   const foot = el("p", { class: "task-foot" });
   root.append(
-    el("p", { class: "chapter-kicker" }, [
-      el("span", { class: "chapter-number" }, number),
-      el("span", {}, "the run"),
-    ]),
+    el("p", { class: "chapter-kicker" }, [el("span", { class: "chapter-number" }, number)]),
     el("h2", { class: "chapter-title" }, title),
     el("p", { class: "chapter-dek" }, dek),
     stats,
@@ -65,13 +62,13 @@ export function mount(root, ctx) {
     stats.append(
       stat(
         "baseline size",
-        model.baseBytes != null ? gb(model.baseBytes) : "not recorded",
+        model.baseBytes != null ? gbText(model.baseBytes) : "not recorded",
         null,
         model.baseBytes == null,
       ),
       stat(
         "best probe",
-        model.bestMb != null ? size(model.bestMb) : model.hasProbe ? "size not recorded" : "none",
+        model.bestMb != null ? sizeText(model.bestMb) : model.hasProbe ? "size not recorded" : "none",
         model.reduction != null ? `−${ctx.fmt.pct(model.reduction)}` : null,
         model.bestMb == null,
       ),
@@ -90,13 +87,13 @@ export function mount(root, ctx) {
     const readout = el("div", { class: "task-readout" });
     if (model.baseBytes != null) {
       readout.append(
-        el("span", { class: "task-from" }, gb(model.baseBytes)),
+        el("span", { class: "task-from" }, amount(gb(model.baseBytes))),
         el("span", { class: "task-arrow", aria: { hidden: "true" } }, "→"),
       );
     }
     readout.append(
       model.bestMb != null
-        ? el("span", { class: "task-best" }, size(model.bestMb))
+        ? el("span", { class: "task-best" }, amount(size(model.bestMb)))
         : el("span", { class: "task-empty" }, model.hasProbe ? "size not recorded" : "no probe scored yet"),
     );
     if (model.reduction != null) {
@@ -127,7 +124,7 @@ export function mount(root, ctx) {
       figure.append(
         el("div", { class: "task-scale" }, [
           el("span", {}, "0"),
-          el("span", {}, gb(model.baseBytes)),
+          el("span", {}, gbText(model.baseBytes)),
         ]),
       );
     } else {
@@ -215,13 +212,28 @@ function bestScored(cycles) {
 
 function gb(bytes) {
   const value = Number(bytes) / 1e9;
-  return `${value >= 10 ? value.toFixed(1) : value.toFixed(2)}${NB}GB`;
+  return { value: value >= 10 ? value.toFixed(1) : value.toFixed(2), unit: "GB" };
 }
 
 function size(mb) {
   const value = Number(mb);
-  if (value >= 1000) return `${(value / 1000).toFixed(2)}${NB}GB`;
-  return `${Math.round(value)}${NB}MB`;
+  if (value >= 1000) return { value: (value / 1000).toFixed(2), unit: "GB" };
+  return { value: String(Math.round(value)), unit: "MB" };
+}
+
+function gbText(bytes) {
+  const parts = gb(bytes);
+  return `${parts.value} ${parts.unit}`;
+}
+
+function sizeText(mb) {
+  const parts = size(mb);
+  return `${parts.value} ${parts.unit}`;
+}
+
+/* Value and unit as separate spans: mono type gives a full cell to a space. */
+function amount(parts) {
+  return [el("span", { class: "u-num" }, parts.value), el("span", { class: "u" }, parts.unit)];
 }
 
 function pair(gate, trials) {
@@ -250,11 +262,11 @@ function gatePhrase(gate, trials) {
 }
 
 function trackLabel(model, fill) {
-  const base = model.baseBytes != null ? gb(model.baseBytes) : "not recorded";
+  const base = model.baseBytes != null ? gbText(model.baseBytes) : "not recorded";
   if (!model.hasProbe) return `Baseline ${base}; no probe scored yet.`;
   if (model.bestMb == null) return `Baseline ${base}; best probe size not recorded.`;
   const pct = fill == null ? "" : `, ${(fill * 100).toFixed(1)}${NB}% of baseline`;
-  return `Baseline ${base}; best probe ${size(model.bestMb)}${pct}.`;
+  return `Baseline ${base}; best probe ${sizeText(model.bestMb)}${pct}.`;
 }
 
 function clamp(value, low, high) {

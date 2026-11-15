@@ -84,10 +84,7 @@ export function mount(root, ctx) {
 
   function draw() {
     clear(root);
-    root.append(el("p", { class: "chapter-kicker" }, [
-      el("span", { class: "chapter-number" }, number),
-      el("span", {}, "how it works"),
-    ]));
+    root.append(el("p", { class: "chapter-kicker" }, [el("span", { class: "chapter-number" }, number)]));
     root.append(el("h2", { class: "chapter-title", text: title }));
     root.append(el("p", { class: "chapter-dek", text: dek }));
     const body = el("div", { class: "chapter-body method" });
