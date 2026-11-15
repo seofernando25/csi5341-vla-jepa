@@ -53,9 +53,15 @@ Every child gets a written brief:
 
 ## 6. Routing and budget
 
-Tiers and models: the `mastermind` skill. Children do the grep, inventory, rebuild and
-fact-check work; the orchestrator never does grunt work. Cap rounds up front. A failed gate
-ends the round; it does not buy a retry.
+Tiers and models: the `mastermind` skill; the default subagent model is
+`mistral/deepseek-v4-1-flash-1017` at low thinking (owner directive, 2026-11-15). Children do the
+grep, inventory, rebuild and fact-check work; the orchestrator never does grunt work. Cap rounds up
+front. A failed gate ends the round; it does not buy a retry.
+
+Thinking level follows the task (owner directive, 2026-11-15): low for trivial or mechanical work
+(lookups, small edits, summaries, log queries); high for hard problems (multi-file fixes,
+diagnosis, streaming or security work); max for high-stakes decisions (commit or run strategy,
+evidence gates, security release). Low is the floor.
 
 ## 7. Failure modes
 

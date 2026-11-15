@@ -34,8 +34,23 @@ mechanics only.
 | Fast | Scouting, log and data queries, edits with a complete spec | Beam free, Inkling 2 Small free |
 | Skeptical | Review, diagnosis, any brief that may itself be wrong | Gemini 4 Hydrogen (low), Haiku 5.5, Iceman free |
 
-Default subagent model: `qmodel_latest` (Qwen4-Max-Preview), thinking high, per user directive.
-The tiers apply when the harness offers cheaper models.
+Default subagent model: `mistral/deepseek-v4-1-flash-1017` at low thinking (owner directive,
+2026-11-15). Use `none` for lookups and mechanical edits; reserve `max` for a one-off task that
+needs it, such as authoring a skill. The tiers apply when the harness offers cheaper models.
+
+Thinking level by task (owner directive, 2026-11-15): low for trivial or mechanical work
+(lookups, small edits, summaries, log queries); high for hard problems (multi-file fixes,
+diagnosis, streaming or security work); max for high-stakes decisions (commit or run strategy,
+evidence gates, security release). Low stays the floor; escalate only when the task warrants it.
+
+## What worked
+
+- One owner per file per wave; the owned-file list goes in the brief.
+- One shared common-rules brief plus one task brief per child.
+- Scouts write a report file and return at most 150 words.
+- The orchestrator re-runs the tests and adds a hidden check before accepting.
+- Red-team children demonstrate by execution and work on copies.
+- A child that finds the brief wrong reports it; three brief errors were caught this way.
 
 - Fast-tier models execute a brief as written, including its mistakes. Skeptical-tier models
   report a flawed brief instead of implementing it silently.
@@ -53,12 +68,9 @@ The tiers apply when the harness offers cheaper models.
   non-interactive mode when launching.
 - **Spawn cost.** A fresh child pays for its whole prompt once. Run a one-command question
   yourself.
-- **Token counts differ per harness.** Compare wall time and outcomes across harnesses, not
-  reported tokens.
 
 ## Keeping the table honest
 
-Re-measure when a model is added or the table looks stale: give every candidate the same
-fixtures, grade with hidden checks and known answers, and record correctness, wall time and
-whether a planted flaw in the brief was flagged. If every candidate passes, the task is too
-easy to rank them; add a harder one before changing the routing.
+Re-measure when a model is added or the table looks stale: same fixtures, hidden checks and
+known answers; record correctness, wall time and whether a planted brief flaw was flagged.
+If every candidate passes, the task is too easy to rank; add a harder one before rerouting.

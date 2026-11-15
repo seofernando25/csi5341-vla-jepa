@@ -5,46 +5,45 @@ description: Paper specification (arXiv:2609.14858v2), fidelity boundaries, and 
 
 # Dream-RSI Development
 
-Ground truth for `rsi/` architecture and paper fidelity lives in [docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md). Read it before editing `rsi/` or writing any claim about Dream-RSI. Use `auto-research` for running live GPU rounds (`vla-rsi cycle` / `vla-rsi loop`); use this skill for modifying or reasoning about `rsi/` itself.
+Ground truth for `rsi/` architecture and paper fidelity lives in [docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md). Read it before editing `rsi/` or writing any claim about Dream-RSI. Use `auto-research` for running live GPU rounds; use this skill for modifying or reasoning about `rsi/` itself.
 
 ## Dream-RSI Rounds
 
 Check [docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md) §2 before writing claims:
 
-- **Online per-node expansion ([rsi/online_cycle.py](../../../rsi/online_cycle.py)):** `OnlineDiscoveryQuestion.probe_batch()` expands chosen slots at decision time using headless `pi` inside `bwrap` ([rsi/sandbox.py](../../../rsi/sandbox.py)), inheriting `parent_context/` and seeing only the frozen revealed prefix (`observed_nodes/`).
-- **LLM policy-code rewriting ([rsi/policy_dev.py](../../../rsi/policy_dev.py)):** `develop_policies_llm()` writes `M-1=3` `OptimalPolicy` variants inside `bwrap` from `beta_sweep.json`, `policy_execution_traces.jsonl`, `live_cycle_manifests.json`, and frozen `worlds/`, then runs AST/prefix + subprocess verification and monotonic selection.
-- **Free-form ordered recipes ([rsi/action_space.py](../../../rsi/action_space.py)):** `validate_freeform_recipe()` supports all 21 `evaluation/compression/recipes.py` handlers (excluding missing `torchao`) + `engine="graph"` (`use_compile`, `dense`) and enforces physical stage ordering (`world_remove`/embed -> structural -> sparsity -> quantization -> execution/compile).
-- **Committed evidence is replay-only:** journals and proposals under `studies/dream-rsi/` are replayed by `vla-rsi benchmark` but never re-run; the round-runner code that produced them was removed (reproducible from git history).
-- **Single-GPU evaluation:** Sandboxed discovery expands batches concurrently, while compression GPU smoke/dev subprocesses execute sequentially on 1 GPU.
-- **Replay $V \ne$ LIBERO success:** $V$ (Eq. 1) scores exploration policies over frozen trees using gate-qualified size reduction; it never establishes LIBERO task performance.
+- **Online node expansion ([rsi/expansion.py](../../../rsi/expansion.py), [rsi/online_question.py](../../../rsi/online_question.py)):** `probe_batch()` forks each chosen parent's frozen snapshot (`rsi/workspace.py`), runs one headless agent in `bwrap` (default pi on `mistral/deepseek-v4-1-flash-1017` at max thinking, tools `read,write,edit,bash` for discovery and `read,write,edit` for policy development; `--backend claude` for Claude Code CLI), validates `proposal.md` and `solution.py`, freezes the workspace, and evaluates it with the fixed `solution` evaluator. The agent sees `/tmp/evidence` (`tree.json`, plus each earlier node's `proposal.md`, `score.json`, `error.txt`). Timeout or invalid output becomes a failed node.
+- **Duplicate digests:** `DigestRegistry` rejects a workspace whose code digest matches one already claimed in the cycle, root template included, without evaluation.
+- **Concurrency:** `probe_batch()` runs up to `max_parallelism` expansions in threads. Every evaluation holds one of `dream_rsi.gpu_slots` flock slots ([rsi/gpu.py](../../../rsi/gpu.py)).
+- **LLM policy rewriting ([rsi/policy_dev.py](../../../rsi/policy_dev.py)):** `develop_policies_llm()` makes `m-1` sequential rewrites of `OptimalPolicy` in `bwrap`, from `beta_sweep.json`, `policy_execution_traces.jsonl`, `live_cycle_manifests.json`, `history/`, and frozen `worlds/`. Each candidate passes the AST audit, world-literal check and worker replay under two hash seeds; selection is strict-improvement on in-sample V.
+- **Replay $V \ne$ LIBERO success:** $V$ (Eq. 1) ranks exploration policies over frozen trees; it never establishes LIBERO task performance.
 
 ## Mandatory Invariants
 
-1. **Prefix-only policy contract (`rsi/api.py`, `rsi/tree.py`, `rsi/policy_dev.py`):**
-   - Policies may read only `question.observed()`, `legal_actions()`, `legal_roots()`, `opened_branches()`, `meta()`, `baseline_score`, `max_parallelism`, and `budget_spent`.
-   - `audit_policy_source()` enforces allowed stdlib + `rsi.api` imports and forbids `open`, OS/subprocess calls, `question.best_so_far`, `question.tree`, and non-`self` `_` attributes.
-   - Route behavioral thresholds through `_schedule(beta)`; keep `beta` fixed within `solve()`.
-2. **Monotonicity & out-of-sample checks (`rsi/dream.py`, `rsi/policy_dev.py`):**
-   - Keep `m0_incumbent` (`INCUMBENT`) at index `0` so argmax ties resolve conservatively to the incumbent.
-   - Report leave-one-world-out (`leave_one_world_out`) whenever `len(history) >= 2`.
-3. **Phase & gate isolation (`rsi/gate.py`, `rsi/online_cycle.py`):**
-   - Never mix `smoke` (10), `development` (100), and `final` (500) trials in a `DiscoveryTree`, world score, or promotion count.
-   - Never invoke `--phase final` from automated search or proposal loops.
-   - Compare fail classes via constants in `rsi/api.py` (`GATE_NEAR_MISS`, `GATE_FAILED`), never ad-hoc strings.
-4. **Sandbox & secret safety (`rsi/sandbox.py`, `rsi/action_space.py`):**
-   - Keep `repo_root` masked via `--tmpfs` inside `bwrap` and `CUDA_VISIBLE_DEVICES=""` set for all LLM workers; never expose `.env` or `~/.pi/agent/auth.json` outside `pi` auth ro-bind.
-   - Keep `validate_freeform_recipe()` and `validate_change_order()` aligned with `evaluation/compression/recipes.py` and `evaluation/fastpath.py`.
+1. **Prefix-only policy contract (`rsi/policy_audit.py`, `rsi/api.py`):**
+   - Policies may read only `question.observed()`, `legal_actions()`, `legal_roots()`, `opened_branches()`, `meta()`, `baseline_score`, `max_parallelism`, and call `probe_batch()`. `budget_spent`, `best_so_far`, `tree`, `roots`, `children` and other attributes are refused.
+   - `audit_policy_source()` allows only `math` and the listed `from` imports, refuses any reference to builtins such as `open`, `getattr` and `eval` (not only calls), and refuses non-`self` private attributes. It also refuses `.format`, `reset`, module-level mutable state, dunder defs other than `__init__`/`__post_init__`, and classes other than `OptimalPolicy` and dataclasses.
+   - Route thresholds through `_schedule(beta)`; keep `beta` fixed within `solve()`.
+2. **Selection and out-of-sample checks (`rsi/policy_dev.py`):**
+   - Keep `m0_incumbent` at index `0`; `max` over `(mean_v, -step)` makes ties resolve to the incumbent.
+   - A candidate replaces the incumbent only on strictly higher in-sample mean V.
+   - Report leave-one-world-out whenever `len(history) >= 2`. Held-out synthetic worlds are reported, never used for selection.
+3. **Phase and gate isolation (`rsi/runner.py`, `rsi/api.py`):**
+   - Never mix smoke (10), development (100) and reserved (500) trials in one tree, world score or promotion count.
+   - Never run `--phase final` from automated search or proposal loops. The node evaluator accepts only `check`, `smoke` and `development`.
+   - Compare fail classes via `GATE_NEAR_MISS` / `GATE_FAILED` in `rsi/api.py`, not ad-hoc strings.
+4. **Sandbox and secret safety (`rsi/sandbox.py`, `rsi/agent_backends.py`):**
+   - Keep the allowlist: `--unshare-all`, `--clearenv`, `--cap-drop ALL`. Repo source is mounted read-only only at `REPO_SOURCE_PATHS` under `/tmp/repo`. `CUDA_VISIBLE_DEVICES=""` only when GPU is off. Network only for built-in agents (`claude`, `pi`).
+   - Never expose `.env`, `~/.claude/.credentials.json` or `~/.pi/agent/auth.json` outside the agent's read-only binds.
+   - Replay runs in `rsi.replay_worker` inside `bwrap` with no network. Never default `--no-bwrap` for a run that counts.
 
 ## Verification
 
-After any edit to `rsi/`:
+Pre-GPU check is the test suite. All of these must pass before any GPU run:
 
 ```sh
 uv run --no-sync ruff check . && uv run --no-sync ruff format --check . && uv run --no-sync pytest -q -m "not slow"
 ```
 
-If replay worlds or `OptimalPolicy` logic changed, also verify CPU replay:
+Test files: `ls tests/test_rsi_*.py tests/test_solution_eval.py`.
 
-```sh
-uv run --no-sync vla-rsi benchmark
-```
+Help-only checks (no GPU, no writes): `uv run --no-sync vla-rsi cycle --help` and `uv run --no-sync vla-compress solution --help`.

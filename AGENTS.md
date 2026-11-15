@@ -4,7 +4,7 @@ CSI 5341 project: post-training compression of the released VLA-JEPA LIBERO poli
 are the final report (`report/`, IEEE two-column, ≤5 pages, due 2026-12-09) and the final
 presentation (due 2026-12-04). Keep results attributable to their model, configuration and protocol.
 
-- **Open:** Dream-RSI search over Qwen compression recipes (`rsi/`, `studies/dream-rsi/`).
+- **Open:** Dream-RSI search over Qwen compression recipes (`rsi/`, `studies/program-v1/`).
 - **Closed, negative:** the SmolVLM backbone swap (S500), its recovery and the n0008 confirmation.
   Their summaries stay under `studies/`; their code is in Git history at `82df05d`. Do not restart
   them without a new plan.

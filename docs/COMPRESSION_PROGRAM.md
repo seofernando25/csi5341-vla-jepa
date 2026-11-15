@@ -322,7 +322,7 @@ Measured readiness:
 
 - `uv run --no-sync pytest -q`: 90 passed.
 - `ruff check` and `ruff format --check`: clean.
-- `pi` at `/home/fer/.bun/bin/pi`; `bwrap` at `/usr/bin/bwrap`.
+- `pi` on `PATH` (or `~/.bun/bin/pi`); `bwrap` at `/usr/bin/bwrap`.
 - RTX 3090 24 GB, 1.3 GB used; checkpoint `735d9f6` cached.
 - Replay benchmark: 41 worlds, 11 policies, 5 beta values in about 2 seconds. Replay is not the
   bottleneck.
