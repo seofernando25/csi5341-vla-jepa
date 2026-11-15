@@ -30,7 +30,7 @@ export function mountPalette(root, ctx) {
     role: "combobox",
     "aria-label": "Search",
     "aria-controls": "palette-list",
-    "aria-expanded": "true",
+    "aria-expanded": "false",
     "aria-autocomplete": "list",
   });
   const list = el("div", { class: "palette-list", role: "listbox", id: "palette-list", "aria-label": "Results" });
@@ -162,6 +162,7 @@ export function mountPalette(root, ctx) {
     if (activeIndex >= results.length) activeIndex = Math.max(0, results.length - 1);
     clear(list);
     rows = [];
+    input.setAttribute("aria-expanded", results.length ? "true" : "false");
     if (!results.length) {
       list.append(el("div", { class: "palette-empty", role: "presentation" }, query ? "No matches" : "Nothing to jump to"));
       input.removeAttribute("aria-activedescendant");

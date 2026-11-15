@@ -1,0 +1,2304 @@
+{
+  "_note": "Synthetic Story-mode demo data. Not a recorded run: every id, score, cost and hash below is invented. Trees and rounds cover both worlds so the demo adapter can serve either; /api/dream returns one tree and one world's rounds.",
+  "cycle": "cycle-1",
+  "status": "ready",
+  "recorded_utc": "2026-11-15T09:20:00Z",
+  "protocol": {
+    "m": 3,
+    "lambda_parallel": 0.05,
+    "beta_grid": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "max_parallelism": 2
+  },
+  "worlds": [
+    {
+      "id": "w0",
+      "nodes": 7,
+      "baseline_score": 0.1,
+      "max_gain": 0.28,
+      "degenerate": false
+    },
+    {
+      "id": "w1",
+      "nodes": 7,
+      "baseline_score": 0.3,
+      "max_gain": 0.0,
+      "degenerate": true
+    }
+  ],
+  "trees": {
+    "w0": {
+      "world_id": "w0",
+      "nodes": [
+        {
+          "cell_id": "b0_a0",
+          "parent_id": null,
+          "branch": 0,
+          "attempt": 0,
+          "seq": 1,
+          "score": 0.14,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "int8 MLP with per-channel scales"
+        },
+        {
+          "cell_id": "b0_a1",
+          "parent_id": "b0_a0",
+          "branch": 0,
+          "attempt": 1,
+          "seq": 2,
+          "score": 0.22,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "int8 MLP plus rank-64 action head"
+        },
+        {
+          "cell_id": "b1_a0",
+          "parent_id": null,
+          "branch": 1,
+          "attempt": 0,
+          "seq": 3,
+          "score": 0.09,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "prune vision tokens below one attention unit"
+        },
+        {
+          "cell_id": "b1_a1",
+          "parent_id": "b1_a0",
+          "branch": 1,
+          "attempt": 1,
+          "seq": 4,
+          "score": 0.31,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "prune vision tokens, keep the projector"
+        },
+        {
+          "cell_id": "b1_a2",
+          "parent_id": "b1_a1",
+          "branch": 1,
+          "attempt": 2,
+          "seq": 5,
+          "score": 0.38,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "prune tokens and factor the action head"
+        },
+        {
+          "cell_id": "b2_a0",
+          "parent_id": null,
+          "branch": 2,
+          "attempt": 0,
+          "seq": 6,
+          "score": null,
+          "fail_class": "implementation_failure",
+          "evaluated": true,
+          "summary": "fold the projector into the encoder"
+        },
+        {
+          "cell_id": "b3_a0",
+          "parent_id": null,
+          "branch": 3,
+          "attempt": 0,
+          "seq": 7,
+          "score": 0.05,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "widen the calibration set to 256 frames"
+        }
+      ]
+    },
+    "w1": {
+      "world_id": "w1",
+      "nodes": [
+        {
+          "cell_id": "b0_a0",
+          "parent_id": null,
+          "branch": 0,
+          "attempt": 0,
+          "seq": 1,
+          "score": 0.28,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "fp8 attention weights"
+        },
+        {
+          "cell_id": "b0_a1",
+          "parent_id": "b0_a0",
+          "branch": 0,
+          "attempt": 1,
+          "seq": 2,
+          "score": 0.26,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "fp8 attention and int8 MLP"
+        },
+        {
+          "cell_id": "b1_a0",
+          "parent_id": null,
+          "branch": 1,
+          "attempt": 0,
+          "seq": 3,
+          "score": 0.3,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "share one projection across attention blocks"
+        },
+        {
+          "cell_id": "b1_a1",
+          "parent_id": "b1_a0",
+          "branch": 1,
+          "attempt": 1,
+          "seq": 4,
+          "score": null,
+          "fail_class": "runtime_failure",
+          "evaluated": true,
+          "summary": "shared projection with fused layout"
+        },
+        {
+          "cell_id": "b2_a0",
+          "parent_id": null,
+          "branch": 2,
+          "attempt": 0,
+          "seq": 5,
+          "score": 0.19,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "prune two of four attention heads"
+        },
+        {
+          "cell_id": "b2_a1",
+          "parent_id": "b2_a0",
+          "branch": 2,
+          "attempt": 1,
+          "seq": 6,
+          "score": 0.22,
+          "fail_class": "ok",
+          "evaluated": true,
+          "summary": "prune one of four attention heads"
+        },
+        {
+          "cell_id": "b3_a0",
+          "parent_id": null,
+          "branch": 3,
+          "attempt": 0,
+          "seq": 7,
+          "score": null,
+          "fail_class": "implementation_failure",
+          "evaluated": true,
+          "summary": "low-rank factors on every linear layer"
+        }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "slot": "m0_incumbent",
+      "step": 0,
+      "status": "incumbent",
+      "mean_v": 0.272,
+      "delta_vs_best": null,
+      "attempts": 0,
+      "error": null,
+      "sha256": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4"
+    },
+    {
+      "slot": "m1_llm",
+      "step": 1,
+      "status": "accepted",
+      "mean_v": 0.389,
+      "delta_vs_best": 0.117,
+      "attempts": 1,
+      "error": null,
+      "sha256": "b2c3d4e5b2c3d4e5b2c3d4e5b2c3d4e5b2c3d4e5b2c3d4e5b2c3d4e5b2c3d4e5"
+    },
+    {
+      "slot": "m2_llm",
+      "step": 2,
+      "status": "not_better",
+      "mean_v": 0.333,
+      "delta_vs_best": -0.056,
+      "attempts": 2,
+      "error": null,
+      "sha256": "c3d4e5f6c3d4e5f6c3d4e5f6c3d4e5f6c3d4e5f6c3d4e5f6c3d4e5f6c3d4e5f6"
+    }
+  ],
+  "curves": {
+    "m0_incumbent": {
+      "w0": [
+        {
+          "beta": 0.0,
+          "probes": 6,
+          "attainment": 1.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 6,
+          "attainment": 1.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 5,
+          "attainment": 0.75,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 4,
+          "attainment": 0.429,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 4,
+          "attainment": 0.429,
+          "rounds": 3
+        }
+      ],
+      "w1": [
+        {
+          "beta": 0.0,
+          "probes": 5,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 5,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 4,
+          "attainment": 0.0,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 3,
+          "attainment": 0.0,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 3,
+          "attainment": 0.0,
+          "rounds": 3
+        }
+      ]
+    },
+    "m1_llm": {
+      "w0": [
+        {
+          "beta": 0.0,
+          "probes": 6,
+          "attainment": 1.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 6,
+          "attainment": 1.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 5,
+          "attainment": 1.0,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 4,
+          "attainment": 1.0,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 4,
+          "attainment": 1.0,
+          "rounds": 3
+        }
+      ],
+      "w1": [
+        {
+          "beta": 0.0,
+          "probes": 6,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 6,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 5,
+          "attainment": 0.0,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 4,
+          "attainment": 0.0,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 4,
+          "attainment": 0.0,
+          "rounds": 3
+        }
+      ]
+    },
+    "m2_llm": {
+      "w0": [
+        {
+          "beta": 0.0,
+          "probes": 5,
+          "attainment": 0.75,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 5,
+          "attainment": 0.75,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 4,
+          "attainment": 0.75,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 3,
+          "attainment": 0.429,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 3,
+          "attainment": 0.429,
+          "rounds": 3
+        }
+      ],
+      "w1": [
+        {
+          "beta": 0.0,
+          "probes": 5,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.25,
+          "probes": 5,
+          "attainment": 0.0,
+          "rounds": 5
+        },
+        {
+          "beta": 0.5,
+          "probes": 4,
+          "attainment": 0.0,
+          "rounds": 4
+        },
+        {
+          "beta": 0.75,
+          "probes": 3,
+          "attainment": 0.0,
+          "rounds": 3
+        },
+        {
+          "beta": 1.0,
+          "probes": 3,
+          "attainment": 0.0,
+          "rounds": 3
+        }
+      ]
+    }
+  },
+  "rounds": {
+    "m0_incumbent": {
+      "w0": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0",
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0",
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0",
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0",
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0",
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ]
+      },
+      "w1": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": null,
+                "fail_class": "runtime_failure"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": null,
+                "fail_class": "runtime_failure"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": null,
+                "fail_class": "runtime_failure"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "m1_llm": {
+      "w0": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a2"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a2",
+                "score": 0.38,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ]
+      },
+      "w1": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b2_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b2_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 5,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b2_a1"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0",
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              },
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "m2_llm": {
+      "w0": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": 0.05,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b1_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b1_a1",
+                "score": 0.31,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.14,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.22,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.09,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ]
+      },
+      "w1": {
+        "0": [
+          {
+            "round": 1,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.25": [
+          {
+            "round": 1,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "batch": [
+              "b2_a0"
+            ],
+            "prefix_size": 4,
+            "outcomes": [
+              {
+                "cell_id": "b2_a0",
+                "score": 0.19,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.5": [
+          {
+            "round": 1,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "batch": [
+              "b0_a1"
+            ],
+            "prefix_size": 3,
+            "outcomes": [
+              {
+                "cell_id": "b0_a1",
+                "score": 0.26,
+                "fail_class": "ok"
+              }
+            ]
+          }
+        ],
+        "0.75": [
+          {
+            "round": 1,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ],
+        "1": [
+          {
+            "round": 1,
+            "batch": [
+              "b1_a0"
+            ],
+            "prefix_size": 0,
+            "outcomes": [
+              {
+                "cell_id": "b1_a0",
+                "score": 0.3,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "batch": [
+              "b0_a0"
+            ],
+            "prefix_size": 1,
+            "outcomes": [
+              {
+                "cell_id": "b0_a0",
+                "score": 0.28,
+                "fail_class": "ok"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "batch": [
+              "b3_a0"
+            ],
+            "prefix_size": 2,
+            "outcomes": [
+              {
+                "cell_id": "b3_a0",
+                "score": null,
+                "fail_class": "implementation_failure"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "heldout": {
+    "num_worlds": 24,
+    "mean_V_by_slot": {
+      "m0_incumbent": 0.264,
+      "m1_llm": 0.371,
+      "m2_llm": 0.318
+    },
+    "delta_vs_incumbent": 0.107
+  },
+  "verdict": {
+    "selected_slot": "m1_llm",
+    "incumbent_in_sample_V": 0.272,
+    "selected_in_sample_V": 0.389
+  },
+  "agent": {
+    "backend": "pi",
+    "model": "synthetic/demo-model",
+    "effort": "max",
+    "calls": 3,
+    "num_turns": 74,
+    "cost_usd": 0.61
+  }
+}

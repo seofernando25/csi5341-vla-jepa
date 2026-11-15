@@ -1,0 +1,296 @@
+/* Chapter 02 — One probe. One node, a five-step timeline, a verdict strip.
+   Tokens only; the figure surface comes from the shell. No motion. */
+
+.probe {
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.probe-head-meta {
+  text-align: right;
+}
+
+.probe-id-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 4px 0 2px;
+}
+
+.probe-cell {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2.2vw, 24px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+.probe-pill {
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font: 500 10.5px/1.5 var(--font-mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.probe-pill[data-tone="ok"] {
+  border-color: var(--ok-soft);
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.probe-pill[data-tone="live"] {
+  border-color: var(--live-soft);
+  background: var(--live-soft);
+  color: var(--live);
+}
+
+.probe-pill[data-tone="warn"] {
+  border-color: var(--warn-soft);
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.probe-elapsed {
+  font: 400 11.5px/1.5 var(--font-mono);
+  color: var(--fg-subtle);
+}
+
+/* --- timeline ----------------------------------------------------------- */
+
+.probe-steps {
+  position: relative;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.probe-steps::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 32px;
+  bottom: 32px;
+  width: 1px;
+  background: var(--border);
+}
+
+.probe-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: clamp(14px, 2vw, 20px);
+  padding: 18px 0;
+}
+
+.probe-step-index {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg-raised);
+  color: var(--fg-subtle);
+  font-size: 10.5px;
+}
+
+.probe-step-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font: 500 11px/1.4 var(--font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.probe-step-note {
+  font: 400 10.5px/1.4 var(--font-mono);
+  text-transform: none;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
+
+/* --- given -------------------------------------------------------------- */
+
+.probe-given {
+  max-width: 68ch;
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: var(--fg);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.probe-more {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: 500 12.5px/1.4 var(--font-ui);
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.probe-more:focus-visible,
+.probe-open:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* --- reasoning ---------------------------------------------------------- */
+
+.probe-quote {
+  max-width: 68ch;
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg);
+  overflow-wrap: anywhere;
+}
+
+/* --- tool calls --------------------------------------------------------- */
+
+.probe-tool {
+  display: grid;
+  grid-template-columns: 8px 58px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.probe-dot {
+  align-self: center;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fg-subtle);
+}
+
+.probe-dot[data-tone="ok"] {
+  background: var(--ok);
+}
+
+.probe-dot[data-tone="err"] {
+  background: var(--err);
+}
+
+.probe-tool-name {
+  font-size: 11.5px;
+  color: var(--fg);
+}
+
+.probe-tool-detail {
+  font-size: 11.5px;
+  color: var(--fg-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- proposal ----------------------------------------------------------- */
+
+.probe-proposal-head {
+  margin: 0 0 6px;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 550;
+  color: var(--fg);
+}
+
+.probe-proposal-body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
+/* --- verdict ------------------------------------------------------------ */
+
+.probe-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+
+.probe-stat-value {
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 2vw, 22px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--fg);
+}
+
+.probe-stat-label {
+  margin-top: 2px;
+  font: 400 10px/1.35 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
+/* --- states and footer -------------------------------------------------- */
+
+.probe-note,
+.probe-empty {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--fg-subtle);
+}
+
+.probe-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.probe-open {
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font: 500 13px/1.3 var(--font-ui);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.probe-open:hover {
+  background: var(--bg-hover);
+}
+
+@media (max-width: 560px) {
+  .probe-step-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .probe-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -4,15 +4,6 @@ import { el, clear, icon, copyButton } from "../dom.js";
 import * as sel from "../selectors.js";
 import * as fmt from "../format.js";
 
-const FAIL_HINT = {
-  gate_near_miss: "smoke gate missed narrowly; score not counted",
-  gate_failed: "smoke gate missed; score not counted",
-  implementation_failure: "solution failed to build or evaluate",
-  runtime_failure: "evaluator failed while running the solution",
-  agent_failure: "agent run failed",
-  agent_timeout: "agent exceeded its time budget",
-};
-
 export function mount(root, ctx) {
   const view = el("div", { class: "view evaluation-view" });
   root.append(view);
@@ -125,7 +116,6 @@ export function mount(root, ctx) {
       view.append(
         el("div", { class: "eval-fail", dataset: { tone: failTone(failClass) } }, [
           el("span", { class: "eval-fail-label" }, fmt.failLabel(failClass)),
-          el("span", { class: "eval-fail-hint" }, FAIL_HINT[failClass] || "fail class recorded in score.json"),
         ]),
       );
     }

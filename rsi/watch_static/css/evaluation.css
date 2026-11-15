@@ -123,11 +123,6 @@
   color: var(--err);
 }
 
-.eval-fail-hint {
-  color: var(--fg-muted);
-  font-size: var(--fs-small);
-}
-
 /* Error panel -------------------------------------------------------------- */
 .eval-error {
   flex: none;

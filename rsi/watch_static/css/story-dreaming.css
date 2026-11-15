@@ -1,0 +1,132 @@
+/* Chapter 04 — Dreaming. Controls, the recorded tree, replay paths, curves,
+   V bars and the round scrubber. Tokens only; light-first. */
+
+.dream { max-width: 960px; }
+
+/* --- controls ---------------------------------------------------------- */
+
+.dream-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 18px 32px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+.dream-field { display: flex; flex-direction: column; gap: 6px; }
+.dream-field-label { font: 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-subtle); }
+.dream-select { min-width: 250px; padding: 8px 10px; font: 13px var(--font-mono); color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
+.dream-seg { display: inline-flex; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); }
+.dream-seg-btn { padding: 8px 13px; font: 12px var(--font-mono); color: var(--fg-muted); background: var(--bg); border: 0; border-right: 1px solid var(--border); cursor: pointer; }
+.dream-seg-btn:last-child { border-right: 0; }
+.dream-seg-btn[aria-pressed="true"] { color: var(--bg); background: var(--fg); }
+.dream-seg-btn:hover { background: var(--bg-hover); }
+.dream-seg-btn[aria-pressed="true"]:hover { background: var(--fg); }
+.dream-controls-meta { margin-left: auto; font: 11px var(--font-mono); color: var(--fg-subtle); }
+.dream-select:focus-visible, .dream-seg-btn:focus-visible, .dream-play:focus-visible, .dream-range:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+/* --- figures ----------------------------------------------------------- */
+
+.dream-head-meta { color: var(--fg-subtle); text-transform: none; letter-spacing: 0; }
+.dream-swatch { display: block; flex: none; }
+.dream-world-meta { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 6px 0 14px; font: 12px var(--font-mono); color: var(--fg-muted); }
+.dream-world-meta b { color: var(--fg); font-weight: 500; }
+.dream-degenerate { color: var(--warn); }
+.dream-branches { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 2px 20px; }
+.dream-branch { min-width: 0; }
+.dream-branch-label { padding-bottom: 4px; border-bottom: 1px solid var(--border); font: 10px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-subtle); }
+.dream-node { display: flex; align-items: center; gap: 7px; padding: 4px 0 4px calc(6px + var(--d, 0) * 9px); border-left: 1px solid var(--border); font: 10.5px var(--font-mono); }
+.dream-node-id { color: var(--fg); white-space: nowrap; }
+.dream-node-bar { flex: 1; min-width: 18px; height: 4px; overflow: hidden; background: var(--bg-inset); border-radius: 2px; }
+.dream-node-bar i { display: block; height: 100%; background: var(--fg-subtle); }
+.dream-node-score { color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.dream-node-fail { font-size: 9px; letter-spacing: .03em; text-transform: uppercase; color: var(--warn); white-space: nowrap; }
+.dream-node[data-fail="true"] .dream-node-bar i { background: var(--warn); }
+.dream-plot { overflow-x: auto; overflow-y: hidden; }
+.dream-paths-svg, .dream-chart-svg { display: block; width: 100%; min-width: 540px; height: auto; }
+.dream-edge { fill: none; stroke: var(--border); stroke-width: 1; }
+.dream-node-dot { fill: var(--bg-raised); stroke: var(--border-strong); stroke-width: 1.4; }
+.dream-node-label { fill: var(--fg-subtle); font: 9px var(--font-mono); }
+.dream-node-value { fill: var(--fg-muted); font: 9px var(--font-mono); }
+.dream-marker-num { fill: var(--fg-inverse); font: 9px var(--font-mono); }
+
+/* --- legend and scrubber ----------------------------------------------- */
+
+.dream-legend { display: grid; gap: 2px; margin-top: 10px; }
+.dream-legend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 12px; padding: 4px 8px; border-radius: var(--radius); font: 12px var(--font-mono); }
+.dream-legend-row[data-selected="true"] { background: var(--bg-inset); }
+.dream-legend-main { display: flex; flex: 1 1 130px; flex-direction: column; gap: 1px; min-width: 0; }
+.dream-legend-slot { color: var(--fg); }
+.dream-legend-row[data-selected="true"] .dream-legend-slot { font-weight: 600; }
+.dream-legend-live { font-size: 10px; color: var(--fg-subtle); }
+.dream-legend-status { color: var(--fg-muted); }
+.dream-legend-v { color: var(--fg); font-variant-numeric: tabular-nums; }
+.dream-scrub { display: flex; align-items: center; gap: 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.dream-play { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; font: 11px var(--font-mono); color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
+.dream-play:hover { background: var(--bg-hover); }
+.dream-play[data-on="true"] { color: var(--accent); border-color: var(--accent-line); }
+.dream-range { flex: 1; min-width: 80px; height: 3px; appearance: none; -webkit-appearance: none; background: var(--border-strong); border-radius: 2px; cursor: pointer; }
+.dream-range::-webkit-slider-thumb { width: 13px; height: 13px; appearance: none; -webkit-appearance: none; background: var(--fg); border: 2px solid var(--bg); border-radius: 50%; box-shadow: 0 0 0 1px var(--border-strong); }
+.dream-range::-moz-range-thumb { width: 13px; height: 13px; background: var(--fg); border: 2px solid var(--bg); border-radius: 50%; box-shadow: 0 0 0 1px var(--border-strong); }
+.dream-counter { min-width: 92px; text-align: right; font: 11px var(--font-mono); color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+
+/* --- curves ------------------------------------------------------------ */
+
+.dream-inline-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 6px; font: 11px var(--font-mono); color: var(--fg-muted); }
+.dream-inline-item { display: inline-flex; align-items: center; gap: 6px; }
+.dream-inline-item[data-selected="true"] { color: var(--fg); font-weight: 600; }
+.dream-inline-tag { padding: 1px 5px; font-size: 9px; letter-spacing: .05em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-line); border-radius: 2px; }
+.dream-grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 4; }
+.dream-axis { stroke: var(--border-strong); stroke-width: 1; }
+.dream-tick { fill: var(--fg-subtle); font: 9px var(--font-mono); }
+.dream-axis-label { fill: var(--fg-subtle); font: 10px var(--font-mono); letter-spacing: .04em; }
+.dream-curve { fill: none; stroke-linejoin: round; }
+
+/* --- V ----------------------------------------------------------------- */
+
+.dream-vhead, .dream-vrow { display: grid; grid-template-columns: 100px minmax(0, 1fr) 56px 64px 78px; align-items: center; gap: 10px; }
+.dream-vhead { padding: 10px 0 6px; font: 10px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--fg-subtle); }
+.dream-vrow { padding: 8px 0; border-top: 1px solid var(--border); font: 12px var(--font-mono); }
+.dream-vslot { color: var(--fg-muted); }
+.dream-vrow[data-selected="true"] .dream-vslot { color: var(--fg); font-weight: 600; }
+.dream-vtrack { height: 9px; overflow: hidden; background: var(--bg-inset); border-radius: 2px; }
+.dream-vfill { display: block; height: 100%; background: var(--fg-subtle); }
+.dream-vrow[data-selected="true"] .dream-vfill { background: var(--accent); }
+.dream-vval { color: var(--fg); font-variant-numeric: tabular-nums; }
+.dream-vdelta { color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+.dream-vtag { font-size: 10px; letter-spacing: .03em; color: var(--fg-muted); }
+.dream-vrow[data-status="accepted"] .dream-vtag { color: var(--ok); }
+.dream-vrow[data-status="rejected"] .dream-vtag { color: var(--err); }
+.dream-vrow[data-status="not_better"] .dream-vtag { color: var(--fg-subtle); }
+
+/* --- held-out and states ----------------------------------------------- */
+
+.dream-heldout { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--border); }
+.dream-heldout-label { font: 13px var(--font-ui); color: var(--fg-muted); }
+.dream-heldout-value { font: 500 clamp(22px, 2.4vw, 30px) / 1 var(--font-mono); color: var(--fg); font-variant-numeric: tabular-nums; }
+.dream-honesty { margin: 10px 0 0; font: 13px var(--font-ui); color: var(--fg-muted); max-width: 70ch; }
+.dream-pending { padding: clamp(28px, 5vw, 56px) 0 8px; border-top: 1px solid var(--border); }
+.dream-pending-title { margin: 0 0 10px; font-size: clamp(26px, 3.6vw, 40px); line-height: 1.15; letter-spacing: -.01em; color: var(--fg); }
+.dream-pending-sub { margin: 0 0 34px; font-size: var(--story-dek, 19px); line-height: 1.5; color: var(--fg-muted); }
+.dream-stats { display: flex; flex-wrap: wrap; gap: 24px 56px; margin: 0; }
+.dream-stat { display: flex; flex-direction: column-reverse; gap: 6px; }
+.dream-stat-value { margin: 0; font: 400 clamp(22px, 2.4vw, 30px) / 1 var(--font-mono); color: var(--fg); font-variant-numeric: tabular-nums; }
+.dream-stat-label { font: 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-subtle); }
+.dream-note { margin: 10px 0; font: 13px var(--font-ui); color: var(--fg-muted); }
+.dream-empty { margin: 0; padding: 24px 0; font-size: var(--story-dek, 19px); color: var(--fg-muted); }
+
+/* --- narrow ------------------------------------------------------------ */
+
+@media (max-width: 720px) {
+  .dream-branches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dream-controls-meta { margin-left: 0; }
+}
+
+@media (max-width: 560px) {
+  .dream-branches { grid-template-columns: 1fr; }
+  .dream-field { width: 100%; }
+  .dream-select { width: 100%; min-width: 0; }
+  .dream-head-meta { flex-basis: 100%; }
+  .dream-legend-main { flex-basis: 100%; }
+  .dream-vhead { display: none; }
+  .dream-vrow { grid-template-columns: 1fr auto; gap: 4px 10px; }
+  .dream-vslot { grid-column: 1; grid-row: 1; }
+  .dream-vtag { grid-column: 2; grid-row: 1; text-align: right; }
+  .dream-vtrack { grid-column: 1 / -1; grid-row: 2; }
+  .dream-vval { grid-column: 1; grid-row: 3; }
+  .dream-vdelta { grid-column: 2; grid-row: 3; text-align: right; }
+  .dream-counter { min-width: 78px; }
+}

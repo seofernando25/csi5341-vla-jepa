@@ -79,10 +79,27 @@ export function mountShortcuts(root, ctx) {
   });
 
   function onKey(event) {
-    if (!open || event.key !== "Escape" || event.defaultPrevented || event.isComposing) return;
-    event.preventDefault();
-    event.stopPropagation();
-    close();
+    if (!open || event.defaultPrevented || event.isComposing) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const focusable = [...overlay.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")].filter(
+      (node) => !node.disabled && node.offsetParent !== null,
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function show() {

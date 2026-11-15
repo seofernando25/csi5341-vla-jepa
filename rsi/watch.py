@@ -105,8 +105,8 @@ def parse_source(text: str | None) -> Source:
     for part in (cycle, name):
         if not PART.match(part) or part in (".", ".."):
             raise SourceError(f"bad source id component: {part!r}")
-    if parts[0] == "policy" and (not name.isdigit() or int(name) < 1):
-        raise SourceError(f"policy step must be an integer >= 1: {name!r}")
+    if parts[0] == "policy" and (not name.isdigit() or int(name) < 0):
+        raise SourceError(f"policy step must be an integer >= 0: {name!r}")
     return Source(parts[0], cycle, name)
 
 

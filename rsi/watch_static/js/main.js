@@ -41,11 +41,11 @@ const ctx = {
   dom,
   api: null,
   go: (source, view) => {
-    const [kind, cycle, target] = String(source).split(":");
     store.dispatch(act.open(source, view));
-    if (kind && cycle && target) {
-      location.hash = `#/${kind}/${encodeURIComponent(cycle)}/${encodeURIComponent(target)}/${view || "transcript"}`;
-    }
+    const tab = sel.activeTab(store.getState());
+    if (!tab) return;
+    writeHash(tab);
+    applyMode("workbench");
   },
 };
 
@@ -276,6 +276,8 @@ function applyLayout(state) {
   document.getElementById("drawer-scrim").hidden = !(narrow && drawer);
   document.documentElement.style.setProperty("--sidebar-w", `${state.ui.sidebar.width}px`);
   document.documentElement.style.setProperty("--inspector-w", `${state.ui.inspector.width}px`);
+  document.getElementById("splitter")?.setAttribute("aria-valuenow", String(state.ui.sidebar.width));
+  document.getElementById("splitter-inspector")?.setAttribute("aria-valuenow", String(state.ui.inspector.width));
   const editorBody = document.getElementById("editor-body");
   const tab = sel.activeTab(state);
   const showOutline = state.ui.outline.open && tab?.kind === "node" && tab.view === "transcript";
@@ -329,14 +331,7 @@ function mountActiveView(state) {
   mounted.key = key;
   mounted.view = null;
   if (!tab) {
-    host.append(
-      dom.el("div", { class: "empty" }, [
-        dom.el("strong", {}, "No editor open"),
-        "Pick a node in the explorer, or press ",
-        dom.el("kbd", { class: "kbd" }, "Ctrl K"),
-        ".",
-      ]),
-    );
+    host.append(dom.el("div", { class: "empty" }, [dom.el("strong", {}, "No editor open")]));
     return;
   }
   const root = dom.el("div", { class: "view-root", dataset: { view: tab.view } });
@@ -363,6 +358,7 @@ function render(state, prev) {
   }
   if (state.server.status === "ready") lastStateError = null;
   const tab = sel.activeTab(state);
+  document.title = tab ? `${sel.tabTitle(state, tab)} — Dream-RSI` : "Dream-RSI workbench";
   if (tab) writeHash(tab, { replace: !prev?.ui.activeId });
 }
 
@@ -384,6 +380,7 @@ async function boot() {
   matchMedia("(max-width: 900px)").addEventListener("change", () => applyLayout(store.getState()));
 
   applyTheme(store.getState().ui.theme);
+  document.body.dataset.mode = mode;
   render(store.getState(), null);
 
   const poll = async () => {

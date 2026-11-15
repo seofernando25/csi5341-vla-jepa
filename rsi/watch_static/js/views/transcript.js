@@ -45,7 +45,8 @@ export function mount(root, ctx) {
   ]);
 
   const feed = el("div", { class: "tx-feed" });
-  const scroller = el("div", { class: "tx-scroll", role: "log", "aria-label": "Transcript", tabIndex: 0 }, [
+  const scroller = el("div", { class: "tx-scroll", role: "log",
+      "aria-live": "off", "aria-label": "Transcript", tabIndex: 0 }, [
     feed,
   ]);
   const jump = el("button", { class: "tx-jump", type: "button", hidden: true }, [

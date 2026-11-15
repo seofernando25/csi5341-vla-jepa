@@ -234,3 +234,8 @@
   color: var(--fg-subtle);
   font-size: var(--fs-small);
 }
+
+.outline-search-input:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: -1px;
+}

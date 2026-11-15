@@ -50,20 +50,20 @@ export function mount(root, ctx) {
     el("span", { class: "mode-link", "aria-current": "page" }, "Workbench"),
   ]);
 
-  const paletteBtn = el("button", { class: "palette-trigger", type: "button", title: "Command palette" }, [
+  const paletteBtn = el("button", { class: "palette-trigger", type: "button", "aria-label": "Jump to" }, [
     icon("command", 13),
     el("span", {}, "Jump to…"),
     el("kbd", { class: "kbd" }, `${modLabel()} K`),
   ]);
   paletteBtn.addEventListener("click", () => dispatch(act.palette({ open: true, q: "" })));
 
-  const themeBtn = el("button", { class: "icon-btn", type: "button", title: "Toggle theme" }, icon("moon", 14));
+  const themeBtn = el("button", { class: "icon-btn", type: "button", "aria-label": "Theme" }, icon("moon", 14));
   themeBtn.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     dispatch(act.theme(next));
   });
 
-  const sidebarBtn = el("button", { class: "icon-btn", type: "button", title: "Toggle sidebar" }, icon("panelLeft", 14));
+  const sidebarBtn = el("button", { class: "icon-btn", type: "button", "aria-label": "Explorer" }, icon("panelLeft", 14));
   sidebarBtn.addEventListener("click", () => {
     if (matchMedia("(max-width: 900px)").matches) {
       const open = ctx.store.getState().ui.drawer !== "tree";
@@ -74,7 +74,7 @@ export function mount(root, ctx) {
     dispatch(act.sidebar({ open }));
   });
 
-  const inspectorBtn = el("button", { class: "icon-btn", type: "button", title: "Toggle inspector" }, icon("panelRight", 14));
+  const inspectorBtn = el("button", { class: "icon-btn", type: "button", "aria-label": "Inspector" }, icon("panelRight", 14));
   inspectorBtn.addEventListener("click", () => {
     if (matchMedia("(max-width: 900px)").matches) {
       const open = ctx.store.getState().ui.drawer !== "inspector";
@@ -133,11 +133,7 @@ export function mount(root, ctx) {
     const scoredCount = sel.scoredCount(cycle);
     const bestNode = sel.bestOf(state);
     setText(best.value, bestNode ? fmt.pct(bestNode.node.score) : "—");
-    best.node.title = bestNode
-      ? `${bestNode.node.cell_id} in cycle ${bestNode.cycle.iteration ?? bestNode.cycle.cycle_id}`
-      : "no scored node yet";
     setText(scored.value, budget == null ? String(scoredCount) : `${scoredCount} / ${budget}`);
-    scored.node.title = budget == null ? "nodes scored in this cycle" : "nodes scored / probe budget of this run";
     setText(cost.value, fmt.usd(loop?.agent_cost_usd));
     const liveSeconds =
       loop?.status === "running" && loop.elapsed_s != null

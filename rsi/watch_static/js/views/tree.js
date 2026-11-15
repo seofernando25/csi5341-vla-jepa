@@ -319,10 +319,8 @@ function nodeRow(state, cycle, row, tabStop) {
     tabIndex: source === tabStop ? 0 : -1,
     "aria-level": depth + 1,
     "aria-selected": active ? "true" : "false",
-    "aria-current": active ? "true" : null,
     "aria-label": label,
     dataset,
-    title: label,
   };
   return el("div", props, [
     indent(depth, guides, isLast),

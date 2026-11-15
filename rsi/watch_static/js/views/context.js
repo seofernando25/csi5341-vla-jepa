@@ -6,8 +6,6 @@ import * as sel from "../selectors.js";
 import * as fmt from "../format.js";
 
 const CAP = 40_000;
-const SUBTITLE =
-  "What this agent was given: task prompt, tree index, earlier node material and the agent configuration.";
 const START_CLOSED = new Set(["earlier", "evidence", "Earlier node material", "Replay evidence"]);
 
 export function mount(root, ctx) {
@@ -238,7 +236,6 @@ export function mount(root, ctx) {
           : null,
       ]),
     );
-    head.append(el("p", { class: "ctx-sub" }, SUBTITLE));
   }
 
   function setActive(id) {

@@ -142,7 +142,7 @@ export function mount(root, ctx) {
     stat(stats, "mean V", fmt.num(step.mean_v));
     stat(stats, "delta vs best", fmt.signed(step.delta_vs_best));
     stat(stats, "step", String(step.step));
-    stat(stats, "attempts", "—", "not recorded in /api/state");
+    stat(stats, "attempts", "—", "not recorded");
     body.append(stats);
 
     body.append(section("Reason", el("p", { class: "insp-reason wrap-any" }, step.reason || "—")));

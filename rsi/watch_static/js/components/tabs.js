@@ -10,7 +10,7 @@ export function mountTabs(root, ctx) {
   const actions = el("div", { class: "tabbar-actions" });
   root.append(list, actions);
 
-  const outlineBtn = el("button", { class: "icon-btn", type: "button", title: "Toggle outline" }, icon("list", 14));
+  const outlineBtn = el("button", { class: "icon-btn", type: "button", "aria-label": "Outline" }, icon("list", 14));
   outlineBtn.addEventListener("click", () => {
     dispatch(act.outline(!ctx.store.getState().ui.outline.open));
   });
@@ -27,7 +27,12 @@ export function mountTabs(root, ctx) {
     clear(list);
     for (const tab of tabs) {
       const selected = tab.id === active;
-      const close = el("span", { class: "tab-close", role: "button", tabIndex: -1, title: "Close" }, "×");
+      const close = el("button", {
+        class: "tab-close",
+        type: "button",
+        tabIndex: -1,
+        "aria-label": `Close ${sel.tabTitle(state, tab)}`,
+      }, "×");
       close.addEventListener("click", (event) => {
         event.stopPropagation();
         dispatch(act.close(tab.id));
@@ -39,7 +44,7 @@ export function mountTabs(root, ctx) {
           role: "tab",
           tabIndex: selected ? 0 : -1,
           "aria-selected": selected ? "true" : "false",
-          title: `${sel.tabTitle(state, tab)} — ${sel.tabSubtitle(state, tab)}`,
+          "aria-controls": "view-host",
           dataset: { id: tab.id },
         },
         [
@@ -56,7 +61,15 @@ export function mountTabs(root, ctx) {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           dispatch(act.activate(tab.id));
+          return;
         }
+        const step = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
+        if (!step) return;
+        event.preventDefault();
+        const index = tabs.findIndex((item) => item.id === tab.id);
+        const nextTab = tabs[(index + step + tabs.length) % tabs.length];
+        dispatch(act.activate(nextTab.id));
+        requestAnimationFrame(() => list.querySelector(`[data-id="${nextTab.id}"]`)?.focus());
       });
       list.append(node);
     }
@@ -69,6 +82,8 @@ export function mountTabs(root, ctx) {
 
 export function mountViewbar(root, ctx) {
   const { dispatch, act } = ctx;
+  root.setAttribute("role", "tablist");
+  root.setAttribute("aria-label", "Views");
   let sig = "";
 
   function render(state) {
@@ -88,6 +103,7 @@ export function mountViewbar(root, ctx) {
           type: "button",
           role: "tab",
           "aria-selected": selected ? "true" : "false",
+          "aria-controls": "view-host",
           dataset: { view: view.id },
         },
         [el("span", {}, view.label), el("span", { class: "key" }, view.key)],

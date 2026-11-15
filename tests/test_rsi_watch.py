@@ -411,7 +411,7 @@ def test_long_output_is_capped_and_flagged(tmp_path: Path) -> None:
         "node:iter_000:..",
         "node:iter_000:a/b",
         "other:iter_000:root",
-        "policy:iter_000:0",
+        "policy:iter_000:-1",
         "policy:iter_000:x",
         "node:iter 0:root",
     ],

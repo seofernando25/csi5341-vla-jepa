@@ -31,7 +31,7 @@ export function mount(root, ctx) {
     connection.dataset.tone = tone;
     connection.querySelector(".dot").dataset.tone = tone;
     setText(connection.querySelector(".text"), sel.connectionLabel(state));
-    connection.title = transport.error || transport.reason || "SSE transport";
+    connection.title = transport.error || transport.reason || "";
 
     const loop = sel.loop(state);
     setText(loopItem, sel.statusLine(state));
@@ -43,7 +43,7 @@ export function mount(root, ctx) {
       slots,
       gpuSlots == null ? "slots —" : `slots ${gpuSlots}${gpu ? ` · ${gpu.utilization_pct}%` : ""}`,
     );
-    slots.title = gpu ? `${gpu.name}: ${gpu.memory_used_mb} / ${gpu.memory_total_mb} MB` : "GPU slots";
+    slots.title = gpu ? `${gpu.name}: ${gpu.memory_used_mb} / ${gpu.memory_total_mb} MB` : "";
 
     const at = transport.lastEventAt;
     setText(last, at ? `event ${fmt.ago(at)}` : "no events");

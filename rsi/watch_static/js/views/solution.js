@@ -19,7 +19,7 @@ export function mount(root, ctx) {
     clear(head);
     const wrapButton = el(
       "button",
-      { class: "btn", type: "button", title: "Toggle soft wrap", "aria-pressed": wrap ? "true" : "false" },
+      { class: "btn", type: "button", "aria-pressed": wrap ? "true" : "false" },
       [icon("list", 12), "Wrap"],
     );
     wrapButton.addEventListener("click", () => {

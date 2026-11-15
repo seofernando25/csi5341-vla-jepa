@@ -32,7 +32,7 @@ export function mount(root, ctx) {
   const count = el("span", { class: "count num" });
   const follow = el(
     "button",
-    { class: "icon-btn outline-follow", type: "button", title: "Follow new output", aria: { pressed: "true" } },
+    { class: "icon-btn outline-follow", type: "button", "aria-label": "Follow new output", aria: { pressed: "true" } },
     icon("arrowDown", 13),
   );
   follow.addEventListener("click", () => dispatch(act.follow(!ctx.store.getState().ui.follow)));

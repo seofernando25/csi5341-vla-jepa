@@ -1,0 +1,199 @@
+/* Chapter 01 — The task. A stat row, one size bar, the gate line, one quiet
+   link. Tokens only; the chapter frame and .stat/.figure surfaces are the
+   shell's. No motion beyond the bar and the link arrow. */
+
+/* --- stat row ------------------------------------------------------------ */
+
+.task-stats {
+  justify-content: space-between;
+  gap: 20px 24px;
+}
+
+.task-stats .stat-value {
+  font-size: clamp(26px, 2.2vw, 32px);
+}
+
+.task-stats .stat[data-text="true"] .stat-value {
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  white-space: normal;
+}
+
+/* --- size bar ------------------------------------------------------------ */
+
+.task-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin: 0 0 clamp(22px, 3vw, 30px);
+}
+
+.task-from {
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-variant-numeric: tabular-nums;
+}
+
+.task-arrow {
+  color: var(--fg-subtle);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.task-best {
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: clamp(34px, 4.6vw, 56px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.task-empty {
+  color: var(--fg-muted);
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1.2;
+}
+
+.task-delta {
+  margin-left: auto;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.task-track {
+  position: relative;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--bg-inset);
+  overflow: hidden;
+}
+
+.task-track[data-state="unknown"] {
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+}
+
+.task-fill {
+  display: block;
+  height: 100%;
+  border-radius: 2px 0 0 2px;
+  background: var(--accent);
+  transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.task-scale {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  color: var(--fg-subtle);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.task-state {
+  margin: 10px 0 0;
+  color: var(--fg-subtle);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.task-figure > .task-state:only-child {
+  margin: 0;
+}
+
+/* --- what counts --------------------------------------------------------- */
+
+.task-counts {
+  color: var(--fg-muted);
+}
+
+/* --- workbench link ------------------------------------------------------ */
+
+.task-foot {
+  margin: 22px 0 0;
+}
+
+.task-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg-muted);
+  font: 500 14px/1.5 var(--font-ui);
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.task-link:hover {
+  color: var(--fg);
+  text-decoration-color: currentColor;
+}
+
+.task-link:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 3px;
+}
+
+.task-link-arrow {
+  transition: transform 160ms ease;
+}
+
+.task-link:hover .task-link-arrow {
+  transform: translateX(3px);
+}
+
+/* --- narrow -------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  .task-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .task-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .task-readout {
+    gap: 4px 10px;
+  }
+
+  .task-best {
+    font-size: 34px;
+  }
+
+  .task-delta {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-fill,
+  .task-link-arrow {
+    transition: none;
+  }
+
+  .task-link:hover .task-link-arrow {
+    transform: none;
+  }
+}

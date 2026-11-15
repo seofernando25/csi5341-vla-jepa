@@ -19,12 +19,10 @@ export function mount(root, ctx) {
     const pill = el("span", {
       class: "pill policy-status",
       dataset: { tone: DEV_TONE[dev?.status] || "" },
-      title: "Policy development status",
     });
     pill.textContent = dev?.status || "—";
     const selected = el("span", {
       class: "policy-selected subtle num",
-      title: "Selected step",
     });
     selected.textContent = dev?.selected_step != null ? `step ${dev.selected_step}` : "—";
     head.append(el("span", {}, "Policy development"), pill, selected);
@@ -32,13 +30,13 @@ export function mount(root, ctx) {
 
   function renderSummary(dev) {
     const cells = [
-      ["incumbent", fmt.num(dev?.incumbent_v), "Incumbent V"],
-      ["selected", fmt.num(dev?.selected_v), "Selected V"],
-      ["held-out", fmt.signed(dev?.heldout_delta), "Held-out delta vs incumbent"],
+      ["incumbent V", fmt.num(dev?.incumbent_v)],
+      ["selected V", fmt.num(dev?.selected_v)],
+      ["held-out Δ", fmt.signed(dev?.heldout_delta)],
     ];
-    for (const [label, value, title] of cells) {
+    for (const [label, value] of cells) {
       summary.append(
-        el("span", { class: "policy-kv", title }, [
+        el("span", { class: "policy-kv" }, [
           el("i", {}, label),
           el("b", { class: "num" }, value),
         ]),
@@ -74,12 +72,11 @@ export function mount(root, ctx) {
             el("span", {
               class: "policy-delta num",
               dataset: { tone: deltaTone(step.delta_vs_best) },
-              title: "Delta vs best",
             }, fmt.signed(step.delta_vs_best)),
           ]),
           el("span", { class: "policy-line policy-meta" }, [
-            el("span", { class: "num", title: "Mean V" }, `V ${fmt.num(step.mean_v)}`),
-            step.attempts != null ? el("span", { class: "num", title: "Attempts" }, fmt.plural(step.attempts, "attempt")) : null,
+            el("span", { class: "num" }, `V ${fmt.num(step.mean_v)}`),
+            step.attempts != null ? el("span", { class: "num" }, fmt.plural(step.attempts, "attempt")) : null,
           ]),
           step.reason ? el("span", { class: "policy-reason truncate", title: step.reason }, step.reason) : null,
         ]),
@@ -135,19 +132,14 @@ export function mount(root, ctx) {
     summary.hidden = !dev;
     if (dev) renderSummary(dev);
     if (!cycle) {
-      body.append(
-        el("p", { class: "empty" }, [
-          el("strong", {}, "Policy development has not started."),
-          "No cycle has been written yet.",
-        ]),
-      );
+      body.append(el("p", { class: "empty" }, [el("strong", {}, "Policy development"), "No cycle recorded."]));
       return;
     }
     if (!rows.length) {
       body.append(
         el("p", { class: "empty" }, [
-          el("strong", {}, "No policy steps in this cycle."),
-          dev?.status === "pending" ? "Policy development is pending." : "Steps appear when the agent starts.",
+          el("strong", {}, dev?.status === "pending" ? "Pending" : "No steps"),
+          dev?.status === "pending" ? "Starts when the cycle ends." : "No policy steps in this cycle.",
         ]),
       );
       return;
