@@ -20,8 +20,9 @@ stop. You do not design recipes.
 
 ## Objective
 
-The policy is replayed on every world at beta in (0, 0.25, 0.5, 0.75, 1). Each replay gives
-probes used `n` and attainment `a` = best score found / best score in the tree. Per world,
+The policy is replayed on every world at each beta in the set {{0.0, 0.25, 0.5, 0.75, 1.0}}. Each
+replay gives probes used `n` and attainment `a` = best score found / best score in the tree. Per
+world,
 
     V = area under the best quality-versus-cost frontier of those five points
         - {lambda_parallel} * mean(sequential rounds / probes)
@@ -33,8 +34,15 @@ policy replaces the current one only if its mean V over all worlds is strictly h
 ## Rules (machine-checked; a violation rejects the step)
 
 - Keep `class OptimalPolicy(LLMDesignedMethod)` with `NAME = "OptimalPolicy"`.
-- Imports: `from __future__ import annotations`, `import math`, `from rsi.api import ...`,
-  `from dataclasses import dataclass, field`, `from typing import ...`. Nothing else.
+- Imports, and nothing else: `from __future__ import annotations`, `import math`,
+  `from rsi.api import ...` (any name), `from dataclasses import dataclass, field`, and
+  `from typing import Any, Callable, ClassVar, Iterable, Literal, Mapping, Optional, Sequence`.
+  `field` may be imported, but any `field(...)` call in a class body is rejected as mutable
+  state; use plain defaults.
+- These builtin names are refused anywhere in the file, including as argument or alias names:
+  `__import__`, `breakpoint`, `compile`, `delattr`, `dir`, `eval`, `exec`, `format`, `getattr`,
+  `globals`, `hasattr`, `id`, `input`, `locals`, `memoryview`, `object`, `open`, `setattr`,
+  `type`, `vars`.
 - `solve(self, question, budget=None)` may read only `question.observed()`,
   `question.legal_actions()`, `question.legal_roots()`, `question.opened_branches()`,
   `question.meta(cell_id)`, `question.baseline_score`, `question.max_parallelism`, and may call
@@ -44,10 +52,15 @@ policy replaces the current one only if its mean V over all worlds is strictly h
   comes from `_schedule(beta)`. Changing only the default beta changes nothing: all five betas
   are replayed anyway.
 - Deterministic: no randomness, clocks, files, or global state.
-- `solve()` terminates when the budget is spent or no legal action remains.
-- Do not change `plan_grid`.
-- No string or number in the file may be copied from a recorded world (cell ids, world ids,
-  exact scores, node counts). Such a file is rejected.
+- In replay `budget` is `None`, so `solve()` must stop on its own when no legal action remains or
+  your own rule says stop. In a live cycle `budget` is the probe budget. A replay is killed at
+  120 s of CPU time or 120 s of wall clock.
+- Keep a `plan_grid(self, context)` method: the audit requires it, but nothing calls it; the cycle
+  reads the static plan from `protocol.json`.
+- No string literal may equal a recorded cell id or world id, and no float literal may equal a
+  recorded node score with three or more decimals (0.0, 0.5 and 1.0 are exempt). Integers are
+  fine.
+- Each step has 240 s of wall clock; a step that runs over is lost.
 
 ## How to work
 

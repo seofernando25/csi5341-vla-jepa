@@ -46,6 +46,11 @@
       "from": "pi / opencode-go/deepseek-v4.1-flash / max",
       "to": "pi / mistral/deepseek-v4-1-flash-1017 / max",
       "reason": "Use the Mistral connector's DeepSeek key instead of opencode-go. The opencode-go run was stopped before any node completed. The earlier 4-node scratch pilot was a harness check only: it is not evidence, and no result from either run was selected."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.evaluator+prompts",
+      "reason": "Pre-launch audit: workspace files over 1 MiB now count as memory; prompts state the enforced contract; replay beta grid and lambda_parallel recorded. No evidence run had been launched."
     }
   ],
   "dream_rsi": {
@@ -56,6 +61,8 @@
       "rounds_cap": 6,
       "rationale": "Pre-registered factorial grid; static for the clean run. Not a paper claim."
     },
+    "beta_grid": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "lambda_parallel": 0.05,
     "gate_retry": false,
     "sequential_gate": false,
     "policy": "paper-faithful replay policy; generated policy code must be recorded by hash",

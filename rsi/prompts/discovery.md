@@ -12,63 +12,73 @@ copy of the workspace of your parent node `{parent_id}`. Improve on it.
         return policy
 
 A fixed evaluator that you cannot change loads the published policy (bfloat16, on cuda, eval
-mode), calls your function, measures every byte of tensor memory reachable from what you return,
-and runs {smoke_trials} LIBERO-Spatial episodes with it.
+mode), calls your function, and runs {smoke_trials} LIBERO-Spatial episodes with what it returns.
 
     score = fraction of memory removed, if at least {smoke_gate} of {smoke_trials} episodes succeed
     score = 0 otherwise
 
-The uncompressed policy scores 0. The best score in the tree so far is {best_score}.
+The untouched policy scores 0 and passes about {smoke_gate} of {smoke_trials}: the gate has no
+margin, so one new episode failure zeroes the node. The best score in the tree so far is
+{best_score}.
+
+## How memory is measured
+
+Resident bytes are the larger of two figures:
+
+- every tensor byte reachable from what you return and from this workspace's modules, each storage
+  counted once;
+- the process's live CUDA storage.
+
+The evaluator holds the original policy while it measures, so a compressed copy left beside the
+original scores about 0. Replace the weights in place and free the originals.
+
+Workspace files count too: every file in `/tmp/work` larger than 1 MiB is added in full, including
+one written at import time or shipped in the workspace and loaded later.
 
 ## What you have
 
-- `/tmp/work`: yours. Write code, add files and packages, run anything. `solution.py` may import
-  from the workspace and from anything installed.
+- `/tmp/work`: yours. Write code and files, run anything. Limits: 256 MiB total, no symlinks, no
+  `.git`, no special files, `solution.py` at most 1 MiB, `proposal.md` at most 256 KiB.
 - `/tmp/repo` (read-only): the project's source. `evaluation/models.py` loads the policy;
-  `evaluation/compression/` holds existing quantization, pruning and calibration code that you may
-  import, copy into your workspace and change, or ignore. `outputs/compression/calibration.pt` is
-  the `calibration` argument.
-- `/tmp/evidence` (read-only): `tree.json` and, for every earlier node, `proposal.md`,
-  `score.json` and `error.txt`.
+  `evaluation/compression/` holds existing code you may read, copy into your workspace and change,
+  or ignore. `outputs/compression/calibration.pt` is the `calibration` argument.
+- `/tmp/evidence` (read-only): `TASK.md`, `tree.json`, and `nodes/<cell_id>/proposal.md`,
+  `score.json`, `error.txt` for every earlier node.
 - A GPU, shared with other workers. Wrap GPU commands in a slot so they do not collide:
   `python -m rsi.gpu run --slots-dir /tmp/gpu-slots --n {gpu_slots} -- <command>`.
 - `python tools/check.py`: runs the evaluator's offline check on the workspace as it stands and
   prints memory removed, action error against the uncompressed policy on 80 held-out frames,
   latency, or the error. About 20 s when the GPU is free. Action error is not task success, but a
   large error predicts failure.
-- No internet packages. {minutes} minutes of wall time; a worker that runs over is killed and
-  its node fails.
+- No internet packages. {minutes} minutes of wall time; a worker that runs over is killed and its
+  node fails.
 
 ## Rules
 
-- Memory is counted wherever it hides: tensors on the CPU, in lists, in module globals, in files
-  reloaded later. Hiding memory makes the node fail. Really remove it.
+- `compress` has a wall-clock limit of 900 s.
+- Top-level imports in `solution.py` are not watched. Inside `compress`, opening or mapping a file
+  outside `/tmp/work`, the installed environment, `/dev`, `/proc` and `/sys` is a violation, so a
+  function-level import of `/tmp/repo` code fails the node. Creating or changing a file in
+  `/tmp/work`, the output directory or the temp directory during `compress` is also a violation.
 - Do not edit `tools/`.
-- A workspace identical to an existing node is rejected.
+- A workspace identical to an existing node is rejected: the same files with the same contents,
+  top-level `proposal.md` aside, as any node already in this cycle, the starting template included.
 
 ## Deliverables
 
-A node has exactly two required outputs in `/tmp/work`:
-
-- `solution.py`: must define the top-level `compress(policy, calibration)` shown above. The
-  evaluator scores this file.
-- `proposal.md`: what you changed relative to the parent, why, the last check output, and what you
-  would try next.
-
-Both files must exist and be readable when you stop. A missing or unreadable `proposal.md` fails
-the node before evaluation, whatever `solution.py` does; so does a `solution.py` that does not
-parse or defines no top-level `compress`. Write `proposal.md` early and update it as you go.
+A node has exactly two required outputs in `/tmp/work`: `solution.py`, which must define the
+top-level `compress(policy, calibration)` shown above, and `proposal.md`, which states what you
+changed relative to the parent, why, the last check output, and what you would try next. Both files
+must exist and be readable when you stop. A missing or unreadable `proposal.md` fails the node
+before evaluation, whatever `solution.py` does; so does a `solution.py` that does not parse or
+defines no top-level `compress`. Write `proposal.md` early and update it as you go.
 
 ## How to work
 
 1. Read `/tmp/evidence` first: what was tried, what scored, what failed and why.
-2. Pick one idea that differs from your parent and from failed siblings. Any method is allowed:
-   quantization, pruning, low-rank factors, weight sharing, removing unused parts, a different
-   numeric format, something not listed here.
+2. Pick one idea that differs from your parent and from failed siblings; any method is allowed.
 3. Implement it in the workspace. Run `python tools/check.py`. Fix errors. Iterate while time
    allows.
-4. Write `/tmp/work/proposal.md`: what you changed relative to the parent, why, the last check
-   output, and what you would try next. Keep it current as you iterate.
+4. Keep `proposal.md` current as you iterate.
 
-Your node is scored on `solution.py` as it is when you stop. `proposal.md` is required: a node
-without it fails.
+Your node is scored on `solution.py` as it is when you stop.
