@@ -18,7 +18,7 @@ indistinguishable success; replay $V$ selected the search policy but is not LIBE
 - Method: leave-one-world-out replay over 10 coarse / 22 fine / 5 live / 4 synthetic worlds
   (`OptimalPolicy[no-gate-retry]` wins 10/10 coarse folds, $V=0.3854$ vs $0.2192$, and 5/5
   live folds, $V=0.2047$ vs $0.0964$); $M=4$ automated revision generator
-  (`rsi/develop.py`, archived `r1..r6`); sequential multi-fidelity gate (`rsi/gate.py`,
+  (the deterministic revision-sweep module, since removed — see git history — archived `r1..r6`); sequential multi-fidelity gate (`rsi/gate.py`,
   10-trial good-branch false kills 13.08% to 4.43% at $p=0.87$); parallel LIBERO rollout
   engine (`evaluation/parallel_rollout.py`).
 
@@ -72,7 +72,7 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
 
 - Scores are Eq. (1) replay values $V$, not LIBERO success. Worlds are not independent: the
   three SmolVLM cycles split one search run, the Qwen chains are synthesized from a grid study,
-  and the synthetic worlds are hand-made. The policy-development agent ([develop.py](../../rsi/develop.py))
+  and the synthetic worlds are hand-made. The policy-development agent (module since removed,
   archives $M=4$ `OptimalPolicy` revisions per round from replay trajectories (tuned default
   $\beta$, serial/wide arms, gate-retry ablation) with provenance under
   `rsi/policies/revisions/`; selection is argmax including the incumbent on held-out $V$.
@@ -120,7 +120,7 @@ Reproduce: `uv run --no-sync python -m rsi benchmark` (exports [dream_benchmark.
 
 Frozen `InitialPolicy` control vs the held-out-selected `OptimalPolicy` variant
 (`beta=1.0`, `gate_retry=False`, i.e. the `r1/r2/r3-retry-flip` config: LOWO parent at tuned
-beta) on fresh grids, same probe budget, independent journals ([live.py](../../rsi/live.py)).
+beta) on fresh grids, same probe budget, independent journals (round-runner module since removed).
 Pre-stated gates: $\ge 8/10$ smoke promotes the smallest passing cell to development (100
 trials); development gate $\ge 77/100$. Stage journals record phase, $n$, bytes and machine
 (`outputs/compression/r*/`, not committed); compact evidence in
@@ -175,15 +175,15 @@ bases; Round 4 uses the report's full-vocabulary `C1` base (not the report's C1/
   (plus 1 pre-flight smoke); reserved 500 trials untouched; phases never pooled. Replay $V$
   is not LIBERO success, and the `83/100`/`88/100` promotions do not claim a general selection gain.
 
-Reproduce one round: `uv run --no-sync vla-rsi-round --round r1 --output studies/dream-rsi/live_round1.json`.
+These rounds were run with the since-removed round-runner entry point — reproduce it from git history.
 
 ### Automated candidate proposal (`r7+`)
 
-Hand-written grids (`r1`–`r6`) are replaced for new rounds by `vla-rsi-propose` ([propose.py](../../rsi/propose.py), [digest.py](../../rsi/digest.py), [action_space.py](../../rsi/action_space.py)), which builds a deterministic JSON digest of all probed cells, gates, failing tasks, and `B16`/`C1`/`C2` baselines, proposes candidates over a bounded action space (`T2`, `C1`, `C2` bases; text/vision MLP pruning, `group_size`, `vision_bits`, `action_precision`, `solver_steps`), validates strictly with one repair retry (rejecting unknown keys, out-of-range values, invalid combos, duplicates, or `< half` full-vocab candidates), and writes `studies/dream-rsi/proposals/<round_id>.json` for `vla-rsi-round --round <round_id>`. Supports both an external command transport (`--proposer-cmd`, e.g. [proposer_opencode.sh](../../scripts/proposer_opencode.sh)) and an OpenAI-compatible HTTP endpoint (`--base-url`, e.g. `https://openrouter.ai/api/v1` or `http://127.0.0.1:1234/v1`, plus `--model` and env-var API key).
+Hand-written grids (`r1`–`r6`) were replaced for new rounds by an LLM proposer (module since removed — see git history — plus [`digest.py`](../../rsi/digest.py), [`action_space.py`](../../rsi/action_space.py)), which built a deterministic JSON digest of all probed cells, gates, failing tasks, and `B16`/`C1`/`C2` baselines, proposed candidates over a bounded action space (`T2`, `C1`, `C2` bases; text/vision MLP pruning, `group_size`, `vision_bits`, `action_precision`, `solver_steps`), validated strictly with one repair retry (rejecting unknown keys, out-of-range values, invalid combos, duplicates, or `< half` full-vocab candidates), and wrote `studies/dream-rsi/proposals/<round_id>.json` for the round runner. It supported both an external command transport (`--proposer-cmd`, e.g. `scripts/proposer_opencode.sh`, since removed) and an OpenAI-compatible HTTP endpoint (`--base-url`, e.g. `https://openrouter.ai/api/v1` or `http://127.0.0.1:1234/v1`, plus `--model` and env-var API key).
 
 ## Stage 2: Live Qwen boundary search (RTX 5060 Ti)
 
-Using `OptimalPolicy` (`W=4`, $\beta=1.0$) in [qwen_search.py](../../rsi/qwen_search.py) over 5
+Using `OptimalPolicy` (`W=4`, $\beta=1.0$) in `rsi/qwen_search.py` (removed — see git history) over 5
 mixed-precision/pruning branches between the restricted-vocabulary bases `T1` (`838.5 MB`) and
 `T2` (`977.8 MB`) (Study B recipes `deploy-nf4-vision-text-channels-restricted` and
 `deploy-hqq2-vision-action-restricted`; not the report's C1/C2):

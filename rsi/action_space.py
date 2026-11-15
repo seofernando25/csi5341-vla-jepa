@@ -462,7 +462,7 @@ def validate_proposal(
 
 
 # ---------------------------------------------------------------------------
-# Free-form Dream-RSI v2 recipe space & proper physical application order
+# Free-form Dream-RSI recipe space & proper physical application order
 # ---------------------------------------------------------------------------
 
 RECIPE_TOP_KEYS = frozenset({"id", "family", "changes", "engine", "engine_options"})

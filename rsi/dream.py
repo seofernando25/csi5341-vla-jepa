@@ -25,7 +25,8 @@ from rsi.policies import (
     ShallowFirstPolicy,
     TwoStageGatePolicy,
 )
-from rsi.qwen_search import MEASUREMENTS_DIR, stage2_smoke_world
+from rsi.runner import MEASUREMENTS_DIR
+from rsi.stage2 import stage2_smoke_world
 from rsi.tree import (
     DiscoveryTree,
     compression_smoke_by_family,
@@ -51,7 +52,7 @@ class Candidate:
 
 
 INCUMBENT = Candidate("InitialPolicy", InitialPolicy)
-# Base pool. Per-round M=4 revisions from the policy-development agent (rsi/develop.py)
+# Base pool. Per-round M=4 revisions from the policy-development agent (rsi/policy_dev.py)
 # join the pool at selection time; the names below are the hand-written starting versions.
 CANDIDATE_POOL: tuple[Candidate, ...] = (
     Candidate("OptimalPolicy", OptimalPolicy),
@@ -275,7 +276,7 @@ class DreamEngine:
     """Offline dreaming policy evaluation and selection (paper Section 3, Eq. 1).
 
     Covers "Offline evaluation" and the argmax of "Policy improvement and selection". New
-    versions come from the policy-development agent (rsi/develop.py); callers pass candidates.
+    versions come from the policy-development agent (rsi/policy_dev.py); callers pass candidates.
     """
 
     def __init__(

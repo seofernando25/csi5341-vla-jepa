@@ -31,6 +31,11 @@ CONFIRM_TRIALS: int = 10
 CONFIRM_PASS: int = 8
 REFERENCE_P: float = 0.87
 
+# Shared promotion gates: smoke screens pass on >= SMOKE_GATE/10,
+# development promotions require >= DEV_GATE/100.
+SMOKE_GATE: int = SCREEN_PASS
+DEV_GATE: int = 77
+
 
 def _check_prob(p: float) -> float:
     if not 0.0 <= p <= 1.0:
@@ -186,3 +191,14 @@ def legacy_oc(true_p: float) -> dict[str, float]:
         "p_reject_overall": 1.0 - p_pass,
         "expected_trials": float(SCREEN_TRIALS),
     }
+
+
+def wilson_interval(successes: int, trials: int, z: float = 1.96) -> list[float]:
+    """Wilson 95% score interval for a binomial success count."""
+    if trials <= 0:
+        return [0.0, 1.0]
+    p = successes / trials
+    denom = 1.0 + z * z / trials
+    center = (p + z * z / (2 * trials)) / denom
+    half = z * ((p * (1 - p) + z * z / (4 * trials)) / trials) ** 0.5 / denom
+    return [round(max(0.0, center - half), 4), round(min(1.0, center + half), 4)]

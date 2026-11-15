@@ -19,7 +19,6 @@ from rsi.dream import (
 )
 from rsi.objective import BetaPoint, compute_eq1_score, evaluate_policy_on_tree, pareto_frontier
 from rsi.policies import InitialPolicy, OptimalPolicy
-from rsi.qwen_search import B16_RESIDENT_BYTES, LiveQwenQuestion, build_stage2_candidates
 from rsi.tree import (
     ReplayQuestion,
     from_attempts_jsonl,
@@ -162,31 +161,6 @@ def test_load_compression_summary_and_replay() -> None:
     assert sel["selected_reward"] >= sel["incumbent_reward"]
 
 
-def test_stage2_live_qwen_question_mock(tmp_path) -> None:
-    cands = build_stage2_candidates()
-    assert len(cands) == 15
-
-    def fake_eval(c) -> dict:
-        return {
-            "candidate": c.cell_id,
-            "phase": "smoke",
-            "status": "completed",
-            "successes": 8 if c.attempt == 0 else 6,
-            "episodes": 10,
-            "resident_bytes": B16_RESIDENT_BYTES * (0.16 - 0.02 * c.attempt),
-        }
-
-    q = LiveQwenQuestion(
-        candidates=cands,
-        evaluator=fake_eval,
-        journal_path=tmp_path / "journal.jsonl",
-        max_parallelism=4,
-    )
-    res = OptimalPolicy({"beta": 0.6}).solve(q, budget=6)
-    assert res.total_probes == 6
-    assert res.best_score == pytest.approx(0.84)
-
-
 def test_run_benchmark_smoke(tmp_path) -> None:
     out_file = tmp_path / "bench.json"
     payload = run_benchmark(output_path=out_file, parallelism_levels=(1, 4))
@@ -280,7 +254,7 @@ def test_sensitivity_grid_covers_lambda_and_W() -> None:
 
 
 def test_stage2_smoke_world_includes_tmlp20() -> None:
-    from rsi.qwen_search import stage2_smoke_world
+    from rsi.stage2 import stage2_smoke_world
 
     tree, records = stage2_smoke_world()
     by_id = {r["candidate"]: r for r in records}
@@ -288,149 +262,6 @@ def test_stage2_smoke_world_includes_tmlp20() -> None:
     assert by_id["s2-c2-tmlp20"]["smoke_successes"] == 8
     assert by_id["s2-c2-tmlp20"]["smoke_episodes"] == 10
     assert tree.nodes["s2-c2-tmlp20"].fail_class == "ok"
-
-
-def test_develop_policies_archives_m4_with_provenance(tmp_path) -> None:
-    from rsi.develop import develop_policies, load_revision_candidates
-    from rsi.dream import CANDIDATE_POOL, INCUMBENT
-
-    synth = build_synthetic_suite()
-    report = develop_policies(synth, "test-r0", revisions_dir=tmp_path)
-    assert len(report["candidates"]) == 4
-    assert len(report["revisions"]) == 4
-    # Argmax includes the incumbent: parent is a pool member, ties resolve to it first.
-    assert report["selected_parent"] in [INCUMBENT.name, *[c.name for c in CANDIDATE_POOL]]
-    for record in report["records"]:
-        assert record["round_id"] == "test-r0"
-        assert set(record["config"]) == {"beta", "gate_retry"}
-        assert record["parent_selection"] == report["selected_parent"]
-        assert "trajectory_stats" in record and "code_head" in record
-    loaded = load_revision_candidates("test-r0", tmp_path)
-    assert sorted(c.name for c in loaded) == sorted(report["revisions"])
-    assert all(c.cls.__name__ == "OptimalPolicy" for c in loaded)
-
-
-def test_develop_policies_rejects_single_world(tmp_path) -> None:
-    import pytest as _pytest
-
-    from rsi.develop import develop_policies
-
-    with _pytest.raises(ValueError, match="at least two worlds"):
-        develop_policies(build_synthetic_suite()[:1], "test-r0", revisions_dir=tmp_path)
-    with _pytest.raises(ValueError, match="M=4"):
-        develop_policies(build_synthetic_suite(), "test-r0", m=3, revisions_dir=tmp_path)
-
-
-def test_round1_grid_is_fresh_and_chained(tmp_path) -> None:
-    import json as _json
-
-    from rsi.live import build_round1_candidates, world_from_stage_journal
-    from rsi.qwen_search import build_stage2_candidates
-
-    cands = build_round1_candidates()
-    assert len(cands) == 9
-    old_ids = {c.cell_id for c in build_stage2_candidates()}
-    assert not ({c.cell_id for c in cands} & old_ids)
-    # Parent chains resolve within the grid.
-    by_id = {c.cell_id: c for c in cands}
-    for c in cands:
-        assert c.parent_id == "root" or c.parent_id in by_id
-    # World builder keeps the first smoke record per cell and never pools replicates.
-    stage = tmp_path / "stage.jsonl"
-    rows = [
-        {
-            "candidate": "r1-t12-v30",
-            "phase": "smoke",
-            "status": "completed",
-            "successes": 8,
-            "episodes": 10,
-            "resident_bytes": 900_000_000,
-            "policy": "control",
-            "machine": "X",
-            "recorded_utc": "t",
-        },
-        {
-            "candidate": "r1-t12-v30",
-            "phase": "smoke",
-            "status": "completed",
-            "successes": 9,
-            "episodes": 10,
-            "resident_bytes": 900_000_000,
-            "policy": "selected",
-            "machine": "X",
-            "recorded_utc": "t",
-        },
-        {
-            "candidate": "r1-t15-v35",
-            "phase": "smoke",
-            "status": "completed",
-            "successes": 5,
-            "episodes": 10,
-            "resident_bytes": 800_000_000,
-            "policy": "control",
-            "machine": "X",
-            "recorded_utc": "t",
-        },
-    ]
-    stage.write_text("\n".join(_json.dumps(r) for r in rows) + "\n")
-    tree, records = world_from_stage_journal(stage, cands, "qwen-live-round1")
-    assert tree.world_id == "qwen-live-round1"
-    assert tree.nodes["r1-t12-v30"].successes == 8
-    assert tree.nodes["r1-t12-v30"].fail_class == "ok"
-    assert tree.nodes["r1-t15-v35"].fail_class == "gate_failed"
-    assert len(records) == 2
-
-
-def test_run_arm_uses_fixed_budget_with_mock(tmp_path) -> None:
-    from rsi.live import build_round1_candidates, run_arm
-    from rsi.policies import InitialPolicy
-    from rsi.qwen_search import B16_RESIDENT_BYTES as _B16
-
-    cands = build_round1_candidates()
-    journals = {
-        "control": tmp_path / "c.jsonl",
-        "selected": tmp_path / "s.jsonl",
-        "stage": tmp_path / "stage.jsonl",
-    }
-
-    def fake_eval(c):
-        return {
-            "candidate": c.cell_id,
-            "phase": "smoke",
-            "status": "completed",
-            "successes": 8,
-            "episodes": 10,
-            "resident_bytes": _B16 * 0.16,
-            "wall_seconds": 0.0,
-        }
-
-    import rsi.live as _live
-
-    _orig = _live.run_compression_subprocess
-    _live.run_compression_subprocess = lambda recipe, phase, d: fake_eval(
-        type("C", (), {"cell_id": recipe["id"]})()
-    )
-    try:
-        arm = run_arm(cands, InitialPolicy(), "control", 4, "rX", journals, tmp_path)
-    finally:
-        _live.run_compression_subprocess = _orig
-    assert 0 < arm["probes_used"] <= 4
-    assert journals["stage"].exists()
-
-
-def test_round2_grid_is_fresh_and_chained() -> None:
-    from rsi.live import build_round1_candidates, build_round2_candidates
-    from rsi.qwen_search import build_stage2_candidates
-
-    cands = build_round2_candidates()
-    assert len(cands) == 6
-    old_ids = {c.cell_id for c in build_stage2_candidates()} | {
-        c.cell_id for c in build_round1_candidates()
-    }
-    assert not ({c.cell_id for c in cands} & old_ids)
-    by_id = {c.cell_id: c for c in cands}
-    for c in cands:
-        assert c.parent_id == "root" or c.parent_id in by_id
 
 
 def test_pool_for_seed_isolates_stochastic_draws() -> None:
@@ -539,52 +370,11 @@ def test_selection_stability_flags_seed_luck() -> None:
         assert set(cell["winners_by_seed"]) == {str(s) for s in STABILITY_SEEDS}
 
 
-def test_round4_grid_is_c1_based_fresh_and_chained() -> None:
-    from rsi.live import (
-        build_round1_candidates,
-        build_round2_candidates,
-        build_round3_candidates,
-        build_round4_candidates,
-    )
-    from rsi.qwen_search import build_stage2_candidates
-
-    cands = build_round4_candidates()
-    assert len(cands) == 6
-    old_ids = {c.cell_id for c in build_stage2_candidates()}
-    for builder in (build_round1_candidates, build_round2_candidates, build_round3_candidates):
-        old_ids |= {c.cell_id for c in builder()}
-    assert not ({c.cell_id for c in cands} & old_ids)
-    by_id = {c.cell_id: c for c in cands}
-    for c in cands:
-        assert c.parent_id == "root" or c.parent_id in by_id
-        methods = [ch["method"] for ch in c.recipe["changes"]]
-        assert "world_remove" in methods
-        assert "int8_embedding" in methods
-        assert "compact_embedding" not in methods
-
-
 def test_wilson_interval_covers_reported_dev_rates() -> None:
-    from rsi.live import attach_wilson, wilson_interval
+    from rsi.gate import wilson_interval
 
     assert wilson_interval(8, 10) == [0.4902, 0.9433]
     assert wilson_interval(88, 100) == [0.8019, 0.93]
-    payload = {
-        "control": {
-            "results": [
-                {"status": "completed", "successes": 8, "episodes": 10},
-                {"status": "runtime_failure"},
-            ]
-        },
-        "selected": {"results": []},
-        "development_promotions": {
-            "control": [{"status": "completed", "successes": 88, "episodes": 100}],
-            "selected": [],
-        },
-    }
-    attach_wilson(payload)
-    assert payload["control"]["results"][0]["wilson_95"] == [0.4902, 0.9433]
-    assert "wilson_95" not in payload["control"]["results"][1]
-    assert payload["development_promotions"]["control"][0]["wilson_95"] == [0.8019, 0.93]
 
 
 def test_gate_binomial_rates_are_exact() -> None:
@@ -636,58 +426,3 @@ def test_gate_decisions_and_phase_separation() -> None:
     assert_disjoint_seeds(("screen", [0, 1]), ("confirm", [10, 11]), ("dev", [20]))
     with pytest.raises(ValueError, match="disjoint"):
         assert_disjoint_seeds(("screen", [0, 1]), ("confirm", [1, 2]))
-
-
-def test_develop_embeds_gate_summary(tmp_path) -> None:
-    from rsi.develop import develop_policies, gate_summary
-
-    report = develop_policies(build_synthetic_suite(), "test-r0", revisions_dir=tmp_path)
-    oc = report["records"][0]["gate"]["operating_characteristics"]
-    assert oc["legacy"]["p_reject_overall"] == pytest.approx(0.13076421)
-    assert oc["sequential"]["p_reject_overall"] == pytest.approx(0.04431049)
-    assert gate_summary()["reference_p"] == pytest.approx(0.87)
-
-
-def test_r4_revisions_archived_on_coarse_smoke_history() -> None:
-    import json as _json
-    from pathlib import Path as _Path
-
-    from rsi.develop import load_revision_candidates, real_smoke_coarse_history
-
-    history = real_smoke_coarse_history()
-    world_ids = [t.world_id for t in history]
-    # Eight smoke-phase worlds; dev-100 and reserved-500 worlds are excluded.
-    assert len(history) == 8
-    assert world_ids == [
-        "libero-smolvlm-cycle0",
-        "libero-smolvlm-cycle1",
-        "libero-smolvlm-cycle2",
-        "qwen-compression-smoke",
-        "qwen-stage2-smoke",
-        "qwen-round1",
-        "qwen-round2",
-        "qwen-round3",
-    ]
-    paths = sorted(_Path("rsi/policies/revisions").glob("r4-*.json"))
-    assert [p.name for p in paths] == [
-        "r4-retry-flip.json",
-        "r4-serial.json",
-        "r4-tuned.json",
-        "r4-wide.json",
-    ]
-    loaded = load_revision_candidates("r4")
-    assert len(loaded) == 4
-    assert all(c.cls.__name__ == "OptimalPolicy" for c in loaded)
-    for path in paths:
-        record = _json.loads(path.read_text())
-        assert record["round_id"] == "r4"
-        assert set(record["config"]) == {"beta", "gate_retry"}
-        assert record["trajectory_stats"]["worlds"] == world_ids
-        assert "InitialPolicy" in record["held_out_mean_V"]
-        assert (
-            record["held_out_mean_V"][record["parent_selection"]]
-            >= record["held_out_mean_V"]["InitialPolicy"]
-        )
-        assert record["gate"]["operating_characteristics"]["sequential"][
-            "p_reject_overall"
-        ] == pytest.approx(0.04431049)

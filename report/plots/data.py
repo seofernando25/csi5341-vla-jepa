@@ -244,7 +244,7 @@ def divergence() -> pd.DataFrame:
 
 def dream_rsi_stage2() -> dict:
     """Dream-RSI stage-2 development evidence for the smallest passing candidate (search only)."""
-    from rsi.live import DEV_GATE  # local: keep the plots build free of the RSI import graph
+    from rsi.gate import DEV_GATE  # local: keep the plots build free of the RSI import graph
 
     cand = "s2-c2-t10-v25"
     dev_path = COMP / "measurements" / cand / "development" / "run.json"

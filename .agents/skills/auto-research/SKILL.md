@@ -15,7 +15,7 @@ Run bounded recursive self-improvement rounds over the open Qwen compression tra
 
 ## Bounded Loops
 
-### Dream-RSI v2 (`studies/dream-rsi-v2/`, recommended)
+### Dream-RSI (`studies/dream-rsi-v2/`)
 
 1. **Dry / CPU check:** Confirm `bwrap` and `pi` work cleanly (`uv run --no-sync pytest -q tests/test_dream_rsi_v2.py`) and ensure `AGENT_BOARD.jsonl` shows no competing GPU owner.
 2. **Run bounded cycle or outer loop:**
@@ -24,14 +24,9 @@ Run bounded recursive self-improvement rounds over the open Qwen compression tra
    - Offline policy dev only: `uv run --no-sync vla-rsi develop --cycle-id iter_000 --m 4`
 3. **Inspect artifacts:** `studies/dream-rsi-v2/cycles/<cid>/live_cycle_manifest.json`, `tree.json`, and `policies/<cid>/selection.json`. Resume uses cached per-node `eval.json` automatically; to restart fresh, use a clean `--study-dir` (or clear the `iter_*` directories and matching `measurements/iter_*`).
 
-### Legacy v1 Rounds (`studies/dream-rsi/`, `r1`–`r7`)
+### Past Rounds (`studies/dream-rsi/`)
 
-Each round is one self-contained cycle (`<= 6` probes per arm unless budgeted explicitly):
-
-1. **Propose:** Run `uv run --no-sync vla-rsi-propose --round <rN> --n <B> --dry-run`, then generate and validate `studies/dream-rsi/proposals/<rN>.json` with `uv run --no-sync vla-rsi-propose --round <rN> --n <B>`. Legacy `r1`–`r6` builders stay frozen in `rsi/live.py`.
-2. **Budget check:** Declare a hard GPU wall-clock and probe cap before starting (`--budget-each <= 6` for initial screen). One GPU owner at a time.
-3. **Run live round:** Execute `uv run --no-sync vla-rsi-round --round <rN> --budget-each <B> --screen-promoted --output studies/dream-rsi/live_round<N>.json`.
-4. **Gate & record:** Check Wilson 95% CIs, size (MB), and pipeline median/p95 latency cleanly (`reporting-results`); never pool `screen`/`development`/`final`. Commit journals/configs; never commit checkpoints or `outputs/`.
+Committed journals under `studies/dream-rsi/` are replay-only evidence for `vla-rsi benchmark`; the round-runner code that produced them was removed (reproducible from git history). New rounds run under `studies/dream-rsi-v2/` as above: declare a GPU wall-clock and probe cap, run `cycle` or `loop`, then gate & record (Wilson 95% CIs, MB, median/p95 latency; never pool `screen`/`development`/`final`).
 
 ## Hard Locks & Stop Rules
 
@@ -39,7 +34,7 @@ Each round is one self-contained cycle (`<= 6` probes per arm unless budgeted ex
 - **Diminishing-returns stop:** Stop the loop cleanly and publish a summary when either:
   - two consecutive rounds hit a pruning cliff (`smoke < 8/10`) or yield overlapping `dev-100` 95% Wilson CIs with `< 20 MB` / `< 5 ms` Pareto gain, or
   - the declared GPU/probe budget is reached.
-- **Resume contract:** `run_live_round` reads `studies/compression/measurements/<cell>/<phase>/run.json` and per-round journals (`outputs/compression/<rN>_recipes/`). On interrupt, inspect `git status` + partial `measurements/` manifests and resume the same `<round_id>` rather than discarding completed cells or mixing seeds across rounds.
+- **Resume contract:** Per-node `eval.json` under `studies/dream-rsi-v2/cycles/<cid>/nodes/` is reused on re-run, and committed measurements under `studies/compression/measurements/<cell>/<phase>/run.json` are never recomputed. On interrupt, inspect `git status` + partial manifests and resume the same `--cycle-id` rather than discarding completed nodes or mixing seeds across cycles.
 
 ## Wrap Up
 

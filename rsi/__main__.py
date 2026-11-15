@@ -6,7 +6,6 @@ import argparse
 import json
 
 from rsi.dream import run_benchmark
-from rsi.qwen_search import run_stage2_live_search
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -17,13 +16,7 @@ def main(argv: list[str] | None = None) -> int:
     bench.add_argument("--output", default="studies/dream-rsi/dream_benchmark.json")
     bench.add_argument("--json", action="store_true", help="Print full JSON output")
 
-    s2 = sub.add_parser("qwen-stage2", help="Run Stage 2 live Qwen boundary search")
-    s2.add_argument("--smoke-budget", type=int, default=10)
-    s2.add_argument("--promote-top-k", type=int, default=1)
-    s2.add_argument("--beta", type=float, default=0.6)
-    s2.add_argument("--output", default="studies/dream-rsi/qwen_stage2.json")
-
-    cyc = sub.add_parser("cycle", help="Run one Dream-RSI v2 online per-node discovery cycle")
+    cyc = sub.add_parser("cycle", help="Run one Dream-RSI online per-node discovery cycle")
     cyc.add_argument("--cycle-id", default="iter_000")
     cyc.add_argument("--study-dir", default="studies/dream-rsi-v2")
     cyc.add_argument("--policy", default=None, help="Path to active OptimalPolicy python file")
@@ -42,9 +35,7 @@ def main(argv: list[str] | None = None) -> int:
     cyc.add_argument("--no-bwrap", action="store_true")
     cyc.add_argument("--direction", default="")
 
-    dev = sub.add_parser(
-        "develop", help="Run LLM policy-code rewriting over frozen v2 DiscoveryTrees"
-    )
+    dev = sub.add_parser("develop", help="Run LLM policy-code rewriting over frozen DiscoveryTrees")
     dev.add_argument("--cycle-id", default="iter_000")
     dev.add_argument("--study-dir", default="studies/dream-rsi-v2")
     dev.add_argument(
@@ -59,7 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     dev.add_argument("--timeout", type=float, default=240.0)
     dev.add_argument("--no-bwrap", action="store_true")
 
-    loop = sub.add_parser("loop", help="Run full Dream-RSI v2 outer loop (cycle + LLM policy dev)")
+    loop = sub.add_parser("loop", help="Run full Dream-RSI outer loop (cycle + LLM policy dev)")
     loop.add_argument("--study-dir", default="studies/dream-rsi-v2")
     loop.add_argument("--cycles", type=int, default=3)
     loop.add_argument("--start-iteration", type=int, default=0)
@@ -104,17 +95,6 @@ def main(argv: list[str] | None = None) -> int:
                         f"incumbent in {row['folds_selected_beats_incumbent']}/"
                         f"{row['folds_selected_below_incumbent']} of {len(row['folds'])} folds"
                     )
-        return 0
-    if args.cmd == "qwen-stage2":
-        from pathlib import Path
-
-        payload = run_stage2_live_search(
-            smoke_budget=args.smoke_budget,
-            promote_top_k=args.promote_top_k,
-            beta=args.beta,
-            output_path=Path(args.output),
-        )
-        print(json.dumps(payload, indent=2))
         return 0
     if args.cmd == "cycle":
         from pathlib import Path

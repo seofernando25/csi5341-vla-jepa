@@ -621,7 +621,7 @@ def develop_policies_llm(
     winner_beta = float(getattr(winner_cls({}), "beta", 0.6))
 
     summary = {
-        "protocol": "dream-rsi-policy-dev-v2",
+        "protocol": "dream-rsi-policy-dev",
         "cycle_id": cycle_id,
         "recorded_utc": datetime.now(UTC).isoformat(),
         "num_worlds": len(history),

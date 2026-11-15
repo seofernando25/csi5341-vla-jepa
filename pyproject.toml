@@ -41,8 +41,6 @@ vla-compress = "evaluation.compression.study:main"
 vla-compress-analyze = "evaluation.compression.analysis:main"
 vla-compress-cka = "evaluation.compression.cka:main"
 vla-rsi = "rsi.__main__:main"
-vla-rsi-round = "rsi.live_round:main"
-vla-rsi-propose = "rsi.propose:main"
 vla-report-plots = "report.plots.__main__:main"
 
 [tool.hatch.build.targets.wheel]

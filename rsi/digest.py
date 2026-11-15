@@ -65,28 +65,11 @@ def _reference_points(numbers_path: Path) -> dict[str, Any]:
 
 def _fallback_changes_map(dream_dir: Path) -> dict[str, list[dict[str, Any]]]:
     from rsi.action_space import build_recipe_changes
-    from rsi.live import (
-        build_round1_candidates,
-        build_round2_candidates,
-        build_round3_candidates,
-        build_round4_candidates,
-        build_round5_candidates,
-        build_round6_candidates,
-    )
-    from rsi.qwen_search import build_stage2_candidates
+    from rsi.stage2 import build_stage2_candidates
 
     mapping: dict[str, list[dict[str, Any]]] = {}
-    for fn in (
-        build_stage2_candidates,
-        build_round1_candidates,
-        build_round2_candidates,
-        build_round3_candidates,
-        build_round4_candidates,
-        build_round5_candidates,
-        build_round6_candidates,
-    ):
-        for cand in fn():
-            mapping[cand.cell_id] = cand.recipe["changes"]
+    for cand in build_stage2_candidates():
+        mapping[cand.cell_id] = cand.recipe["changes"]
     prop_dir = dream_dir / "proposals"
     if prop_dir.exists():
         for path in sorted(prop_dir.glob("*.json")):

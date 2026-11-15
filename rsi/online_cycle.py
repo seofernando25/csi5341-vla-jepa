@@ -1,4 +1,4 @@
-"""Dream-RSI v2 online per-node discovery tree expansion inside `bwrap` + `pi`."""
+"""Dream-RSI online per-node discovery tree expansion inside `bwrap` + `pi`."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ from rsi.api import (
     gate_fail_class,
 )
 from rsi.digest import _read_smoke_failing_tasks, _reference_points
-from rsi.live import DEV_GATE, SMOKE_GATE, gpu_name, gpu_tight, wilson_interval
+from rsi.gate import DEV_GATE, SMOKE_GATE, wilson_interval
 from rsi.policy_dev import (
     INCUMBENT_TEMPLATE,
     develop_policies_llm,
@@ -35,11 +35,11 @@ from rsi.policy_dev import (
     load_tree_json,
     save_tree_json,
 )
-from rsi.qwen_search import B16_RESIDENT_BYTES, run_compression_subprocess
+from rsi.runner import B16_RESIDENT_BYTES, gpu_name, gpu_tight, run_compression_subprocess
 from rsi.sandbox import run_sandboxed_agent
 from rsi.tree import DiscoveryTree, TreeNode
 
-DREAM_V2_DIR = Path("studies/dream-rsi-v2")
+DREAM_DIR = Path("studies/dream-rsi-v2")
 MEASUREMENTS_DIR = Path("studies/compression/measurements")
 NUMBERS_PATH = Path("report/data/numbers.json")
 
@@ -108,7 +108,7 @@ def _build_discovery_prompt(
         "`engine='graph'` options, and mandatory stage ordering rules.\n"
         "- `/tmp/evidence/observed_nodes/`: EVERY revealed node so far (`proposal.md`, "
         "`recipe.json`, `eval.json`, `error.txt`). Trust measured outcomes over claims.\n"
-        "- `/tmp/evidence/prior_cycles/`: summaries of completed earlier Dream-RSI v2 cycles.\n"
+        "- `/tmp/evidence/prior_cycles/`: summaries of completed earlier Dream-RSI cycles.\n"
         "- `/tmp/evidence/in_batch_slots.json`: sibling slots running in this parallel batch "
         "(choose a distinct mechanism from siblings when opening roots).\n\n"
         "## 2. Diagnose successes, failures, and avoid local optima\n"
@@ -725,7 +725,7 @@ class OnlineDiscoveryQuestion:
                 )
             )
         return DiscoveryTree(
-            world_id=f"dream-v2-{self.cycle_id}",
+            world_id=f"dream-{self.cycle_id}",
             baseline_score=self.baseline_score,
             nodes=nodes,
         )
@@ -784,7 +784,7 @@ def _prior_cycle_dirs_and_sigs(
 def run_online_cycle(
     *,
     cycle_id: str,
-    study_dir: Path = DREAM_V2_DIR,
+    study_dir: Path = DREAM_DIR,
     policy_path: Path | None = None,
     iteration: int = 0,
     probe_budget: int = 8,
@@ -804,7 +804,7 @@ def run_online_cycle(
     promote_evaluator: Callable[[str, dict[str, Any], Path], dict[str, Any]] | None = None,
     direction_guidance: str = "",
 ) -> dict[str, Any]:
-    """Run one complete online Dream-RSI v2 cycle (`plan_grid -> online solve -> promote -> tree`)."""
+    """Run one complete online Dream-RSI cycle (`plan_grid -> online solve -> promote -> tree`)."""
     study_root = Path(study_dir)
     cycle_dir = study_root / "cycles" / cycle_id
     cycle_dir.mkdir(parents=True, exist_ok=True)
@@ -887,7 +887,7 @@ def run_online_cycle(
     plateaued = len(manifests) >= 1 and question.best_so_far <= prev_best
 
     manifest = {
-        "protocol": "dream-rsi-online-cycle-v2",
+        "protocol": "dream-rsi-online-cycle",
         "cycle_id": cycle_id,
         "iteration": iteration,
         "policy_path": str(pol_path),
@@ -915,7 +915,7 @@ def run_online_cycle(
 
 def run_dream_rsi_loop(
     *,
-    study_dir: Path = DREAM_V2_DIR,
+    study_dir: Path = DREAM_DIR,
     cycles: int = 3,
     start_iteration: int = 0,
     probe_budget: int = 8,
@@ -933,7 +933,7 @@ def run_dream_rsi_loop(
     evaluator: Callable[[str, dict[str, Any], Path], dict[str, Any]] | None = None,
     promote_evaluator: Callable[[str, dict[str, Any], Path], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Run iterative Dream-RSI v2 outer loop: online tree expansion -> LLM policy-code dev -> monotonic update."""
+    """Run iterative Dream-RSI outer loop: online tree expansion -> LLM policy-code dev -> monotonic update."""
     study_root = Path(study_dir)
     init_dir = study_root / "policies" / "v000_initial"
     init_dir.mkdir(parents=True, exist_ok=True)
@@ -1009,7 +1009,7 @@ def run_dream_rsi_loop(
         )
 
     loop_summary = {
-        "protocol": "dream-rsi-loop-v2",
+        "protocol": "dream-rsi-loop",
         "study_dir": str(study_root),
         "final_active_policy": str(active_policy),
         "cycles": cycle_summaries,

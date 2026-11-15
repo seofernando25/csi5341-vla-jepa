@@ -313,7 +313,7 @@ def from_live_records(
     gate-qualified size reduction versus B16. Only 10-trial smoke records enter;
     development promotions never do.
     """
-    from rsi.qwen_search import B16_RESIDENT_BYTES
+    from rsi.runner import B16_RESIDENT_BYTES
 
     parent = {r["candidate"]: r.get("parent") or "root" for r in records}
 
