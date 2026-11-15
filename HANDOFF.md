@@ -59,6 +59,24 @@ Development phase, 100 trials each, same states. Not final: Reserved-500 has not
   cycle-1 best 80 at 86.9 %). Each cycle starts a fresh tree from the baseline.
 - Measurement queue: 54 of 59 cell records, now on its timing cells; nearly done.
 
+## State at 17:10 EST: both runs finished, GPU idle, nothing merged
+
+- Dream-RSI loop exited cleanly: `done`, 3 cycles, 7.55 h, 24 probes, every one valid. Its evidence
+  (`studies/program-v1/cycles/`, `policies/`) is **uncommitted** in the main checkout.
+- Cycle-3 promotion was the exploit node `iter_002-b2-a1`: 82/100 development, identical to the
+  uncompressed reference, because it is the uncompressed policy. Confirms the exploit reading below.
+- Valid development results so far: `iter_000-b0-a3` 86.9 % removed, 80/100; `iter_001-b1-a3`
+  84.0 % removed, 84/100; reference `B16` 82/100.
+- Measurement queue finished and committed on `t3/clean-room-measurement-queue` (`4c9e0f5`).
+- The main checkout is no longer frozen: merging and code changes are safe now.
+- Watch site still serves the finished run on http://127.0.0.1:8787/ from the UI worktree.
+
+Next session, in order: (1) fix the evaluator exploit and re-measure the two valid winners and any
+node to be reported; (2) relativise the absolute path in `policies/*/selection.json`, then commit
+the Dream-RSI evidence, marking the three cycle-3 exploit nodes invalid in the study README;
+(3) merge the queue, UI and docs branches; (4) Reserved-500 for the reference and the winners;
+(5) plots and report. Steps 1 and 4 need the GPU; about 14 h remain of the 24 h target.
+
 ## Update 16:50 EST: cycle 3 found an evaluator exploit. READ THIS FIRST.
 
 - **Cycle 3 nodes `iter_002-b1-a3`, `iter_002-b2-a1`, `iter_002-b2-a2` score 1.0 (resident 0 bytes)
