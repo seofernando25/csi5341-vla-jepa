@@ -67,6 +67,8 @@ must equal the human owner (F or N, never the other human) and each CLM/DONE/BLK
 start with `[<github-account>/<agent>]` naming the executing agent. Publishing board
 records follows the user's communication authorization; never rewrite old records.
 
+Repo orchestration rules (roles, gates, recipes, briefs): `docs/ORCHESTRATION.md`.
+
 ## Evidence rules
 
 - Phases are separate: smoke (10 trials), development (100) and reserved (500). Reserved trials

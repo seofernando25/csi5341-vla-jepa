@@ -8,6 +8,10 @@ description: Fan a job out to cheap subagents and gate what comes back. Use when
 The orchestrator plans, briefs, verifies and decides. Subagents do the reading, computing and
 editing.
 
+Repo orchestration rules — roles, gates, recipes, brief contents, standards — live in
+`docs/ORCHESTRATION.md`; project invariants in `AGENTS.md`. This skill covers delegation
+mechanics only.
+
 ## Loop
 
 1. **Split.** One deliverable per child, checkable without reading the child's transcript: a
@@ -15,9 +19,8 @@ editing.
    exclusive resource (a device, a GPU, a deploy target) are one piece with one owner.
 2. **Route** each piece by tier (below). Start at the cheapest tier that fits; escalate only
    after a failed check.
-3. **Brief.** Write the brief to a file and tell the child to read it. State the working
-   directory, what it may and may not touch, the exact output file and format, how it must
-   verify itself, and a report length cap. Give paths and line ranges, not "find the code".
+3. **Brief.** Write the brief to a file and tell the child to read it; contents follow
+   `docs/ORCHESTRATION.md` §5. Give paths and line ranges, not "find the code".
 4. **Launch async**, all independent children in one message. Do not poll.
 5. **Gate.** Check the deliverable with a command or grader you control. A child's "all tests
    pass" counts its own tests, not yours. For a diagnosis or a risky change, give the same
@@ -30,6 +33,9 @@ editing.
 |---|---|---|
 | Fast | Scouting, log and data queries, edits with a complete spec | Beam free, Inkling 2 Small free |
 | Skeptical | Review, diagnosis, any brief that may itself be wrong | Gemini 4 Hydrogen (low), Haiku 5.5, Iceman free |
+
+Default subagent model: `qmodel_latest` (Qwen4-Max-Preview), thinking high, per user directive.
+The tiers apply when the harness offers cheaper models.
 
 - Fast-tier models execute a brief as written, including its mistakes. Skeptical-tier models
   report a flawed brief instead of implementing it silently.
