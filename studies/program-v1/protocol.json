@@ -32,6 +32,22 @@
     "multiplicity": "pre-register primary comparisons; report all others as exploratory"
   },
   "reserved_lock": true,
+  "revisions": [
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.agent",
+      "from": "claude / haiku / low",
+      "to": "pi / opencode-go/deepseek-v4.1-flash / max",
+      "reason": "Claude Code hit its usage limit; DeepSeek V4.1 Flash at max thinking is the available agent. No run had been launched."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.agent",
+      "from": "pi / opencode-go/deepseek-v4.1-flash / max",
+      "to": "pi / mistral/deepseek-v4-1-flash-1017 / max",
+      "reason": "Use the Mistral connector's DeepSeek key instead of opencode-go. The opencode-go run was stopped before any node completed. The earlier 4-node scratch pilot was a harness check only: it is not evidence, and no result from either run was selected."
+    }
+  ],
   "dream_rsi": {
     "grid_plan": {
       "max_branches": 4,
@@ -43,7 +59,17 @@
     "gate_retry": false,
     "sequential_gate": false,
     "policy": "paper-faithful replay policy; generated policy code must be recorded by hash",
-    "reserved_trials_in_selection": false
+    "reserved_trials_in_selection": false,
+    "agent": {
+      "backend": "pi",
+      "model": "mistral/deepseek-v4-1-flash-1017",
+      "effort": "max"
+    },
+    "discovery_tools": "read,write,edit,bash",
+    "policy_dev_tools": "read,write,edit",
+    "agent_timeout_s": 1800,
+    "eval_timeout_s": 1800,
+    "gpu_slots": 2
   },
   "old_evidence": {
     "status": "deleted from working tree",

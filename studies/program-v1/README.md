@@ -81,7 +81,14 @@ Dream-RSI:
 uv run --no-sync vla-rsi --help
 ```
 
-The clean loop must be exercised with a fake evaluator before any GPU cycle.
+The pre-GPU check is the test suite. The first live pilot was a harness check in a scratch
+directory, not evidence (2026-11-15): 4 nodes, 2 rounds, 6 min 14 s wall, agent cost $0.03. All four
+solutions were agent-written INT8 variants scoring 8/10 on smoke, removing 25.4 %, 35.5 %, 38.6 %
+and 44.2 % of memory. Do not cite these numbers as results.
+
+Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rsi.discovery_tools`
+(`read,write,edit,bash`), `dream_rsi.policy_dev_tools` (`read,write,edit`), `agent_timeout_s`,
+`eval_timeout_s` (1800 each) and `gpu_slots` (2). `allowed_methods` and `agent_tools` were removed.
 
 ## Status
 
@@ -91,3 +98,10 @@ The clean loop must be exercised with a fake evaluator before any GPU cycle.
 - Evidence: none yet. No smoke or development run has been launched.
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.
+
+## Harness trials (synthetic, not evidence)
+
+- Calibration `haiku-low-v1` (`vla-rsi calibrate`, synthetic worlds, no GPU; file `outputs/rsi-calibration/haiku-low-v1/calibration.json`). Agent: Claude Code CLI, Haiku, low effort, tools `read,write,edit`.
+- Verdict `improved_and_generalised`. Steps: 3 (2 accepted, 1 not better). Train mean V 0.4853 to 0.5267 (delta +0.0414). Held-out mean V 0.5245 to 0.5394 (delta +0.0149).
+- Cost $0.0615 over 3 calls and 52 turns. Wall time 140.7 s.
+- This run used the pre-fix harness, before `PrefixView`.
