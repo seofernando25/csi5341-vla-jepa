@@ -388,12 +388,6 @@ async function boot() {
       const data = await api.state();
       lastStateAt = Date.now();
       store.dispatch(act.stateLoaded(data, lastStateAt));
-      if (mode === "workbench" && !sel.activeTab(store.getState())) {
-        if (!routeFromHash(store.getState())) {
-          const source = sel.defaultSource(store.getState());
-          if (source) store.dispatch(act.open(source));
-        }
-      }
     } catch (error) {
       store.dispatch(act.stateError(error.message));
     }

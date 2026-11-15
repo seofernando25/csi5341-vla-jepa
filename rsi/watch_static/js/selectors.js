@@ -111,7 +111,7 @@ export function bestOf(state) {
 }
 
 export function scoredCount(cycle) {
-  return (cycle?.nodes || []).filter((n) => n.cell_id !== "root" && n.status === "done").length;
+  return (cycle?.nodes || []).filter((n) => n.cell_id !== "root" && n.score != null).length;
 }
 
 export function probeBudget(state) {

@@ -45,7 +45,7 @@ export function mount(root, ctx) {
     );
     slots.title = gpu ? `${gpu.name}: ${gpu.memory_used_mb} / ${gpu.memory_total_mb} MB` : "";
 
-    const at = transport.lastEventAt;
+    const at = transport.lastEventAt || state.transcript.at;
     setText(last, at ? `event ${fmt.ago(at)}` : "no events");
     last.title = at ? new Date(at).toLocaleString() : "";
   }

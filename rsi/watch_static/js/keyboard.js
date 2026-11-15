@@ -33,6 +33,7 @@ export function installKeyboard(store, { act, go }) {
       if (search && document.activeElement === search) {
         event.preventDefault();
         search.blur();
+        store.dispatch(act.search({ open: false }));
         return;
       }
       if (state.ui.search.open) {

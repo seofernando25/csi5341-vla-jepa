@@ -169,6 +169,10 @@
 }
 
 @media (max-width: 480px) {
+  .cycle-switch {
+    display: none;
+  }
+
   .metric[data-metric="best"],
   .metric[data-metric="cost"],
   .metric[data-metric="elapsed"],

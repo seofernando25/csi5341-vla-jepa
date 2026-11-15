@@ -62,7 +62,7 @@ export function mount(root, ctx) {
       doc.append(
         el("div", { class: "empty" }, [
           el("strong", {}, "No proposal was recorded for this node."),
-          entry.error || "",
+          entry.error ? el("span", { class: "empty-note" }, entry.error) : null,
         ]),
       );
       return;
