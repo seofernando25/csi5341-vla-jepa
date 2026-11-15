@@ -257,19 +257,23 @@ export function mount(root, ctx) {
     if (step != null) {
       const source = `policy:${cycle.cycle_id}:${step}`;
       const incumbentSource = incumbentStep != null ? `policy:${cycle.cycle_id}:${incumbentStep}` : null;
-      const [selectedArtifact, incumbentPolicy, incumbentSeed, selectedSeed] = await Promise.all([
-        ctx.story.artifact(source, "policy"),
-        incumbentSource ? ctx.story.artifact(incumbentSource, "policy") : null,
-        incumbentSource ? ctx.story.artifact(incumbentSource, "seed") : null,
-        ctx.story.artifact(source, "seed"),
-      ]);
-      after = textOf(selectedArtifact);
-      before = textOf(incumbentPolicy);
-      if (before != null) beforeKind = "incumbent";
-      if (incumbentStep != null) beforeLabel = `step_${pad(incumbentStep)} · incumbent`;
-      if (before == null) { before = textOf(incumbentSeed); if (before != null) beforeKind = "incumbent"; }
+      after = textOf(await ctx.story.artifact(source, "policy"));
+      if (incumbentSource) {
+        before = textOf(await ctx.story.artifact(incumbentSource, "policy"));
+        if (before != null) {
+          beforeKind = "incumbent";
+          beforeLabel = `step_${pad(incumbentStep)} · incumbent`;
+        }
+        if (before == null) {
+          before = textOf(await ctx.story.artifact(incumbentSource, "seed"));
+          if (before != null) {
+            beforeKind = "incumbent";
+            beforeLabel = `step_${pad(incumbentStep)} · incumbent`;
+          }
+        }
+      }
       if (before == null) {
-        before = textOf(selectedSeed);
+        before = textOf(await ctx.story.artifact(source, "seed"));
         beforeKind = "seed";
         beforeLabel = `step_${pad(step)} · seed`;
       }

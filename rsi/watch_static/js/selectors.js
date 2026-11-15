@@ -417,7 +417,8 @@ export function defaultSource(state) {
 export function connectionLabel(state) {
   const t = state.transport;
   if (!t.source) return "no stream";
-  if (t.status === "open") return t.frozen ? "final" : "live";
+  if (t.frozen || t.done) return "final";
+  if (t.status === "open") return "live";
   if (t.status === "connecting") return "connecting";
   if (t.status === "gone") return "gone";
   if (t.status === "error") return "stream error";

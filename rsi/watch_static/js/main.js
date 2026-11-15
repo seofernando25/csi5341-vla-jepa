@@ -331,7 +331,9 @@ function mountActiveView(state) {
   mounted.key = key;
   mounted.view = null;
   if (!tab) {
-    host.append(dom.el("div", { class: "empty" }, [dom.el("strong", {}, "No editor open")]));
+    const cycles = state.server.data?.cycles || [];
+    const text = cycles.length ? "No editor open" : "No cycles recorded";
+    host.append(dom.el("div", { class: "empty" }, [dom.el("strong", {}, text)]));
     return;
   }
   const root = dom.el("div", { class: "view-root", dataset: { view: tab.view } });

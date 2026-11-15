@@ -132,7 +132,7 @@ export function mount(root, ctx) {
     summary.hidden = !dev;
     if (dev) renderSummary(dev);
     if (!cycle) {
-      body.append(el("p", { class: "empty" }, [el("strong", {}, "Policy development"), "No cycle recorded."]));
+      body.append(el("p", { class: "empty" }, "No cycle recorded."));
       return;
     }
     if (!rows.length) {

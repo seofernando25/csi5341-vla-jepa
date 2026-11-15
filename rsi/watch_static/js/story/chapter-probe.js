@@ -59,7 +59,7 @@ export function mount(root, ctx) {
       ctx.story.events(key),
       ctx.story.context(key),
       ctx.story.artifact(key, "proposal"),
-    ]).then(
+    ].map((promise) => promise.catch(() => null))).then(
       ([events, context, proposal]) => settle({ events, context, proposal }),
       () => settle({ events: null, context: null, proposal: null }),
     );

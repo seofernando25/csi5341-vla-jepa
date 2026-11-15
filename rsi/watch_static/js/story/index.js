@@ -106,7 +106,8 @@ export function mountStory(root, ctx) {
     run.hidden = !data;
     if (data) {
       setText(runStudy, data.study_dir || "");
-      setText(runState, sel.loopStatusLabel(state));
+      const label = sel.loopStatusLabel(state);
+      setText(runState, loop?.stop_reason ? `${label}: ${loop.stop_reason}` : label);
       runState.dataset.status = loop?.status || "idle";
       const iteration = loop?.iteration ?? sel.currentCycle(state)?.iteration ?? null;
       const target = loop?.cycles_target;
