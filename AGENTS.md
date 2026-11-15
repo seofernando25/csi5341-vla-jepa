@@ -57,6 +57,7 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 - `mastermind`: delegating to subagents and gating their output.
 - `orchestrate-and-gate`: multi-step diagnosis and release gates.
 - `auto-research`: bounded Dream-RSI compression rounds, stop rules, and reserved-500 lock.
+- `dream-rsi`: paper specification (`arXiv:2609.14858v2`), fidelity boundaries (`docs/DREAM_RSI.md`), and `rsi/` invariants.
 - `untangle-codebase`: whole-codebase refactor procedure (run only when asked).
 
 ## Coordination

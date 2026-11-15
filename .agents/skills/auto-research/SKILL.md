@@ -5,7 +5,7 @@ description: Run bounded, reproducible Dream-RSI or compression auto-research lo
 
 # Auto Research
 
-Run bounded recursive self-improvement rounds over the open Qwen compression track (`rsi/`, `studies/dream-rsi/`) without touching reserved test trials, overfitting to replay, or burning GPU budgets on unlogged runs.
+Run bounded recursive self-improvement rounds over the open Qwen compression track (`rsi/`, `studies/dream-rsi/`) without touching reserved test trials, overfitting to replay, or burning GPU budgets on unlogged runs. For `rsi/` internals, paper fidelity boundaries (`arXiv:2609.14858v2`), and prefix-only invariants, read [docs/DREAM_RSI.md](../../../docs/DREAM_RSI.md) and the `dream-rsi` skill.
 
 ## Preconditions
 
