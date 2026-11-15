@@ -18,6 +18,7 @@ from rsi.api import (
     _record_curve,
     finalize_result,
 )
+from rsi.policies._plan import explicit_grid_plan
 
 
 class _PatiencePolicy(LLMDesignedMethod):
@@ -37,7 +38,6 @@ class _PatiencePolicy(LLMDesignedMethod):
         raise NotImplementedError
 
     def solve(self, question: Any, budget: int | None = None) -> SimResult:
-        question.reset()
         self._begin()
         res = SimResult()
         patience = max(1, round(1 + 3 * max(0.0, min(1.0, self.beta))))
@@ -50,7 +50,7 @@ class _PatiencePolicy(LLMDesignedMethod):
             continuations = [c for c in question.legal_actions() if c not in root_set]
             width = self._width(question)
             if budget is not None:
-                width = min(width, budget - question.budget_spent)
+                width = min(width, budget - len(question.observed()))
             batch = self._batch(question, continuations, roots, width)
             if not batch:
                 break
@@ -64,13 +64,7 @@ class _PatiencePolicy(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        return GridPlan(
-            max_branches=6,
-            max_attempts_per_branch=4,
-            max_parallelism=max(1, context.max_parallelism),
-            rounds_cap=12,
-            rationale="Static baseline grid plan.",
-        )
+        return explicit_grid_plan(self.config)
 
 
 class RandomPolicy(_PatiencePolicy):

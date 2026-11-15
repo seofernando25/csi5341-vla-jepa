@@ -1,430 +1,352 @@
-"""LLM replay-based policy-code rewriting and monotonic selection (Dream-RSI Appendix D.2)."""
+"""Sequential LLM development of `OptimalPolicy` with replay-gated, monotonic selection (Dream-RSI App. D.2)."""
 
 from __future__ import annotations
 
-import ast
-import importlib.util
+import hashlib
 import json
+import os
 import shutil
+import signal
 import subprocess
 import sys
-from dataclasses import asdict
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from rsi.api import LLMDesignedMethod, Observation
-from rsi.dream import Candidate, leave_one_world_out, replay_terms, select_from_terms
-from rsi.objective import (
-    DEFAULT_BETA_GRID,
-    DEFAULT_LAMBDA_PARALLEL,
-    evaluate_policy_over_history,
+from rsi.agent_backends import (
+    SANDBOX_EVIDENCE,
+    SANDBOX_WORK,
+    AgentSpec,
+    agent_record,
+    default_agent_spec,
 )
-from rsi.sandbox import REPO_ROOT, run_sandboxed_agent
-from rsi.tree import DiscoveryTree, ReplayQuestion
-
-INCUMBENT_TEMPLATE = Path(__file__).resolve().parent / "policies" / "optimal.py"
-
-ALLOWED_MODULES = frozenset(
-    {
-        "__future__",
-        "bisect",
-        "collections",
-        "dataclasses",
-        "functools",
-        "heapq",
-        "itertools",
-        "math",
-        "random",
-        "statistics",
-        "typing",
-    }
+from rsi.dream import leave_one_world_out
+from rsi.objective import DEFAULT_LAMBDA_PARALLEL
+from rsi.policy_audit import (
+    PolicyAuditError,
+    audit_no_world_literals,
+    audit_policy_source,
+    load_policy_class,
 )
-ALLOWED_FROM_PREFIXES = ("rsi.api",)
-FORBIDDEN_CALLS = frozenset(
-    {
-        "__import__",
-        "compile",
-        "delattr",
-        "dir",
-        "eval",
-        "exec",
-        "getattr",
-        "globals",
-        "hasattr",
-        "input",
-        "locals",
-        "open",
-        "setattr",
-        "vars",
-    }
+from rsi.replay_worker import load_tree_json, save_tree_json
+from rsi.sandbox import (
+    REPO_ROOT,
+    AgentRunResult,
+    SandboxOutputError,
+    SandboxTimeoutError,
+    read_agent_output,
+    run_sandboxed_agent,
+    run_sandboxed_python,
 )
-FORBIDDEN_QUESTION_ATTRS = frozenset(
-    {
-        "best_so_far",
-        "candidates",
-        "children",
-        "evaluator",
-        "journal_path",
-        "node_evals",
-        "node_recipes",
-        "roots",
-        "tree",
-    }
+from rsi.synth import scenario_suite
+from rsi.tree import DiscoveryTree
+
+__all__ = [
+    "INCUMBENT_TEMPLATE",
+    "PolicyAuditError",
+    "develop_policies_llm",
+    "load_policy_class",
+    "load_tree_json",
+    "save_tree_json",
+]
+
+RSI_DIR = Path(__file__).resolve().parent
+INCUMBENT_TEMPLATE = RSI_DIR / "policies" / "optimal.py"
+POLICY_DEV_PROMPT = RSI_DIR / "prompts" / "policy_dev.md"
+RSI_LIB_ROOT = "/tmp/rsi_lib"
+RSI_LIB_FILES = (
+    "__init__.py",
+    "api.py",
+    "tree.py",
+    "objective.py",
+    "policy_audit.py",
+    "replay_worker.py",
+)
+MAX_METHOD_BYTES = 200_000
+MAX_RESULT_BYTES = 4 * 1024 * 1024
+MAX_TRACE_BYTES = 32 * 1024 * 1024
+REPLAY_TIMEOUT_S = 120.0
+REPLAY_CPU_S = 120
+REPAIR_SUFFIX = (
+    "\n\n### Previous attempt validation failure\n{error}\n\n"
+    "Fix every violation in `/tmp/work/method.py` cleanly."
 )
 
 
-class PolicyAuditError(ValueError):
-    """Raised when generated policy code violates the prefix-only or sandbox contract."""
+class PolicyReplayError(RuntimeError):
+    """Raised when the sandboxed replay worker rejects a policy."""
 
 
-def audit_policy_source(source: str) -> ast.Module:
-    """Verify static AST safety, allowed imports, and prefix-only discipline."""
-    try:
-        tree = ast.parse(source)
-    except SyntaxError as exc:
-        raise PolicyAuditError(f"Syntax error in policy code: {exc}") from exc
-
-    has_optimal_cls = False
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                root = alias.name.split(".", 1)[0]
-                if root not in ALLOWED_MODULES:
-                    raise PolicyAuditError(f"Forbidden import {alias.name!r}")
-        elif isinstance(node, ast.ImportFrom):
-            mod = node.module or ""
-            root = mod.split(".", 1)[0]
-            if root not in ALLOWED_MODULES and mod not in ALLOWED_FROM_PREFIXES:
-                raise PolicyAuditError(f"Forbidden from-import {mod!r}")
-        elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-            if node.func.id in FORBIDDEN_CALLS:
-                raise PolicyAuditError(f"Forbidden builtin call {node.func.id!r}")
-        elif isinstance(node, ast.Name):
-            if node.id.startswith("__") and node.id not in {"__future__"}:
-                raise PolicyAuditError(f"Forbidden dunder reference {node.id!r}")
-        elif isinstance(node, ast.Attribute):
-            if node.attr in FORBIDDEN_QUESTION_ATTRS:
-                raise PolicyAuditError(
-                    f"Prefix-only violation: accessing unallowed attribute {node.attr!r}"
-                )
-            if node.attr.startswith("_"):
-                is_self = isinstance(node.value, ast.Name) and node.value.id == "self"
-                is_super_init = (
-                    node.attr == "__init__"
-                    and isinstance(node.value, ast.Call)
-                    and isinstance(node.value.func, ast.Name)
-                    and node.value.func.id == "super"
-                )
-                if not is_super_init and (not is_self or node.attr.startswith("__")):
-                    raise PolicyAuditError(
-                        f"Forbidden private/dunder attribute access {node.attr!r}"
-                    )
-        elif isinstance(node, ast.ClassDef) and node.name == "OptimalPolicy":
-            has_optimal_cls = True
-            methods = {
-                item.name
-                for item in node.body
-                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
-            }
-            if "solve" not in methods:
-                raise PolicyAuditError(
-                    "OptimalPolicy must implement solve(self, question, budget=None)"
-                )
-            if "plan_grid" not in methods:
-                raise PolicyAuditError("OptimalPolicy must override plan_grid(self, context)")
-
-    if not has_optimal_cls:
-        raise PolicyAuditError("Policy file must define class OptimalPolicy(LLMDesignedMethod)")
-    return tree
-
-
-def load_policy_class(policy_path: Path, unique_tag: str = "") -> type[LLMDesignedMethod]:
-    """Audit and dynamically load `OptimalPolicy` from a standalone `policy.py`."""
-    path = Path(policy_path).resolve()
-    source = path.read_text(encoding="utf-8")
-    audit_policy_source(source)
-
-    mod_name = f"rsi_dynamic_policy_{path.stem}_{abs(hash((str(path), unique_tag)))}"
-    spec = importlib.util.spec_from_file_location(mod_name, path)
-    if spec is None or spec.loader is None:
-        raise PolicyAuditError(f"Unable to create module spec for {path}")
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[mod_name] = module
-    try:
-        spec.loader.exec_module(module)
-    except Exception as exc:
-        sys.modules.pop(mod_name, None)
-        raise PolicyAuditError(f"Failed importing policy {path}: {exc}") from exc
-
-    cls = getattr(module, "OptimalPolicy", None)
-    if cls is None or not isinstance(cls, type) or not issubclass(cls, LLMDesignedMethod):
-        raise PolicyAuditError("OptimalPolicy must subclass rsi.api.LLMDesignedMethod")
-    if getattr(cls, "NAME", None) != "OptimalPolicy":
-        raise PolicyAuditError("OptimalPolicy.NAME must equal 'OptimalPolicy'")
-    return cls
-
-
-def verify_policy_in_subprocess(
-    policy_path: Path,
-    trees_json_paths: list[Path],
-    *,
-    timeout: float = 30.0,
-) -> None:
-    """Run static audit + isolated subprocess replay & plan_grid sanity check."""
-    source = Path(policy_path).read_text(encoding="utf-8")
-    audit_policy_source(source)
-
-    probe_code = (
-        "import json, resource, sys\n"
-        "from pathlib import Path\n"
-        "from rsi.api import GridPlan, GridPlanningContext, SimResult\n"
-        "from rsi.policy_dev import load_policy_class\n"
-        "from rsi.tree import DiscoveryTree, ReplayQuestion, TreeNode\n"
-        "resource.setrlimit(resource.RLIMIT_CPU, (20, 20))\n"
-        "cls = load_policy_class(Path(sys.argv[1]), 'verify')\n"
-        "for tp in sys.argv[2:]:\n"
-        "    raw = json.loads(Path(tp).read_text())\n"
-        "    nodes = [TreeNode(**{**n, 'tags': tuple(n.get('tags', ()))}) for n in raw['nodes']]\n"
-        "    tree = DiscoveryTree(raw['world_id'], raw['baseline_score'], nodes)\n"
-        "    for w in (1, 4):\n"
-        "        for beta in (0.0, 0.5, 1.0):\n"
-        "            for b_lim in (None, 4):\n"
-        "                pol = cls({'beta': beta})\n"
-        "                res = pol.solve(ReplayQuestion(tree, max_parallelism=w), budget=b_lim)\n"
-        "                assert isinstance(res, SimResult)\n"
-        "ctx = GridPlanningContext(iteration=1, max_parallelism=4, default_budget=12)\n"
-        "plan = cls({'beta': 0.6}).plan_grid(ctx)\n"
-        "assert isinstance(plan, GridPlan)\n"
-        "assert plan.max_branches >= 1 and plan.max_attempts_per_branch >= 0\n"
-        "assert plan.max_parallelism >= 1 and plan.rounds_cap >= 1\n"
-    )
-    cmd = [
-        sys.executable,
-        "-c",
-        probe_code,
-        str(Path(policy_path).resolve()),
-        *[str(Path(p).resolve()) for p in trees_json_paths[:3]],
-    ]
-    proc = subprocess.run(
-        cmd,
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=timeout,
-    )
-    if proc.returncode != 0:
-        err = (proc.stderr or proc.stdout).strip()[-800:]
-        raise PolicyAuditError(f"Policy subprocess verification failed:\n{err}")
-
-
-def save_tree_json(tree: DiscoveryTree, path: Path) -> Path:
-    """Persist a DiscoveryTree to JSON so replay worlds and subprocess verifiers share one schema."""
-    payload = {
-        "world_id": tree.world_id,
-        "baseline_score": tree.baseline_score,
-        "nodes": [
-            {
-                **asdict(tree.nodes[cid]),
-                "tags": list(tree.nodes[cid].tags),
-            }
-            for cid in tree.order
-        ],
-    }
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-    return path
-
-
-def load_tree_json(path: Path) -> DiscoveryTree:
-    """Load a DiscoveryTree saved by `save_tree_json`."""
-    from rsi.tree import TreeNode
-
-    raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    nodes = [TreeNode(**{**n, "tags": tuple(n.get("tags", ()))}) for n in raw["nodes"]]
-    return DiscoveryTree(
-        world_id=raw["world_id"],
-        baseline_score=float(raw["baseline_score"]),
-        nodes=nodes,
-    )
-
-
-class _TracingQuestion:
-    """Thin proxy over ReplayQuestion that captures batch execution traces without leaking."""
-
-    def __init__(self, inner: ReplayQuestion, world_id: str, beta: float) -> None:
-        self._inner = inner
-        self._world_id = world_id
-        self._beta = beta
-        self.events: list[dict[str, Any]] = []
-
-    def __getattr__(self, name: str) -> Any:
-        return getattr(self._inner, name)
-
-    def reset(self) -> None:
-        self._inner.reset()
-        self.events.clear()
-
-    def observed(self) -> dict[str, Observation]:
-        return self._inner.observed()
-
-    def legal_roots(self) -> list[str]:
-        return self._inner.legal_roots()
-
-    def opened_branches(self) -> list[int]:
-        return self._inner.opened_branches()
-
-    def legal_actions(self) -> list[str]:
-        return self._inner.legal_actions()
-
-    def meta(self, cell_id: str) -> Any:
-        return self._inner.meta(cell_id)
-
-    def probe_batch(self, cells: list[str], on_reveal: Any = None) -> list[Observation]:
-        revealed_before = len(self._inner._revealed)
-        out = self._inner.probe_batch(cells, on_reveal=on_reveal)
-        self.events.append(
-            {
-                "world_id": self._world_id,
-                "beta": self._beta,
-                "round": self._inner.decision_rounds,
-                "effective_sequential_rounds": self._inner.effective_sequential_rounds,
-                "prefix_size": revealed_before,
-                "batch": list(cells),
-                "batch_size": len(cells),
-                "max_parallelism": self._inner.max_parallelism,
-                "outcomes": [
-                    {
-                        "cell_id": o.cell_id,
-                        "branch": o.branch,
-                        "attempt": o.attempt,
-                        "parent_id": o.parent_id,
-                        "fail_class": o.fail_class,
-                        "score": round(o.score, 4) if o.score is not None else None,
-                        "delta_vs_parent": (
-                            round(o.delta_vs_parent, 4) if o.delta_vs_parent is not None else None
-                        ),
-                    }
-                    for o in out
-                ],
-            }
-        )
-        return out
-
-
-def export_policy_traces(
-    policy_cls: type[LLMDesignedMethod],
-    trees: list[DiscoveryTree],
-    *,
-    beta_sweep_path: Path,
-    traces_path: Path,
-    max_parallelism: int = 4,
-    lambda_parallel: float = DEFAULT_LAMBDA_PARALLEL,
-    beta_grid: tuple[float, ...] = DEFAULT_BETA_GRID,
-) -> dict[str, Any]:
-    """Write `beta_sweep.json` and `policy_execution_traces.jsonl` for policy development."""
-    sweep = evaluate_policy_over_history(
-        policy_cls,
-        trees,
-        beta_grid=beta_grid,
-        lambda_parallel=lambda_parallel,
-        max_parallelism=max_parallelism,
-    )
-    beta_sweep_path.parent.mkdir(parents=True, exist_ok=True)
-    beta_sweep_path.write_text(json.dumps(sweep, indent=2) + "\n", encoding="utf-8")
-
-    traces_path.parent.mkdir(parents=True, exist_ok=True)
-    lines: list[str] = []
-    for tree in trees:
-        for beta in beta_grid:
-            pol = policy_cls({"beta": float(beta)})
-            rq = ReplayQuestion(tree, max_parallelism=max_parallelism)
-            tq = _TracingQuestion(rq, tree.world_id, float(beta))
-            res = pol.solve(tq, budget=None)
-            episode = {
-                "world_id": tree.world_id,
-                "beta": float(beta),
-                "total_probes": res.total_probes,
-                "decision_rounds": res.decision_rounds,
-                "effective_sequential_rounds": res.effective_sequential_rounds,
-                "best_score": res.best_score,
-                "max_gain": tree.max_gain,
-                "steps": tq.events,
-            }
-            lines.append(json.dumps(episode))
-    traces_path.write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8")
-    return sweep
+def _rsi_ro_binds() -> dict[Path, str]:
+    return {RSI_DIR / name: f"{RSI_LIB_ROOT}/rsi/{name}" for name in RSI_LIB_FILES}
 
 
 def _build_policy_dev_prompt(
     *,
     cycle_id: str,
-    variant_index: int,
-    focus_hint: str,
+    step: int,
+    steps: int,
     max_parallelism: int,
     lambda_parallel: float,
+    prompt_path: Path,
 ) -> str:
-    return (
-        f"You are improving one **prefix-only exploration policy** for Dream-RSI cycle '{cycle_id}' "
-        f"(candidate variant m={variant_index}).\n"
-        f"Variant design emphasis: {focus_hint}\n\n"
-        'Edit ONLY `/tmp/work/method.py` and keep `NAME = "OptimalPolicy"` and '
-        "`class OptimalPolicy(LLMDesignedMethod)`. Do not solve the compression task and do not "
-        "import filesystem, subprocess, network, or inspection modules.\n\n"
-        "## Evidence to inspect first (read-only under `/tmp/evidence`)\n"
-        "1. `/tmp/evidence/beta_sweep.json`: incumbent Eq. (1) reward, AUC, parallel penalty, and "
-        "per-beta trade-offs.\n"
-        "2. `/tmp/evidence/policy_execution_traces.jsonl`: episode-by-episode trace of batch "
-        "selections and revealed outcomes at each decision round.\n"
-        "3. `/tmp/evidence/live_cycle_manifests.json`: prior live cycle summaries (width/depth, "
-        "opened branches, best score, baked-in beta).\n"
-        "4. `/tmp/work/method.py`: current incumbent policy source.\n\n"
-        "## Objective: quality, work, and parallelism (Eq. 1)\n"
-        f"- Parallel worker capacity `W = {max_parallelism}`, penalty coefficient "
-        f"`lambda = {lambda_parallel}`.\n"
-        "- A batch of size `k` costs 1 decision round and `ceil(k / W)` effective sequential rounds.\n"
-        "- Choose only promising probes, but batch independent promising probes up to "
-        "`question.max_parallelism` instead of running serial singletons.\n"
-        "- `gate_near_miss` (1 trial short of 10-trial smoke gate), `runtime_failure`, and "
-        "`implementation_failure` are recoverable unless cumulative branch evidence indicates "
-        "hard failure.\n\n"
-        "## Mandatory prefix-only API & invariants\n"
-        "- Allowed imports ONLY: `math`, `random`, `dataclasses`, `typing`, `collections`, "
-        "`itertools`, `functools`, and `from rsi.api import ...`.\n"
-        "- `solve(self, question, budget=None)` must read ONLY: `question.observed()`, "
-        "`question.legal_actions()`, `question.legal_roots()`, `question.opened_branches()`, "
-        "`question.meta(cell_id)`, `question.baseline_score`, `question.max_parallelism`.\n"
-        "- NEVER access `question.best_so_far`, `question.budget_spent`, or private `_` attrs on "
-        "any object other than `self`.\n"
-        "- Keep `beta = float(self.config.get('beta', <chosen_default>))` fixed within `solve()`, "
-        "routing all behavioral thresholds through `_schedule(beta) -> dict`. Note that offline "
-        "replay sweeps `beta` over `(0.0, 0.25, 0.5, 0.75, 1.0)`, so merely changing the default "
-        "`beta` without changing `_schedule(beta)` or `solve()` will tie with `m0_incumbent`.\n"
-        "- Always implement deterministic `plan_grid(self, context: GridPlanningContext) -> GridPlan` "
-        "using only `context` fields (`iteration`, `max_parallelism`, `recent_live_manifests`, "
-        "`recent_beta_sweeps`).\n"
-        "- `solve()` MUST terminate cleanly when `budget=None` or `not batch`.\n\n"
-        "Update `/tmp/work/method.py` directly, optionally syntax/replay-check it with `python` "
-        "(pure `rsi.api`, `rsi.tree`, `rsi.objective`, and `/tmp/evidence/worlds/*.json` are importable), "
-        "and end with a concise summary of what changed and why."
+    template = Path(prompt_path).read_text(encoding="utf-8")
+    return template.format(
+        step=step,
+        steps=steps,
+        cycle_id=cycle_id,
+        lambda_parallel=lambda_parallel,
+        max_parallelism=max_parallelism,
     )
 
 
-_VARIANT_HINTS = (
-    "Improve failure/near-miss recovery priority vs. premature branch closure and balance root exploration.",
-    "Improve parallel batch packing up to max_parallelism and refine _schedule(beta) sensitivity across beta in [0, 1].",
-    "Improve trajectory scoring (parent-to-child gain momentum, diminishing returns stopping) and plan_grid width/depth allocation.",
-)
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def _rsi_ro_binds() -> dict[Path, str]:
-    rsi_dir = Path(__file__).resolve().parent
+def _worker_failure(proc: subprocess.CompletedProcess[str]) -> str:
+    """One-line reason for a worker that exited non-zero (signals name the limit hit)."""
+    if proc.returncode < 0:
+        return f"replay worker killed by {signal.Signals(-proc.returncode).name}"
+    lines = (proc.stderr or proc.stdout or "").strip().splitlines()
+    return lines[-1] if lines else f"worker exited {proc.returncode}"
+
+
+def _run_worker_once(
+    *,
+    ws: Path,
+    worker_args: list[str],
+    evidence: Path,
+    use_bwrap: bool,
+    hash_seed: str,
+) -> tuple[dict[str, Any], str]:
+    """Run the worker under one PYTHONHASHSEED; returns (result json, traces text)."""
+    if use_bwrap:
+        proc = run_sandboxed_python(
+            worker_args,
+            workspace_dir=ws,
+            evidence_dir=evidence,
+            extra_ro_binds=_rsi_ro_binds(),
+            env_overrides={"PYTHONPATH": RSI_LIB_ROOT, "PYTHONHASHSEED": hash_seed},
+            timeout=REPLAY_TIMEOUT_S,
+            cpu_seconds=REPLAY_CPU_S,
+        )
+    else:
+        try:
+            proc = subprocess.run(
+                [sys.executable, *worker_args],
+                cwd=REPO_ROOT,
+                env={**os.environ, "PYTHONHASHSEED": hash_seed},
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=REPLAY_TIMEOUT_S,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise SandboxTimeoutError(f"replay timed out after {REPLAY_TIMEOUT_S:.0f}s") from exc
+    if proc.returncode != 0:
+        raise PolicyReplayError(_worker_failure(proc))
+    result = json.loads(read_agent_output(ws, "result.json", max_bytes=MAX_RESULT_BYTES))
+    traces = read_agent_output(ws, "traces.jsonl", max_bytes=MAX_TRACE_BYTES)
+    return result, traces
+
+
+def _replay_policy(
+    policy_src: Path,
+    world_paths: list[Path],
+    *,
+    ws_dir: Path,
+    evidence_dir: Path,
+    max_parallelism: int,
+    lambda_parallel: float,
+    use_bwrap: bool,
+) -> tuple[dict[str, Any], str]:
+    """Replay one policy file under two hash seeds; reject it if the two runs disagree."""
+    ws = Path(ws_dir)
+    ws.mkdir(parents=True, exist_ok=True)
+    for stale in ("result.json", "traces.jsonl", "policy.py"):
+        (ws / stale).unlink(missing_ok=True)
+    shutil.copyfile(policy_src, ws / "policy.py")
+    ev = Path(evidence_dir).resolve()
+    root = Path(SANDBOX_WORK) if use_bwrap else ws
+    ev_root = Path(SANDBOX_EVIDENCE) if use_bwrap else ev
+    worlds = [str(ev_root / Path(w).resolve().relative_to(ev).as_posix()) for w in world_paths]
+    worker_args = [
+        "-m",
+        "rsi.replay_worker",
+        str(root / "policy.py"),
+        str(root / "result.json"),
+        *worlds,
+        "--max-parallelism",
+        str(max_parallelism),
+        "--lambda",
+        repr(float(lambda_parallel)),
+        "--traces",
+        str(root / "traces.jsonl"),
+    ]
+    run = {"ws": ws, "worker_args": worker_args, "evidence": ev, "use_bwrap": use_bwrap}
+    first = _run_worker_once(**run, hash_seed="0")
+    second = _run_worker_once(**run, hash_seed="1")
+    if first != second:
+        raise PolicyReplayError("non-deterministic across hash seeds")
+    return first
+
+
+@dataclass
+class _Run:
+    """Fixed inputs of one policy-development cycle."""
+
+    cycle_id: str
+    history: list[DiscoveryTree]
+    world_paths: list[Path]
+    evidence: Path
+    out_root: Path
+    steps: int
+    max_parallelism: int
+    lambda_parallel: float
+    prompt_path: Path
+    agent_cmd: str | list[str] | None
+    agent: AgentSpec
+    timeout: float
+    use_bwrap: bool
+    results: list[AgentRunResult] = field(default_factory=list)
+
+    def replay(
+        self, src: Path, ws_dir: Path, worlds: list[Path], evidence: Path
+    ) -> tuple[dict[str, Any], str]:
+        return _replay_policy(
+            src,
+            worlds,
+            ws_dir=ws_dir,
+            evidence_dir=evidence,
+            max_parallelism=self.max_parallelism,
+            lambda_parallel=self.lambda_parallel,
+            use_bwrap=self.use_bwrap,
+        )
+
+
+def _check_text(run: _Run, step_dir: Path, text: str) -> tuple[dict[str, Any], str]:
+    """Audit the agent's source, then replay it; raises on any violation."""
+    audit_policy_source(text)
+    audit_no_world_literals(text, run.history)
+    candidate = step_dir / "candidate.py"
+    candidate.write_text(text, encoding="utf-8")
+    return run.replay(candidate, step_dir / "replay", run.world_paths, run.evidence)
+
+
+def _run_agent_step(run: _Run, step: int, seed_text: str) -> dict[str, Any]:
+    """Let the agent rewrite the best policy so far; one repair attempt on validation failure."""
+    step_dir = run.out_root / f"step_{step:02d}"
+    ws = step_dir / "workspace"
+    ws.mkdir(parents=True, exist_ok=True)
+    (ws / "method.py").write_text(seed_text, encoding="utf-8")
+    base_prompt = _build_policy_dev_prompt(
+        cycle_id=run.cycle_id,
+        step=step,
+        steps=run.steps,
+        max_parallelism=run.max_parallelism,
+        lambda_parallel=run.lambda_parallel,
+        prompt_path=run.prompt_path,
+    )
+    rec: dict[str, Any] = {
+        "step": step,
+        "slot": f"m{step}_llm",
+        "status": "rejected",
+        "error": None,
+        "attempts": 0,
+        "text": None,
+        "result": None,
+        "traces": None,
+        "path": None,
+    }
+    prompt = base_prompt
+    for attempt in (1, 2):
+        rec["attempts"] = attempt
+        try:
+            agent = run_sandboxed_agent(
+                prompt_text=prompt,
+                workspace_dir=ws,
+                evidence_dir=run.evidence,
+                logs_dir=step_dir / "logs" / f"attempt_{attempt}",
+                agent_cmd=run.agent_cmd,
+                agent=run.agent,
+                timeout=run.timeout,
+                use_bwrap=run.use_bwrap,
+                extra_ro_binds=_rsi_ro_binds() if run.use_bwrap else None,
+                env_overrides={"PYTHONPATH": RSI_LIB_ROOT} if run.use_bwrap else None,
+            )
+        except SandboxTimeoutError as exc:
+            rec["error"] = str(exc)
+            return rec
+        run.results.append(agent)
+        if agent.returncode != 0:
+            rec["error"] = f"Agent exited {agent.returncode}: {agent.stderr[-300:]}"
+            return rec
+        try:
+            text = read_agent_output(ws, "method.py", max_bytes=MAX_METHOD_BYTES)
+        except SandboxOutputError as exc:
+            rec["error"] = str(exc)
+            return rec
+        rec["text"] = text
+        try:
+            rec["result"], rec["traces"] = _check_text(run, step_dir, text)
+        except (SandboxTimeoutError, SandboxOutputError) as exc:
+            rec["error"] = str(exc)
+            return rec
+        except (PolicyAuditError, PolicyReplayError) as exc:
+            rec["error"] = str(exc)
+            prompt = base_prompt + REPAIR_SUFFIX.format(error=rec["error"])
+            continue
+        rec["path"] = step_dir / "candidate.py"
+        rec["status"] = "valid"
+        rec["error"] = None
+        return rec
+    return rec
+
+
+def _write_history(evidence: Path, rec: dict[str, Any], verdict: dict[str, Any]) -> None:
+    d = evidence / "history" / f"step_{rec['step']:02d}"
+    d.mkdir(parents=True, exist_ok=True)
+    if rec["text"] is not None:
+        (d / "method.py").write_text(rec["text"], encoding="utf-8")
+    if rec["result"] is not None:
+        (d / "scaling_curve.json").write_text(
+            json.dumps(rec["result"], indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    (d / "verdict.json").write_text(json.dumps(verdict, indent=2) + "\n", encoding="utf-8")
+
+
+def _write_best_evidence(evidence: Path, best: dict[str, Any]) -> None:
+    (evidence / "beta_sweep.json").write_text(
+        json.dumps(best["result"], indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    (evidence / "policy_execution_traces.jsonl").write_text(best["traces"], encoding="utf-8")
+
+
+def _verdict(rec: dict[str, Any]) -> dict[str, Any]:
     return {
-        rsi_dir / "__init__.py": "/tmp/rsi_lib/rsi/__init__.py",
-        rsi_dir / "api.py": "/tmp/rsi_lib/rsi/api.py",
-        rsi_dir / "tree.py": "/tmp/rsi_lib/rsi/tree.py",
-        rsi_dir / "objective.py": "/tmp/rsi_lib/rsi/objective.py",
+        "step": rec["step"],
+        "slot": rec["slot"],
+        "status": rec["status"],
+        "mean_v": rec.get("mean_v"),
+        "delta_vs_best": rec.get("delta_vs_best"),
+        "error": rec["error"],
+        "attempts": rec["attempts"],
+    }
+
+
+def _summary_variant(rec: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "slot": rec["slot"],
+        "step": rec["step"],
+        "status": rec["status"],
+        "mean_v": rec.get("mean_v"),
+        "delta_vs_best": rec.get("delta_vs_best"),
+        "error": rec["error"],
+        "attempts": rec["attempts"],
+        "policy_path": str(rec["path"]) if rec["path"] is not None else None,
+        "policy_sha256": _sha256(rec["path"]) if rec["path"] is not None else None,
     }
 
 
@@ -439,186 +361,119 @@ def develop_policies_llm(
     max_parallelism: int = 4,
     lambda_parallel: float = DEFAULT_LAMBDA_PARALLEL,
     agent_cmd: str | list[str] | None = None,
-    model: str | None = None,
-    thinking: str | None = None,
+    agent: AgentSpec | None = None,
     timeout: float = 240.0,
     use_bwrap: bool = True,
+    prompt_path: Path | None = None,
 ) -> dict[str, Any]:
-    """Run LLM policy rewriting (M-1 variants + incumbent) in bwrap sandboxes and select argmax V."""
+    """Develop m-1 sequential rewrites of the incumbent; select argmax mean V on history."""
     if not history:
         raise ValueError("Policy development requires at least 1 frozen DiscoveryTree in history")
     if m < 2:
         raise ValueError("m must be >= 2 (incumbent + at least 1 rewritten candidate)")
 
     inc_src = Path(incumbent_path) if incumbent_path is not None else INCUMBENT_TEMPLATE
-    inc_cls = load_policy_class(inc_src, f"{cycle_id}_m0")
-
     out_root = Path(output_dir)
-    out_root.mkdir(parents=True, exist_ok=True)
-    evidence_dir = out_root / "evidence"
-    evidence_dir.mkdir(parents=True, exist_ok=True)
-
-    # Archive worlds inside evidence_dir/worlds so both verifier and sandboxed policy-dev inspect them
-    world_json_paths = [
-        save_tree_json(t, evidence_dir / "worlds" / f"{i:02d}_{t.world_id}.json")
+    evidence = out_root / "evidence"
+    world_paths = [
+        save_tree_json(t, evidence / "worlds" / f"{i:02d}_{t.world_id}.json")
         for i, t in enumerate(history)
     ]
-
-    # Export incumbent sweep & execution traces into read-only evidence
-    inc_sweep = export_policy_traces(
-        inc_cls,
-        history,
-        beta_sweep_path=evidence_dir / "beta_sweep.json",
-        traces_path=evidence_dir / "policy_execution_traces.jsonl",
-        max_parallelism=max_parallelism,
-        lambda_parallel=lambda_parallel,
-    )
-    (evidence_dir / "live_cycle_manifests.json").write_text(
+    (evidence / "live_cycle_manifests.json").write_text(
         json.dumps(live_manifests or [], indent=2) + "\n", encoding="utf-8"
     )
+    (evidence / "reference").mkdir(parents=True, exist_ok=True)
+    for name in ("api.py", "tree.py", "objective.py"):
+        shutil.copyfile(RSI_DIR / name, evidence / "reference" / name)
 
-    m0_dir = out_root / "m0_incumbent"
-    m0_dir.mkdir(parents=True, exist_ok=True)
-    m0_policy = m0_dir / "policy.py"
-    shutil.copy2(inc_src, m0_policy)
+    spec = agent or default_agent_spec()
+    run = _Run(
+        cycle_id=cycle_id,
+        history=history,
+        world_paths=world_paths,
+        evidence=evidence,
+        out_root=out_root,
+        steps=m - 1,
+        max_parallelism=max_parallelism,
+        lambda_parallel=lambda_parallel,
+        prompt_path=Path(prompt_path) if prompt_path is not None else POLICY_DEV_PROMPT,
+        agent_cmd=agent_cmd,
+        agent=spec,
+        timeout=timeout,
+        use_bwrap=use_bwrap,
+    )
 
-    candidates: list[Candidate] = [
-        Candidate("m0_incumbent", inc_cls, {}),
-    ]
-    candidate_paths: dict[str, Path] = {"m0_incumbent": m0_policy}
-    variant_logs: list[dict[str, Any]] = [
-        {
-            "slot": "m0_incumbent",
-            "status": "incumbent",
-            "policy_path": str(m0_policy),
-            "in_sample_reward": round(float(inc_sweep["pareto"]["reward"]), 6),
+    inc_text = inc_src.read_text(encoding="utf-8")
+    inc_dir = out_root / "step_00"
+    inc_dir.mkdir(parents=True, exist_ok=True)
+    (inc_dir / "method.py").write_text(inc_text, encoding="utf-8")
+    shutil.copyfile(inc_src, inc_dir / "candidate.py")
+    inc_result, inc_traces = run.replay(
+        inc_dir / "candidate.py", inc_dir / "replay", world_paths, evidence
+    )
+    best: dict[str, Any] = {
+        "step": 0,
+        "slot": "m0_incumbent",
+        "status": "incumbent",
+        "error": None,
+        "attempts": 0,
+        "text": inc_text,
+        "result": inc_result,
+        "traces": inc_traces,
+        "path": inc_dir / "candidate.py",
+        "mean_v": inc_result["mean_v"],
+        "delta_vs_best": 0.0,
+    }
+    records: list[dict[str, Any]] = [best]
+    _write_history(evidence, best, _verdict(best))
+
+    for step in range(1, m):
+        _write_best_evidence(evidence, best)
+        rec = _run_agent_step(run, step, best["text"])
+        if rec["status"] == "valid":
+            rec["mean_v"] = rec["result"]["mean_v"]
+            rec["delta_vs_best"] = rec["mean_v"] - best["mean_v"]
+            rec["status"] = "accepted" if rec["mean_v"] > best["mean_v"] else "not_better"
+            if rec["status"] == "accepted":
+                best = rec
+        _write_history(evidence, rec, _verdict(rec))
+        records.append(rec)
+
+    valid = [r for r in records if r["status"] in ("incumbent", "accepted", "not_better")]
+    world_ids = [t.world_id for t in history]
+    mean_by_slot = {r["slot"]: r["mean_v"] for r in valid}
+    selected = max(valid, key=lambda r: (r["mean_v"], -r["step"]))
+    winner_path = out_root / "selected_policy.py"
+    shutil.copyfile(selected["path"], winner_path)
+
+    terms = {
+        r["slot"]: {
+            wid: (w["hypervolume"], w["penalty"]) for wid, w in r["result"]["worlds"].items()
         }
+        for r in valid
+    }
+    lowo_report = (
+        leave_one_world_out(terms, world_ids, lambda_parallel) if len(history) >= 2 else None
+    )
+
+    heldout_dir = out_root / "heldout"
+    heldout_paths = [
+        save_tree_json(t, heldout_dir / "worlds" / f"{i:02d}_{t.world_id}.json")
+        for i, t in enumerate(scenario_suite("heldout"))
     ]
-
-    extra_binds = _rsi_ro_binds() if use_bwrap else None
-    env_overrides = {"PYTHONPATH": "/tmp/rsi_lib"} if use_bwrap else None
-
-    for idx in range(1, m):
-        slot_name = f"m{idx}_llm"
-        slot_dir = out_root / slot_name
-        ws_dir = slot_dir / "workspace"
-        logs_dir = slot_dir / "logs"
-        ws_dir.mkdir(parents=True, exist_ok=True)
-        logs_dir.mkdir(parents=True, exist_ok=True)
-
-        method_file = ws_dir / "method.py"
-        shutil.copy2(inc_src, method_file)
-        hint = _VARIANT_HINTS[(idx - 1) % len(_VARIANT_HINTS)]
-        base_prompt = _build_policy_dev_prompt(
-            cycle_id=cycle_id,
-            variant_index=idx,
-            focus_hint=hint,
+    heldout_mean: dict[str, float] = {}
+    for r in valid:
+        res, _ = _replay_policy(
+            r["path"],
+            heldout_paths,
+            ws_dir=heldout_dir / "replay" / r["slot"],
+            evidence_dir=heldout_dir,
             max_parallelism=max_parallelism,
             lambda_parallel=lambda_parallel,
+            use_bwrap=use_bwrap,
         )
-
-        valid_cls: type[LLMDesignedMethod] | None = None
-        last_error: str | None = None
-        attempts_log: list[dict[str, Any]] = []
-
-        for attempt in (1, 2):
-            prompt = (
-                base_prompt
-                if attempt == 1
-                else (
-                    f"{base_prompt}\n\n### Previous attempt validation failure\n{last_error}\n\n"
-                    "Fix every violation in `/tmp/work/method.py` cleanly."
-                )
-            )
-            res = run_sandboxed_agent(
-                prompt_text=prompt,
-                workspace_dir=ws_dir,
-                evidence_dir=evidence_dir,
-                logs_dir=logs_dir / f"attempt_{attempt}",
-                agent_cmd=agent_cmd,
-                model=model,
-                tools="read,write,edit,bash",
-                thinking=thinking,
-                timeout=timeout,
-                use_bwrap=use_bwrap,
-                extra_ro_binds=extra_binds,
-                env_overrides=env_overrides,
-            )
-            if res.returncode != 0:
-                last_error = f"Agent exited {res.returncode}: {res.stderr[-300:]}"
-                attempts_log.append(
-                    {
-                        "attempt": attempt,
-                        "valid": False,
-                        "error": last_error,
-                        "elapsed_s": res.elapsed_seconds,
-                    }
-                )
-                continue
-            try:
-                verify_policy_in_subprocess(method_file, world_json_paths)
-                valid_cls = load_policy_class(method_file, f"{cycle_id}_{slot_name}")
-                attempts_log.append(
-                    {"attempt": attempt, "valid": True, "elapsed_s": res.elapsed_seconds}
-                )
-                break
-            except (PolicyAuditError, OSError, subprocess.TimeoutExpired) as exc:
-                last_error = str(exc)
-                attempts_log.append(
-                    {
-                        "attempt": attempt,
-                        "valid": False,
-                        "error": last_error,
-                        "elapsed_s": res.elapsed_seconds,
-                    }
-                )
-
-        final_policy_path = slot_dir / "policy.py"
-        if valid_cls is not None:
-            shutil.copy2(method_file, final_policy_path)
-            candidates.append(Candidate(slot_name, valid_cls, {}))
-            candidate_paths[slot_name] = final_policy_path
-            variant_logs.append(
-                {
-                    "slot": slot_name,
-                    "status": "valid",
-                    "policy_path": str(final_policy_path),
-                    "attempts": attempts_log,
-                }
-            )
-        else:
-            variant_logs.append(
-                {
-                    "slot": slot_name,
-                    "status": "rejected",
-                    "error": last_error,
-                    "attempts": attempts_log,
-                }
-            )
-
-    world_ids = [t.world_id for t in history]
-    terms = replay_terms(candidates, history, max_parallelism)
-    in_sample_scores = {
-        c.name: round(
-            sum(terms[c.name][w][0] - lambda_parallel * terms[c.name][w][1] for w in world_ids)
-            / float(len(world_ids)),
-            6,
-        )
-        for c in candidates
-    }
-    selected_slot = select_from_terms(terms, world_ids, lambda_parallel)
-
-    lowo_report: dict[str, Any] | None = None
-    if len(history) >= 2:
-        lowo_report = leave_one_world_out(terms, world_ids, lambda_parallel)
-
-    # Monotonic selection guarantees selected_reward >= incumbent_reward on H_t
-    winner_path = out_root / "selected_policy.py"
-    shutil.copy2(candidate_paths[selected_slot], winner_path)
-
-    # Read default beta baked into winning policy instance
-    winner_cls = next(c.cls for c in candidates if c.name == selected_slot)
-    winner_beta = float(getattr(winner_cls({}), "beta", 0.6))
+        heldout_mean[r["slot"]] = round(float(res["mean_v"]), 6)
+    incumbent_heldout = heldout_mean["m0_incumbent"]
 
     summary = {
         "protocol": "dream-rsi-policy-dev",
@@ -628,12 +483,16 @@ def develop_policies_llm(
         "world_ids": world_ids,
         "max_parallelism": max_parallelism,
         "lambda_parallel": lambda_parallel,
-        "selected_slot": selected_slot,
+        "selected_slot": selected["slot"],
         "selected_policy_path": str(winner_path),
-        "selected_default_beta": winner_beta,
-        "incumbent_in_sample_V": in_sample_scores["m0_incumbent"],
-        "selected_in_sample_V": in_sample_scores[selected_slot],
-        "in_sample_V_by_slot": in_sample_scores,
+        "incumbent_in_sample_V": round(float(mean_by_slot["m0_incumbent"]), 6),
+        "selected_in_sample_V": round(float(selected["mean_v"]), 6),
+        "in_sample_V_by_slot": {k: round(float(v), 6) for k, v in mean_by_slot.items()},
+        "heldout": {
+            "num_worlds": len(heldout_paths),
+            "mean_V_by_slot": heldout_mean,
+        },
+        "heldout_delta_vs_incumbent": round(heldout_mean[selected["slot"]] - incumbent_heldout, 6),
         "lowo": (
             {
                 "mean_selected_reward": round(float(lowo_report["mean_selected_reward"]), 6),
@@ -652,7 +511,8 @@ def develop_policies_llm(
             if lowo_report is not None
             else None
         ),
-        "variants": variant_logs,
+        "variants": [_summary_variant(r) for r in records],
+        "agent": agent_record(None if agent_cmd is not None else spec, run.results),
     }
     (out_root / "selection.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     return summary

@@ -2,12 +2,20 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
+OK = "ok"
 GATE_NEAR_MISS = "gate_near_miss"
 GATE_FAILED = "gate_failed"
-# One literal per fail class; policies compare against these constants, never raw strings.
+RUNTIME_FAILURE = "runtime_failure"
+IMPLEMENTATION_FAILURE = "implementation_failure"
+AGENT_TIMEOUT = "agent_timeout"
+# The agent process itself failed (nonzero exit: bad key, unknown model, missing auth), so the
+# workspace was never evaluated and says nothing about the proposal's quality.
+AGENT_FAILURE = "agent_failure"
+# One constant per fail class; policies compare against these constants, never raw strings.
 
 
 def gate_fail_class(successes: int, gate: int, near_miss: int = 1) -> str:
@@ -87,7 +95,8 @@ class SimResult:
 
 
 def _budget_done(question: Any, budget: int | None) -> bool:
-    if budget is not None and question.budget_spent >= budget:
+    """True when the policy's own probe count reaches `budget` or no action is legal."""
+    if budget is not None and len(question.observed()) >= budget:
         return True
     return not question.legal_actions()
 
@@ -101,10 +110,8 @@ def _record_curve(res: SimResult, question: Any) -> None:
 
 
 def finalize_result(question: Any, res: SimResult) -> SimResult:
-    res.total_probes = question.budget_spent
-    res.best_score = question.best_so_far
-    res.decision_rounds = question.decision_rounds
-    res.effective_sequential_rounds = question.effective_sequential_rounds
+    """Return `res` unchanged; the harness reads accounting from its own question object."""
+    del question
     return res
 
 
@@ -130,6 +137,62 @@ def probe_improved_vs_parent(obs: Observation) -> bool:
 
 def probe_improved_vs_baseline(obs: Observation) -> bool:
     return obs.delta_vs_baseline is not None and obs.delta_vs_baseline > 0.0
+
+
+ProbeRecorder = Callable[[list[str], list[Any]], None]
+
+
+class PrefixView:
+    """Policy-facing prefix of a question: observation, legal moves and probes only.
+
+    Each member is a plain closure over the real question, held in a slot. The question
+    is therefore reachable only through closure cells, which the policy audit forbids
+    (dunder attributes). No accounting, `reset()` or tree is exposed. `on_reveal` is
+    accepted for signature compatibility and ignored: reveal hooks stay harness-side.
+    """
+
+    __slots__ = (
+        "baseline_score",
+        "legal_actions",
+        "legal_roots",
+        "max_parallelism",
+        "meta",
+        "observed",
+        "opened_branches",
+        "probe_batch",
+    )
+
+    def __init__(self, question: Any, recorder: ProbeRecorder | None = None) -> None:
+        def observed() -> dict[str, Any]:
+            return question.observed()
+
+        def legal_roots() -> list[str]:
+            return question.legal_roots()
+
+        def legal_actions() -> list[str]:
+            return question.legal_actions()
+
+        def opened_branches() -> list[int]:
+            return question.opened_branches()
+
+        def meta(cell_id: str) -> Any:
+            return question.meta(cell_id)
+
+        def probe_batch(cells: list[str], on_reveal: Any = None) -> list[Any]:
+            batch = list(cells)
+            out = question.probe_batch(batch)
+            if recorder is not None:
+                recorder(batch, out)
+            return out
+
+        self.observed = observed
+        self.legal_roots = legal_roots
+        self.legal_actions = legal_actions
+        self.opened_branches = opened_branches
+        self.meta = meta
+        self.probe_batch = probe_batch
+        self.baseline_score = float(question.baseline_score)
+        self.max_parallelism = int(question.max_parallelism)
 
 
 class LLMDesignedMethod:

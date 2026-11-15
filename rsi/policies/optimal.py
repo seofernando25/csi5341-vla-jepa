@@ -11,7 +11,6 @@ from rsi.api import (
     LLMDesignedMethod,
     Observation,
     SimResult,
-    _budget_done,
     _record_curve,
     branch_failed_hard,
     branch_promising,
@@ -19,7 +18,7 @@ from rsi.api import (
     probe_improved_vs_parent,
 )
 
-REPAIRABLE_FAIL_CLASSES = {"implementation_failure", "runtime_failure", "compile_other"}
+REPAIRABLE_FAIL_CLASSES = frozenset({"implementation_failure", "runtime_failure", "compile_other"})
 
 
 @dataclass(frozen=True)
@@ -243,16 +242,16 @@ class OptimalPolicy(LLMDesignedMethod):
         return batch
 
     def solve(self, question: Any, budget: int | None = None) -> SimResult:
-        question.reset()
         res = SimResult()
         closed: set[int] = set()
         sched = self._schedule(self.beta)
         best_seen = question.baseline_score
         stagnant_rounds = 0
+        spent = 0
 
-        while not _budget_done(question, budget):
+        while not (budget is not None and spent >= budget) and question.legal_actions():
             prefix = question.observed()
-            budget_left = None if budget is None else max(0, budget - question.budget_spent)
+            budget_left = None if budget is None else max(0, budget - spent)
             batch = self._select_batch(
                 prefix=prefix,
                 question=question,
@@ -264,6 +263,7 @@ class OptimalPolicy(LLMDesignedMethod):
             if not batch:
                 break
             revealed = question.probe_batch(batch, on_reveal=lambda _: _record_curve(res, question))
+            spent += len(revealed)
             ok_scores = [o.score for o in revealed if o.fail_class == "ok" and o.score is not None]
             if ok_scores and max(ok_scores) > best_seen:
                 best_seen = max(ok_scores)

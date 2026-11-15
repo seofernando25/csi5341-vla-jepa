@@ -13,6 +13,7 @@ from rsi.api import (
     _record_curve,
     finalize_result,
 )
+from rsi.policies._plan import explicit_grid_plan
 
 
 class InitialPolicy(LLMDesignedMethod):
@@ -32,7 +33,6 @@ class InitialPolicy(LLMDesignedMethod):
         }
 
     def solve(self, question: Any, budget: int | None = None) -> SimResult:
-        question.reset()
         res = SimResult()
         sched = self._schedule(self.beta)
         stagnant = 0
@@ -88,10 +88,4 @@ class InitialPolicy(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        return GridPlan(
-            max_branches=6,
-            max_attempts_per_branch=4,
-            max_parallelism=max(1, context.max_parallelism),
-            rounds_cap=12,
-            rationale="Static initial grid plan.",
-        )
+        return explicit_grid_plan(self.config)

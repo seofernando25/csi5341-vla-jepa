@@ -1,4 +1,7 @@
-"""Dream-RSI: Recursive Self-Improvement through Evolving Worlds."""
+"""Dream-RSI: Recursive Self-Improvement through Evolving Worlds.
+
+Public policy API re-exported below. Paper-to-code fidelity map: docs/DREAM_RSI.md.
+"""
 
 from rsi.api import (
     CellMeta,

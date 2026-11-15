@@ -19,6 +19,7 @@ from rsi.api import (
     _record_curve,
     finalize_result,
 )
+from rsi.policies._plan import explicit_grid_plan
 from rsi.policies.baselines import _PatiencePolicy
 
 
@@ -86,14 +87,13 @@ class TwoStageGatePolicy(LLMDesignedMethod):
         self.beta = float(self.config.get("beta", 0.5))
 
     def solve(self, question: Any, budget: int | None = None) -> SimResult:
-        question.reset()
         res = SimResult()
         # Stage 1: screen all roots.
         while question.legal_roots() and not _budget_done(question, budget):
             roots = question.legal_roots()
             width = question.max_parallelism
             if budget is not None:
-                width = min(width, budget - question.budget_spent)
+                width = min(width, budget - len(question.observed()))
             question.probe_batch(roots[:width], on_reveal=lambda _: _record_curve(res, question))
         # Stage 2: refine passing roots, one near-miss retry.
         patience = max(1, round(1 + 3 * max(0.0, min(1.0, self.beta))))
@@ -118,7 +118,7 @@ class TwoStageGatePolicy(LLMDesignedMethod):
                 break
             width = question.max_parallelism
             if budget is not None:
-                width = min(width, budget - question.budget_spent)
+                width = min(width, budget - len(question.observed()))
             batch = batch[:width]
             if any(question.meta(c).parent_id in near[:1] for c in batch):
                 retried = True
@@ -132,13 +132,7 @@ class TwoStageGatePolicy(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        return GridPlan(
-            max_branches=6,
-            max_attempts_per_branch=4,
-            max_parallelism=max(1, context.max_parallelism),
-            rounds_cap=12,
-            rationale="Static two-stage gate grid plan.",
-        )
+        return explicit_grid_plan(self.config)
 
 
 class IncumbentWithExceptions(LLMDesignedMethod):
@@ -155,7 +149,6 @@ class IncumbentWithExceptions(LLMDesignedMethod):
         self.beta = float(self.config.get("beta", 0.5))
 
     def solve(self, question: Any, budget: int | None = None) -> SimResult:
-        question.reset()
         res = SimResult()
         sched_target = max(1, round(1 + 3 * max(0.0, min(1.0, self.beta))))
         stagnant, best_seen, excused = 0, question.baseline_score, False
@@ -200,10 +193,4 @@ class IncumbentWithExceptions(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        return GridPlan(
-            max_branches=6,
-            max_attempts_per_branch=4,
-            max_parallelism=1,
-            rounds_cap=12,
-            rationale="Static serial grid plan.",
-        )
+        return explicit_grid_plan(self.config)
