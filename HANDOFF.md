@@ -4,6 +4,30 @@ Written 10:05 EST by the orchestrating agent. Delete this file when the runs bel
 reported. Goal set by Fernando: every result for the report measured within 24 hours (by about
 09:00 EST on 2026-11-16), reliably and without cheating.
 
+## State at 21:25 EST, 2026-11-15. READ THIS FIRST; older sections below are history.
+
+Two runs are live. Do not edit the main checkout's code (the reserved run imports it) or the v2
+run worktree until they stop. Nothing is pushed; no board record.
+
+| Run | Where | Unit | Expected end |
+|---|---|---|---|
+| Reserved-500, 6 frozen cells (B16, `iter_001-b1-a3`, `iter_000-b0-a3`, lang INT8, lang NF4, NF4 graph 1-step packed) | main checkout, log `/tmp/opencode/s2/reserved.log`, results in `studies/program-v1/{measurements/*/final,reserved/}` | `vla-reserved` | about 02:30 |
+| Dream-RSI `program-v2` (open policy agent, anytime steps, live `plan_grid`, fixed memory rule, one GPU slot) | worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-32b33602-0c4d638784cb7753`, tag `program-v2-open` (`b247639`), `studies/program-v2` | `rsi-…-studies-program-v2` | 8 h cap, about 05:20 |
+
+- Done and merged into `dream-rsi-cleanroom-v1`: v1 evidence commit, queue/docs/UI merges, evaluator
+  memory-rule fix, exploit record (`studies/program-v1/exploit/`), live grid plan, freeze record
+  (`3ad1b36`), report subsection on the gaming (`fbd1e7f`), voice rules in `terse-writing`.
+- Not merged: branch `t3/brief-e-implementation` (open policy agent, `program-v2`). Merge it after
+  both runs stop; v2 evidence is written in that worktree.
+- v1 winners under the fixed rule: `iter_000-b0-a3` 83.0 % removed, 80/100; `iter_001-b1-a3` 81.6 %,
+  84/100. v1 says nothing fair about policy learning (policy agent was read/edit only, static grid).
+- After the runs: commit reserved results and the README table (agent G does this); pick v2 winners
+  on development only, freeze, run their Reserved-500; `vla-report-plots`; write the report.
+- Still missing for the report: joint recipes C1/C2 (never authored), the divergence analysis
+  (`divergence.json` has no writer). See `/tmp/opencode/audit/report_gap.md`.
+- Briefs, status files and reports of this session's agents: `/tmp/opencode/s2/` (lost on reboot).
+- Fernando rejected a vector / LLM-judge score for now: the scalar score stays.
+
 ## Rules for the next orchestrator
 
 - **Spend few tokens.** The Claude session limit drains fast. Do not read code or logs yourself:
