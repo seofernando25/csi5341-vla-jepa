@@ -4,27 +4,25 @@ Run state, live branches and unmerged work. Everything else is in `AGENTS.md`, `
 READMEs. Rewrite this file when the state changes; delete it when both runs are merged and reported.
 The hour-by-hour log of 2026-11-15 is in Git history (this file at `64206a6`).
 
-## State at 03:25 EST, 2026-11-16
+## State at 05:15 EST, 2026-11-16
 
-Reserved-500 for the v1 selection is complete, all six cells: reference 95.0 %, cycle-1 winner
-95.6 %, cycle-2 winner 93.4 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 %.
-`studies/program-v1/reserved/summary.json` holds the intervals and paired differences.
+Every run is finished and committed. No GPU job is running.
 
-`program-v2` stopped at 02:45 and did not beat program-v1: its best complete node removed 79.1 %
-at 83/100, against v1's 83.0 % at 80/100. Its highest-compression node (83.4 %) timed out in
-development at 59/100 and is not selectable. The evidence is merged; the result is in
-`studies/program-v2/README.md`.
+| Run | Result |
+|---|---|
+| Reserved-500, v1 selection (6 cells) | reference 95.0 %, cycle-1 winner 95.6 %, cycle-2 winner 93.4 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 % |
+| `program-v2` search (3 cycles, 12 nodes) | did not beat v1: best complete node 79.1 % at 83/100; its 83.4 % node timed out in development |
+| Reserved-500, v2 winners (2 cells) | 96.2 % and 95.0 %, both at the reference |
 
-Reserved-500 for the two v2 winners is running now, `iter_002-b2-a2` then `iter_001-b2-a1`, about
-80 minutes each. Selection frozen in `studies/program-v2/freeze.json`.
+The report is a four-page draft in `report/main.tex`, every number traced to
+`report/data/numbers.json`, with four figures and two tables. The v2 worktree and both side branches
+are gone; `main` is the only branch.
 
-| Run | Where | State |
-|---|---|---|
-| Reserved-500 v1, 6 cells | `studies/program-v1/reserved/` and `measurements/*/final/` (uncommitted) | complete |
-| Reserved-500 v2, 2 cells | log `/tmp/opencode/s2/reserved-v2.log`; records in `studies/program-v2/reserved/` | running, ends ~06:00 |
-| `program-v2` search | `studies/program-v2/`, merged to main | stopped |
+## Next, in order
 
-The v2 worktree and both side branches are gone. Watch page: port 8899, now reading main.
+1. Read `report/main.pdf` once for voice and accuracy.
+2. Ask Fernando before pushing or posting to the board.
+3. Optional: the presentation (`web/presentation/`) still shows the pre-cleanroom story.
 
 ## Project explainer video (done, committed to main)
 
