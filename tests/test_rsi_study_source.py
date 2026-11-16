@@ -13,16 +13,11 @@ from pathlib import Path
 import pytest
 
 from evaluation.compression import solution
-from rsi import expansion
+from rsi.expansion import context as expansion_context
 from rsi.expansion import sandboxed_evaluator
-from rsi.sandbox import (
-    DEFAULT_STUDY,
-    REPO_ROOT,
-    evaluator_argv,
-    repo_source_binds,
-    study_protocol,
-    study_rel,
-)
+from rsi.paths import REPO_ROOT
+from rsi.sandbox import evaluator_argv, repo_source_binds, study_protocol, study_rel
+from rsi.sandbox.bwrap import DEFAULT_STUDY
 
 V1 = REPO_ROOT / "studies" / "program-v1"
 V2 = REPO_ROOT / "studies" / "program-v2"
@@ -108,7 +103,7 @@ def test_sandboxed_evaluator_forwards_the_study_dir(monkeypatch: pytest.MonkeyPa
         seen.update(workspace=workspace, phase=phase, out=out, **kw)
         return {"status": "ok"}
 
-    monkeypatch.setattr(expansion, "run_sandboxed_evaluator", fake)
+    monkeypatch.setattr(expansion_context, "run_sandboxed_evaluator", fake)
     run = sandboxed_evaluator(30.0, Path("/tmp/slots"), 2, study_dir=V2)
     run(Path("/tmp/ws"), "check", Path("/tmp/out"))
     assert seen["study_dir"] == V2

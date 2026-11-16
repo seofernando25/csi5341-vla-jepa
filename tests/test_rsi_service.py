@@ -11,15 +11,15 @@ from typing import Any
 
 import pytest
 
-from rsi import durable_loop
 from rsi.__main__ import main
-from rsi.agent_backends import AgentSpec
-from rsi.durable_loop import PolicyMismatchError, run_dream_rsi_loop
-from rsi.service import (
+from rsi.agents import AgentSpec
+from rsi.loop import (
     LoopLockedError,
+    PolicyMismatchError,
     StudyLock,
     load_loop_state,
     lock_holder,
+    run_dream_rsi_loop,
     start,
     status,
     stop,
@@ -27,6 +27,7 @@ from rsi.service import (
     unit_name,
     write_json_atomic,
 )
+from rsi.loop import run as loop_run
 
 AGENT = AgentSpec(backend="claude", model="test-model", effort=None, tools="")
 REPO = Path(__file__).resolve().parents[1]
@@ -79,7 +80,7 @@ def fake_dev(calls: Calls) -> Any:
 @pytest.fixture
 def study(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Study dir whose policy development always sees one tree."""
-    monkeypatch.setattr(durable_loop, "_load_trees", lambda _root: [object()])
+    monkeypatch.setattr(loop_run, "_load_trees", lambda _root: [object()])
     return tmp_path / "study"
 
 
@@ -295,7 +296,7 @@ def test_loop_stops_when_a_cycle_reports_a_stop_reason(study: Path) -> None:
 def test_loop_provenance_is_taken_before_any_study_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(durable_loop, "_load_trees", lambda _root: [object()])
+    monkeypatch.setattr(loop_run, "_load_trees", lambda _root: [object()])
     repo = tmp_path / "repo"
     study = repo / "study"
     study.mkdir(parents=True)

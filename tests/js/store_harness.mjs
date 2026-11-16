@@ -1,5 +1,5 @@
 /* Node harness for the watch store, reducer and selectors.
-   Usage: node tests/js/store_harness.mjs <rsi/watch_static>
+   Usage: node tests/js/store_harness.mjs <rsi/watch/static>
    Prints one JSON object: { checks: { name: { ok, detail } } }. No DOM, no view modules. */
 
 import { deepStrictEqual, ok, strictEqual } from "node:assert/strict";
@@ -7,7 +7,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const root = process.argv[2];
-if (!root) throw new Error("usage: store_harness.mjs <rsi/watch_static>");
+if (!root) throw new Error("usage: store_harness.mjs <rsi/watch/static>");
 const load = (rel) => import(pathToFileURL(path.join(root, rel)).href);
 
 const { createStore } = await load("js/store.js");

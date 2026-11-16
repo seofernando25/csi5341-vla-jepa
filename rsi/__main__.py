@@ -6,14 +6,13 @@ import argparse
 import importlib
 import json
 import sys
-from collections.abc import Callable
 from pathlib import Path
-from typing import Any
 
-from rsi.agent_backends import BACKENDS, STUDY_DIR, AgentSpec, load_agent_spec
+from rsi.agents import BACKENDS, AgentSpec, load_agent_spec
+from rsi.expansion import Evaluator
+from rsi.paths import STUDY_DIR
 from rsi.policy_dev import DEFAULT_POLICY_TIMEOUT_S
 
-Evaluator = Callable[[Path, str, Path], dict[str, Any]]
 EVALUATOR_HELP = (
     "MODULE:FUNC replacing the sandboxed evaluator; called as FUNC(snapshot_dir, phase, out_dir)"
 )
@@ -181,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "develop":
         from pathlib import Path
 
-        from rsi.online_cycle import _recent_manifests
+        from rsi.online_cycle import recent_manifests
         from rsi.policy_dev import develop_policies_llm, load_tree_json
 
         study_dir = Path(args.study_dir)
@@ -197,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
             cycle_id=args.cycle_id,
             incumbent_path=Path(args.incumbent) if args.incumbent else None,
             output_dir=out_dir,
-            live_manifests=list(_recent_manifests(study_dir)),
+            live_manifests=list(recent_manifests(study_dir)),
             m=args.m,
             max_parallelism=args.max_parallelism,
             agent_cmd=args.agent_cmd,
@@ -211,8 +210,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "loop":
         from pathlib import Path
 
-        from rsi.durable_loop import run_dream_rsi_loop
-        from rsi.service import LoopLockedError
+        from rsi.loop import LoopLockedError, run_dream_rsi_loop
 
         try:
             payload = run_dream_rsi_loop(
@@ -249,7 +247,7 @@ def main(argv: list[str] | None = None) -> int:
 
 def _service_command(parser: argparse.ArgumentParser, args: argparse.Namespace) -> int:
     """Dispatch `start`, `status` and `stop` to the detached-run service."""
-    from rsi import service
+    from rsi import loop as service
 
     study = Path(args.study_dir)
     if args.cmd == "start":

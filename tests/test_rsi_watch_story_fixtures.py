@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIC = ROOT / "rsi" / "watch_static"
+STATIC = ROOT / "rsi" / "watch" / "static"
 STORY = STATIC / "fixture_story.json"
 STATE = STATIC / "fixture.json"
 DEMO = STATIC / "js" / "demo.js"

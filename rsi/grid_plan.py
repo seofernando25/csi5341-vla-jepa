@@ -21,7 +21,8 @@ from pathlib import Path
 from typing import Any
 
 from rsi.api import GridPlan, GridPlanningContext
-from rsi.sandbox import REPO_ROOT, SANDBOX_WORK, SandboxTimeoutError, run_sandboxed_python
+from rsi.paths import REPO_ROOT, SANDBOX_WORK
+from rsi.sandbox import SandboxTimeoutError, run_sandboxed_python
 
 # The replay worker's limits (rsi.policy_dev): a plan_grid call gets the same CPU and wall clock.
 PLAN_TIMEOUT_S = 120.0

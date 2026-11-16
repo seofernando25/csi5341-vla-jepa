@@ -13,7 +13,7 @@ from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 
-from rsi.agent_backends import REPO_ROOT, SANDBOX_HF_HUB, SANDBOX_REPO
+from rsi.paths import REPO_ROOT, SANDBOX_HF_HUB, SANDBOX_REPO
 
 GPU_DEVICE_GLOBS = (
     "/dev/nvidia[0-9]*",

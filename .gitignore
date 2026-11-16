@@ -53,7 +53,7 @@ studies/*/cycles/*/nodes/*/error.txt
 studies/*/cycles/*/nodes/*/logs/stdout.log
 studies/*/cycles/*/nodes/*/logs/stderr.log
 studies/*/cycles/*/nodes/*/logs/agent_result.json
-rsi/watch_static/*.orig
+rsi/watch/static/*.orig
 
 # Raw per-node inputs and outputs stay local: the frozen fork, the batch evidence handed to the
 # agent, and the evaluator's per-episode output for smoke and development. score.json,

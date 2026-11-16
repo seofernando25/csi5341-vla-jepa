@@ -13,8 +13,8 @@ from pathlib import Path
 
 import pytest
 
-from rsi.agent_backends import REPO_ROOT
 from rsi.gpu import acquire_slot, gpu_slot
+from rsi.paths import REPO_ROOT
 from rsi.sandbox import build_bwrap_argv, run_sandboxed_python
 
 requires_bwrap = pytest.mark.skipif(shutil.which("bwrap") is None, reason="bwrap not installed")

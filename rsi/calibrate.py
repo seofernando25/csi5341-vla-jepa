@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import time
 from pathlib import Path
 from typing import Any
 
-from rsi.agent_backends import AgentSpec
+from rsi.agents import AgentSpec
 from rsi.objective import DEFAULT_LAMBDA_PARALLEL
+from rsi.paths import REPO_ROOT
 from rsi.policies.baselines import GreedySerialPolicy, RandomPolicy, RoundRobinPolicy
 from rsi.policy_audit import load_policy_class
 from rsi.policy_dev import INCUMBENT_TEMPLATE, POLICY_DEV_PROMPT, develop_policies_llm
-from rsi.sandbox import REPO_ROOT
+from rsi.policy_dev.states import StepStatus
+from rsi.provenance import sha256_file
 from rsi.synth import FAMILIES, calibration_table, make_world, scenario_suite
 from rsi.tree import DiscoveryTree
 
@@ -42,9 +43,8 @@ _BASELINES = {
     "greedy_serial": GreedySerialPolicy,
 }
 
-
-def _sha256_file(path: Path) -> str:
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+# Steps that produced no scored candidate.
+FAILED = frozenset({StepStatus.REJECTED, StepStatus.TIMEOUT})
 
 
 def check_out_root(out_root: Path) -> Path:
@@ -81,16 +81,16 @@ def _steps(summary: dict[str, Any]) -> list[dict[str, Any]]:
         if v["step"] == 0:
             continue
         status = v["status"]
-        if status in ("rejected", "timeout"):
+        if status in FAILED:
             reason = v["error"]
-        elif status == "timeout_salvaged":
+        elif status == StepStatus.TIMEOUT_SALVAGED:
             better = (v["delta_vs_best"] or 0.0) > 0
             reason = (
                 "scored after timeout; mean_v above best so far"
                 if better
                 else "scored after timeout; mean_v not above best so far"
             )
-        elif status == "accepted":
+        elif status == StepStatus.ACCEPTED:
             reason = "mean_v above best so far"
         else:
             reason = "mean_v not above best so far"
@@ -111,7 +111,7 @@ def _steps(summary: dict[str, Any]) -> list[dict[str, Any]]:
 def _rule_breaks(steps: list[dict[str, Any]]) -> dict[str, int]:
     counts = dict.fromkeys(RULE_KEYS, 0)
     for s in steps:
-        if s["status"] in ("rejected", "timeout"):
+        if s["status"] in FAILED:
             counts[classify_rule_break(s["reason"] or "")] += 1
     return counts
 
@@ -186,7 +186,7 @@ def run_calibration(
     payload = {
         "tag": tag,
         "prompt_path": str(prompt),
-        "prompt_sha256": _sha256_file(prompt),
+        "prompt_sha256": sha256_file(prompt),
         "model": summary["agent"]["model"],
         "agent": summary["agent"],
         "m": m,
@@ -208,7 +208,7 @@ def run_calibration(
         "rule_breaks": _rule_breaks(steps),
         "verdict": _verdict(summary["selected_slot"], train_delta, heldout_delta),
         "selected_slot": summary["selected_slot"],
-        "selected_sha256": _sha256_file(selected_path),
+        "selected_sha256": sha256_file(selected_path),
         "wall_seconds": round(time.monotonic() - started, 3),
     }
     (run_dir / "calibration.json").write_text(

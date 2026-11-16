@@ -12,9 +12,11 @@ from pathlib import Path
 import pytest
 
 from rsi import watch
+from rsi.watch import assets as watch_assets
+from rsi.watch import source as watch_source
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIC = ROOT / "rsi" / "watch_static"
+STATIC = ROOT / "rsi" / "watch" / "static"
 INDEX = STATIC / "index.html"
 JS = STATIC / "js"
 CSS = STATIC / "css"
@@ -184,7 +186,7 @@ def test_story_fixture_is_allowlisted(tmp_path: Path, monkeypatch: pytest.Monkey
     (root / "index.html").write_text("<!doctype html>", encoding="utf-8")
     (root / "fixture_story.json").write_text("{}", encoding="utf-8")
     (root / "story.json").write_text("{}", encoding="utf-8")
-    monkeypatch.setattr(watch, "STATIC_INDEX", root / "index.html")
+    monkeypatch.setattr(watch_assets, "STATIC_INDEX", root / "index.html")
     assert watch.static_path("/fixture_story.json") == (root / "fixture_story.json").resolve()
     assert watch.static_path("/story.json") is None
 
@@ -331,7 +333,7 @@ def test_fixture_events_have_every_contract_field() -> None:
             assert event["kind"] in EVENT_KINDS
     for source, arts in doc["artifacts"].items():
         for name, text in arts.items():
-            assert name in watch.ARTIFACTS, f"{source}: unknown artifact {name}"
+            assert name in watch_source.ARTIFACTS, f"{source}: unknown artifact {name}"
             assert text is None or isinstance(text, str), f"{source}/{name} is not text"
     lengths = [
         len(event.get("text") or "")

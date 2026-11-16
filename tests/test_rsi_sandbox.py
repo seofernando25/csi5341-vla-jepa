@@ -12,19 +12,19 @@ from pathlib import Path
 import pytest
 
 from rsi import gpu as rsi_gpu
-from rsi import sandbox
-from rsi.agent_backends import parse_agent_output
+from rsi.agents import parse_agent_output, run_sandboxed_agent, timed_out_result
+from rsi.agents import result as agent_result
+from rsi.paths import REPO_ROOT
 from rsi.sandbox import (
-    REPO_ROOT,
     SandboxOutputError,
     SandboxTimeoutError,
     build_bwrap_argv,
+    bwrap,
+    evaluator,
     read_agent_output,
     repo_source_binds,
-    run_sandboxed_agent,
     run_sandboxed_evaluator,
     run_sandboxed_python,
-    timed_out_result,
 )
 
 requires_bwrap = pytest.mark.skipif(shutil.which("bwrap") is None, reason="bwrap not installed")
@@ -35,7 +35,7 @@ def fake_bwrap(monkeypatch: pytest.MonkeyPatch) -> None:
     """Make build_bwrap_argv resolve bwrap without executing it."""
     real_which = shutil.which
     monkeypatch.setattr(
-        sandbox.shutil,
+        bwrap.shutil,
         "which",
         lambda name, *a, **k: "/usr/bin/bwrap" if name == "bwrap" else real_which(name, *a, **k),
     )
@@ -142,7 +142,7 @@ def _pi_stream(turns: int, cost_per_turn: float, padding: int) -> str:
 def test_pi_cost_and_turns_come_from_the_whole_stream() -> None:
     stream = _pi_stream(turns=15, cost_per_turn=0.004188, padding=300_000)
     assert len(stream) > 200_000
-    payload = sandbox.agent_result_payload(
+    payload = agent_result.agent_result_payload(
         "pi", model="m", effort="max", returncode=0, stdout=stream
     )
     assert payload["num_turns"] == 15
@@ -156,14 +156,14 @@ def test_pi_cost_and_turns_come_from_the_whole_stream() -> None:
 def test_sidecar_round_trips_cost_and_turns(tmp_path: Path) -> None:
     logs = tmp_path / "logs"
     logs.mkdir()
-    payload = sandbox.agent_result_payload(
+    payload = agent_result.agent_result_payload(
         "pi", model="m", effort="max", returncode=0, stdout=_pi_stream(3, 0.01, 0)
     )
-    assert sandbox.write_agent_result(logs, payload) == payload
-    stored = sandbox.read_agent_result(logs)
+    assert agent_result.write_agent_result(logs, payload) == payload
+    stored = agent_result.read_agent_result(logs)
     assert stored is not None and stored["cost_usd"] == pytest.approx(0.03)
     (logs / "agent_result.json").write_text("{not json", encoding="utf-8")
-    assert sandbox.read_agent_result(logs) is None
+    assert agent_result.read_agent_result(logs) is None
 
 
 def test_agent_result_sidecar_is_parsed_from_the_whole_log(tmp_path: Path) -> None:
@@ -562,7 +562,7 @@ def _run_stub(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mode: str, timeout: float = 20.0
 ) -> tuple[dict[str, object], _Stub]:
     stub = _Stub(tmp_path, mode)
-    monkeypatch.setattr(sandbox, "build_bwrap_argv", stub)
+    monkeypatch.setattr(evaluator, "build_bwrap_argv", stub)
     result = run_sandboxed_evaluator(
         tmp_path / "ws",
         "check",

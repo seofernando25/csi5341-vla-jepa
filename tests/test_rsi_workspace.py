@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from rsi import workspace
-from rsi.agent_backends import REPO_ROOT
+from rsi.paths import REPO_ROOT
 from rsi.workspace import (
     WorkspaceError,
     code_digest,

@@ -12,9 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from rsi import durable_loop, policy_dev
-from rsi.agent_backends import AgentSpec, agent_record
+from rsi import loop, policy_dev
+from rsi.agents import AgentSpec, agent_record, run_sandboxed_agent
 from rsi.objective import DEFAULT_BETA_GRID, evaluate_policy_on_tree
+from rsi.paths import REPO_ROOT
 from rsi.policies.optimal import OptimalPolicy
 from rsi.policy_audit import (
     PolicyAuditError,
@@ -22,9 +23,11 @@ from rsi.policy_audit import (
     audit_policy_source,
     load_policy_class,
 )
-from rsi.policy_dev import _replay_policy, develop_policies_llm
+from rsi.policy_dev import agent_env, develop_policies_llm
+from rsi.policy_dev import step as pd_step
+from rsi.policy_dev.replay import replay_policy
 from rsi.replay_worker import save_tree_json
-from rsi.sandbox import REPO_ROOT, SandboxTimeoutError, build_bwrap_argv, run_sandboxed_agent
+from rsi.sandbox import SandboxTimeoutError, build_bwrap_argv
 from rsi.synth import scenario_suite
 from rsi.tree import ReplayQuestion
 
@@ -211,7 +214,7 @@ def test_worker_matches_host_objective_and_is_deterministic(tmp_path: Path) -> N
         evaluate_policy_on_tree(load_policy_class(INCUMBENT), t, lambda_parallel=0.05).reward
         for t in trees
     ]
-    result, traces = _replay_policy(
+    result, traces = replay_policy(
         INCUMBENT,
         paths,
         ws_dir=tmp_path / "r1",
@@ -220,7 +223,7 @@ def test_worker_matches_host_objective_and_is_deterministic(tmp_path: Path) -> N
         lambda_parallel=0.05,
         use_bwrap=False,
     )
-    again, traces_again = _replay_policy(
+    again, traces_again = replay_policy(
         INCUMBENT,
         paths,
         ws_dir=tmp_path / "r2",
@@ -240,7 +243,7 @@ def test_worker_under_bwrap_matches_host(tmp_path: Path) -> None:
     trees = TRAIN[:2]
     evidence = tmp_path / "evidence"
     paths = [save_tree_json(t, evidence / f"{i}.json") for i, t in enumerate(trees)]
-    result, _ = _replay_policy(
+    result, _ = replay_policy(
         INCUMBENT,
         paths,
         ws_dir=tmp_path / "ws",
@@ -413,12 +416,12 @@ def test_timed_out_step_keeps_its_cost(tmp_path: Path, monkeypatch: pytest.Monke
         )
         raise SandboxTimeoutError("Sandboxed process timed out after 1.0s")
 
-    monkeypatch.setattr(policy_dev, "run_sandboxed_agent", timed_out)
+    monkeypatch.setattr(pd_step, "run_sandboxed_agent", timed_out)
     out = tmp_path / "out"
     evidence = out / "evidence"
     evidence.mkdir(parents=True)
     world_paths = [save_tree_json(TRAIN[0], evidence / "worlds" / "00.json")]
-    run = policy_dev._Run(
+    run = pd_step.StepRun(
         cycle_id="t",
         history=TRAIN[:1],
         world_paths=world_paths,
@@ -433,7 +436,7 @@ def test_timed_out_step_keeps_its_cost(tmp_path: Path, monkeypatch: pytest.Monke
         timeout=1.0,
         use_bwrap=False,
     )
-    rec = policy_dev._run_agent_step(run, 1, INCUMBENT.read_text(encoding="utf-8"), 0.5)
+    rec = pd_step.run_agent_step(run, 1, INCUMBENT.read_text(encoding="utf-8"), 0.5)
     # The seed file is still there, so the killed step is scored: it does not beat 0.5.
     assert rec["status"] == "timeout_salvaged"
     assert "timed out" in rec["error"]
@@ -466,7 +469,7 @@ def test_selection_counts_a_timed_out_step_cost(
         )
         raise SandboxTimeoutError("Sandboxed process timed out after 1.0s")
 
-    monkeypatch.setattr(policy_dev, "run_sandboxed_agent", timed_out)
+    monkeypatch.setattr(pd_step, "run_sandboxed_agent", timed_out)
     summary = develop_policies_llm(
         TRAIN[:1],
         cycle_id="t",
@@ -483,7 +486,7 @@ def test_selection_counts_a_timed_out_step_cost(
 
 
 def test_prompt_states_the_real_limit_and_the_closed_lines() -> None:
-    text = policy_dev._build_policy_dev_prompt(
+    text = agent_env.build_prompt(
         cycle_id="c",
         step=1,
         steps=3,
@@ -501,7 +504,7 @@ def test_prompt_states_the_real_limit_and_the_closed_lines() -> None:
 
 
 def test_policy_dev_source_hides_the_heldout_generator(tmp_path: Path) -> None:
-    sandbox = policy_dev._agent_sandbox(tmp_path / "step")
+    sandbox = agent_env.agent_sandbox(tmp_path / "step")
     sources = {str(path) for path in sandbox["source_ro"]}
     assert str(REPO_ROOT / "rsi" / "synth.py") not in sources
     assert str(REPO_ROOT / "rsi") not in sources
@@ -517,7 +520,7 @@ def test_policy_dev_agent_mounts_keep_evidence_read_only(tmp_path: Path) -> None
         workspace_dir=ws,
         evidence_dir=ev,
         gpu=True,
-        **policy_dev._agent_sandbox(tmp_path / "step"),
+        **agent_env.agent_sandbox(tmp_path / "step"),
     )
     mounts = [
         (token, argv[i + 1], argv[i + 2])
@@ -575,7 +578,7 @@ def test_policy_dev_agent_can_run_uv(tmp_path: Path) -> None:
         timeout=60.0,
         use_bwrap=True,
         gpu=True,
-        **policy_dev._agent_sandbox(step),
+        **agent_env.agent_sandbox(step),
     )
     assert res.returncode == 0
     assert res.stdout.strip().startswith("uv ")
@@ -586,10 +589,7 @@ def test_policy_timeout_defaults_to_twenty_minutes() -> None:
     assert (
         inspect.signature(policy_dev.develop_policies_llm).parameters["timeout"].default == 1200.0
     )
-    assert (
-        inspect.signature(durable_loop.run_dream_rsi_loop).parameters["policy_timeout"].default
-        == 1200.0
-    )
+    assert inspect.signature(loop.run_dream_rsi_loop).parameters["policy_timeout"].default == 1200.0
 
 
 def test_replay_script_scores_like_the_harness(tmp_path: Path) -> None:
@@ -597,7 +597,7 @@ def test_replay_script_scores_like_the_harness(tmp_path: Path) -> None:
     evidence = tmp_path / "evidence"
     paths = [save_tree_json(t, evidence / "worlds" / f"{i:02d}.json") for i, t in enumerate(trees)]
     script = tmp_path / "replay.py"
-    script.write_text(policy_dev._replay_script(2, 0.05), encoding="utf-8")
+    script.write_text(agent_env.replay_script(2, 0.05), encoding="utf-8")
     env = {
         **os.environ,
         "RSI_EVIDENCE_DIR": str(evidence),
@@ -613,7 +613,7 @@ def test_replay_script_scores_like_the_harness(tmp_path: Path) -> None:
         check=True,
     )
     printed = float(proc.stdout.strip().splitlines()[-1].split("=")[1].split()[0])
-    result, _ = _replay_policy(
+    result, _ = replay_policy(
         INCUMBENT,
         paths,
         ws_dir=tmp_path / "r",

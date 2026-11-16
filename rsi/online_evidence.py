@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from rsi.agent_backends import AgentSpec, agent_record
+from rsi.agents import AgentSpec, agent_record
 from rsi.api import OK, CellMeta, Observation
 
 DISCOVERY_PROMPT = Path(__file__).resolve().parent / "prompts" / "discovery.md"

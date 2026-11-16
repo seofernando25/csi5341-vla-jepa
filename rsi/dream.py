@@ -35,7 +35,7 @@ class Candidate:
 
 
 INCUMBENT = Candidate("InitialPolicy", InitialPolicy)
-# Base pool. Per-round M=4 revisions from the policy-development agent (rsi/policy_dev.py)
+# Base pool. Per-round M=4 revisions from the policy-development agent (rsi/policy_dev/)
 # join the pool at selection time; the names below are the hand-written starting versions.
 CANDIDATE_POOL: tuple[Candidate, ...] = (
     Candidate("OptimalPolicy", OptimalPolicy),

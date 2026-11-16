@@ -11,9 +11,9 @@ from typing import Any
 
 import pytest
 
-from rsi import watch
-from rsi.watch import build_state, make_server, parse_source, read_artifact
-from rsi.watch_dream import dream_payload
+from rsi.watch import build_state, dream_payload, make_server, parse_source, read_artifact
+from rsi.watch import source as watch_source
+from rsi.watch import state as watch_state
 
 SHA_A = "a" * 64
 SHA_B = "b" * 64
@@ -21,7 +21,7 @@ SHA_B = "b" * 64
 
 @pytest.fixture(autouse=True)
 def no_gpu(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(watch, "_gpu_block", lambda: None)
+    monkeypatch.setattr(watch_state, "_gpu_block", lambda: None)
 
 
 def _write(path: Path, text: str) -> None:
@@ -419,7 +419,7 @@ def test_export_and_prompt_artifacts(tmp_path: Path) -> None:
     source = parse_source("node:iter_000:iter_000-b1-a0")
     assert read_artifact(study, source, "export") == "x = 1\n"
     assert read_artifact(study, source, "prompt") == "# Task\n"
-    assert "export" in watch.ARTIFACTS and "prompt" in watch.ARTIFACTS
+    assert "export" in watch_source.ARTIFACTS and "prompt" in watch_source.ARTIFACTS
 
 
 def test_calibration_layout_artifacts(tmp_path: Path) -> None:

@@ -15,8 +15,13 @@ from typing import Any
 import pytest
 
 from rsi import watch
+from rsi.redact import redact
 from rsi.watch import SourceError, build_state, make_server, parse_source, read_artifact
-from rsi.watch_events import read_events, redact
+from rsi.watch import assets as watch_assets
+from rsi.watch import policy as watch_policy
+from rsi.watch import server as watch_server
+from rsi.watch import state as watch_state
+from rsi.watch.transcript import read_events
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 NODE_CELL = "iter_000-b0-a0"
@@ -24,7 +29,7 @@ NODE_CELL = "iter_000-b0-a0"
 
 @pytest.fixture(autouse=True)
 def no_gpu(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(watch, "_gpu_block", lambda: None)
+    monkeypatch.setattr(watch_state, "_gpu_block", lambda: None)
 
 
 def _write(path: Path, text: str) -> None:
@@ -460,7 +465,7 @@ def test_policy_step_timeout_is_not_shown_as_rejected(tmp_path: Path) -> None:
         },
     )
     (root / "step_01").mkdir(parents=True, exist_ok=True)
-    dev = watch._policy_dev(tmp_path, root, {"status": "done"})
+    dev = watch_policy.policy_dev_block(tmp_path, root, {"status": "done"})
     assert [step["status"] for step in dev["steps"]] == ["timeout"]
     assert dev["steps"][0]["reason"].startswith("Sandboxed process timed out")
 
@@ -469,7 +474,7 @@ def test_policy_step_timeout_is_not_shown_as_rejected(tmp_path: Path) -> None:
 def server(study: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     index = tmp_path / "index.html"
     index.write_text("<!doctype html><title>t</title>", encoding="utf-8")
-    monkeypatch.setattr(watch, "STATIC_INDEX", index)
+    monkeypatch.setattr(watch_assets, "STATIC_INDEX", index)
     srv = make_server(study, "127.0.0.1", 0)
     thread = threading.Thread(target=srv.serve_forever, daemon=True)
     thread.start()
@@ -527,7 +532,7 @@ def test_server_rejects_bad_requests(server) -> None:
 def test_server_index_hint_when_page_missing(
     study: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(watch, "STATIC_INDEX", tmp_path / "absent.html")
+    monkeypatch.setattr(watch_assets, "STATIC_INDEX", tmp_path / "absent.html")
     srv = make_server(study, "127.0.0.1", 0)
     thread = threading.Thread(target=srv.serve_forever, daemon=True)
     thread.start()
@@ -612,7 +617,7 @@ def test_stream_reports_gone_when_the_loop_process_is_dead(study: Path) -> None:
 def test_stream_tails_growth_and_resets_on_truncation(
     study: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(watch, "_holder", lambda _study: "pid 1")
+    monkeypatch.setattr(watch_state, "lock_owner", lambda _study: "pid 1")
     log = study / "cycles" / "iter_000" / "nodes" / "iter_000-b0-a2" / "logs" / "stdout.log"
     log.write_text("", encoding="utf-8")
     srv = make_server(study, "127.0.0.1", 0)
@@ -660,7 +665,7 @@ def test_stream_tails_growth_and_resets_on_truncation(
 def test_stream_resets_when_the_policy_attempt_rotates(
     study: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(watch, "_holder", lambda _study: "pid 1")
+    monkeypatch.setattr(watch_state, "lock_owner", lambda _study: "pid 1")
     srv = make_server(study, "127.0.0.1", 0)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     port = srv.server_address[1]
@@ -695,7 +700,7 @@ def test_stream_and_events_reject_bad_after(server) -> None:
 
 
 def test_stream_cap_refuses_extra_connections(server) -> None:
-    held = [server.streams.acquire(blocking=False) for _ in range(watch.MAX_STREAMS)]
+    held = [server.streams.acquire(blocking=False) for _ in range(watch_server.MAX_STREAMS)]
     assert all(held)
     try:
         status, body, _ = _get(server, "/api/stream?source=node:iter_000:root&after=0")
@@ -850,7 +855,7 @@ def test_agent_failure_fail_class_passes_through(study: Path) -> None:
 def test_state_reports_batch_composition_and_live_timer(
     study: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(watch, "_holder", lambda _study: "pid 1")
+    monkeypatch.setattr(watch_state, "lock_owner", lambda _study: "pid 1")
     _json(
         study / "cycles" / "iter_000" / "live_cycle_manifest.json",
         {
@@ -884,7 +889,7 @@ def test_dead_loop_demotes_an_in_flight_node_to_stopped(study: Path) -> None:
 def test_running_loop_keeps_an_in_flight_node_as_agent(
     study: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(watch, "_holder", lambda _study: "pid 1")
+    monkeypatch.setattr(watch_state, "lock_owner", lambda _study: "pid 1")
     state = build_state(study)
     assert state["loop"]["running"] is True and state["loop"]["status"] == "running"
     nodes = {n["cell_id"]: n for n in state["cycles"][0]["nodes"]}
@@ -928,7 +933,7 @@ def test_broken_pipe_during_the_error_response_is_silent(
         calls["n"] += 1
         raise BrokenPipeError(32, "Broken pipe")
 
-    monkeypatch.setattr(watch._Handler, "_send", failing_send)
+    monkeypatch.setattr(watch_server._Handler, "_send", failing_send)
     port = server.server_address[1]
     with socket.create_connection(("127.0.0.1", port), timeout=10) as sock:
         sock.sendall(f"GET /api/state HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\n\r\n".encode())
@@ -972,7 +977,7 @@ def test_static_assets_are_allowlisted(
     outside = tmp_path / "outside.js"
     _write(outside, "SECRET")
     (root / "js" / "escape.js").symlink_to(outside)
-    monkeypatch.setattr(watch, "STATIC_INDEX", root / "index.html")
+    monkeypatch.setattr(watch_assets, "STATIC_INDEX", root / "index.html")
     srv = make_server(study, "127.0.0.1", 0)
     thread = threading.Thread(target=srv.serve_forever, daemon=True)
     thread.start()

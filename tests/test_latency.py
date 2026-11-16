@@ -19,6 +19,7 @@ from evaluation.compression import (
 )
 from evaluation.compression.latency_timing import CPU_CLOCK
 from rsi import expansion
+from rsi.api import IMPLEMENTATION_FAILURE
 from rsi.online_evidence import DISCOVERY_PROMPT, build_discovery_prompt, discovery_prompt_path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -770,7 +771,7 @@ def test_classify_keeps_the_memory_score():
 
 def test_classify_maps_a_guard_violation_to_implementation_failure():
     verdict = expansion.classify({"status": "guard_violation", "error": "clock"}, 8)
-    assert verdict.fail_class == expansion.IMPLEMENTATION_FAILURE
+    assert verdict.fail_class == IMPLEMENTATION_FAILURE
     assert verdict.score == 0.0
 
 

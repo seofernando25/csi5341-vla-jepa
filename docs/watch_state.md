@@ -1,7 +1,7 @@
 # Watch page state machines
 
-The page has one store (`rsi/watch_static/js/store.js`) and one pure reducer
-(`rsi/watch_static/js/reducer.js`). Server state, SSE transport state and UI state are separate
+The page has one store (`rsi/watch/static/js/store.js`) and one pure reducer
+(`rsi/watch/static/js/reducer.js`). Server state, SSE transport state and UI state are separate
 slices; a view never infers one from another. This file is the contract the reducer and the
 node tests enforce.
 
@@ -139,6 +139,6 @@ deep-linkable. Every derived number comes from `js/story/model.js`, which is pur
 - `js/main.js`: effects (what to load for the active tab), polling, stream lifecycle, hash routing, mode switch.
 - `js/story/index.js`: chapter mounting, deep links, scroll spy, `ctx.story` cache.
 - `js/story/model.js`, `model_dream.js`: pure Story derivations (baseline, probe, order, frontier, dream, diff).
-- `rsi/watch_dream.py`: `/api/dream` resolver; `rsi/watch.py` serves it and the state fields.
+- `rsi/watch/dream.py`: `/api/dream` resolver; `rsi/watch/server.py` serves it and `rsi/watch/state.py` builds the state fields.
 - `js/sse.js`: reconnect/backoff and frame parsing; it never dispatches directly.
 - tests: `tests/test_rsi_watch_store.py` runs the reducer and selectors under node.

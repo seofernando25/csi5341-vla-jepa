@@ -12,10 +12,10 @@ import pytest
 from rsi import policy_audit, replay_worker
 from rsi.api import PrefixView, SimResult
 from rsi.objective import replay_beta_point
+from rsi.paths import REPO_ROOT
 from rsi.policies.optimal import OptimalPolicy
 from rsi.policy_audit import PolicyAuditError, audit_policy_source, load_policy_class
 from rsi.replay_worker import run_worker, save_tree_json
-from rsi.sandbox import REPO_ROOT
 from rsi.synth import scenario_suite
 from rsi.tree import ReplayQuestion, make_synthetic_tree
 
@@ -403,13 +403,13 @@ def test_reported_probes_equal_real_probes_for_memo_cheat(
 
 
 def test_hash_order_cheat_is_caught_by_the_two_seed_host_check(tmp_path: Path) -> None:
-    from rsi.policy_dev import PolicyReplayError, _replay_policy
+    from rsi.policy_dev.replay import PolicyReplayError, replay_policy
 
     evidence = tmp_path / "evidence"
     paths = [save_tree_json(t, evidence / f"{i}.json") for i, t in enumerate(TRAIN[:4])]
     policy = _write(tmp_path, "hash.py", HASH_ORDER)
     with pytest.raises(PolicyReplayError, match="non-deterministic across hash seeds"):
-        _replay_policy(
+        replay_policy(
             policy,
             paths,
             ws_dir=tmp_path / "ws",

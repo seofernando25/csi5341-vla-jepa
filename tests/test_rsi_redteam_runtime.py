@@ -10,8 +10,9 @@ import threading
 import time
 from pathlib import Path
 
-from rsi.policy_dev import _worker_failure
-from rsi.sandbox import SandboxOutputError, _run_process, read_agent_output
+from rsi.policy_dev.replay import worker_failure
+from rsi.sandbox import SandboxOutputError, read_agent_output
+from rsi.sandbox.process import run_process as _run_process
 
 
 def _run_python(code: str, *, cpu_seconds: int | None, memory_bytes: int | None) -> int:
@@ -45,11 +46,11 @@ def test_cpu_limit_stops_an_endless_loop() -> None:
 
 def test_worker_limit_failures_name_the_signal() -> None:
     proc = subprocess.CompletedProcess(args=[], returncode=-24, stdout="", stderr="")
-    assert _worker_failure(proc) == "replay worker killed by SIGXCPU"
+    assert worker_failure(proc) == "replay worker killed by SIGXCPU"
     failed = subprocess.CompletedProcess(
         args=[], returncode=1, stdout="", stderr="x\nreplay failed: MemoryError\n"
     )
-    assert _worker_failure(failed) == "replay failed: MemoryError"
+    assert worker_failure(failed) == "replay failed: MemoryError"
 
 
 def test_fifo_in_workspace_does_not_hang_the_host(tmp_path: Path) -> None:

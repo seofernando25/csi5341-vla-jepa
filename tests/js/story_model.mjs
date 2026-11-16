@@ -4,7 +4,7 @@
 
 import assert from "node:assert/strict";
 
-const url = new URL("../../rsi/watch_static/js/story/model.js", import.meta.url);
+const url = new URL("../../rsi/watch/static/js/story/model.js", import.meta.url);
 const model = await import(url.href);
 
 const {

@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from rsi.agent_backends import AgentSpec
+from rsi.agents import AgentRunResult, AgentSpec
 from rsi.api import (
     AGENT_FAILURE,
     AGENT_TIMEOUT,
@@ -27,14 +27,14 @@ from rsi.expansion import (
     DigestRegistry,
     NodeContext,
     NodeJob,
-    _agent_output_reason,
     evaluate_snapshot,
     expand_node,
 )
-from rsi.online_cycle import code_revision, run_online_cycle
+from rsi.expansion.outputs import agent_output_reason
+from rsi.online_cycle import run_online_cycle
 from rsi.online_evidence import build_discovery_prompt
+from rsi.provenance import code_revision
 from rsi.runner import check_phase_lock, load_cycle_config
-from rsi.sandbox import AgentRunResult
 from rsi.workspace import code_digest, commit_root, init_store
 
 REPO = Path(__file__).resolve().parents[1]
@@ -495,20 +495,20 @@ def _agent_result(text: str, stdout: str) -> AgentRunResult:
 def test_usable_final_text_with_placeholder_thinking_is_not_flagged() -> None:
     stdout = "[object Object]" * 1000
     text = "I wrote proposal.md and solution.py; check.py reports 0.41 removed."
-    assert _agent_output_reason(_agent_result(text, stdout)) is None
+    assert agent_output_reason(_agent_result(text, stdout)) is None
 
 
 def test_missing_or_placeholder_final_text_falls_back_to_the_stream() -> None:
     stdout = "[object Object]" * 1000
     for text in ("", "[", "[object Object]" * 20):
-        reason = _agent_output_reason(_agent_result(text, stdout))
+        reason = agent_output_reason(_agent_result(text, stdout))
         assert reason is not None, text
         assert "object Object" in reason
 
 
 def test_healthy_stream_is_not_flagged() -> None:
     res = _agent_result("I wrote proposal.md and solution.py.", "step 1\nstep 2\n")
-    assert _agent_output_reason(res) is None
+    assert agent_output_reason(res) is None
 
 
 def test_cycle_stops_after_a_batch_of_placeholder_outputs(tmp_path: Path) -> None:

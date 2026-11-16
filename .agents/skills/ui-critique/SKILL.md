@@ -10,7 +10,7 @@ Review the rendered screen, not the markup. One verdict, at most five fixes, eac
 ## When to use
 
 - A screenshot of a page or slide looks crowded, noisy or top-heavy and needs a ranked fix list.
-- The watch page (`rsi/watch_static/index.html`) changes and must be re-checked at both viewports.
+- The watch page (`rsi/watch/static/index.html`) changes and must be re-checked at both viewports.
 - A report figure or slide competes with its own labels, chrome or captions.
 
 ## Inputs
@@ -107,7 +107,7 @@ Verdict: <one line, with the worst viewport>
 2. [major]   ...
 (≤5 fixes, ordered by severity)
 Keep: <what works and must survive the edit>
-Re-shoot: 1440x900 and 390x844, `python -m http.server` in rsi/watch_static, open index.html?demo=1
+Re-shoot: 1440x900 and 390x844, `python -m http.server` in rsi/watch/static, open index.html?demo=1
 ```
 
 ## Watch-page anti-patterns

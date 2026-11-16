@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIC = ROOT / "rsi" / "watch_static"
+STATIC = ROOT / "rsi" / "watch" / "static"
 HARNESS = Path(__file__).resolve().parent / "js" / "store_harness.mjs"
 
 pytestmark = pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")

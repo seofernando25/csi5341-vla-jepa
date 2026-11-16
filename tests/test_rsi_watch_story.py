@@ -11,7 +11,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-STORY = ROOT / "rsi" / "watch_static" / "js" / "story"
+STORY = ROOT / "rsi" / "watch" / "static" / "js" / "story"
 MODEL_FILES = (STORY / "model.js", STORY / "model_dream.js")
 SCRIPT = ROOT / "tests" / "js" / "story_model.mjs"
 NODE = shutil.which("node")
