@@ -85,9 +85,9 @@ closed-loop trials. Report the threshold used and the correlation per action-MSE
   pre-registered in [precision_surface_plan.json](../studies/program-v1/precision_surface_plan.json)
   with 13 recipe arms under `recipes/`.
 - **Measurement queue.** `evaluation/compression/queue.py` runs the pre-registered surface on one
-  GPU slot; it is pending merge, so `vla-compress run` is the current path for one arm and phase.
+  GPU slot (`vla-compress-queue`); `vla-compress run` measures one arm and phase.
 - **Dream-RSI clean loop.** Discovery agents write `proposal.md` and `solution.py`; the fixed
-  evaluator scores them; replay selects the exploration policy. No evidence run yet. Fidelity and
+  evaluator scores them; replay selects the exploration policy. Evidence: `studies/program-v1/cycles/`. Fidelity and
   deviations: [DREAM_RSI.md](DREAM_RSI.md).
 - **Reserved confirmation.** Freeze one full-vocabulary recipe before running 500 reserved trials.
   Report the paired difference and Wilson interval; claim non-inferiority only if the interval stays
@@ -95,7 +95,7 @@ closed-loop trials. Report the threshold used and the correlation per action-MSE
 - **Parallel rollouts.** `evaluation/parallel_rollout.py` is not wired to arbitrary compression
   recipes. Before using it for evidence: serial-versus-parallel equivalence at the same seeds and
   states, mode-consistent comparisons, reserved confirmation on the serial path.
-- **Report.** `report/main.tex` is a scaffold; `report/plots` skips figures whose evidence is absent.
+- **Report.** `report/plots` skips figures whose evidence is absent.
 
 ## Milestones
 

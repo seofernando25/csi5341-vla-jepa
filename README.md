@@ -29,8 +29,8 @@ the working tree and remains in Git history at tag `pre-cleanroom-20261115`. It 
 pooled or cited, and the report quotes none of it.
 
 The new evidence base is [studies/program-v1/](studies/program-v1/README.md): a frozen protocol, a
-pre-registered precision surface of 13 arms, and no measurements yet. `report/main.tex` is a
-scaffold. The program — decided arms, gates, stop rules and open work — is
+pre-registered precision surface of 13 arms with its development measurements, and the Dream-RSI
+search cycles. Reserved trials and the report text are in progress. The program — decided arms, gates, stop rules and open work — is
 [docs/COMPRESSION_PROGRAM.md](docs/COMPRESSION_PROGRAM.md).
 
 ## Layout
@@ -52,7 +52,7 @@ Linux with an NVIDIA GPU for rollouts and timing; any machine for tests and the 
 ```bash
 CMAKE_POLICY_VERSION_MINIMUM=3.5 uv sync --extra dev --extra eval --extra report
 uv run --no-sync pytest -q -m "not slow"
-uv run --no-sync python -m report.plots     # needs studies/program-v1/summary.csv; else no-op
+uv run --no-sync vla-report-plots           # skips figures whose evidence is absent
 cd report && latexmk -pdf main.tex           # rebuild the PDF
 ```
 

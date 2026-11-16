@@ -10,8 +10,8 @@ Current state — what is running, what is blocked, next step: `HANDOFF.md` at t
   A discovery agent writes `proposal.md` and `solution.py` in a per-node, git-snapshotted workspace;
   the fixed evaluator `evaluation/compression/solution.py` scores it; a policy-development agent
   rewrites the exploration policy that replay selects.
-- **Pending merge:** the measurement queue (`evaluation/compression/queue.py`) that runs the
-  pre-registered precision surface.
+- **Measured:** the pre-registered precision surface, run by the measurement queue
+  (`evaluation/compression/queue.py`); records under `studies/program-v1/measurements/`.
 - **Closed, negative:** the SmolVLM backbone swap (S500), its recovery and the n0008 confirmation.
   Their summaries stay under `studies/`; their code is in Git history at `82df05d`. Do not restart
   them without a new plan.
@@ -53,6 +53,25 @@ where intended.
 - Aim for files under about 300 lines so one can be read in a sitting. Split at a real seam
   (separate responsibilities), never mechanically. A longer file that does one thing is fine.
 - Delete what is superseded. Git history is the archive.
+
+## Branches
+
+- All work lands on `main`, checked out in the main checkout. There is no long-lived side branch.
+- A worktree branch exists only for work that cannot touch the main checkout (a live run imports
+  it). Merge it when the run or task ends, then remove the worktree and delete the branch the same
+  day.
+- Run state, live branches and unmerged work are written in `HANDOFF.md` only. The other documents
+  describe what is true on `main`.
+
+## Checks before prose
+
+- When an agent has to be corrected, first try to make the mistake impossible or caught: a test, a
+  ruff rule, a guard in the evaluator. Add a line here or to a skill only when the point needs
+  judgment.
+- `tests/test_docs.py` fails when a live document names a missing path, an unknown `vla-*` command
+  or transient state such as a branch name. Fix the document; do not weaken the check.
+- An agent does not certify its own result. The fixed evaluator, the gates and the reserved
+  protocol decide.
 
 ## Skills
 
