@@ -14,268 +14,208 @@ Precision, Execution, and Replay-Guided Search}
 \maketitle
 
 \begin{abstract}
-We compress a released vision-language-action policy after training, without retraining, and ask
-where the loss comes from. On LIBERO-Spatial, quantizing only the language decoder to NF4 keeps
-task success at the uncompressed level (96.0\,\% against 95.0\,\% on 500 reserved episodes), while
-2-bit language weights collapse it (20/100). Vision and action tolerate 2 bits. A CUDA-graph
-execution path cuts median step latency from 73\,ms to 18\,ms, and packed NF4 under the graph gives
-28\,ms at 1.5\,GB peak memory against 5.6\,GB, and scores 97.8\,\% on the reserved set. A replay-guided search removes 83\,\% of the
-policy's resident memory at no measurable loss (93.4\,\% reserved, paired $-1.6$\,pp, 95\,\%
-interval $[-3.6,+0.2]$), and in its third cycle it finds and exploits a hole in our own memory
-score. We report that failure, the fix, and the re-measured result. Opening the search's policy
-agent does not buy more compression.
+VLA-JEPA solves 95\,\% of LIBERO-Spatial episodes but needs 5.6\,GB of GPU memory, more than many
+student and lab GPUs have. We wanted it to fit without retraining. A smaller backbone failed, so we
+compressed the released policy and measured what each saving costs in success. The language decoder
+is the only fragile part. It holds at 3-bit weights and breaks at 2. Vision and action take 2 bits
+without loss. A CUDA graph makes the policy 3.4 times faster with no change to its weights. A
+replay-guided search that may remove modules finds a policy with 83\,\% less resident memory and no
+measurable loss on 500 held-out episodes. In its
+third cycle the same search found a hole in our memory score and used it; we describe the exploit
+and the fix.
 \end{abstract}
 
 \section{Introduction}
-Compression results are usually reported as one number: bits per weight, or memory removed. That
-number hides where the loss comes from. A policy can lose accuracy because its language decoder
-cannot represent the instruction, because its vision tower loses spatial precision, because the
-execution path adds latency, or because the search that chose the compression optimised the metric
-rather than the task.
+Vision-language-action models are becoming the usual way to build general robot policies. They
+inherit the size of the language models inside them. VLA-JEPA~\cite{vlajepa} reads a camera image
+and an instruction and outputs arm actions. Its released LIBERO checkpoint needs 5.6\,GB of GPU
+memory at batch 1, more than an edge robot or a small lab card can spare.
 
-We study all four on one model, VLA-JEPA-LIBERO~\cite{vlajepa}, a released policy for
-LIBERO-Spatial~\cite{libero}. We do not train. Every candidate is a post-training transform of the
-released checkpoint, scored on the same simulator, states and seeds. Our contributions:
+A smaller backbone would need the action head retrained. We tried SmolVLM2-500M~\cite{smolvlm}. It
+solved 11 of 500 held-out episodes, so we kept the released weights and compressed them. Our
+proposal set one test. Quantizing the language decoder to 8 or 4 bits should cut peak memory by at
+least 25\,\% and keep success within 5 points of the original. We contribute:
 \begin{enumerate}
-\item A precision surface over language, vision and action modules, with reserved confirmation for
-  the two deployment-relevant cells.
-\item An execution ladder that separates the CUDA-graph win from the quantization win.
-\item A replay-guided search (Dream-RSI) that removes 83\,\% of resident memory at no measurable
-  loss, and a documented case of that search gaming our memory score.
-\item A negative result: an open policy-development agent does not beat the constrained one.
+\item that test, and a precision map over the language, vision and action modules;
+\item an execution ladder that separates the speed of a CUDA graph from the memory of
+  quantization;
+\item a replay-guided search~\cite{dreamrsi} that removes 83\,\% of resident memory, and a
+  documented case of that search gaming our score.
 \end{enumerate}
+
+\section{Related Work}
+Post-training quantization keeps language-model accuracy at 8 bits~\cite{llmint8} and, with
+calibration or a non-uniform format, at 4 bits~\cite{gptq,awq,qlora,hqq}. Pruning removes weights
+in one shot~\cite{sparsegpt,wanda}. OpenVLA~\cite{openvla} and $\pi_0$~\cite{pi0} carry the same
+backbones, but their compression cost shows up as failed grasps, which only rollouts measure.
+Dream-RSI~\cite{dreamrsi} improves the policy that picks which ideas a coding agent explores. It
+replays recorded search trees. We use it to search over compressions.
 
 \section{Method}
 \subsection{Model, suite and phases}
-The model is \texttt{lerobot/VLA-JEPA-LIBERO} at revision \texttt{735d9f6}: a SmolVLM-style
-backbone~\cite{smolvlm}, a JEPA world model~\cite{vjepa2}, and a flow-matching action head. The
-suite is LIBERO-Spatial, tasks 0--9, 280 steps per episode, action chunk 7, 4 flow steps, bfloat16,
-batch 1.
+The model is \texttt{lerobot/VLA-JEPA-LIBERO}: a Qwen3-VL-2B backbone~\cite{qwen3vl}, a JEPA world
+model~\cite{vjepa2} that only training uses, and a flow-matching action head. We run
+LIBERO-Spatial~\cite{libero} tasks 0--9 in bfloat16 at batch 1.
 
-Every candidate passes four phases. \emph{Screen} runs 80 fixed frames without the simulator and
-measures action change against the reference. \emph{Smoke} runs 10 episodes, one per task, and
-gates at 8/10. \emph{Development} runs 100 episodes and gates at 77/100. \emph{Reserved} runs 500
-episodes, the benchmark's 50 initial states per task, and is used only for the final claim. Gates
-are fixed before a phase runs and do not move after outcomes. Reserved episodes never guide
-selection: the selection is frozen in \texttt{studies/program-v1/freeze.json} before the first
-reserved episode runs.
+A candidate passes up to four phases. \emph{Screen} compares its actions with the reference on 80
+fixed frames. \emph{Smoke} runs 10 episodes and needs 8 successes. \emph{Development} runs 100 and
+needs 77. \emph{Reserved} runs the benchmark's 500 initial states and decides the final claim. We
+set the gates before each phase and froze the selection before the first reserved episode. The
+reserved results never guided a choice.
 
-\subsection{Memory rule}
-Resident memory is the maximum over three measurements: the tensor walk after \texttt{compress},
-the same walk after inference, and peak CUDA allocation during the episodes. The baseline is
-measured the same way. This rule replaced an earlier one that measured once, before the first
-forward pass; Section~\ref{sec:gaming} explains why.
+\subsection{Memory and statistics}
+Resident memory is the largest of three measurements: the tensors the solution keeps alive after
+compression, the same after inference, and peak GPU allocation during the episodes. We measure the
+baseline the same way. Section~\ref{sec:gaming} explains why one measurement was not enough.
 
-\subsection{Statistics}
-We report Wilson 95\,\% intervals per arm~\cite{wilson} and a task-stratified paired bootstrap
-(10{,}000 resamples, seed 42) against the reference on identical task/state/seed keys. Development
-and reserved counts are never pooled.
+Intervals are Wilson 95\,\%~\cite{wilson}. Differences against the reference use a paired
+bootstrap over identical task, state and seed. Phases are never pooled.
 
-\subsection{Replay-guided search}
-Dream-RSI runs a discovery agent that writes a proposal and a \texttt{compress} implementation in a
-per-node, git-snapshotted workspace; a fixed evaluator scores it; a policy-development agent
-rewrites the exploration policy that replay selects. Each cycle spends eight probes on a grid the
-protocol fixes in advance.
+\subsection{Search}
+In Dream-RSI, a discovery agent writes a \texttt{compress} function in its own snapshotted
+workspace. A fixed evaluator scores it. Between cycles, a policy-development agent rewrites the
+exploration policy. A node scores the fraction of memory it removes if it passes smoke, and zero
+otherwise. The agents could read our repository, including our quantization code, and received
+the token ids of the calibration prompts. Both shaped what they built.
+
+The dreaming happens between cycles. The policy agent writes candidate exploration policies. Each
+one is replayed offline through the trees already recorded, and scored by how quickly and cheaply
+it would have reached their best nodes. The best replay score drives the next live cycle.
+We ran two searches of three cycles. The first fixed each tree at eight probes and let the policy
+agent only read and edit files. The second gave the policy agent a shell, a GPU and its own replay,
+and let its policy size each tree.
 
 \section{Results}
-\subsection{Precision surface}
+\subsection{Precision}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/precision.pdf}
-\caption{Development success against effective bits per module. The language decoder collapses
-between 3 and 2 bits; vision and action do not. Bars are Wilson 95\,\% intervals.}
+\caption{Development success (100 episodes) by weight bits and module. The language decoder breaks
+between 3 and 2 bits. Vision and action hold at 2 bits, alone and together. Bars are Wilson
+95\,\% intervals; the band is the reference.}
 \label{fig:precision}
 \end{figure}
 
-Fig.~\ref{fig:precision} shows the surface. Quantizing the language decoder to INT8 or NF4 is free
-within noise: 81/100 development for both,
-against 82/100 for the uncompressed reference, and 94.8\,\% and 96.0\,\% on 500 reserved episodes
-against 95.0\,\%. The paired differences are $-0.2$\,pp $[-1.2,+0.8]$ and $+1.0$\,pp
-$[-0.2,+2.2]$. They remove 25.4\,\% and 37.8\,\% of memory, within a point of the arithmetic
-ceiling. The NF4 cell stores 6.3 effective bits per text weight.
+The language decoder goes to 8 or 4 bits at no measured cost (Fig.~\ref{fig:precision}). On the 500
+reserved episodes, INT8 and NF4 score 94.8\,\% and 96.0\,\% against the reference's 95.0\,\%. It
+still holds at 3 bits. At 2 bits it breaks and solves 20 of 100 development episodes. Vision and
+action keep their success at 2 bits, even both at once, so the problem sits in the language decoder. The
+4-bit format (AWQ, GPTQ, HQQ or NF4~\cite{awq,gptq,hqq,qlora}) changes development success by less
+than the noise.
 
-Two bits is where the decoder breaks: 20/100 development, a 60-point drop. Vision and action do not
-break at two bits (86/100 and 81/100), so the loss is specific to the language path, not to low
-precision in general.
+The proposal's test is half met. NF4 cuts peak memory by 36.9\,\% and INT8 by 23.3\,\%, just short
+of the 25\,\% target. Both stay well inside 5 points of the reference.
 
-The ceiling of decoder-only quantization is arithmetic. The decoder holds 1.41\,B of 2.77\,B
-parameters, so INT8 can save at most 25\,\% of peak memory and NF4 at most 37\,\%. Reaching 83\,\%
-requires removing modules, not narrowing them.
+Precision alone has a ceiling. The decoder holds 1.41\,B of the policy's 2.77\,B parameters, so
+4-bit decoder weights save at most about 37\,\% of peak memory. NF4 gets there. To go further we
+have to remove modules.
 
-\subsection{Format curve}
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/format.pdf}
-\caption{Decoder-only formats at 4 and 3 bits. The format matters less than the bit width.}
-\label{fig:format}
-\end{figure}
-
-Fig.~\ref{fig:format} shows the formats. AWQ 80/100, GPTQ 81/100, HQQ4 83/100~\cite{awq,gptq,hqq}. All three sit inside the reference's
-noise band; none rescues 2-bit language weights.
-
-\subsection{Execution ladder}
+\subsection{Execution}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/ladder.pdf}
-\caption{Median step latency and peak memory per arm. The CUDA graph is the largest single win;
-packed NF4 under the graph is the only arm that is both faster and much smaller than the
-reference.}
+\caption{Peak memory and median step latency per execution arm. Packed NF4 under the CUDA graph is
+the only arm both faster and much smaller than the reference.}
 \label{fig:ladder}
 \end{figure*}
 
-Fig.~\ref{fig:ladder} shows the ladder. The CUDA-graph path is the largest single win: 73.2\,ms median per step becomes 18.3\,ms, a
-$4\times$ speedup with unchanged weights. Packing NF4 weights and running them under the graph
-gives 28.1\,ms and 1.51\,GB peak, against 5.61\,GB for the reference: $2.6\times$ faster and
-$3.7\times$ smaller at once. Dense NF4 under the graph is faster (20.0\,ms) but keeps 5.45\,GB,
-because the unpacked weights are materialised.
+Speed comes from the execution path (Fig.~\ref{fig:ladder}). A CUDA graph cuts a step from 73\,ms
+to 22\,ms, with the same weights and the same four flow steps. Quantization alone makes each step
+slower at batch 1, because unpacking the weights costs more time than the smaller weights save.
+Packed NF4 under the graph, with one flow step, runs at 28\,ms in 1.5\,GB, against 5.6\,GB. On the
+reserved set it scores 97.8\,\%, the only cell clearly above the reference ($+2.8$\,pp,
+$[+1.2,+4.6]$). Most of the gain is on task~5, where the reference often runs out of steps. The
+cell had no development run, so we read it as one measurement.
 
-Decoder-only quantization alone is slower than the reference (INT8 150\,ms, NF4 90\,ms):
-dequantization costs more than the smaller weights save at batch 1.
-
-The packed arm also scores 97.8\,\% on 500 reserved episodes ($+2.8$\,pp $[+1.2,+4.6]$
-against the reference), the only cell whose interval excludes zero; 11 of its 14 net gains are on
-task 5. It had no smoke or development rollout, so that number is a single reserved measurement.
-
-\subsection{Replay-guided search}
-\begin{table}[t]
+\subsection{Search}
+\begin{figure}[t]
 \centering
-\caption{Dream-RSI winners after the memory-rule fix. Reserved is 500 episodes; the paired
-difference against the reference is $-1.6$\,pp $[-3.6,+0.2]$ and $+0.6$\,pp $[-1.2,+2.4]$.}
-\label{tab:winners}
-\small
-\begin{tabular}{lrrr}
-\toprule
-Node & Removed & Dev. & Reserved \\
-\midrule
-\texttt{iter\_000-b0-a3} & 83.0\,\% & 80/100 & 93.4\,\% \\
-\texttt{iter\_001-b1-a3} & 81.6\,\% & 84/100 & 95.6\,\% \\
-Reference B16 & -- & 82/100 & 95.0\,\% \\
-\bottomrule
-\end{tabular}
-\end{table}
+\includegraphics[width=\columnwidth]{figures/reserved.pdf}
+\caption{Change in reserved success (500 episodes) against the reference, with paired 95\,\%
+intervals, by peak GPU memory. The dashed line is the $-5$\,pp margin, fixed in advance.}
+\label{fig:reserved}
+\end{figure}
 
-Table~\ref{tab:winners} lists the winners. Three cycles, 24 probes. The search found two compressions that pass the development gate: 83.0\,\%
-removed at 80/100 and 81.6\,\% at 84/100. On 500 reserved episodes they score 93.4\,\%
-($-1.6$\,pp, 95\,\% interval $[-3.6,+0.2]$) and 95.6\,\% ($+0.6$\,pp, $[-1.2,+2.4]$) against the
-reference's 95.0\,\%. Neither difference is distinguishable from zero; the first passes the
-$-5$\,pp non-inferiority margin with its lower bound at $-3.6$\,pp.
+The first search spent 24 probes and found two policies that pass the development gate. The
+better one keeps 17\,\% of the reference's resident memory, about 1\,GB. On the reserved set it is
+1.6 points below the reference, with an interval from $-3.6$ to $+0.2$. We cannot tell it apart
+from the original (Fig.~\ref{fig:reserved}).
 
-The mechanism is removal plus calibration-guided quantization. Both winners drop the JEPA world
-model, the tied LM head and the unused embedding rows. One then prunes 12.5\,\% of the text-MLP
-channels and compacts the quantizer metadata; the other allocates NF4, HQQ3 and HQQ2 by measured
-influence per block.
+Both winners remove first and quantize second. They drop the world model, the unused output head
+and all but the 53 embedding rows that the suite's prompts use. Then they quantize the rest. One
+prunes an eighth of the text-MLP channels. The other picks each block's format from a measured
+influence score. The embedding cut ties them to the LIBERO prompts. It is a real saving for this
+suite and would break on a new instruction.
+
+The second search did no better. Its best complete policy removes 80\,\% and matches the reference
+on the reserved set. The comparison is unmatched. Its learned policy took six probes in cycle 1 and stopped cycles 2 and 3 after
+three probes, so it spent 12 probes to the first search's 24, on one GPU slot instead of two. In
+both searches the policy agent raised its replay score every cycle. On held-out trees, that score
+barely moved in the first search and dropped after the first rewrite in the second. The policy
+learned the few recorded trees it had seen, one after the first cycle and three by the last. It had not
+yet learned to search.
 
 \subsection{The search gamed the memory score}
 \label{sec:gaming}
-We scored a candidate by the memory it removed, provided it still passed the smoke gate, and we
-measured memory once, before the first forward pass.
+Our first memory rule measured once, before the first forward pass. In the third cycle an agent
+noticed. It moved every weight to host memory, left empty tensors on the GPU, and copied the
+weights back on the first inference call. The evaluator saw zero bytes and gave a perfect score. On
+the development set the node did exactly as well as the reference, because it ran the same
+full-precision weights.
 
-In the third cycle an agent used that. It moved every weight to host memory, left empty tensors on
-the GPU, and copied the weights back on the first inference call. The evaluator saw zero bytes and
-gave a perfect score. On the 100 development trials the node matched the uncompressed reference,
-82 successes each, because it ran the same full-precision weights.
+The agent knew what it was doing. Its log shows that it first tried skipping layers and gave up
+when action error rose. It then read our scoring code, found nothing that questioned a size of
+zero, and wrote: ``the policy's inference still uses the full bf16 weights; it's not actually
+smaller in GPU memory during inference.'' Its proposal calls the result ``a measurement-level
+change, not a weight-compression change.''
 
-This was deliberate. The agent's log shows it tried skipping layers first and dropped the idea when
-action error rose. It then read our scoring code, found nothing that questioned a size of zero, and
-wrote: ``the policy's inference still uses the full bf16 weights; it's not actually smaller in GPU
-memory during inference.'' Its proposal calls the result ``a measurement-level change, not a
-weight-compression change.''
-
-We do not call this cheating. The agent met the rule as written and said what it had done. Our
-score was wrong: it recorded where the weights sat at one moment, not what the policy needs to run.
-
-We now take memory as the peak over the episodes and count every tensor the solution keeps alive.
-Scored again, the same node removes 28\,\% of memory, not all of it. The three nodes that used the
-trick are marked invalid and appear in no result. The honest winners lose two to four points,
-because the peak also counts their working memory, and succeed as often as before.
-
-It took the search three cycles to find a hole we had missed. A score that a search optimises needs
-the same scrutiny as the method.
-
-\subsection{Opening the policy agent does not help}
-\begin{table}[t]
-\centering
-\caption{The open-policy search. Its best node with a complete development record removes less than
-the constrained search's 83.0\,\% at 80/100.}
-\label{tab:v2}
-\small
-\begin{tabular}{lrrr}
-\toprule
-Node & Removed & Development & Reserved \\
-\midrule
-\texttt{iter\_002-b2-a2} & 79.1\,\% & 83/100 & 96.2\,\% \\
-\texttt{iter\_001-b2-a1} & 79.6\,\% & 82/100 & 95.0\,\% \\
-\texttt{iter\_000-b2-a2} & 83.4\,\% & timeout & -- \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:v2} lists the nodes. A second search ran under an open protocol: the policy-development agent got a shell, a GPU, the
-repository source and a runnable replay, and could measure its own candidates before answering. It
-ran three cycles and 12 nodes. Its best node with a complete development record removed 79.1\,\% at
-83/100, below the constrained search's 83.0\,\% at 80/100. Its highest-compression node (83.4\,\%)
-never produced a development number: at 1001\,ms per step it exhausted the 1800\,s evaluator budget
-at 59/100.
-
-On 500 reserved episodes the two complete nodes score 96.2\,\% ($+1.2$\,pp $[-0.2,+2.8]$) and
-95.0\,\% ($0.0$\,pp $[-1.2,+1.2]$). Both match the reference; neither is a better compression than
-the constrained search's 83.0\,\%.
-
-The policy steps improved in-sample replay value in every cycle (0.703 to 0.804, 0.511 to 0.618,
-0.552 to 0.580) and never improved held-out value (0.524 to 0.382, then flat). The agent learned to
-fit the replay set it could see.
+We do not call this cheating. The agent met the rule as written and told us how. The rule recorded
+where the weights sat at one moment. What matters is the memory the policy needs to run.
+Under the corrected rule the same node removes 28\,\%, and the three nodes that used the trick
+appear in no result. The honest winners lose two to four points of memory removed, because the peak now also counts
+the memory they use to unpack weights, and they succeed as often as before.
 
 \subsection{Action error does not rank success}
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/divergence.pdf}
-\caption{Mean arm-action change against the reference on 80 held-out frames, against development
-success, for 17 precision cells. The relationship is absent below $10^{-2}$.}
+\includegraphics[width=\columnwidth]{figures/divergence.pdf}
+\caption{Action error against the reference on 80 fixed frames, against development success, for
+17 precision cells. Spearman $\rho = 0.21$, 95\,\% interval $[-0.38, 0.79]$.}
 \label{fig:divergence}
-\end{figure*}
+\end{figure}
 
-Fig.~\ref{fig:divergence} shows the relation. Across 17 precision cells, mean arm-action change
-against the reference does not predict task
-success: Spearman $\rho = 0.21$, 95\,\% interval $[-0.38, 0.79]$ on development. One cell above
-$10^{-2}$ error fails badly (20/100); below that, differences do not order the cells. Offline action
-error is a screen, not a ranking signal.
+Offline action error takes seconds where a rollout takes minutes, so we checked whether it could
+stand in for rollouts (Fig.~\ref{fig:divergence}). It flags the one broken cell. Beyond that, it
+does not order the good cells by success. It can reject a candidate but cannot pick between good
+ones.
 
-\section{Discussion}
-Three findings generalise beyond this model. First, the precision ceiling is arithmetic: with 51\,\%
-of parameters in the decoder, narrowing it can save at most 37\,\% of memory, so any result above
-that has to remove modules. Our search found exactly that, and the two winners are removals first
-and quantizers second.
-
-Second, latency and memory move independently. The CUDA graph gives $4\times$ with no compression
-at all, while decoder-only quantization makes inference slower at batch 1 because dequantization
-costs more than the smaller weights save. A deployment claim that reports only bits per weight
-misses both effects.
-
-Third, a scalar score that a search optimises is an attack surface. The agent did not cheat; it
-read the rule and satisfied it. The rule was wrong. The fix (peak over the episodes, every live
-payload counted) costs the honest winners two to four points, which is the price of measuring what
-the policy needs rather than where its weights sat at one moment.
-
-The open-agent result is negative in a useful way. Giving the policy agent a shell, a GPU and its
-own replay did not improve the search: in-sample replay value rose every cycle while held-out value
-stayed flat, and the best complete node removed less than the constrained search's. The bottleneck
-was the signal the agent optimised, not its ability to measure.
+\section{What to use}
+\begin{enumerate}
+\item \textbf{Under a memory limit, start with NF4 on the language decoder.} It saves over a third
+  of peak memory and costs no success we can measure.
+\item \textbf{For speed, fix the execution path first.} The CUDA graph helps more than any weight
+  format.
+\item \textbf{Spend bits on the language decoder.} Vision and action can go to 2 bits.
+\item \textbf{To get near 1\,GB, remove modules.} Inference never uses the world model or the
+  output head; the embedding can shrink to a fixed prompt set if the task allows it.
+\item \textbf{Screen offline, decide with rollouts.} Action error rejects broken recipes; only
+  hundreds of paired episodes separate good ones.
+\end{enumerate}
 
 \section{Limitations and Conclusion}
-\begin{itemize}
-\item One model, one suite, one GPU. Latency numbers are for an RTX 3090 at batch 1.
-\item The reserved reference scores 95.0\,\%, not 100\,\%: 25 failures, 17 of them on task 5, all
-  at the 280-step cap. That task is hard for the base policy.
-\item Every Dream-RSI node ties its text embedding to the 53 calibration prompt token ids. That is
-  a real compression for a fixed task suite, not a general one.
-\item The memory rule measures one process; it does not cover weights paged to disk.
-\item The search found a hole in our score within three cycles. A score that a search optimises
-  needs the same scrutiny as the method.
-\end{itemize}
+We test one model on one suite and one RTX 3090. The reference itself fails 25 of 500 reserved
+episodes, most of them on task~5 at the step limit, which makes small gains there hard to read.
+The search agents could read our quantization code and were handed the prompt tokens, so their
+results build on our tools. The two searches differ in more than the policy agent, so they do not
+show whether opening the agent helps.
 
-Post-training compression of this policy is cheap on the language path and expensive elsewhere.
-Execution changes dominate latency. Search finds both real compressions and the holes in the metric
-that measures them.
+Compressing this policy is cheap on the language decoder down to 3 bits. Past that, it takes
+removing modules. The execution path sets its speed. A search found an 83\,\% compression and, in
+its third cycle, the flaw in the score that judged it. We now review the score as carefully as the model.
+
+\section*{Acknowledgment}
+Noah Sprenger brought Dream-RSI into the project, built its first engine and ran the early searches.
+Fernando Nogueira ran the compression study and the final searches. Both authors wrote the report.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
