@@ -4,25 +4,27 @@ Run state, live branches and unmerged work. Everything else is in `AGENTS.md`, `
 READMEs. Rewrite this file when the state changes; delete it when both runs are merged and reported.
 The hour-by-hour log of 2026-11-15 is in Git history (this file at `64206a6`).
 
-## State at 03:00 EST, 2026-11-16
+## State at 03:25 EST, 2026-11-16
 
-`program-v2` stopped cleanly at 02:45 after three cycles: 12 nodes, 5.4 h, $2.32. It did not beat
-program-v1. Its best node with a complete development record removed 79.1 % at 83/100, against
-v1's 83.0 % at 80/100. Its highest-compression node (83.4 %) timed out in development at 59/100
-and is not selectable. The result is written in `studies/program-v2/README.md`.
+Reserved-500 for the v1 selection is complete, all six cells: reference 95.0 %, cycle-1 winner
+95.6 %, cycle-2 winner 93.4 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 %.
+`studies/program-v1/reserved/summary.json` holds the intervals and paired differences.
 
-Reserved-500 for the v1 selection is on its last cell (packed NF4 ladder), expected ~03:35. Five
-cells are complete: reference 95.0 %, cycle-1 winner 95.6 %, cycle-2 winner 93.4 %, int8 94.8 %,
-nf4 96.0 %.
+`program-v2` stopped at 02:45 and did not beat program-v1: its best complete node removed 79.1 %
+at 83/100, against v1's 83.0 % at 80/100. Its highest-compression node (83.4 %) timed out in
+development at 59/100 and is not selectable. The evidence is merged; the result is in
+`studies/program-v2/README.md`.
+
+Reserved-500 for the two v2 winners is running now, `iter_002-b2-a2` then `iter_001-b2-a1`, about
+80 minutes each. Selection frozen in `studies/program-v2/freeze.json`.
 
 | Run | Where | State |
 |---|---|---|
-| Reserved-500 v1, 6 cells | main checkout; log `/tmp/opencode/s2/reserved.log`; records in `studies/program-v1/reserved/` and `studies/program-v1/measurements/*/final/` (uncommitted) | last cell running, ends ~03:35 |
-| `program-v2` search | worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-32b33602-0c4d638784cb7753`; evidence committed on its branch | stopped, merge pending |
-| Reserved-500 v2, 2 cells | not started; workspaces exported to `/tmp/opencode/s2/v2-ws/` | after the merge, ~80 min each |
+| Reserved-500 v1, 6 cells | `studies/program-v1/reserved/` and `measurements/*/final/` (uncommitted) | complete |
+| Reserved-500 v2, 2 cells | log `/tmp/opencode/s2/reserved-v2.log`; records in `studies/program-v2/reserved/` | running, ends ~06:00 |
+| `program-v2` search | `studies/program-v2/`, merged to main | stopped |
 
-Do not edit `evaluation/` in the main checkout until the last v1 cell stops; it imports that code.
-Documents and tests are safe. Watch page for v2: port 8899.
+The v2 worktree and both side branches are gone. Watch page: port 8899, now reading main.
 
 ## Project explainer video (done, committed to main)
 
@@ -37,31 +39,16 @@ Flat scenes are borderless (no cards). `build/3d/` is gitignored; re-render with
 
 ## Branches
 
-`main` is the only working branch. `origin/main` is at `ac06d1b`; nothing since is pushed and no
-board record is posted. Ask Fernando before either.
-
-| Branch | Worktree | Holds | Action |
-|---|---|---|---|
-| `t3/brief-e-implementation` | `t3-32b33602-…` | open policy agent, `program-v2` code and evidence | merge after v2 stops, absolute paths stripped; then remove worktree and branch |
-| `t3/implement-brief-k` | `t3-5e9d9170-…` | divergence analysis (2 commits, untracked `report/data/numbers.json` and figures) | gate, merge or drop; then remove |
-
-Seven merged side branches and their worktrees were removed on 2026-11-16. Their ignored runtime
-files are archived in `outputs/worktree-archive/`.
+`main` is the only working branch, and no other worktree exists. `origin/main` is at `ac06d1b`;
+nothing since is pushed and no board record is posted. Ask Fernando before either.
 
 ## Next, in order
 
-1. When the ladder cell stops (~03:35): merge `t3/implement-brief-k` (clean) and
-   `t3/brief-e-implementation` (two conflicts, in `evaluation/compression/solution.py` and
-   `study.py`; keep both sides: main's reserved-phase gate and the branch's `--protocol` override).
-   Run the checks. Remove both worktrees and their branches.
-2. Write `studies/program-v2/freeze.json` (draft in `/tmp/opencode/s2/freeze-v2.json`) and commit
-   it before any v2 reserved episode.
-3. Run `/tmp/opencode/s2/run_reserved_v2.sh`: `iter_002-b2-a2`, then `iter_001-b2-a1`, from the
-   exported workspaces. The reference's reserved result is reused: same states and seeds.
-4. Gate the reserved table (development and reserved in separate columns), then commit the records
-   and the study README table.
-5. `vla-report-plots`, check the `report/data/numbers.json` diff, write the report: mechanism
+1. When the two v2 reserved cells stop (~06:00): gate the table (development and reserved in
+   separate columns), then commit the records and the study README table.
+2. `vla-report-plots`, check the `report/data/numbers.json` diff, write the report: mechanism
    curves, Dream-RSI discoveries, the gaming subsection (already in `report/main.tex`), execution.
+3. Ask Fernando before pushing or posting to the board.
 
 ## Decisions Fernando made (2026-11-15)
 

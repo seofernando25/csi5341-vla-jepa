@@ -135,18 +135,18 @@ loop's `best_score` 1.0 and the cycle-3 promotion (`iter_002-b2-a1`) are therefo
 not report or plot them. The exploit and the evaluator fix are recorded in
 [exploit/README.md](exploit/README.md).
 
-**Preliminary results, pending re-measurement.** Development phase, 100 trials per node, same
-states:
+**Results.** Development phase, 100 trials per node, same states, after the fixed evaluator
+re-measured both nodes:
 
 | Node | Memory removed | Development |
 |---|---:|---:|
-| `iter_000-b0-a3` | 86.9 % | 80/100 |
-| `iter_001-b1-a3` | 84.0 % | 84/100 |
+| `iter_000-b0-a3` | 83.0 % | 80/100 |
+| `iter_001-b1-a3` | 81.6 % | 84/100 |
 | reference `B16` (uncompressed) | — | 82/100 |
 
-A keyword scan of every `proposal.md` found no hiding or restore language in cycles 1 and 2, and
-their resident bytes are 0.72 to 3.9 GB. A scan is not an audit: these numbers stay preliminary
-until each reported node is re-measured with the fixed evaluator. Reserved-500 has not run.
+The re-measurement lowered both scores by 2.4 to 3.9 pp because the fixed rule charges the
+dequantization workspace each forward pass allocates. Reserved-500 for both nodes and the reference
+is in the table above.
 
 Dream-RSI runs (`vla-rsi start`, `status`, `stop`, `watch`): [docs/COMMANDS.md](../../docs/COMMANDS.md).
 The pre-GPU check is the test suite. Synthetic calibration runs are harness checks, not evidence.
@@ -156,30 +156,41 @@ Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rs
 `eval_timeout_s` (1800 each), `policy_timeout_s` (1200) and `gpu_slots` (2). `allowed_methods` and
 `agent_tools` were removed.
 
-## Selection freeze, 2026-11-16
+## Selection freeze and Reserved-500, 2026-11-16
 
 [freeze.json](freeze.json) records the selection, written on development data only at code commit
-`fbd1e7f`, before any reserved episode ran. Six cells go to Reserved-500:
+`fbd1e7f`, before any reserved episode ran. Six cells then ran 500 trials each, once, in the frozen
+order. Development and reserved are separate columns and are never pooled.
 
-| Cell | Runner | Development | Memory removed | Rule |
-|---|---|---:|---:|---|
-| `B16` | recipe | 82/100 | — | reference |
-| `iter_001-b1-a3` | solution | 84/100 | 81.6 % | fixed evaluator |
-| `iter_000-b0-a3` | solution | 80/100 | 83.0 % | fixed evaluator |
-| `precision-lang-int8` | recipe | 81/100 | 25.4 % | tensor walk |
-| `precision-lang-nf4` | recipe | 81/100 | 37.8 % | tensor walk |
-| `ladder-nf4-graph-1step-packed` | recipe | not run | 75.8 % | tensor walk |
+| Cell | Memory removed | Development | Reserved | Paired vs B16 |
+|---|---:|---:|---:|---|
+| `B16` | — | 82/100 | 475/500 (95.0 %), 95 % CI [92.7, 96.6] | — |
+| `iter_001-b1-a3` | 81.6 % | 84/100 | 478/500 (95.6 %), [93.4, 97.1] | +0.6 pp [−1.2, +2.4]; 12 gained, 9 lost |
+| `iter_000-b0-a3` | 83.0 % | 80/100 | 467/500 (93.4 %), [90.9, 95.3] | −1.6 pp [−3.6, +0.2]; 8 gained, 16 lost |
+| `precision-lang-int8` | 25.4 % | 81/100 | 474/500 (94.8 %), [92.5, 96.4] | −0.2 pp [−1.2, +0.8]; 3 gained, 4 lost |
+| `precision-lang-nf4` | 37.8 % | 81/100 | 480/500 (96.0 %), [93.9, 97.4] | +1.0 pp [−0.2, +2.2]; 8 gained, 3 lost |
+| `ladder-nf4-graph-1step-packed` | 75.8 % | not run | 489/500 (97.8 %), [96.1, 98.8] | +2.8 pp [+1.2, +4.6]; 18 gained, 4 lost |
+
+Every paired 95 % interval lies above −5 pp, so every cell passes the reserved non-inferiority gate
+against B16. The deployment arm is the only cell whose interval excludes zero: it keeps 24.2 % of
+the reference's memory and gains 2.8 pp on the same 500 states, 11 of the 14 net trials on task 5.
 
 The rule: the reference, both valid Dream-RSI nodes that pass the 77/100 development gate, and the
 cells of the pre-registered reserved queue [queue-reserved.json](queue-reserved.json) applied as
 written. No cell is added by taste. The three cycle-3 exploit nodes are never selectable; the three
 deferred cycle-3 nodes are not candidates. C1/C2 are defined by development outcomes and are not
-authored, so they are not run.
+authored, so they are not run. The deployment arm had no smoke or development rollout; it enters
+reserved as the pre-registered deployment arm, not as a gate-passing candidate.
 
 "Memory removed" names two quantities. Dream-RSI nodes use the fixed evaluator rule (tensor walk,
 live payloads, live CUDA, peak CUDA during the phase; baseline 5 604 584 960 B). Recipe cells use
 resident tensor storage from `storage_inventory` (baseline 5 532 276 494 B). The two are not
 comparable and are not pooled.
+
+Reserved states are the official 50 LIBERO-Spatial init states per task; development uses 10 other
+states. B16 scores 82/100 in development and 475/500 in reserved because the development states for
+tasks 0 and 8 are much harder. The paired column is the comparison to quote. Commands, provenance
+and limits: [reserved/README.md](reserved/README.md); numbers: [reserved/summary.json](reserved/summary.json).
 
 ## Status
 
@@ -187,8 +198,9 @@ comparable and are not pooled.
 - Precision-surface pre-registration: [precision_surface_plan.json](precision_surface_plan.json).
 - Recipes: 22 arms under `recipes/`; queue: 59 cells, 431 estimated minutes. All 59 cells ran.
 - Evidence: one Dream-RSI run (3 cycles, 24 probes); three cycle-3 nodes invalid, two development
-  winners preliminary (see the section above).
-- Selection frozen in [freeze.json](freeze.json); Reserved-500 pending.
+  winners re-measured under the fixed rule.
+- Selection frozen in [freeze.json](freeze.json); Reserved-500 complete for the six selected cells
+  ([reserved/summary.json](reserved/summary.json)).
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.
 

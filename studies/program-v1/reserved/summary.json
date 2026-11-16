@@ -1,0 +1,263 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "phase": "reserved",
+  "trials_per_cell": 500,
+  "freeze": "studies/program-v1/freeze.json",
+  "complete": true,
+  "missing": [],
+  "statistics": "Wilson 95 %; task-stratified paired percentile bootstrap, 10000 resamples, seed 42, identical task/state/seed keys",
+  "cells": [
+    {
+      "cell": "B16",
+      "kind": "recipe",
+      "development": {
+        "successes": 82,
+        "episodes": 100
+      },
+      "reserved": {
+        "successes": 475,
+        "episodes": 500,
+        "wilson95": [
+          0.9272318388284524,
+          0.9659062547561506
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 48,
+          "4": 48,
+          "5": 33,
+          "6": 50,
+          "7": 50,
+          "8": 47,
+          "9": 49
+        }
+      },
+      "memory": {
+        "rule": "resident tensor storage (storage_inventory)",
+        "resident_bytes": 5532276494,
+        "baseline_bytes": 5532276494,
+        "removed": 0.0
+      },
+      "paired_vs_B16": null
+    },
+    {
+      "cell": "iter_001-b1-a3",
+      "kind": "agent_solution",
+      "development": {
+        "successes": 84,
+        "episodes": 100
+      },
+      "reserved": {
+        "successes": 478,
+        "episodes": 500,
+        "wilson95": [
+          0.9342805571276716,
+          0.9707660443713928
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 50,
+          "4": 45,
+          "5": 38,
+          "6": 48,
+          "7": 50,
+          "8": 47,
+          "9": 50
+        }
+      },
+      "memory": {
+        "rule": "fixed evaluator (walk, live payloads, live CUDA, peak CUDA)",
+        "resident_bytes": 1030981120,
+        "baseline_bytes": 5604584960,
+        "removed": 0.8160468389081215
+      },
+      "paired_vs_B16": {
+        "difference_pp": 0.6000000000000001,
+        "ci95_pp": [
+          -1.2,
+          2.4
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 12,
+        "lost": 9
+      }
+    },
+    {
+      "cell": "iter_000-b0-a3",
+      "kind": "agent_solution",
+      "development": {
+        "successes": 80,
+        "episodes": 100
+      },
+      "reserved": {
+        "successes": 467,
+        "episodes": 500,
+        "wilson95": [
+          0.9087605988391466,
+          0.9526214736402262
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 48,
+          "2": 50,
+          "3": 50,
+          "4": 49,
+          "5": 32,
+          "6": 45,
+          "7": 48,
+          "8": 46,
+          "9": 49
+        }
+      },
+      "memory": {
+        "rule": "fixed evaluator (walk, live payloads, live CUDA, peak CUDA)",
+        "resident_bytes": 951799808,
+        "baseline_bytes": 5604584960,
+        "removed": 0.830174791747648
+      },
+      "paired_vs_B16": {
+        "difference_pp": -1.6,
+        "ci95_pp": [
+          -3.599999999999999,
+          0.2000000000000001
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 8,
+        "lost": 16
+      }
+    },
+    {
+      "cell": "precision-lang-int8",
+      "kind": "recipe",
+      "development": {
+        "successes": 81,
+        "episodes": 100
+      },
+      "reserved": {
+        "successes": 474,
+        "episodes": 500,
+        "wilson95": [
+          0.9248988560621544,
+          0.9642697348842947
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 49,
+          "4": 48,
+          "5": 31,
+          "6": 50,
+          "7": 50,
+          "8": 47,
+          "9": 49
+        }
+      },
+      "memory": {
+        "rule": "resident tensor storage (storage_inventory)",
+        "resident_bytes": 4125284110,
+        "baseline_bytes": 5532276494,
+        "removed": 0.25432430673447826
+      },
+      "paired_vs_B16": {
+        "difference_pp": -0.2,
+        "ci95_pp": [
+          -1.2,
+          0.8
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 3,
+        "lost": 4
+      }
+    },
+    {
+      "cell": "precision-lang-nf4",
+      "kind": "recipe",
+      "development": {
+        "successes": 81,
+        "episodes": 100
+      },
+      "reserved": {
+        "successes": 480,
+        "episodes": 500,
+        "wilson95": [
+          0.9390264041651492,
+          0.9739592026102227
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 49,
+          "3": 50,
+          "4": 47,
+          "5": 38,
+          "6": 50,
+          "7": 50,
+          "8": 47,
+          "9": 49
+        }
+      },
+      "memory": {
+        "rule": "resident tensor storage (storage_inventory)",
+        "resident_bytes": 3440925470,
+        "baseline_bytes": 5532276494,
+        "removed": 0.37802720566626835
+      },
+      "paired_vs_B16": {
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -0.2,
+          2.2
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 8,
+        "lost": 3
+      }
+    },
+    {
+      "cell": "ladder-nf4-graph-1step-packed",
+      "kind": "recipe",
+      "development": null,
+      "reserved": {
+        "successes": 489,
+        "episodes": 500,
+        "wilson95": [
+          0.9610391387886836,
+          0.9876719917300725
+        ],
+        "per_task": {
+          "0": 49,
+          "1": 50,
+          "2": 50,
+          "3": 50,
+          "4": 47,
+          "5": 44,
+          "6": 50,
+          "7": 50,
+          "8": 50,
+          "9": 49
+        }
+      },
+      "memory": {
+        "rule": "resident tensor storage (storage_inventory)",
+        "resident_bytes": 1337285962,
+        "baseline_bytes": 5532276494,
+        "removed": 0.7582756459388199
+      },
+      "paired_vs_B16": {
+        "difference_pp": 2.8000000000000003,
+        "ci95_pp": [
+          1.2,
+          4.6
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 18,
+        "lost": 4
+      }
+    }
+  ]
+}
