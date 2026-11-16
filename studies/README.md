@@ -14,7 +14,12 @@ README states what is measured and what is still running.
 [program-v2/](program-v2/README.md) holds the Dream-RSI search under the open protocol: shell, GPU
 and network for the policy agent, anytime policy steps, live `plan_grid` under caps, and the fixed
 memory rule. It starts from the baseline policy with no history. Its nodes are not pooled with
-program-v1's, and no v1 node is used as its starting point. Results: pending.
+program-v1's, and no v1 node is used as its starting point. Its best complete node removed 79.6 %
+at 82/100 development; both selected winners match the reference on 500 reserved episodes.
+
+[program-v3/](program-v3/README.md) repeats that protocol with two hints removed from what the
+discovery agents can see: the project's compression code is not mounted into their sandbox, and
+the calibration carries no prompt token ids. Its nodes are not pooled with v1's or v2's.
 
 ## Closed studies kept outside the reset
 

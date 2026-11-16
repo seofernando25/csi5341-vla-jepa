@@ -24,6 +24,11 @@ SKIP_SUFFIXES = (".pyc",)
 EVIDENCE_FILES = ("proposal.md", "score.json", "error.txt")
 OUTPUT_CONTRACT = "a node must write both proposal.md and solution.py; both are required"
 TEMPLATE_DIR = Path(__file__).resolve().parent / "workspace_template"
+MEASUREMENT_DIR = Path(__file__).resolve().parent.parent / "evaluation" / "compression"
+# The template carries both check tools; a study's protocol picks one and the other is dropped.
+WORKSPACE_CHECKS = ("evaluator", "self_contained")
+# The self-contained check measures with copies of the evaluator's own primitives.
+MEASUREMENT_MODULES = ("resident.py", "memory.py")
 GIT_DATE = "2000-01-01T00:00:00Z"
 GIT_SETTINGS = (
     "core.autocrlf=false",
@@ -107,9 +112,35 @@ def _copy_tree(src: Path, dst: Path) -> None:
         raise
 
 
-def create_root_workspace(dst: Path) -> Path:
+def _apply_check_tool(dst: Path, check_tool: str) -> None:
+    """Install one of the template's two check tools as `tools/check.py` and drop the other.
+
+    `evaluator` runs the fixed evaluator out of `/tmp/repo`. `self_contained` measures with
+    copies of the evaluator's own resident walk and payload sweep, so it still works when a
+    study hides `evaluation/compression` from the workspace.
+    """
+    if check_tool not in WORKSPACE_CHECKS:
+        raise WorkspaceError(f"unknown workspace check {check_tool!r}; expected {WORKSPACE_CHECKS}")
+    tools = Path(dst) / "tools"
+    variant, target = tools / "check_selfcontained.py", tools / "check.py"
+    tools.chmod(0o755)
+    target.chmod(0o644)
+    if check_tool == "self_contained":
+        target.write_bytes(variant.read_bytes())
+        for name in MEASUREMENT_MODULES:
+            copy = tools / name
+            copy.write_bytes((MEASUREMENT_DIR / name).read_bytes())
+            copy.chmod(0o444)
+    variant.chmod(0o644)
+    variant.unlink()
+    target.chmod(0o444)
+    tools.chmod(0o555)
+
+
+def create_root_workspace(dst: Path, check_tool: str = "evaluator") -> Path:
     """Copy the template into dst as a frozen tree and return dst."""
     _copy_tree(TEMPLATE_DIR, Path(dst))
+    _apply_check_tool(Path(dst), check_tool)
     return Path(dst)
 
 
@@ -198,12 +229,14 @@ def _commit_tree(store: Path, src: Path, parent: str | None) -> str:
     return _git(store, "commit-tree", tree, *parents, "-m", "node").decode().strip()
 
 
-def commit_root(store: Path) -> str:
+def commit_root(store: Path, check_tool: str = "evaluator") -> str:
     """Commit the template as the root node (tag node/root); idempotent, returns its commit id."""
     existing = _ref(store, f"refs/tags/{ROOT_TAG}")
     if existing is not None:
         return existing
-    commit = _commit_tree(store, TEMPLATE_DIR, None)
+    with tempfile.TemporaryDirectory(prefix="rsi-template-") as tmp:
+        root = create_root_workspace(Path(tmp) / "template", check_tool)
+        commit = _commit_tree(store, root, None)
     _git(store, "update-ref", f"refs/tags/{ROOT_TAG}", commit)
     return commit
 

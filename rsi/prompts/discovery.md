@@ -45,16 +45,15 @@ reloaded later. Hiding or deferring memory makes the node fail. Really remove it
 - `/tmp/work`: yours. Write code and files, run anything. Limits: 256 MiB total, no symlinks, no
   `.git`, no special files, `solution.py` at most 1 MiB, `proposal.md` at most 256 KiB.
 - `/tmp/repo` (read-only): the project's source. `evaluation/models.py` loads the policy;
-  `evaluation/compression/` holds existing code you may read, copy into your workspace and change,
-  or ignore. `outputs/compression/calibration.pt` is the `calibration` argument.
+  `evaluation/pipeline.py` builds its inputs from an observation.
 - `/tmp/evidence` (read-only): `TASK.md`, `tree.json`, and `nodes/<cell_id>/proposal.md`,
   `score.json`, `error.txt` for every earlier node.
 - A GPU, shared with other workers. Wrap GPU commands in a slot so they do not collide:
   `python -m rsi.gpu run --slots-dir /tmp/gpu-slots --n {gpu_slots} -- <command>`.
-- `python tools/check.py`: runs the evaluator's offline check on the workspace as it stands and
-  prints memory removed, action error against the uncompressed policy on 80 held-out frames,
-  latency, or the error. About 20 s when the GPU is free. Action error is not task success, but a
-  large error predicts failure.
+- `python tools/check.py`: loads the policy, runs `compress` and prints memory removed, action
+  error against the uncompressed policy on 80 bank frames, and latency, or the error. It takes
+  about a minute when the GPU is free. Action error is not task success, but a large error
+  predicts failure.
 - No internet packages. {minutes} minutes of wall time; a worker that runs over is killed and its
   node fails.
 

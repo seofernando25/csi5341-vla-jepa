@@ -31,6 +31,7 @@ from rsi.agent_backends import (
     parse_agent_output,
 )
 from rsi.gpu import GPU_ENV, GPU_SLOTS_DIR, gpu_bind_args, gpu_slot
+from rsi.workspace import WORKSPACE_CHECKS
 
 SANDBOX_VENV = "/tmp/venv"
 EVALUATOR_MODULE = "evaluation.compression.study"
@@ -39,6 +40,7 @@ EVALUATOR_RESULT = "result.json"
 EVALUATOR_LOG = "log.txt"
 MAX_RESULT_BYTES = 8 * 1024 * 1024
 DEFAULT_STUDY = "studies/program-v1"
+DEFAULT_CALIBRATION = "outputs/compression/calibration.pt"
 REPO_SOURCE_PATHS = (
     "evaluation",
     "rsi",
@@ -176,6 +178,42 @@ def study_protocol(study_dir: Path | None, repo_root: Path = REPO_ROOT) -> str |
     return f"{rel}/protocol.json" if rel else None
 
 
+@dataclass(frozen=True)
+class DiscoveryVisibility:
+    """What a study's protocol hides from discovery agents; empty for a study that hides nothing."""
+
+    repo_exclude: tuple[str, ...] = ()
+    workspace_check: str = "evaluator"
+
+
+def _protocol_block(study_dir: Path | None, repo_root: Path, key: str) -> dict[str, Any]:
+    """One top-level object of the study's protocol, or {} when the study or block is absent."""
+    rel = study_protocol(study_dir, repo_root)
+    path = Path(repo_root) / rel if rel else None
+    if path is None or not path.is_file():
+        return {}
+    block = json.loads(path.read_text(encoding="utf-8")).get(key)
+    return block if isinstance(block, dict) else {}
+
+
+def discovery_visibility(
+    study_dir: Path | None = None, repo_root: Path = REPO_ROOT
+) -> DiscoveryVisibility:
+    """The exclusions a study's protocol sets for discovery agents, validated."""
+    block = _protocol_block(study_dir, repo_root, "discovery_visibility")
+    check = str(block.get("workspace_check") or "evaluator")
+    if check not in WORKSPACE_CHECKS:
+        raise ValueError(f"workspace_check {check!r} is not one of {WORKSPACE_CHECKS}")
+    exclude = tuple(str(item) for item in block.get("repo_exclude") or ())
+    return DiscoveryVisibility(repo_exclude=exclude, workspace_check=check)
+
+
+def calibration_artifact(study_dir: Path | None = None, repo_root: Path = REPO_ROOT) -> str | None:
+    """Repo-relative calibration artifact the study names, or None for the frozen default."""
+    artifact = _protocol_block(study_dir, repo_root, "calibration").get("artifact")
+    return str(artifact) if artifact else None
+
+
 def repo_source_binds(
     repo_root: Path = REPO_ROOT, *, study_dir: Path | None = None, exclude: tuple[str, ...] = ()
 ) -> dict[Path, str]:
@@ -184,12 +222,18 @@ def repo_source_binds(
     A repo-relative path in `exclude` is left out. When it names a file inside a listed
     directory, that directory is bound child by child instead, so the file cannot be reached.
     The study's own `protocol.json` is the only protocol bound, so a run under one study cannot
-    read another study's phases, gates or seed.
+    read another study's phases, gates or seed. A study that names its own calibration artifact
+    gets that file instead of the frozen default, at its own path.
     """
     repo = Path(repo_root).resolve()
     binds: dict[Path, str] = {}
     protocol = study_protocol(study_dir, repo)
-    for rel in (*REPO_SOURCE_PATHS, *([protocol] if protocol else [])):
+    artifact = calibration_artifact(study_dir, repo)
+    paths = list(REPO_SOURCE_PATHS)
+    if artifact and artifact != DEFAULT_CALIBRATION:
+        paths = [rel for rel in paths if rel != DEFAULT_CALIBRATION]
+        paths.append(artifact)
+    for rel in (*paths, *([protocol] if protocol else [])):
         src = repo / rel
         if not src.exists():
             continue

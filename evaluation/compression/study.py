@@ -195,6 +195,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("calibrate")
+    derive_parser = commands.add_parser(
+        "derive-calibration", help="Write a calibration artifact with fields removed"
+    )
+    derive_parser.add_argument("--source", type=Path, default=calib.CALIBRATION)
+    derive_parser.add_argument("--out", type=Path, required=True)
+    derive_parser.add_argument(
+        "--drop", default="token_ids", help="Comma-separated fields to remove"
+    )
     run_parser = commands.add_parser("run")
     run_parser.add_argument("--recipe", type=Path, required=True)
     run_parser.add_argument(
@@ -225,6 +233,10 @@ def main():
     args = parser.parse_args()
     if args.command == "calibrate":
         calib.calibrate()
+    elif args.command == "derive-calibration":
+        fields = [name for name in args.drop.split(",") if name]
+        kept = calib.derive(args.source, args.out, fields)
+        print(json.dumps({"artifact": str(args.out), "fields": kept}))
     elif args.command == "solution":
         from evaluation.compression.solution import run_solution
 

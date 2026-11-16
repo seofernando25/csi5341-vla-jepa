@@ -13,8 +13,8 @@ import torch
 from torch import nn
 
 from evaluation.compression import solution, study
-from evaluation.compression.inventory import ResidentWalk
 from evaluation.compression.memory import live_payloads
+from evaluation.compression.resident import ResidentWalk
 
 BASE = (256 * 256 + 256) * 4  # fp32 Linear(256, 256) weight and bias
 HALF = 256 * 256 * 2 + 256 * 4  # fp16 weight, fp32 bias
@@ -44,7 +44,7 @@ class FakePolicy(nn.Module):
 def cpu_env(monkeypatch, tmp_path):
     monkeypatch.setattr(solution, "REQUIRED_DEVICE", "cpu")
     monkeypatch.setattr(solution.calib, "setup", lambda: None)
-    monkeypatch.setattr(solution.calib, "load", lambda: {"bank_indices": []})
+    monkeypatch.setattr(solution.calib, "for_protocol", lambda protocol: {"bank_indices": []})
     monkeypatch.setattr(
         solution, "load_policy", lambda variant: (FakePolicy(), {"variant": variant})
     )

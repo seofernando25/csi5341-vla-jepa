@@ -27,6 +27,7 @@ from rsi.runner import PHASES_ALLOWED
 from rsi.sandbox import (
     AgentRunResult,
     SandboxTimeoutError,
+    discovery_visibility,
     repo_source_binds,
     run_sandboxed_agent,
     run_sandboxed_evaluator,
@@ -274,6 +275,7 @@ def _run_agent(
     ctx: NodeContext, job: NodeJob, work: Path, evidence: Path, prompt: str
 ) -> tuple[AgentRunResult | None, bool]:
     """Run the discovery agent once; return (result or None, timed_out)."""
+    visibility = discovery_visibility(ctx.study_dir)
     try:
         res = run_sandboxed_agent(
             prompt_text=prompt,
@@ -285,7 +287,7 @@ def _run_agent(
             timeout=ctx.agent_timeout,
             use_bwrap=ctx.use_bwrap,
             gpu=True,
-            source_ro=repo_source_binds(study_dir=ctx.study_dir),
+            source_ro=repo_source_binds(study_dir=ctx.study_dir, exclude=visibility.repo_exclude),
             gpu_slots_dir=ctx.gpu_slots_dir,
             study_dir=ctx.study_dir,
             env_overrides={"RSI_GPU_SLOTS": str(ctx.gpu_slots)},

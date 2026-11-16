@@ -1,0 +1,160 @@
+{
+  "protocol": "program-v3-debiased",
+  "frozen_at": "2026-11-16",
+  "status": "frozen",
+  "supersedes": "program-v2. v3 repeats v2's protocol unchanged -- open policy agent, live plan_grid, the fixed memory rule, the same gates, seeds and budgets -- with two hints removed from what the discovery agents can see: the project's compression code (evaluation/compression, evaluation/nf4.py, evaluation/fastpath.py and the vendored quantization sources) is not mounted into their sandbox, and the calibration they receive carries no prompt token ids and no per-prompt information. The workspace's check tool measures with copies of the evaluator's own walk instead of running the evaluator, because the evaluator's source is no longer readable from the sandbox. v1 and v2 nodes, scores and policies are not pooled with v3 and are not used as v3's starting point.",
+  "checkpoint": "lerobot/VLA-JEPA-LIBERO",
+  "checkpoint_revision": "735d9f692981e286ade093b5046627eda876e5d0",
+  "suite": "libero_spatial",
+  "task_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "seed": 1000,
+  "final_seed_offset": 10000,
+  "development_states_per_task": 10,
+  "reserved_states_per_task": 50,
+  "max_steps": 280,
+  "action_chunk": 7,
+  "flow_steps": 4,
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "phases": {
+    "screen": {
+      "trials": 80,
+      "simulator": false
+    },
+    "smoke": {
+      "trials": 10,
+      "simulator": true
+    },
+    "development": {
+      "trials": 100,
+      "simulator": true
+    },
+    "reserved": {
+      "trials": 500,
+      "simulator": true
+    }
+  },
+  "gates": {
+    "smoke_min_successes": 8,
+    "development_min_successes": 77,
+    "final_noninferiority_pp": 5.0
+  },
+  "statistics": {
+    "interval": "wilson95",
+    "paired": "task-stratified bootstrap 10000 resamples",
+    "multiplicity": "pre-register primary comparisons; report all others as exploratory"
+  },
+  "reserved_lock": true,
+  "starting_policy": {
+    "path": "rsi/policies/optimal.py",
+    "note": "The loop copies this default OptimalPolicy to policies/v000_initial/policy.py. The search starts with no trees, no beta sweeps and no scores: cycles/ and policies/ hold only what this run writes."
+  },
+  "discovery_visibility": {
+    "repo_exclude": [
+      "evaluation/compression",
+      "evaluation/nf4.py",
+      "evaluation/fastpath.py",
+      "outputs/compression/vendor"
+    ],
+    "workspace_check": "self_contained",
+    "note": "The discovery agent's /tmp/repo mount leaves out these paths. evaluation/compression is the project's compression code (recipes, quantization, pruning, lowbit packing, the evaluator); evaluation/nf4.py is the NF4 dequantization kernel; evaluation/fastpath.py is the packed-NF4 execution path; outputs/compression/vendor holds the upstream quantization sources. The evaluator runs in its own sandbox with the full source and is the only reader of them. evaluation/models.py, evaluation/pipeline.py and the model source stay readable, and installed packages (bitsandbytes, torchao) remain available. workspace_check names which tools/check.py the root workspace gets: self_contained measures with copies of the evaluator's resident walk and payload sweep."
+  },
+  "calibration": {
+    "artifact": "outputs/compression/calibration-v3.pt",
+    "exclude_fields": [
+      "token_ids"
+    ],
+    "note": "Derived from the frozen program-v1 artifact with token_ids removed: linear_inputs, block_influence and bank_indices only, no per-prompt information. Built with `vla-compress derive-calibration --out outputs/compression/calibration-v3.pt`. The evaluator strips exclude_fields before calling compress, so a solution never sees them; it still runs the real LIBERO prompts."
+  },
+  "run_budget": {
+    "cycles": 3,
+    "probe_budget": 8,
+    "max_parallelism": 2,
+    "promote_top_k": 1,
+    "max_hours": 8,
+    "max_agent_usd": 20,
+    "note": "Pre-registered launch budget. It matches the launch command in studies/program-v3/README.md; a run that changes it records the change in revisions."
+  },
+  "starting_rules": [
+    {
+      "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",
+      "rule": "The policy-development agent gets read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, and a runnable replay.py in the workspace. It may run and measure its own replay before answering. The harness still audits, replays and selects; the agent's own numbers are never used."
+    },
+    {
+      "field": "dream_rsi.policy_timeout_s",
+      "rule": "1200 s per policy-development step, one repair attempt also after a not-better step."
+    },
+    {
+      "field": "dream_rsi.policy_step_timeout",
+      "rule": "Anytime. The prompt asks for a valid method.py early and in-place improvement after that. On timeout the harness audits and replays the file as it stands and records timeout_salvaged; it is accepted only if it passes the audit and strictly beats the incumbent. A missing or unusable file leaves status timeout. Cost and transcript are kept."
+    },
+    {
+      "field": "dream_rsi.grid_plan",
+      "rule": "Live. The selected policy's plan_grid decides the next cycle's grid from the last three manifests and beta sweeps; the protocol grid values (max_parallelism, rounds_cap) and the run arguments (probe budget, GPU slots) are caps, and the protocol grid is the pre-registered fallback. A candidate whose plan_grid fails validation is rejected."
+    },
+    {
+      "field": "dream_rsi.evaluator.memory_rule+prompt",
+      "rule": "Resident bytes are the largest of the tensor walk of the returned policy and workspace modules, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, and peak CUDA bytes during the episodes; measured after compress and again after inference. Workspace files over 1 MiB count in full. The discovery prompt states that hiding or deferring memory fails the node."
+    },
+    {
+      "field": "discovery_visibility.repo_exclude",
+      "rule": "The discovery agent's /tmp/repo mount leaves out evaluation/compression, evaluation/nf4.py, evaluation/fastpath.py and outputs/compression/vendor, so the search cannot read, copy or import the project's compression code. The evaluator keeps its own sandbox with the full source. A node whose solution imports evaluation.compression fails at evaluation time."
+    },
+    {
+      "field": "discovery_visibility.workspace_check",
+      "rule": "The root workspace's tools/check.py is the self-contained variant: it loads the policy, runs compress and measures with copies of the evaluator's resident walk and payload sweep, plus the frozen reference actions. It does not import evaluation/compression. Its numbers are a diagnostic; the evaluator decides the score."
+    },
+    {
+      "field": "calibration.exclude_fields",
+      "rule": "The calibration handed to compress carries linear_inputs, block_influence and bank_indices only. token_ids and any per-prompt information are absent from the artifact and stripped again by the evaluator before the call. The evaluator still runs the real LIBERO prompts."
+    }
+  ],
+  "revisions": [],
+  "dream_rsi": {
+    "grid_plan": {
+      "max_branches": 4,
+      "max_attempts_per_branch": 3,
+      "max_parallelism": 2,
+      "rounds_cap": 6,
+      "rationale": "Pre-registered fallback grid and the caps on the policy's plan_grid. The live plan_grid chooses the applied grid within these caps."
+    },
+    "beta_grid": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "lambda_parallel": 0.05,
+    "gate_retry": false,
+    "sequential_gate": false,
+    "policy": "paper-faithful replay policy; generated policy code must be recorded by hash",
+    "reserved_trials_in_selection": false,
+    "agent": {
+      "backend": "pi",
+      "model": "mistral/deepseek-v4-1-flash-1017",
+      "effort": "max"
+    },
+    "discovery_tools": "read,write,edit,bash",
+    "policy_dev_tools": "read,write,edit,bash",
+    "agent_timeout_s": 1800,
+    "eval_timeout_s": 1800,
+    "policy_timeout_s": 1200,
+    "gpu_slots": 1
+  },
+  "old_evidence": {
+    "status": "kept under studies/program-v1 and studies/program-v2",
+    "reuse": "forbidden: no v1 or v2 node, score, tree or policy is pooled with v3 or used as its starting point"
+  }
+}

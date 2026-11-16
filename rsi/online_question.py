@@ -21,6 +21,7 @@ from rsi.expansion import (
     expand_node,
 )
 from rsi.online_evidence import observation, revealed_nodes, tree_index
+from rsi.sandbox import discovery_visibility
 from rsi.tree import DiscoveryTree, TreeNode
 from rsi.workspace import code_digest, commit_root, init_store
 
@@ -59,7 +60,8 @@ class OnlineDiscoveryQuestion:
                 seq += 1
 
         self.store = init_store(self.cycle_dir)
-        self.root_commit = commit_root(self.store)
+        check_tool = discovery_visibility(self.ctx.study_dir).workspace_check
+        self.root_commit = commit_root(self.store, check_tool)
         self.registry = DigestRegistry({code_digest(self.store, self.root_commit): "root"})
         self.node_records: dict[str, dict[str, Any]] = {}
         self.agent_records: list[dict[str, Any]] = []

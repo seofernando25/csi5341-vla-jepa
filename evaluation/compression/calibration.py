@@ -5,6 +5,7 @@ and B16 reference action chunks for the whole observation bank.
 """
 
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -53,8 +54,36 @@ def predict_bank(policy, pipeline, bank, indices):
     return outputs
 
 
-def load():
-    return torch.load(CALIBRATION, weights_only=True)
+def load(path=None):
+    """Load a calibration artifact; the frozen program-v1 one when no path is given."""
+    return torch.load(Path(path) if path is not None else CALIBRATION, weights_only=True)
+
+
+def for_protocol(protocol, root=ROOT):
+    """The calibration a solution receives: the study's artifact, minus its excluded fields.
+
+    A study that names its own artifact and excluded fields hands `compress` a calibration
+    without them; a study with no `calibration` block gets the frozen artifact unchanged.
+    """
+    spec = protocol.get("calibration") or {}
+    artifact = spec.get("artifact")
+    data = load(Path(root) / artifact if artifact else CALIBRATION)
+    for field in spec.get("exclude_fields") or ():
+        data.pop(str(field), None)
+    return data
+
+
+def derive(source, out, drop=("token_ids",)):
+    """Write a calibration artifact with `drop` removed; refuses to overwrite the output."""
+    out = Path(out)
+    if out.exists():
+        raise FileExistsError(f"preserve {out}")
+    data = load(source)
+    for field in drop:
+        data.pop(field, None)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(data, out)
+    return sorted(data)
 
 
 def calibrate():

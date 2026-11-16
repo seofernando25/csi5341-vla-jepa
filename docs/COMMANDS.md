@@ -10,6 +10,7 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Timing (pipeline + policy) | `uv run --no-sync vla-eval benchmark --variant B16` | Requires `vla-eval collect` bank; GPU |
 | Compression recipe | `uv run --no-sync vla-compress run --recipe studies/program-v1/recipes/<id>.json --phase <phase>` | Phases: `screen`, `smoke`, `development`, `final`, `size`, `benchmark` |
 | Compression queue | `uv run --no-sync vla-compress-queue --dry-run` then `uv run --no-sync vla-compress-queue` | Ordered cells from `studies/program-v1/queue.json`; resumable; stops on a runtime failure; `--allow-reserved` is required for `queue-reserved.json` |
+| Debiased calibration | `uv run --no-sync vla-compress derive-calibration --out outputs/compression/calibration-v3.pt` | Writes a calibration artifact with `--drop` fields removed (default `token_ids`); refuses to overwrite; CPU |
 | Agent-written solution (`compress(policy, calibration)`) | `uv run --no-sync vla-compress solution --workspace DIR --phase {check,smoke,development} --out DIR` | Fixed evaluator; writes `DIR/result.json`, `DIR/log.txt`; GPU |
 | Dream-RSI loop | `uv run --no-sync vla-rsi loop --cycles 3 --probe-budget 8 --max-parallelism 2 --promote-top-k 0` | Online per-node workspace expansion (discovery agent in `bwrap`, fixed `solution` evaluator in the GPU sandbox) + LLM policy rewriting under `studies/program-v1/`; GPU. Agent flags: `--backend {claude,pi}`, `--model`, `--effort` (default: protocol `dream_rsi.agent`, pi on `mistral/deepseek-v4-1-flash-1017` at max thinking); `--agent-timeout` / `--eval-timeout` default to protocol `dream_rsi.agent_timeout_s` / `eval_timeout_s` (1800 s); `--policy-timeout` defaults to 1200 s (protocol `policy_timeout_s`) |
 | Dream-RSI detached run | `uv run --no-sync vla-rsi start --study-dir studies/program-v1 -- --cycles 3 --max-hours 8 --max-agent-usd 20 --max-parallelism 2 --promote-top-k 0` | Launches `loop` as a `systemd --user` unit (restart on failure; `setsid` fallback); appends `DIR/loop.log`; GPU. Re-running resumes from `DIR/loop_state.json`. `--` separates `start` flags from `loop` flags; write the loop flags only, no `loop` token |
@@ -24,7 +25,9 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 
 `--study-dir` names the study, and that study's `protocol.json` is the only protocol a Dream-RSI
 run reads: the evaluator, the sandbox binds and the agent's own `tools/check.py` all resolve it
-there. [studies/program-v2/](../studies/program-v2/README.md) is the open-protocol namespace.
+there. [studies/program-v2/](../studies/program-v2/README.md) is the open-protocol namespace;
+[studies/program-v3/](../studies/program-v3/README.md) repeats it without the compression code
+and the prompt token ids.
 
 ## Additional CLI entry points
 
