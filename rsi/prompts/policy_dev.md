@@ -21,10 +21,15 @@ Iterate until mean V stops rising, then leave the best file in `/tmp/work/method
 
 ## Time budget
 
-You have {minutes} minutes. Spend at most half of them exploring. After that, keep `method.py`
+You have {minutes} minutes of wall clock. Write a valid `method.py` in the first few minutes, then
+improve it in place: that file is your answer, and the harness scores it as it stands even if you
+run out of time mid-thought. Spend at most half the budget exploring. After that, keep `method.py`
 holding your best policy and rerun `replay.py` after every change. Leave the last two minutes to
-write the final file and your three closing lines. A step that runs over is lost, whatever is in
-the workspace.
+write the final file and your three closing lines.
+
+`python /tmp/work/replay.py` prints the same in-sample V the harness records, in seconds. It is your
+only fast feedback; run it after every change. The harness replays your file again after you stop,
+and its replay is the only judge. A step that ends with no valid `method.py` is worth nothing.
 
 ## Files
 
@@ -77,12 +82,15 @@ policy replaces the current one only if its mean V over all worlds is strictly h
 - In replay `budget` is `None`, so `solve()` must stop on its own when no legal action remains or
   your own rule says stop. In a live cycle `budget` is the probe budget. A replay is killed at
   120 s of CPU time or 120 s of wall clock.
-- Keep a `plan_grid(self, context)` method: the audit requires it, but nothing calls it; the cycle
-  reads the static plan from `protocol.json`.
+- Keep a `plan_grid(self, context)` method. The next live cycle calls it to size that cycle's grid,
+  clamped to the protocol caps. The harness exercises it on the recorded history before accepting
+  your file; a plan that raises, returns the wrong type or a non-positive value rejects the step.
 - No string literal may equal a recorded cell id or world id, and no float literal may equal a
   recorded node score with three or more decimals (0.0, 0.5 and 1.0 are exempt). Integers are
   fine.
-- Each step has {minutes} minutes of wall clock. A step that runs over is lost (status `timeout`).
+- Each step has {minutes} minutes of wall clock. A step that runs over is scored on `method.py` as
+  it stands (status `timeout_salvaged`); if that file fails the audit or does not beat the
+  incumbent, the step is lost.
 
 ## Closed lines (a step that breaks one fails)
 

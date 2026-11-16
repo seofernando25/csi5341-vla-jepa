@@ -61,6 +61,20 @@
     },
     {
       "at": "2026-11-15",
+      "field": "dream_rsi.grid_plan",
+      "from": "the protocol grid values are the plan; plan_grid is never called",
+      "to": "the selected policy's plan_grid decides the next cycle's grid; the protocol grid values (max_parallelism, rounds_cap) and the run arguments (probe budget, GPU slots) are caps, and the protocol grid is the pre-registered fallback",
+      "reason": "Paper Appendix D.2: plan_grid sizes the next rollout from prior manifests and beta sweeps. Cycles iter_000..iter_002 ran with the static plan; this revision applies from the next live cycle."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.evaluator.memory_rule+prompt",
+      "from": "max(tensor walk of the returned policy and workspace modules, live CUDA bytes), measured after compress and before the first forward pass",
+      "to": "max(tensor walk, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, peak CUDA bytes during the episodes), measured after compress and again after inference; the discovery prompt again states that hiding or deferring memory fails the node",
+      "reason": "Cycle 3 found the hole: nodes iter_002-b1-a3, iter_002-b2-a1 and iter_002-b2-a2 scored 1.0 with 0 resident bytes by parking every weight on the CPU in a list attached to the torch module, leaving zero-element CUDA placeholders, and restoring the full bf16 weights on the first inference call. The walk covered only the returned policy and workspace modules, and measurement ran before the first forward pass. Evidence, audit and re-measurement: studies/program-v1/exploit/. No node score was selected on the old rule after this revision."
+    },
+    {
+      "at": "2026-11-15",
       "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",
       "from": "read,write,edit; no shell, no GPU, five rsi/ files at /tmp/rsi_lib; 240 s CLI default",
       "to": "read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, runnable replay.py in the workspace; 1200 s default; one repair attempt also after a not-better step; a timed-out step is recorded as timeout",

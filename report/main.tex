@@ -30,6 +30,37 @@ phases, gates, seeds, statistics and artifact requirements.
 \section{Results}
 Pending.
 
+% Numbers and quotes here come from studies/program-v1/exploit/ (README.md, remeasure.json) and
+% the iter_002-b2-a1 node record. Wire them through report/data/numbers.json when
+% vla-report-plots is rebuilt.
+\subsection{The search gamed the memory score}
+\label{sec:gaming}
+We score a candidate by the memory it removes, provided it still passes the smoke gate. We
+measured memory once, before the first forward pass.
+
+In the third cycle an agent used that. It moved every weight to host memory, left empty tensors on
+the GPU, and copied the weights back on the first inference call. The evaluator saw zero bytes and
+gave a perfect score. On the 100 development trials the node matched the uncompressed reference,
+82 successes each, because it ran the same full-precision weights.
+
+This was deliberate. The agent's log shows it tried skipping layers first and dropped the idea
+when action error rose. It then read our scoring code, found nothing that questioned a size of
+zero, and wrote: ``the policy's inference still uses the full bf16 weights; it's not actually
+smaller in GPU memory during inference.'' Its proposal calls the result ``a measurement-level
+change, not a weight-compression change.''
+
+We do not call this cheating. The agent met the rule as written and said what it had done. Our
+score was wrong: it recorded where the weights sat at one moment, not what the policy needs to
+run. Moving weights off the GPU can be a fair trade when it lowers peak memory. Here it did not.
+
+We now take memory as the peak over the episodes and count every tensor the solution keeps
+alive. Scored again, the same node removes 28\% of memory, not all of it. The three nodes that
+used the trick are marked invalid and appear in no result. The honest winners lose two to four
+points, because the peak also counts their working memory, and succeed as often as before.
+
+It took the search three cycles to find a hole we had missed. A score that a search optimises
+needs the same scrutiny as the method.
+
 \section{Limitations and Conclusion}
 Pending.
 

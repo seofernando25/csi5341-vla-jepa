@@ -10,7 +10,7 @@ import signal
 import stat
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -24,7 +24,9 @@ from rsi.agent_backends import (
     agent_record,
     default_agent_spec,
 )
+from rsi.api import GridPlanningContext
 from rsi.dream import leave_one_world_out
+from rsi.grid_plan import PlanError, applied_plan, call_plan_grid
 from rsi.objective import DEFAULT_LAMBDA_PARALLEL
 from rsi.policy_audit import (
     PolicyAuditError,
@@ -331,6 +333,7 @@ class _Run:
     agent: AgentSpec
     timeout: float
     use_bwrap: bool
+    plan_context: GridPlanningContext | None = None
     results: list[AgentRunResult] = field(default_factory=list)
 
     def replay(
@@ -347,13 +350,51 @@ class _Run:
         )
 
 
-def _check_text(run: _Run, step_dir: Path, text: str) -> tuple[dict[str, Any], str]:
-    """Audit the agent's source, then replay it; raises on any violation."""
+def _plan_context(
+    manifests: list[dict[str, Any]], max_parallelism: int
+) -> GridPlanningContext | None:
+    """Planning context for candidate validation, or None when no cycle recorded a plan.
+
+    The fallback is the plan the last recorded cycle applied. Without one there is nothing to
+    plan from, and the next live cycle validates the candidate before it runs.
+    """
+    for manifest in reversed(manifests):
+        fallback = applied_plan(manifest)
+        if fallback is not None:
+            return GridPlanningContext(
+                iteration=len(manifests),
+                max_parallelism=max_parallelism,
+                fallback_plan=fallback,
+                recent_live_manifests=tuple(manifests[-3:]),
+            )
+    return None
+
+
+def _check_plan_grid(run: _Run, candidate: Path) -> dict[str, Any] | None:
+    """Exercise a candidate's `plan_grid` on the recorded history; a broken plan rejects it.
+
+    Replay V scores `solve` only, so this validates the plan's shape and range, never its
+    quality: a plan that would fail at the next live cycle fails here instead.
+    """
+    if run.plan_context is None:
+        return None
+    try:
+        return asdict(call_plan_grid(candidate, run.plan_context, use_bwrap=run.use_bwrap))
+    except PlanError as exc:
+        raise PolicyReplayError(f"plan_grid: {exc}") from exc
+
+
+def _check_text(
+    run: _Run, step_dir: Path, text: str
+) -> tuple[dict[str, Any], str, dict[str, Any] | None]:
+    """Audit the agent's source, exercise its plan, then replay it; raises on any violation."""
     audit_policy_source(text)
     audit_no_world_literals(text, run.history)
     candidate = step_dir / "candidate.py"
     candidate.write_text(text, encoding="utf-8")
-    return run.replay(candidate, step_dir / "replay", run.world_paths, run.evidence)
+    plan = _check_plan_grid(run, candidate)
+    result, traces = run.replay(candidate, step_dir / "replay", run.world_paths, run.evidence)
+    return result, traces, plan
 
 
 def _reject(rec: dict[str, Any], error: str, status: str = "rejected") -> dict[str, Any]:
@@ -363,6 +404,7 @@ def _reject(rec: dict[str, Any], error: str, status: str = "rejected") -> dict[s
         error=error,
         result=None,
         traces=None,
+        plan=None,
         path=None,
         mean_v=None,
         delta_vs_best=None,
@@ -400,6 +442,7 @@ def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) ->
         "text": None,
         "result": None,
         "traces": None,
+        "plan": None,
         "path": None,
         "mean_v": None,
         "delta_vs_best": None,
@@ -440,7 +483,7 @@ def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) ->
             return _reject(rec, str(exc))
         rec["text"] = text
         try:
-            result, traces = _check_text(run, step_dir, text)
+            result, traces, plan = _check_text(run, step_dir, text)
         except (SandboxTimeoutError, SandboxOutputError) as exc:
             return _reject(rec, str(exc))
         except (PolicyAuditError, PolicyReplayError) as exc:
@@ -451,6 +494,7 @@ def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) ->
         rec.update(
             result=result,
             traces=traces,
+            plan=plan,
             path=step_dir / "candidate.py",
             mean_v=mean_v,
             delta_vs_best=mean_v - best_mean_v,
@@ -495,6 +539,7 @@ def _verdict(rec: dict[str, Any]) -> dict[str, Any]:
         "delta_vs_best": rec.get("delta_vs_best"),
         "error": rec["error"],
         "attempts": rec["attempts"],
+        "grid_plan": rec.get("plan"),
     }
 
 
@@ -507,6 +552,7 @@ def _summary_variant(rec: dict[str, Any], record_root: Path | None = None) -> di
         "delta_vs_best": rec.get("delta_vs_best"),
         "error": rec["error"],
         "attempts": rec["attempts"],
+        "grid_plan": rec.get("plan"),
         "policy_path": _recorded_path(rec["path"], record_root),
         "policy_sha256": _sha256(rec["path"]) if rec["path"] is not None else None,
     }
@@ -542,12 +588,13 @@ def develop_policies_llm(
     inc_src = Path(incumbent_path) if incumbent_path is not None else INCUMBENT_TEMPLATE
     out_root = Path(output_dir)
     evidence = out_root / "evidence"
+    manifests = list(live_manifests or ())
     world_paths = [
         save_tree_json(t, evidence / "worlds" / f"{i:02d}_{t.world_id}.json")
         for i, t in enumerate(history)
     ]
     (evidence / "live_cycle_manifests.json").write_text(
-        json.dumps(live_manifests or [], indent=2) + "\n", encoding="utf-8"
+        json.dumps(manifests, indent=2) + "\n", encoding="utf-8"
     )
     (evidence / "reference").mkdir(parents=True, exist_ok=True)
     for name in ("api.py", "tree.py", "objective.py"):
@@ -568,6 +615,7 @@ def develop_policies_llm(
         agent=spec,
         timeout=timeout,
         use_bwrap=use_bwrap,
+        plan_context=_plan_context(manifests, max_parallelism),
     )
 
     inc_text = inc_src.read_text(encoding="utf-8")
@@ -575,6 +623,7 @@ def develop_policies_llm(
     inc_dir.mkdir(parents=True, exist_ok=True)
     (inc_dir / "method.py").write_text(inc_text, encoding="utf-8")
     shutil.copyfile(inc_src, inc_dir / "candidate.py")
+    inc_plan = _check_plan_grid(run, inc_dir / "candidate.py")
     inc_result, inc_traces = run.replay(
         inc_dir / "candidate.py", inc_dir / "replay", world_paths, evidence
     )
@@ -587,6 +636,7 @@ def develop_policies_llm(
         "text": inc_text,
         "result": inc_result,
         "traces": inc_traces,
+        "plan": inc_plan,
         "path": inc_dir / "candidate.py",
         "mean_v": inc_result["mean_v"],
         "delta_vs_best": 0.0,

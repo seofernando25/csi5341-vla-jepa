@@ -279,17 +279,45 @@ class OptimalPolicy(LLMDesignedMethod):
         return finalize_result(question, res)
 
     def plan_grid(self, context: GridPlanningContext) -> GridPlan:
-        """Return the pre-registered grid plan; the clean protocol has no adaptive planner."""
-        plan = self.config.get("grid_plan")
-        if not isinstance(plan, dict):
-            raise TypeError(
-                "Clean protocol requires an explicit grid_plan in the policy config; "
-                "no adaptive planner is defined."
-            )
+        """Size the next grid from the manifests of the cycles already run (Appendix D.2).
+
+        Start from the pre-registered plan (`context.fallback_plan`) and return it unchanged
+        when no cycle has run, so cycle 1 behaves as before. Over the last three manifests, a
+        cycle whose refinement (a non-root node) passed the gate says depth paid; a cycle whose
+        best score did not beat the previous best (`plateaued`) says breadth stalled. More paying
+        cycles than plateaus moves one slot from breadth to depth; more plateaus than paying
+        cycles moves one slot from depth to breadth. The harness clamps the result to the
+        protocol caps.
+        """
+        base = context.fallback_plan
+        manifests = context.recent_live_manifests[-3:]
+        if not manifests:
+            return base
+        paying = 0
+        plateaued = 0
+        for manifest in manifests:
+            nodes = manifest.get("nodes") or ()
+            if any(
+                node.get("parent_id") != "root"
+                and node.get("fail_class") == "ok"
+                and float(node.get("score") or 0.0) > 0.0
+                for node in nodes
+            ):
+                paying += 1
+            if manifest.get("plateaued") is True:
+                plateaued += 1
+        breadth = base.max_branches
+        depth = base.max_attempts_per_branch
+        if paying > plateaued:
+            breadth, depth = breadth - 1, depth + 1
+        elif plateaued > paying:
+            breadth, depth = breadth + 1, depth - 1
         return GridPlan(
-            max_branches=int(plan["max_branches"]),
-            max_attempts_per_branch=int(plan["max_attempts_per_branch"]),
-            max_parallelism=int(plan["max_parallelism"]),
-            rounds_cap=int(plan["rounds_cap"]),
-            rationale=str(plan.get("rationale", "pre-registered static grid plan")),
+            max_branches=max(1, breadth),
+            max_attempts_per_branch=max(0, depth),
+            max_parallelism=max(1, min(context.max_parallelism, base.max_parallelism)),
+            rounds_cap=base.rounds_cap,
+            rationale=(
+                f"prior manifests: {paying} with a passing refinement, {plateaued} plateaued"
+            ),
         )
