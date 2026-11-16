@@ -41,7 +41,7 @@ BIT_TICKS = (2, 3, 4, 8, 16)
 OFFSETS = {"language": -0.16, "vision": 0.0, "action": 0.16}  # category units, so bars clear
 JOINT = ("precision-joint-va-hqq2", "vision + action")
 JOINT_OFFSET = 0.30
-LABEL_DY = {"language": 11.0, "vision": 3.0, "action": -8.0}  # points; the lines meet at 16 bits
+LABEL_DY = {"language": 16.0, "vision": 3.0, "action": -10.0}  # points; the lines meet at 16 bits
 
 
 def nominal_bits(candidate: str, recipe: dict, module: str) -> int:
