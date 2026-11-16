@@ -19,7 +19,7 @@ where the loss comes from. On LIBERO-Spatial, quantizing only the language decod
 task success at the uncompressed level (96.0\,\% against 95.0\,\% on 500 reserved episodes), while
 2-bit language weights collapse it (20/100). Vision and action tolerate 2 bits. A CUDA-graph
 execution path cuts median step latency from 73\,ms to 18\,ms, and packed NF4 under the graph gives
-28\,ms at 1.5\,GB peak memory against 5.6\,GB. A replay-guided search removes 83\,\% of the
+28\,ms at 1.5\,GB peak memory against 5.6\,GB, and scores 97.8\,\% on the reserved set. A replay-guided search removes 83\,\% of the
 policy's resident memory at no measurable loss (93.4\,\% reserved, paired $-1.6$\,pp, 95\,\%
 interval $[-3.6,+0.2]$), and in its third cycle it finds and exploits a hole in our own memory
 score. We report that failure, the fix, and the re-measured result. Opening the search's policy
@@ -90,7 +90,9 @@ between 3 and 2 bits; vision and action do not. Bars are Wilson 95\,\% intervals
 Fig.~\ref{fig:precision} shows the surface. Quantizing the language decoder to INT8 or NF4 is free
 within noise: 81/100 development for both,
 against 82/100 for the uncompressed reference, and 94.8\,\% and 96.0\,\% on 500 reserved episodes
-against 95.0\,\%. The NF4 cell stores 6.3 effective bits per text weight.
+against 95.0\,\%. The paired differences are $-0.2$\,pp $[-1.2,+0.8]$ and $+1.0$\,pp
+$[-0.2,+2.2]$. They remove 25.4\,\% and 37.8\,\% of memory, within a point of the arithmetic
+ceiling. The NF4 cell stores 6.3 effective bits per text weight.
 
 Two bits is where the decoder breaks: 20/100 development, a 60-point drop. Vision and action do not
 break at two bits (86/100 and 81/100), so the loss is specific to the language path, not to low
@@ -129,6 +131,10 @@ because the unpacked weights are materialised.
 
 Decoder-only quantization alone is slower than the reference (INT8 150\,ms, NF4 90\,ms):
 dequantization costs more than the smaller weights save at batch 1.
+
+The packed arm also scores 97.8\,\% on 500 reserved episodes ($+2.8$\,pp $[+1.2,+4.6]$
+against the reference), the only cell whose interval excludes zero; 11 of its 14 net gains are on
+task 5. It had no smoke or development rollout, so that number is a single reserved measurement.
 
 \subsection{Replay-guided search}
 \begin{table}[t]

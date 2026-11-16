@@ -44,11 +44,14 @@ nothing since is pushed and no board record is posted. Ask Fernando before eithe
 
 ## Next, in order
 
-1. When the two v2 reserved cells stop (~06:00): gate the table (development and reserved in
-   separate columns), then commit the records and the study README table.
-2. `vla-report-plots`, check the `report/data/numbers.json` diff, write the report: mechanism
-   curves, Dream-RSI discoveries, the gaming subsection (already in `report/main.tex`), execution.
+1. When the two v2 reserved cells stop (~05:00): fill the reserved column of Table II in
+   `report/main.tex`, rebuild `vla-report-plots`, and commit the records, the figures and
+   `report/data/numbers.json`.
+2. Update `studies/program-v2/README.md` with the reserved result.
 3. Ask Fernando before pushing or posting to the board.
+
+The report draft is committed (`563958b`): four pages, four figures, two tables. Every number in it
+comes from `report/data/numbers.json`; the only placeholder is Table II's reserved column.
 
 ## Decisions Fernando made (2026-11-15)
 
