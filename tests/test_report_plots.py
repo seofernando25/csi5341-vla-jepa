@@ -86,7 +86,6 @@ def test_every_figure_builds_from_the_fixture(synthetic):
     numbers = build(synthetic)
     assert numbers["figures"] == {
         "precision": "ok",
-        "format": "ok",
         "ladder": "ok",
         "divergence": "ok",
         "failure": "skipped: evidence absent",  # the fixture has no failure analysis
@@ -94,7 +93,6 @@ def test_every_figure_builds_from_the_fixture(synthetic):
     }
     assert sorted(path.name for path in (synthetic.parent / "figures").glob("*.pdf")) == [
         "divergence.pdf",
-        "format.pdf",
         "ladder.pdf",
         "precision.pdf",
     ]
@@ -114,7 +112,6 @@ def test_missing_evidence_skips_a_figure_and_records_it(synthetic):
             shutil.rmtree(folder)
     numbers = build(synthetic)
     assert numbers["figures"]["precision"] == "skipped: evidence absent"
-    assert numbers["figures"]["format"] == "skipped: evidence absent"
     assert numbers["figures"]["ladder"] == "skipped: evidence absent"
     assert numbers["figures"]["divergence"] == "skipped: evidence absent"
     assert set(numbers["rows"]) == {"B16"}

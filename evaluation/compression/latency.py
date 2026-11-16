@@ -6,19 +6,22 @@ the untouched B16 policy on the stock path; the candidate is whatever `compress`
 score is zero unless the smoke gate passes and the candidate's peak CUDA bytes do not exceed the
 reference's.
 
-Timing is block-based. Each side is timed in `blocks` blocks of `timed_calls / blocks` calls,
-after warm-up, on frames that were never timed before. When a second copy of the reference fits
+Timing is block-based. Each side is timed in `blocks` blocks, after warm-up, on frames that were
+never timed before. Every task of the reference suite contributes the same number of frames to
+every role and every block, and the same frames time both sides. When a second copy of the reference fits
 beside the candidate, the blocks alternate reference, candidate, reference, candidate (ABAB), so
 a co-tenant burst lands in both sides. When it does not fit, the reference is timed in blocks
 before `compress` and again after the candidate episodes and the two pools are combined
-(sandwich). The speedup is reported with a 95 % cluster-bootstrap interval over blocks and the
-score is its lower bound, so timing noise cannot create a win.
+(sandwich). The speedup is the geometric mean of the per-task median speedups, reported with a
+95 % cluster-bootstrap interval over blocks, and the score is its lower bound, so timing noise
+cannot create a win and no task can carry the score. The equivalence, arm-action and perturbation
+guards are judged on each task, and the worst task decides.
 
-The instruments are in `latency_timing.py` (captured clock, frame plan, blocks, bootstrap, the
-co-tenant watch) and the failing conditions in `latency_guards.py` (equivalence, novel-frame
-cost, arm-action error, perturbation response, reset cost, episode overhead, CPU and child CPU,
-peak CUDA). This module runs the reference pass, the candidate pass and the sandwich, and turns
-them into the score.
+The instruments are in `latency_timing.py` (captured clock, blocks, the co-tenant watch),
+`latency_plan.py` (per-task frame plan, stratified bootstrap) and the failing conditions in
+`latency_guards.py` (equivalence, novel-frame cost, arm-action error, perturbation response, reset
+cost, episode overhead, CPU and child CPU, peak CUDA). This module runs the reference pass, the
+candidate pass and the sandwich, and turns them into the score.
 """
 
 from __future__ import annotations
@@ -34,7 +37,7 @@ import torch
 
 from evaluation.compression.latency_guards import (
     arm_actions,
-    arm_error,
+    arm_error_by_task,
     bank_indices,
     child_cpu_violation,
     cpu_violation,
@@ -42,20 +45,19 @@ from evaluation.compression.latency_guards import (
     novel_frame_cost,
     overhead_violation,
     peak_violation,
-    perturbation_correlation,
+    perturbation_by_task,
     perturbation_deltas,
     perturbation_pairs,
     reset_cost,
 )
+from evaluation.compression.latency_plan import Plan, bootstrap_speedup, frame_plan
 from evaluation.compression.latency_timing import (
     CLOCK,
     Clock,
     FrameCollector,
     GpuWatch,
     Limits,
-    bootstrap_speedup,
     child_pids,
-    frame_plan,
     rebinds,
     summarize,
     time_block,
@@ -96,6 +98,7 @@ class Episodes:
     wall_seconds: float
     steps: int
     overhead_per_step_ms: float
+    peak_bytes: int = 0
 
 
 def _episodes(
@@ -126,7 +129,46 @@ def _episodes(
         wall_seconds=wall,
         steps=collector.seen,
         overhead_per_step_ms=1000.0 * max(0.0, wall - collector.total_select_seconds) / steps,
+        peak_bytes=clock.max_allocated(),
     )
+
+
+def _reference_episodes(
+    policy: object, pipeline: object, limits: Limits, folder: Path, clock: Clock
+) -> tuple[Episodes, list[int]]:
+    """One batch of reference episodes per task, so every task has its own frames."""
+    parts = []
+    for task in limits.reference_tasks:
+        (folder / f"task_{task}").mkdir(parents=True, exist_ok=True)
+        parts.append(
+            _episodes(
+                policy,
+                pipeline,
+                "latency-reference",
+                [task],
+                "development",
+                limits.reference_trials,
+                folder / f"task_{task}",
+                clock,
+                limit=limits.max_frames_per_task,
+                stride=limits.frame_stride,
+            )
+        )
+    steps = sum(part.steps for part in parts)
+    merged = Episodes(
+        frames=[frame for part in parts for frame in part.frames],
+        summary={
+            "successes": sum(part.summary["successes"] for part in parts),
+            "episodes": sum(part.summary["episodes"] for part in parts),
+        },
+        wall_seconds=sum(part.wall_seconds for part in parts),
+        steps=steps,
+        overhead_per_step_ms=sum(part.overhead_per_step_ms * part.steps for part in parts)
+        / max(1, steps),
+        peak_bytes=max(part.peak_bytes for part in parts),
+    )
+    labels = [task for task, part in zip(limits.reference_tasks, parts) for _ in part.frames]
+    return merged, labels
 
 
 @dataclass
@@ -142,11 +184,11 @@ class Reference:
     steps: int
     successes: int
     episodes: int
-    warm: list[int] = field(default_factory=list)
-    block_frames: list[list[int]] = field(default_factory=list)
+    plan: Plan | None = None
     blocks: list[list[float]] = field(default_factory=list)
     arm: list[torch.Tensor] = field(default_factory=list)
     probe: dict = field(default_factory=dict)
+    probe_labels: list[int] = field(default_factory=list)
     pipeline: Any = None
     watch: GpuWatch | None = None
 
@@ -162,6 +204,7 @@ class Reference:
             "episode_wall_seconds": self.episode_wall_seconds,
             "overhead_per_step_ms": self.overhead_per_step_ms,
             "peak_cuda_bytes": self.peak_cuda_bytes,
+            "tasks": list(self.limits.reference_tasks),
             "arm_frames": len(self.arm),
             "probe_frames": len(self.probe.get("originals", [])),
         }
@@ -174,37 +217,17 @@ def run_reference(policy: object, protocol: dict, phase: str, out_dir: Path, clo
     folder.mkdir(parents=True, exist_ok=True)
     pipeline = Pipeline(policy)
     watch = GpuWatch(limits.other_gpu_utilisation_max_pct)
-    episodes = _episodes(
-        policy,
-        pipeline,
-        "latency-reference",
-        list(limits.reference_tasks),
-        "development",
-        limits.reference_trials,
-        folder,
-        clock,
-        limit=limits.max_frames,
-        stride=limits.frame_stride,
-    )
-    warm, block_frames = frame_plan(len(episodes.frames), limits, limits.equivalence_frames)
-    warm_up(policy, episodes.frames, warm, protocol["seed"], clock)
+    episodes, labels = _reference_episodes(policy, pipeline, limits, folder, clock)
+    plan = frame_plan(labels, limits)
+    warm_up(policy, episodes.frames, plan.warm, protocol["seed"], clock)
     results = []
-    for block in block_frames:
+    for block in plan.blocks:
         watch.sample()
         results.append(time_block(policy, episodes.frames, block, protocol["seed"], clock))
-    timing = timing_summary(results, len(warm))
-    count = max(0, min(limits.arm_check_frames, len(episodes.frames) - limits.equivalence_frames))
-    arm = arm_actions(
-        policy,
-        episodes.frames,
-        count,
-        protocol["seed"],
-        pipeline,
-        clock,
-        offset=limits.equivalence_frames,
-    )
+    timing = timing_summary(results, len(plan.warm))
+    arm = arm_actions(policy, episodes.frames, plan.arm_indices, protocol["seed"], pipeline, clock)
     bank = observation_bank()
-    indices = bank_indices(bank, limits.perturbation_frames)
+    indices = bank_indices(bank, limits.perturbation_per_task, limits.reference_tasks)
     pairs = perturbation_pairs(bank, indices, limits.perturbation_levels, protocol["seed"] + 7000)
     probe = {
         "originals": [pipeline.sample(original) for original, _ in pairs],
@@ -219,15 +242,15 @@ def run_reference(policy: object, protocol: dict, phase: str, out_dir: Path, clo
         timing=timing,
         episode_wall_seconds=episodes.wall_seconds,
         overhead_per_step_ms=episodes.overhead_per_step_ms,
-        peak_cuda_bytes=clock.max_allocated(),
+        peak_cuda_bytes=max(episodes.peak_bytes, clock.max_allocated()),
         steps=episodes.steps,
         successes=episodes.summary["successes"],
         episodes=episodes.summary["episodes"],
-        warm=warm,
-        block_frames=block_frames,
+        plan=plan,
         blocks=[result["wall"] for result in results],
         arm=arm,
         probe=probe,
+        probe_labels=[int(bank[index]["task_id"]) for index in indices],
         pipeline=pipeline,
         watch=watch,
     )
@@ -280,29 +303,29 @@ def _interleaved(
 
 
 def _behaviour(policy: object, reference: Reference, seed: int, clock: Clock) -> dict:
-    """Guards on what the candidate answers, before it is timed."""
+    """Guards on what the candidate answers, before it is timed; each is judged per task."""
     limits = reference.limits
+    plan = reference.plan
     violations = list(rebinds(clock))
-    checks = equivalence(policy, reference.frames, limits, seed, clock)
-    violations += checks["violations"]
+    checks: dict[str, dict] = {}
+    for task, indices in plan.equivalence.items():
+        check = equivalence(policy, [reference.frames[i] for i in indices], limits, seed, clock)
+        violations += [f"task {task}: {message}" for message in check["violations"]]
+        checks[str(task)] = check
     reset_ms = reset_cost(policy, reference.frames, clock)
     reset_limit = max(
         limits.reset_budget_ms, limits.reset_budget_fraction * reference.timing["median_ms"]
     )
     if reset_ms > reset_limit:
         violations.append(f"reset costs {reset_ms:.2f} ms, above {reset_limit:.2f} ms")
-    arm = arm_actions(
-        policy,
-        reference.frames,
-        len(reference.arm),
-        seed,
-        reference.pipeline,
-        clock,
-        offset=limits.equivalence_frames,
-    )
-    error = arm_error(reference.arm, arm)
-    if error > limits.arm_action_mse_max:
-        violations.append(f"arm action error {error:.3g} is above {limits.arm_action_mse_max:g}")
+    arm = arm_actions(policy, reference.frames, plan.arm_indices, seed, reference.pipeline, clock)
+    arm_labels = [plan.labels[index] for index in plan.arm_indices]
+    errors = arm_error_by_task(reference.arm, arm, arm_labels)
+    for task, error in errors.items():
+        if error > limits.arm_action_mse_max:
+            violations.append(
+                f"task {task}: arm action error {error:.3g} is above {limits.arm_action_mse_max:g}"
+            )
     deltas = perturbation_deltas(
         policy,
         reference.probe["originals"],
@@ -311,19 +334,26 @@ def _behaviour(policy: object, reference: Reference, seed: int, clock: Clock) ->
         reference.pipeline,
         clock,
     )
-    correlation = perturbation_correlation(reference.probe["reference_deltas"], deltas)
-    if correlation < limits.perturbation_min_correlation:
-        violations.append(
-            f"perturbation response correlation {correlation:.3f} is below "
-            f"{limits.perturbation_min_correlation:g}"
-        )
+    correlations = perturbation_by_task(
+        reference.probe["reference_deltas"], deltas, reference.probe_labels
+    )
+    for task, correlation in correlations.items():
+        if correlation < limits.perturbation_min_correlation:
+            violations.append(
+                f"task {task}: perturbation response correlation {correlation:.3f} is below "
+                f"{limits.perturbation_min_correlation:g}"
+            )
     return {
         "violations": violations,
         "equivalence": checks,
         "reset_ms": reset_ms,
         "reset_limit_ms": reset_limit,
-        "arm_action_error": error,
-        "perturbation_correlation": correlation,
+        "arm_action_error": max(errors.values(), default=float("inf")),
+        "arm_action_error_by_task": {str(task): error for task, error in errors.items()},
+        "perturbation_correlation": min(correlations.values(), default=0.0),
+        "perturbation_correlation_by_task": {
+            str(task): value for task, value in correlations.items()
+        },
     }
 
 
@@ -341,16 +371,16 @@ def _timed(
     second = _load_second(reference_loader, reference.peak_cuda_bytes, clock)
     threads_before = threading.active_count()
     children_before = child_pids()
-    warm_up(policy, reference.frames, reference.warm, seed, clock)
+    warm_up(policy, reference.frames, reference.plan.warm, seed, clock)
     if second is not None:
-        warm_up(second, reference.frames, reference.warm, seed, clock)
+        warm_up(second, reference.frames, reference.plan.warm, seed, clock)
         reference_blocks, candidate_blocks, results = _interleaved(
-            second, policy, reference.frames, reference.block_frames, seed, clock, watch
+            second, policy, reference.frames, reference.plan.blocks, seed, clock, watch
         )
         mode = "interleaved"
     else:
         results = []
-        for block in reference.block_frames:
+        for block in reference.plan.blocks:
             watch.sample()
             results.append(time_block(policy, reference.frames, block, seed, clock))
         reference_blocks = reference.blocks
@@ -360,7 +390,7 @@ def _timed(
     # would be charged for it.
     second = None
     clock.empty_cache()
-    timing = timing_summary(results, len(reference.warm))
+    timing = timing_summary(results, len(reference.plan.warm))
     threads_after = threading.active_count()
     children_after = child_pids()
     violations = []
@@ -389,7 +419,10 @@ def _timed(
                 f"GPU time {timing['gpu_total_ms']:.2f} ms is above {gpu_limit:.2f} ms "
                 "for the timed calls"
             )
-    novel = novel_frame_cost(policy, reference.frames, timing["median_ms"], limits, seed, clock)
+    novel_frames = [
+        reference.frames[index] for index in reference.plan.alternating(reference.plan.arm)
+    ]
+    novel = novel_frame_cost(policy, novel_frames, timing["median_ms"], limits, seed, clock)
     if novel["violation"]:
         violations.append(
             f"a novel frame costs {novel['median_ms']:.2f} ms, above {novel['limit_ms']:.2f} ms"
@@ -452,6 +485,7 @@ def run_candidate(
         timed["candidate_blocks"],
         limits,
         paired=timed["mode"] == "interleaved",
+        labels=reference.plan.block_labels,
     )
     timing["speedup"] = interval
     timing["mode"] = timed["mode"]
@@ -497,8 +531,10 @@ def run_candidate(
             "new_threads": timed["new_threads"],
             "new_child_pids": timed["new_child_pids"],
             "arm_action_error": behaviour["arm_action_error"],
+            "arm_action_error_by_task": behaviour["arm_action_error_by_task"],
             "arm_action_error_limit": limits.arm_action_mse_max,
             "perturbation_correlation": behaviour["perturbation_correlation"],
+            "perturbation_correlation_by_task": behaviour["perturbation_correlation_by_task"],
             "perturbation_correlation_min": limits.perturbation_min_correlation,
         },
         "equivalence": behaviour["equivalence"],
@@ -534,11 +570,11 @@ def finish_sandwich(
         )
         report["score"] = 0.0
         return report
-    warm_up(second, reference.frames, reference.warm, protocol["seed"], clock)
+    warm_up(second, reference.frames, reference.plan.warm, protocol["seed"], clock)
     watch = reference.watch
     after = []
     try:
-        for block in reference.block_frames:
+        for block in reference.plan.blocks:
             if watch is not None:
                 watch.sample()
             after.append(
@@ -552,6 +588,7 @@ def finish_sandwich(
         )
         report["score"] = 0.0
         return report
+    plan = reference.plan
     timing["reference_blocks_after"] = len(after)
     before_median = float(np.median([value for block in reference.blocks for value in block]))
     after_median = float(np.median([value for block in after for value in block]))
@@ -563,7 +600,12 @@ def finish_sandwich(
             f"above {100.0 * reference.limits.sandwich_drift_max:.0f} %"
         )
     interval = bootstrap_speedup(
-        reference.blocks + after, timing["candidate_blocks"], reference.limits, paired=False
+        reference.blocks + after,
+        timing["candidate_blocks"],
+        reference.limits,
+        paired=False,
+        labels=plan.block_labels,
+        reference_labels=plan.block_labels * 2,
     )
     timing["speedup"] = interval
     pooled = summarize([value for block in reference.blocks + after for value in block])

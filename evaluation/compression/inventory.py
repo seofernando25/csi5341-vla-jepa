@@ -4,11 +4,14 @@ import functools
 import gc
 import mmap
 import types
+import warnings
 
 import numpy as np
 import torch
 from safetensors.torch import save_file
 from torch import nn
+from torch._subclasses.fake_tensor import FakeTensor
+from torch._subclasses.functional_tensor import FunctionalTensor
 
 from evaluation.common import ROOT, write_json
 from evaluation.compression.quantization import Int8Embedding
@@ -307,16 +310,25 @@ def _cell_contents(function: types.FunctionType) -> list[object]:
     return values
 
 
+VIRTUAL_TENSORS = (FakeTensor, FunctionalTensor)
+
+
 def live_cuda_bytes() -> int:
     """Bytes of every live CUDA strided tensor storage in the process, after a full collection."""
     gc.collect()
     storages: dict[tuple, int] = {}
-    for obj in gc.get_objects():
-        if not (torch.is_tensor(obj) and obj.is_cuda and obj.layout == torch.strided):
-            continue
-        try:
-            storage = obj.untyped_storage()
-        except RuntimeError:
-            continue
-        storages[(obj.device.index, storage.data_ptr())] = storage.nbytes()
+    with warnings.catch_warnings():
+        # Probing every object touches deprecated aliases that warn on `isinstance`.
+        warnings.simplefilter("ignore")
+        for obj in gc.get_objects():
+            if not (torch.is_tensor(obj) and obj.is_cuda and obj.layout == torch.strided):
+                continue
+            if isinstance(obj, VIRTUAL_TENSORS):
+                # FakeTensor and FunctionalTensor claim a device but own no memory.
+                continue
+            try:
+                storage = obj.untyped_storage()
+            except (RuntimeError, NotImplementedError):
+                continue
+            storages[(obj.device.index, storage.data_ptr())] = storage.nbytes()
     return sum(storages.values())

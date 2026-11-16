@@ -8,7 +8,9 @@ Each is a failing condition, not a warning:
   median, which catches a cache with a slow fallback;
 - the candidate's physical arm actions on fresh frames must stay within a set distance of the
   untouched policy's, and its arm changes under a small pixel perturbation must correlate with the
-  untouched policy's, which catches a lookup table that returns a stored answer;
+  untouched policy's, which catches a lookup table that returns a stored answer. Equivalence, arm
+  error and correlation are judged on each task, and the worst task decides, so a candidate that
+  degrades one task cannot hide it in a pooled figure;
 - `reset` must stay cheap, so work cannot move out of the timed call into it;
 - the episode batch's wall time per step, minus the policy's own time in the episodes, must not
   exceed the reference's by more than a set factor, so background or asynchronous work is charged
@@ -93,7 +95,7 @@ def _close(left: torch.Tensor, right: torch.Tensor, atol: float) -> bool:
 
 def equivalence(policy: object, frames: list[Any], limits: Limits, seed: int, clock: Clock = CLOCK):
     """Reproducibility, order, path and input-sensitivity checks on held-out frames."""
-    count = min(limits.equivalence_frames, len(frames))
+    count = min(limits.equivalence_per_task, len(frames))
     if count < 2:
         return {
             "violations": ["fewer than two frames for the equivalence check"],
@@ -210,16 +212,15 @@ def physical_arm(chunk: torch.Tensor, pipeline: Any) -> torch.Tensor:
 def arm_actions(
     policy: object,
     frames: list[Any],
-    count: int,
+    indices: list[int],
     seed: int,
     pipeline: Any,
     clock: Clock = CLOCK,
-    offset: int = 0,
 ) -> list[torch.Tensor]:
-    """Physical arm actions of the policy on `count` frames starting at `offset`."""
+    """Physical arm actions of the policy on the frames at `indices`, one seed per frame."""
     return [
-        physical_arm(_chunk(policy, frames[offset + index], seed + offset + index, clock), pipeline)
-        for index in range(count)
+        physical_arm(_chunk(policy, frames[index], seed + index, clock), pipeline)
+        for index in indices
     ]
 
 
@@ -235,6 +236,19 @@ def arm_error(reference: list[torch.Tensor], candidate: list[torch.Tensor]) -> f
             ]
         )
     )
+
+
+def arm_error_by_task(
+    reference: list[torch.Tensor], candidate: list[torch.Tensor], labels: list[int]
+) -> dict[int, float]:
+    """`arm_error` of each task's frames; the limit applies to the worst task, not the pool."""
+    return {
+        task: arm_error(
+            [value for value, label in zip(reference, labels) if label == task],
+            [value for value, label in zip(candidate, labels) if label == task],
+        )
+        for task in sorted(set(labels))
+    }
 
 
 def perturb_raw(raw: Any, levels: int, generator: torch.Generator) -> Any:
@@ -295,10 +309,25 @@ def perturbation_correlation(reference: list[torch.Tensor], candidate: list[torc
     return float((left * right).sum() / denominator)
 
 
-def bank_indices(bank: list[Any], count: int) -> list[int]:
-    """Visible bank frames spread over the bank, so every task is represented."""
-    total = len(bank)
-    if total == 0 or count <= 0:
-        return []
-    step = max(1, total // count)
-    return list(range(0, total, step))[:count]
+def perturbation_by_task(
+    reference: list[torch.Tensor], candidate: list[torch.Tensor], labels: list[int]
+) -> dict[int, float]:
+    """`perturbation_correlation` of each task's frames; the limit applies to the worst task."""
+    return {
+        task: perturbation_correlation(
+            [value for value, label in zip(reference, labels) if label == task],
+            [value for value, label in zip(candidate, labels) if label == task],
+        )
+        for task in sorted(set(labels))
+    }
+
+
+def bank_indices(bank: list[Any], count: int, tasks: tuple[int, ...]) -> list[int]:
+    """`count` visible bank frames of each task, spread over that task's frames."""
+    chosen: list[int] = []
+    for task in tasks:
+        own = [index for index, sample in enumerate(bank) if int(sample["task_id"]) == task]
+        if own and count > 0:
+            step = max(1, len(own) // count)
+            chosen += own[::step][:count]
+    return chosen

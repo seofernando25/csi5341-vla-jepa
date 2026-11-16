@@ -23,7 +23,7 @@ from report.plots.data import (
 )
 from report.plots.divergence import divergence_record, fig_divergence
 from report.plots.failure import failure_record, fig_failure
-from report.plots.precision import fig_format, fig_precision
+from report.plots.precision import fig_precision
 from report.plots.reserved import fig_reserved
 from report.plots.results import fig_ladder
 from report.plots.style import OUT
@@ -54,7 +54,6 @@ def main() -> None:
         n["memory_ceiling"] = memory_ceiling(census, b16["benchmark_peak_allocated_gb"])
     n["figures"] = {
         "precision": build("precision", fig_precision, n),
-        "format": build("format", fig_format, n),
         "ladder": build("ladder", fig_ladder, n),
     }
     record = divergence_record(STUDY)

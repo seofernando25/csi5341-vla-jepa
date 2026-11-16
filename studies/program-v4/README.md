@@ -1,6 +1,6 @@
 # Program v4: Dream-RSI search for a faster policy
 
-Prepared 2026-11-16, revised the same day after the first check runs. Not launched. The frozen
+Prepared 2026-11-16, revised and launched the same day. The frozen
 rules are in [protocol.json](protocol.json), the discovery prompt in [discovery.md](discovery.md).
 Checkpoint, suite, task ids, seeds, phases, gates, statistics, agent and budgets are program-v2's;
 the score is new.

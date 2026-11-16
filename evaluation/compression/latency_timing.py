@@ -2,11 +2,13 @@
 
 The clock, the CUDA synchronizer and the peak-memory readers are captured when this module is
 imported, before solution code runs; replacing any of them fails the node. Each side is timed in
-`blocks` blocks of `timed_calls / blocks` calls, after warm-up, on frames that were never timed
-before. The speedup is reported with a 95 % cluster-bootstrap interval over blocks, so timing
-noise cannot create a win. The co-tenant watch samples the other processes' GPU use between
-blocks: another process above a set share of the device fails the node, because the measurement
-is not trustworthy then.
+`blocks` blocks, after warm-up, on frames that were never timed before; `latency_plan` lays the
+frames out and turns the blocks into a speedup. The co-tenant watch samples the other processes'
+GPU use between blocks: another process above a set share of the device fails the node, because
+the measurement is not trustworthy then.
+
+Every count is per task and every task in the suite gets the same count, so no task can carry
+the median: timed calls, equivalence, arm and perturbation frames are drawn equally from each.
 """
 
 from __future__ import annotations
@@ -27,7 +29,6 @@ import torch
 
 from evaluation.pipeline import inference_autocast
 
-INTERVAL_PERCENTILES = (2.5, 97.5)
 PMON = ("nvidia-smi", "pmon", "-c", "1")
 APPS = ("nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits")
 
@@ -111,12 +112,12 @@ def rebinds(clock: Clock = CLOCK) -> list[str]:
 class Limits:
     """Pre-registered timing counts and guard thresholds from the study protocol."""
 
-    warmup_calls: int
-    timed_calls: int
+    warmup_per_task: int
+    timed_per_task: int
     blocks: int
     bootstrap_resamples: int
     bootstrap_seed: int
-    max_frames: int
+    max_frames_per_task: int
     reference_trials: int
     reference_tasks: tuple[int, ...]
     frame_stride: int
@@ -133,12 +134,12 @@ class Limits:
     gpu_over_wall_ms: float
     action_atol: float
     min_action_spread: float
-    equivalence_frames: int
+    equivalence_per_task: int
     max_new_threads: int
     peak_tolerance: float
     arm_action_mse_max: float
-    arm_check_frames: int
-    perturbation_frames: int
+    arm_per_task: int
+    perturbation_per_task: int
     perturbation_levels: int
     perturbation_min_correlation: float
     other_gpu_utilisation_max_pct: float
@@ -152,12 +153,12 @@ class Limits:
             timing.update(check)
         guards = protocol["score"]["guards"]
         return cls(
-            warmup_calls=int(timing["warmup_calls"]),
-            timed_calls=int(timing["timed_calls"]),
+            warmup_per_task=int(timing["warmup_calls_per_task"]),
+            timed_per_task=int(timing["timed_calls_per_task"]),
             blocks=int(timing["blocks"]),
             bootstrap_resamples=int(timing["bootstrap_resamples"]),
             bootstrap_seed=int(timing["bootstrap_seed"]),
-            max_frames=int(timing["max_frames"]),
+            max_frames_per_task=int(timing["max_frames_per_task"]),
             reference_trials=int(timing["reference_trials"]),
             reference_tasks=tuple(int(task) for task in timing["reference_tasks"]),
             frame_stride=int(timing["frame_stride"]),
@@ -174,17 +175,21 @@ class Limits:
             gpu_over_wall_ms=float(guards["gpu_over_wall_ms"]),
             action_atol=float(guards["action_atol"]),
             min_action_spread=float(guards["min_action_spread"]),
-            equivalence_frames=int(guards["equivalence_frames"]),
+            equivalence_per_task=int(guards["equivalence_frames_per_task"]),
             max_new_threads=int(guards["max_new_threads"]),
             peak_tolerance=float(guards["peak_tolerance"]),
             arm_action_mse_max=float(guards["arm_action_mse_max"]),
-            arm_check_frames=int(guards["arm_check_frames"]),
-            perturbation_frames=int(guards["perturbation_frames"]),
+            arm_per_task=int(guards["arm_check_frames_per_task"]),
+            perturbation_per_task=int(guards["perturbation_frames_per_task"]),
             perturbation_levels=int(guards["perturbation_levels"]),
             perturbation_min_correlation=float(guards["perturbation_min_correlation"]),
             other_gpu_utilisation_max_pct=float(guards["other_gpu_utilisation_max_pct"]),
             sandwich_drift_max=float(guards["sandwich_drift_max"]),
         )
+
+    @property
+    def tasks(self) -> int:
+        return len(self.reference_tasks)
 
 
 class FrameCollector:
@@ -243,30 +248,6 @@ def summarize(values: list[float]) -> dict[str, float]:
         "min_ms": float(ordered[0]),
         "max_ms": float(ordered[-1]),
     }
-
-
-def calls_per_block(limits: Limits) -> int:
-    """Timed calls in one block; at least one."""
-    return max(1, limits.timed_calls // max(1, limits.blocks))
-
-
-def frame_plan(count: int, limits: Limits, first: int = 0) -> tuple[list[int], list[list[int]]]:
-    """Warm-up indices and the timed blocks, disjoint and drawn from `frames[first:]`.
-
-    Warm-up indices are spread over the whole pool so every task's shapes are seen; the timed
-    indices are the rest, split by stride so every block covers the same spread of frames.
-    """
-    pool = list(range(first, count))
-    needed = limits.blocks * calls_per_block(limits)
-    if len(pool) < needed + 1:
-        raise RuntimeError(f"need {needed + 1} frames after index {first}, collected {count}")
-    warmup = min(limits.warmup_calls, len(pool) - needed)
-    step = max(1, len(pool) // max(1, warmup))
-    warm = pool[::step][:warmup]
-    warm_set = set(warm)
-    timed = [index for index in pool if index not in warm_set][:needed]
-    blocks = [timed[offset :: limits.blocks] for offset in range(limits.blocks)]
-    return warm, blocks
 
 
 def warm_up(policy: object, frames: list[Any], indices: list[int], seed: int, clock: Clock) -> None:
@@ -336,65 +317,6 @@ def timing_summary(results: list[dict], warmup: int) -> dict:
         timing["gpu_p95_ms"] = gpu_summary["p95_ms"]
         timing["gpu_mean_ms"] = gpu_summary["mean_ms"]
     return timing
-
-
-def time_calls(
-    policy: object,
-    frames: list[Any],
-    limits: Limits,
-    seed: int,
-    clock: Clock = CLOCK,
-    first: int = 0,
-) -> dict:
-    """Time every block of the plan on one policy and pool the figures."""
-    warm, blocks = frame_plan(len(frames), limits, first)
-    warm_up(policy, frames, warm, seed, clock)
-    results = [time_block(policy, frames, block, seed, clock) for block in blocks]
-    return timing_summary(results, len(warm))
-
-
-def bootstrap_speedup(
-    reference_blocks: list[list[float]],
-    candidate_blocks: list[list[float]],
-    limits: Limits,
-    *,
-    paired: bool = True,
-) -> dict:
-    """Point estimate and 95 % cluster-bootstrap interval of the speedup over blocks.
-
-    `paired` resamples one block index and takes both sides of that block, which is the
-    interleaved design. Without it the two sides are resampled independently, which is the
-    sandwich design where the blocks are not adjacent in time.
-    """
-    reference = [np.asarray(block, dtype=float) for block in reference_blocks]
-    candidate = [np.asarray(block, dtype=float) for block in candidate_blocks]
-    point = float(np.median(np.concatenate(reference)) / np.median(np.concatenate(candidate)))
-    rng = np.random.default_rng(limits.bootstrap_seed)
-    draws = np.empty(limits.bootstrap_resamples, dtype=float)
-    for draw in range(limits.bootstrap_resamples):
-        if paired:
-            pick = rng.integers(0, len(reference), len(reference))
-            left = np.concatenate([reference[index] for index in pick])
-            right = np.concatenate([candidate[index] for index in pick])
-        else:
-            left = np.concatenate(
-                [reference[index] for index in rng.integers(0, len(reference), len(reference))]
-            )
-            right = np.concatenate(
-                [candidate[index] for index in rng.integers(0, len(candidate), len(candidate))]
-            )
-        draws[draw] = float(np.median(left) / np.median(right))
-    low, high = np.percentile(draws, INTERVAL_PERCENTILES)
-    return {
-        "point": point,
-        "low": float(low),
-        "high": float(high),
-        "blocks": len(reference),
-        "candidate_blocks": len(candidate),
-        "resamples": limits.bootstrap_resamples,
-        "paired": paired,
-        "method": "95 % percentile cluster bootstrap over timing blocks",
-    }
 
 
 def _pmon_other(text: str, ours: set[int]) -> float:

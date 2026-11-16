@@ -279,7 +279,7 @@ def fig_divergence(record: dict) -> dict | None:
     ax.text(
         high * 2.2,
         gate_pct + 1.5,
-        "gate",
+        "77/100 gate",
         ha="right",
         va="bottom",
         fontsize=6.3,

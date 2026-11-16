@@ -51,6 +51,11 @@ def _latency_lines(latency: dict) -> list[str]:
             f"{speedup.get('blocks', 0)}+{speedup.get('candidate_blocks', 0)} blocks, "
             f"{candidate.get('mode', '?')}"
         )
+    if speedup.get("per_task"):
+        lines.append(
+            "speedup per task: "
+            + ", ".join(f"{task} {value:.3f}" for task, value in speedup["per_task"].items())
+        )
     lines.append(
         f"latency ms: reference median {reference.get('median_ms', float('nan')):.2f}, "
         f"candidate median {candidate.get('median_ms', float('nan')):.2f}, "
@@ -58,12 +63,12 @@ def _latency_lines(latency: dict) -> list[str]:
     )
     if "arm_action_error" in candidate:
         lines.append(
-            f"arm action error: {candidate['arm_action_error']:.6g} "
+            f"arm action error (worst task): {candidate['arm_action_error']:.6g} "
             f"(limit {candidate.get('arm_action_error_limit', float('nan')):g})"
         )
     if "perturbation_correlation" in candidate:
         lines.append(
-            f"perturbation correlation: {candidate['perturbation_correlation']:.3f} "
+            f"perturbation correlation (worst task): {candidate['perturbation_correlation']:.3f} "
             f"(min {candidate.get('perturbation_correlation_min', float('nan')):g})"
         )
     watch = candidate.get("gpu_watch") or {}

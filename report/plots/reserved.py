@@ -14,16 +14,16 @@ import matplotlib.pyplot as plt
 
 from report.plots.style import COL, COLORS, INK_2, MUTED, OUT, style_axes, tint
 
-MARGIN_PP = -5.0  # non-inferiority margin, `decision_rules.reserved_gate` of the frozen plan
+MARGIN_PP = -5.0  # margin, `decision_rules.reserved_gate` of the frozen plan
 CELLS = [
     ("B16", "Reference", "reference"),
     ("precision-lang-int8", "INT8 decoder", "precision"),
     ("precision-lang-nf4", "NF4 decoder", "precision"),
     ("ladder-nf4-graph-1step-packed", "NF4 packed + graph", "precision"),
-    ("iter_000-b0-a3", "Search, cycle 1", "search"),
-    ("iter_001-b1-a3", "Search, cycle 2", "search"),
-    ("iter_001-b2-a1", "Open search, cycle 2", "search"),
-    ("iter_002-b2-a2", "Open search, cycle 3", "search"),
+    ("iter_000-b0-a3", "First search, cycle 1", "search"),
+    ("iter_001-b1-a3", "First search, cycle 2", "search"),
+    ("iter_001-b2-a1", "Second search, cycle 2", "search"),
+    ("iter_002-b2-a2", "Second search, cycle 3", "search"),
 ]
 # One hue per group; the marker shape repeats the grouping for greyscale and colour-blind readers.
 GROUPS = {
@@ -187,7 +187,7 @@ def fig_reserved(n: dict) -> dict | None:
     ax.text(
         xlim[1] - 0.06,
         MARGIN_PP + 0.12,
-        "non-inferiority margin",
+        "$-5$ pp margin",
         ha="right",
         va="bottom",
         fontsize=6.2,
