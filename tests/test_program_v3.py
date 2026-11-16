@@ -112,8 +112,21 @@ def test_agent_source_binds_hide_the_compression_code() -> None:
     for hidden in HIDDEN:
         assert f"/tmp/repo/{hidden}" not in targets
     assert not [dst for dst in targets if dst.startswith(f"/tmp/repo/{COMPRESSION}/")]
+    assert not [dst for dst in targets if dst.startswith(f"/tmp/repo/{VENDOR}/")]
     assert "/tmp/repo/evaluation/models.py" in targets
     assert "/tmp/repo/evaluation/pipeline.py" in targets
+
+
+def test_repo_source_binds_drop_an_excluded_directory_whole(tmp_path: Path) -> None:
+    """A listed directory in `exclude` goes, children included; a listed file's siblings stay."""
+    repo, study = _fake_repo(tmp_path, {})
+    (repo / VENDOR / "hqq").mkdir(parents=True)
+    (repo / VENDOR / "hqq" / "quant.py").write_text("", encoding="utf-8")
+    binds = repo_source_binds(repo, study_dir=study, exclude=(VENDOR,))
+    assert not [dst for dst in binds.values() if "vendor" in dst]
+    trimmed = repo_source_binds(repo, study_dir=study, exclude=(NF4,))
+    assert "/tmp/repo/evaluation/nf4.py" not in set(trimmed.values())
+    assert "/tmp/repo/evaluation/models.py" in set(trimmed.values())
 
 
 def test_evaluator_source_binds_keep_the_compression_code() -> None:
@@ -201,7 +214,7 @@ def test_agent_sandbox_cannot_read_the_compression_code(tmp_path: Path) -> None:
         "import importlib.util, json, os\n"
         "paths = ['/tmp/repo/evaluation/compression', "
         "'/tmp/repo/evaluation/compression/solution.py', '/tmp/repo/evaluation/nf4.py', "
-        "'/tmp/repo/evaluation/models.py']\n"
+        "'/tmp/repo/evaluation/models.py', '/tmp/repo/outputs/compression/vendor']\n"
         "found = {path: os.path.exists(path) for path in paths}\n"
         "found['spec'] = importlib.util.find_spec('evaluation.compression') is not None\n"
         "print(json.dumps(found))\n"
@@ -217,6 +230,7 @@ def test_agent_sandbox_cannot_read_the_compression_code(tmp_path: Path) -> None:
     assert found["/tmp/repo/evaluation/nf4.py"] is False
     assert found["spec"] is False
     assert found["/tmp/repo/evaluation/models.py"] is True
+    assert found["/tmp/repo/outputs/compression/vendor"] is False
 
 
 def test_prompt_and_workspace_readme_name_no_hint() -> None:

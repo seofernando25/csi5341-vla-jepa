@@ -219,11 +219,11 @@ def repo_source_binds(
 ) -> dict[Path, str]:
     """Read-only repo source and evaluator inputs, each at its path under /tmp/repo, if present.
 
-    A repo-relative path in `exclude` is left out. When it names a file inside a listed
-    directory, that directory is bound child by child instead, so the file cannot be reached.
-    The study's own `protocol.json` is the only protocol bound, so a run under one study cannot
-    read another study's phases, gates or seed. A study that names its own calibration artifact
-    gets that file instead of the frozen default, at its own path.
+    A repo-relative path in `exclude` is left out. When it names a file or directory inside a
+    listed directory, that directory is bound child by child instead, so the excluded entry
+    cannot be reached. The study's own `protocol.json` is the only protocol bound, so a run
+    under one study cannot read another study's phases, gates or seed. A study that names its
+    own calibration artifact gets that file instead of the frozen default, at its own path.
     """
     repo = Path(repo_root).resolve()
     binds: dict[Path, str] = {}
@@ -235,9 +235,9 @@ def repo_source_binds(
         paths.append(artifact)
     for rel in (*paths, *([protocol] if protocol else [])):
         src = repo / rel
-        if not src.exists():
+        if not src.exists() or rel in exclude:
             continue
-        if not any(item == rel or item.startswith(f"{rel}/") for item in exclude):
+        if not any(item.startswith(f"{rel}/") for item in exclude):
             binds[src] = f"{SANDBOX_REPO}/{rel}"
             continue
         for child in sorted(src.iterdir()):
