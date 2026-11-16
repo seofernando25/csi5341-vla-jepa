@@ -1,0 +1,7 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "purpose": "Run-order slice of queue-reserved.json: the reference B16 alone, so it runs before the two Dream-RSI node cells. The pre-registered queue file is unchanged.",
+  "cells": [
+    {"recipe": "B16", "phase": "final"}
+  ]
+}

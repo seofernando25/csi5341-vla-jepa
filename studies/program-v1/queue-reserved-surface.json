@@ -1,0 +1,9 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "purpose": "Run-order slice of queue-reserved.json: the three non-reference cells, run after the two Dream-RSI node cells. The pre-registered queue file is unchanged.",
+  "cells": [
+    {"recipe": "precision-lang-int8", "phase": "final"},
+    {"recipe": "precision-lang-nf4", "phase": "final"},
+    {"recipe": "ladder-nf4-graph-1step-packed", "phase": "final"}
+  ]
+}
