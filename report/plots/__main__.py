@@ -22,6 +22,7 @@ from report.plots.data import (
     solution_reserved,
 )
 from report.plots.divergence import divergence_record, fig_divergence
+from report.plots.failure import failure_record, fig_failure
 from report.plots.precision import fig_format, fig_precision
 from report.plots.reserved import fig_reserved
 from report.plots.results import fig_ladder
@@ -66,6 +67,8 @@ def main() -> None:
     n["figures"]["divergence"] = build("divergence", fig_divergence, record)
     n["dream_rsi"] = dream_rsi_cycles()
     n["dream_rsi_v2"] = dream_rsi_cycles(STUDY.parent / "program-v2")
+    n["failure"] = failure_record(STUDY)
+    n["figures"]["failure"] = build("failure", fig_failure, n["failure"])
     n["reserved_summary"] = reserved_summary()
     n["dream_rsi_reserved"] = solution_reserved()
     n["dream_rsi_v2_reserved"] = solution_reserved(STUDY.parent / "program-v2")

@@ -89,6 +89,7 @@ def test_every_figure_builds_from_the_fixture(synthetic):
         "format": "ok",
         "ladder": "ok",
         "divergence": "ok",
+        "failure": "skipped: evidence absent",  # the fixture has no failure analysis
         "reserved": "skipped: evidence absent",  # the fixture has no reserved-500 records
     }
     assert sorted(path.name for path in (synthetic.parent / "figures").glob("*.pdf")) == [
