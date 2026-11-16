@@ -1,0 +1,73 @@
+{
+  "study": "program-v4",
+  "snapshot_utc": "2026-11-16T17:08Z",
+  "status": "running",
+  "cycles_target": 3,
+  "cycles_complete": 0,
+  "nodes": [
+    {
+      "cell_id": "iter_000-b0-a0",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T16:16:36.961226+00:00",
+      "score": 2.7060011605576566,
+      "speedup": {
+        "point": 2.741408806872852,
+        "low": 2.7060011605576566,
+        "high": 2.7631825863741253
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "CUDA-graph execution of the VLA-JEPA action chunk"
+    },
+    {
+      "cell_id": "iter_000-b1-a0",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T16:25:46.052812+00:00",
+      "score": 2.6562893715926448,
+      "speedup": {
+        "point": 2.681640293274494,
+        "low": 2.6562893715926448,
+        "high": 2.6950915927847636
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "CUDA-graph execution of the VLA-JEPA action chunk (bit-exact)"
+    },
+    {
+      "cell_id": "iter_000-b2-a0",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T16:45:53.990387+00:00",
+      "score": 0.0,
+      "speedup": {
+        "point": 3.6938950274916413,
+        "low": 3.679145752600037,
+        "high": 3.7095110709568773
+      },
+      "guard": "smoke=7/10<8",
+      "violations": [],
+      "smoke": "7/10",
+      "fail_class": "gate_near_miss",
+      "title": "compiled CUDA-graph execution of the VLA-JEPA action chunk"
+    },
+    {
+      "cell_id": "iter_000-b0-a1",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T16:59:29.292787+00:00",
+      "score": 2.7871216685052183,
+      "speedup": {
+        "point": 2.836088541363748,
+        "low": 2.7871216685052183,
+        "high": 2.8790947466863055
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "bit-exact CUDA-graph execution without the per-call eval walk"
+    }
+  ]
+}

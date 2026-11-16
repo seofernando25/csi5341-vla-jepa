@@ -761,7 +761,9 @@
     "ladder": "ok",
     "divergence": "ok",
     "failure": "ok",
-    "reserved": "ok"
+    "reserved": "ok",
+    "size-timeline": "ok",
+    "latency-timeline": "ok"
   },
   "divergence": {
     "study": "studies/program-v1",
@@ -2532,6 +2534,96 @@
         ]
       }
     ]
+  },
+  "size_timeline": {
+    "program-v1": {
+      "probes": 24,
+      "cycle_sizes": [
+        8,
+        8,
+        8
+      ],
+      "best_pct": 86.01,
+      "exploit_nodes": [
+        "iter_002-b2-a1",
+        "iter_002-b2-a2",
+        "iter_002-b1-a3"
+      ],
+      "jumps": [
+        {
+          "probe": 1,
+          "cell_id": "iter_000-b0-a0",
+          "pct": 79.57
+        },
+        {
+          "probe": 3,
+          "cell_id": "iter_000-b2-a0",
+          "pct": 80.59
+        },
+        {
+          "probe": 4,
+          "cell_id": "iter_000-b0-a1",
+          "pct": 84.68
+        },
+        {
+          "probe": 5,
+          "cell_id": "iter_000-b0-a2",
+          "pct": 85.6
+        },
+        {
+          "probe": 8,
+          "cell_id": "iter_000-b2-a2",
+          "pct": 86.01
+        }
+      ]
+    },
+    "program-v2": {
+      "probes": 12,
+      "cycle_sizes": [
+        6,
+        3,
+        3
+      ],
+      "best_pct": 83.4,
+      "exploit_nodes": [],
+      "jumps": [
+        {
+          "probe": 1,
+          "cell_id": "iter_000-b0-a0",
+          "pct": 52.7
+        },
+        {
+          "probe": 2,
+          "cell_id": "iter_000-b1-a0",
+          "pct": 79.75
+        },
+        {
+          "probe": 3,
+          "cell_id": "iter_000-b2-a0",
+          "pct": 81.01
+        },
+        {
+          "probe": 4,
+          "cell_id": "iter_000-b2-a1",
+          "pct": 81.21
+        },
+        {
+          "probe": 5,
+          "cell_id": "iter_000-b2-a2",
+          "pct": 83.4
+        }
+      ]
+    }
+  },
+  "latency_timeline": {
+    "snapshot_utc": "2026-11-16T17:08Z",
+    "nodes": 4,
+    "cycles_complete": 0,
+    "cycles_target": 3,
+    "best_lower_bound": 2.787,
+    "best_node": "iter_000-b0-a1",
+    "hand_built_speedup": 3.373,
+    "source": "studies/program-v4/nodes.json"
   },
   "recovery_dev": {
     "recovered_successes": 31,

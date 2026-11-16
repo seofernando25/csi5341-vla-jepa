@@ -44,6 +44,7 @@ vla-compress-cka = "evaluation.compression.cka:main"
 vla-compress-failure = "evaluation.compression.failure:main"
 vla-rsi = "rsi.__main__:main"
 vla-report-plots = "report.plots.__main__:main"
+vla-export-nodes = "rsi.export_nodes:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["evaluation", "rsi", "report"]

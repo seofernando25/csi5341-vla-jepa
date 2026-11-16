@@ -19,6 +19,7 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Dream-RSI stop | `uv run --no-sync vla-rsi stop --study-dir studies/program-v1 [--grace 120]` | Touches `DIR/STOP`, waits for clean exit, then stops the unit or process group |
 | Calibrate policy-update instructions | `uv run --no-sync vla-rsi calibrate --tag NAME --prompt rsi/prompts/policy_dev.md` | Synthetic worlds only, LLM API; the agent may execute inside the sandbox; writes `outputs/rsi-calibration/<tag>/` (refuses `studies/`) |
 | Rebuild report plots | `uv run --no-sync vla-report-plots` | CPU only; writes `report/figures/*.pdf`, `report/data/numbers.json` and `studies/<study>/divergence.json` |
+| Snapshot a live latency run | `uv run --no-sync vla-export-nodes <run>/studies/program-v4` | Read-only on the run; writes `studies/program-v4/nodes.json` (per-node score, speedup, guard, smoke, title) for the latency timeline |
 | Build report PDF | `cd report && latexmk -pdf main.tex` | Writes `report/main.pdf` |
 | Build presentation | `python3 web/presentation/tools/assemble.py` | After browser authoring export; serve with `python3 -m http.server 8000 --bind 127.0.0.1` |
 | Checks | `uv run --no-sync ruff check . && uv run --no-sync ruff format --check . && uv run --no-sync pytest -q` | Fast CPU checks: `pytest -q -m "not slow"` |
@@ -44,3 +45,4 @@ All scripts accept `--help` without running GPU jobs or modifying outputs:
 - `vla-compress-cka` (`evaluation.compression.cka:main`): Compute per-block linear CKA profile (`studies/program-v1/cka.json`).
 - `vla-rsi` (`rsi.__main__:main`): one online cycle (`cycle`), LLM policy-code rewriting (`develop`), the outer loop (`loop`), its detached launcher (`start`, `status`, `watch`, `stop`), and instruction calibration (`calibrate`).
 - `vla-report-plots` (`report.plots.__main__:main`): Rebuild report figures and `report/data/numbers.json`.
+- `vla-export-nodes` (`rsi.export_nodes:main`): Copy compact per-node records of a latency run into `studies/program-v4/nodes.json`.

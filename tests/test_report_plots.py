@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 import report.plots.__main__ as plots_main
-from report.plots import data, divergence, precision, results
+from report.plots import data, divergence, precision, results, timeline
 from report.plots.cycles import dream_rsi_cycles
 
 FIXTURE = Path(__file__).parent / "fixtures" / "program-v1-synthetic"
@@ -41,7 +41,7 @@ def synthetic(tmp_path, monkeypatch):
     monkeypatch.setattr(plots_main, "STUDY", study)
     monkeypatch.setattr(plots_main, "DATA", numbers)
     monkeypatch.setattr(plots_main, "OUT", figures)
-    for module in (precision, results, divergence):
+    for module in (precision, results, divergence, timeline):
         monkeypatch.setattr(module, "OUT", figures)
     return study
 
@@ -90,6 +90,8 @@ def test_every_figure_builds_from_the_fixture(synthetic):
         "divergence": "ok",
         "failure": "skipped: evidence absent",  # the fixture has no failure analysis
         "reserved": "skipped: evidence absent",  # the fixture has no reserved-500 records
+        "size-timeline": "skipped: evidence absent",  # no second search in the fixture
+        "latency-timeline": "skipped: evidence absent",  # no program-v4 node table
     }
     assert sorted(path.name for path in (synthetic.parent / "figures").glob("*.pdf")) == [
         "divergence.pdf",
@@ -226,3 +228,85 @@ def test_one_cycle_reads_tree_manifest_scores_and_proposals(empty):
     node = cycle["nodes"][0]
     assert (node["successes"], node["episodes"]) == (8, 10)
     assert node["proposal"].endswith("nodes/a/proposal.md")
+
+
+def _cycles(tmp_path, scores):
+    """A study's cycle ledger with `scores` per cycle: (id, score, valid)."""
+    return {
+        "source": str(tmp_path / "cycles"),
+        "cycles": [
+            {
+                "cycle_id": f"iter_{i}",
+                "nodes": [{"cell_id": c, "score": v, "valid": ok} for c, v, ok in cycle],
+            }
+            for i, cycle in enumerate(scores)
+        ],
+    }
+
+
+def test_running_best_skips_invalid_nodes():
+    points = [
+        {"score": 0.5, "cycle": 0},
+        {"score": 1.0, "cycle": 1, "valid": False},
+        {"score": 0.4, "cycle": 1},
+        {"score": 0.7, "cycle": 1},
+    ]
+    assert timeline.running_best(points) == [0.5, 0.5, 0.5, 0.7]
+    assert timeline.jumps(points) == [0, 3]
+
+
+def test_size_timeline_marks_exploits_and_keeps_them_out_of_the_best(synthetic, tmp_path):
+    n = {
+        "dream_rsi": _cycles(
+            tmp_path / "a", [[("a", 0.6, True), ("b", 0.8, True)], [("c", 0.9, False)]]
+        ),
+        "dream_rsi_v2": _cycles(tmp_path / "b", [[("a", 0.5, True), ("b", 0.7, True)]]),
+    }
+    ledger = timeline.fig_size_timeline(n)
+    assert ledger["program-v1"]["best_pct"] == 80.0
+    assert ledger["program-v1"]["exploit_nodes"] == ["c"]
+    assert [j["cell_id"] for j in ledger["program-v2"]["jumps"]] == ["a", "b"]
+    assert (synthetic.parent / "figures" / "size-timeline.pdf").is_file()
+
+
+def test_size_timeline_needs_both_searches(synthetic, tmp_path):
+    only_one = {"dream_rsi": _cycles(tmp_path, [[("a", 0.6, True)]]), "dream_rsi_v2": {}}
+    assert timeline.fig_size_timeline(only_one) is None
+
+
+def test_latency_timeline_reads_the_node_table(synthetic, tmp_path):
+    table = {
+        "snapshot_utc": "2026-11-16T17:08Z",
+        "cycles_complete": 0,
+        "cycles_target": 3,
+        "nodes": [
+            {"cell_id": "n0", "cycle": 0, "score": 2.0},
+            {"cell_id": "n1", "cycle": 0, "score": 0.0},
+            {"cell_id": "n2", "cycle": 0, "score": 2.5},
+        ],
+    }
+    write(tmp_path / "nodes.json", table)
+    rows = {
+        "B16": {"benchmark_median_ms": 70.0},
+        "ladder-b16-graph-4step": {"benchmark_median_ms": 20.0},
+    }
+    ledger = timeline.fig_latency_timeline({"rows": rows}, tmp_path / "nodes.json")
+    assert ledger["nodes"] == 3
+    assert ledger["best_lower_bound"] == 2.5
+    assert ledger["hand_built_speedup"] == 3.5
+    assert timeline.fig_latency_timeline({"rows": rows}, tmp_path / "absent.json") is None
+
+
+def test_export_nodes_keeps_scored_nodes_in_evaluation_order(tmp_path):
+    from rsi.export_nodes import export
+
+    for name, at, score in (("iter_000-b0-a0", "2", 2.7), ("iter_000-b1-a0", "1", 2.6)):
+        node = tmp_path / "cycles" / "iter_000" / "nodes" / name
+        write(node / "score.json", {"score": score, "successes": 8, "episodes": 10})
+        write(node / "eval" / "result.json", {"environment": {"recorded_at": at}})
+        (node / "proposal.md").write_text("# Proposal: CUDA graph\n")
+    (tmp_path / "cycles" / "iter_000" / "nodes" / "iter_000-b2-a0").mkdir()  # still evaluating
+    table = export(tmp_path)
+    assert [row["cell_id"] for row in table["nodes"]] == ["iter_000-b1-a0", "iter_000-b0-a0"]
+    assert table["nodes"][0]["title"] == "CUDA graph"
+    assert table["nodes"][0]["smoke"] == "8/10"

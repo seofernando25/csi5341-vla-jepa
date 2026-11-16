@@ -28,6 +28,7 @@ from report.plots.precision import fig_precision
 from report.plots.reserved import fig_reserved
 from report.plots.results import fig_ladder
 from report.plots.style import OUT
+from report.plots.timeline import fig_latency_timeline, fig_size_timeline
 
 
 def build(name, builder, *args) -> str:
@@ -78,6 +79,19 @@ def main() -> None:
     else:
         n["reserved_figure"] = reserved
     n["figures"]["reserved"] = "skipped: evidence absent" if reserved is None else "ok"
+    for key, name, figure in (
+        ("size_timeline", "size-timeline", fig_size_timeline(n)),
+        (
+            "latency_timeline",
+            "latency-timeline",
+            fig_latency_timeline(n, STUDY.parent / "program-v4" / "nodes.json"),
+        ),
+    ):
+        if figure is None:
+            print(f"skip {name}: evidence absent")
+        else:
+            n[key] = figure
+        n["figures"][name] = "skipped: evidence absent" if figure is None else "ok"
     n["recovery_dev"] = recovery_dev()
     n["policy_dev_v1"] = policy_dev(STUDY)
     n["policy_dev_v2"] = policy_dev(STUDY.parent / "program-v2")
