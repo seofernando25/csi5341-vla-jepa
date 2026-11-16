@@ -23,6 +23,7 @@ from report.plots.data import (
 )
 from report.plots.divergence import divergence_record, fig_divergence
 from report.plots.precision import fig_format, fig_precision
+from report.plots.reserved import fig_reserved
 from report.plots.results import fig_ladder
 from report.plots.style import OUT
 
@@ -68,6 +69,12 @@ def main() -> None:
     n["reserved_summary"] = reserved_summary()
     n["dream_rsi_reserved"] = solution_reserved()
     n["dream_rsi_v2_reserved"] = solution_reserved(STUDY.parent / "program-v2")
+    reserved = fig_reserved(n)
+    if reserved is None:
+        print("skip reserved: evidence absent")
+    else:
+        n["reserved_figure"] = reserved
+    n["figures"]["reserved"] = "skipped: evidence absent" if reserved is None else "ok"
     n["recovery_dev"] = recovery_dev()
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")

@@ -760,7 +760,8 @@
     "precision": "ok",
     "format": "ok",
     "ladder": "ok",
-    "divergence": "ok"
+    "divergence": "ok",
+    "reserved": "ok"
   },
   "divergence": {
     "study": "studies/program-v1",
@@ -1746,6 +1747,93 @@
         "size_reduction": 0.7905648906426783,
         "development_successes": 83,
         "development_episodes": 100
+      }
+    ]
+  },
+  "reserved_figure": {
+    "status": "ok",
+    "memory": "peak allocated GPU memory (GB)",
+    "margin_pp": -5.0,
+    "cells": [
+      {
+        "cell": "B16",
+        "label": "Reference",
+        "memory_gb": 5.605132288,
+        "difference_pp": 0.0,
+        "ci95_pp": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "cell": "precision-lang-int8",
+        "label": "INT8 decoder",
+        "memory_gb": 4.299864576,
+        "difference_pp": -0.2,
+        "ci95_pp": [
+          -1.2,
+          0.8
+        ]
+      },
+      {
+        "cell": "precision-lang-nf4",
+        "label": "NF4 decoder",
+        "memory_gb": 3.537677312,
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -0.2,
+          2.2
+        ]
+      },
+      {
+        "cell": "ladder-nf4-graph-1step-packed",
+        "label": "NF4 packed + graph",
+        "memory_gb": 1.508324352,
+        "difference_pp": 2.8000000000000003,
+        "ci95_pp": [
+          1.2,
+          4.6
+        ]
+      },
+      {
+        "cell": "iter_000-b0-a3",
+        "label": "Search, cycle 1",
+        "memory_gb": 0.951799808,
+        "difference_pp": -1.6,
+        "ci95_pp": [
+          -3.599999999999999,
+          0.2000000000000001
+        ]
+      },
+      {
+        "cell": "iter_001-b1-a3",
+        "label": "Search, cycle 2",
+        "memory_gb": 1.03098112,
+        "difference_pp": 0.6000000000000001,
+        "ci95_pp": [
+          -1.2,
+          2.4
+        ]
+      },
+      {
+        "cell": "iter_001-b2-a1",
+        "label": "Open search, cycle 2",
+        "memory_gb": 1.14273024,
+        "difference_pp": 0.0,
+        "ci95_pp": [
+          -1.2,
+          1.2
+        ]
+      },
+      {
+        "cell": "iter_002-b2-a2",
+        "label": "Open search, cycle 3",
+        "memory_gb": 1.173796864,
+        "difference_pp": 1.2,
+        "ci95_pp": [
+          -0.2000000000000001,
+          2.8000000000000003
+        ]
       }
     ]
   },
