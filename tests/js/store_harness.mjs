@@ -319,7 +319,9 @@ check("view", () => {
   let policy = reducer(empty, { type: "ui/open", source: "policy:c1:1" });
   policy = reducer(policy, { type: "ui/view", view: "replay" });
   strictEqual(policy.ui.tabs[0].view, "replay");
-  strictEqual(reducer(policy, { type: "ui/view", view: "transcript" }), policy, "a node view is invalid for a step");
+  strictEqual(reducer(policy, { type: "ui/view", view: "solution" }), policy, "a node-only view is invalid for a step");
+  const stepTranscript = reducer(policy, { type: "ui/view", view: "transcript" });
+  strictEqual(stepTranscript.ui.tabs[0].view, "transcript", "a policy step has a transcript view");
 });
 
 check("treeRows", () => {

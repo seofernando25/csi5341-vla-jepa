@@ -48,7 +48,7 @@ SECTION_FIELDS = _fields("id title recorded text chars tokens path note items fi
 EVENT_KINDS = {"text", "thinking", "tool_call", "tool_result", "result", "system"}
 LOOP_STATUSES = {"idle", "running", "stopped", "done", "error"}
 NODE_STATUSES = {"pending", "agent", "evaluating", "stopped", "done"}
-STEP_STATUSES = {"running", "accepted", "not_better", "rejected"}
+STEP_STATUSES = {"running", "accepted", "not_better", "timeout", "rejected"}
 PURE_MODULES = (
     "store.js",
     "reducer.js",
@@ -388,6 +388,14 @@ def test_pure_modules_are_dom_free() -> None:
     assert not violations, (
         "pure modules must not touch the DOM, storage or the clock: " + ", ".join(violations)
     )
+
+
+def test_policy_steps_have_a_transcript_tab() -> None:
+    meta = _read(JS / "views" / "meta.js")
+    policy = meta.split("export const POLICY_VIEWS = [", 1)[1].split("];", 1)[0]
+    assert 'id: "transcript"' in policy
+    assert "transcript: { mount: transcript.mount }" in _read(JS / "views" / "index.js")
+    assert 'if (view === "transcript")' in _read(JS / "main.js")
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="node is not installed")

@@ -14,6 +14,7 @@ export const POLICY_VIEWS = [
   { id: "diff", label: "Diff", key: "2" },
   { id: "replay", label: "Replay", key: "3" },
   { id: "verdict", label: "Verdict", key: "4" },
+  { id: "transcript", label: "Transcript", key: "5" },
 ];
 
 export function viewsFor(kind) {
