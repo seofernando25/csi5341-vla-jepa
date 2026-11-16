@@ -91,6 +91,8 @@ def test_slot_released_when_holder_is_sigkilled(tmp_path: Path) -> None:
         if holder.poll() is None:
             holder.kill()
             holder.wait()
+        if holder.stdout is not None:
+            holder.stdout.close()
 
 
 def test_cli_holds_slot_while_command_runs(tmp_path: Path) -> None:
