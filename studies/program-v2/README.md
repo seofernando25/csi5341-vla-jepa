@@ -87,5 +87,7 @@ steps did not generalise.
 embedding is reduced to the rows those prompts use. That is a real compression for a fixed task
 suite, not a general one. `iter_002-b2-a0` does it silently, mapping unseen ids to a zero row.
 
-Reserved-500 for the selected node is recorded in `reserved/` when it runs; the search itself never
-reads a reserved episode.
+**Reserved.** On 500 held-out episodes `iter_002-b2-a2` scores 481/500 (96.2 %, paired
+$+1.2$ pp $[-0.2,+2.8]$ against the reference) and `iter_001-b2-a1` 475/500 (95.0 %, $0.0$ pp
+$[-1.2,+1.2]$). The reference is 475/500. Both match it; neither is a better compression than the
+constrained search's 83.0 % at 80/100.

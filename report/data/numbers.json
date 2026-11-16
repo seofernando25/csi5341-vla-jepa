@@ -1,0 +1,1765 @@
+{
+  "status": "ok",
+  "rows": {
+    "B16": {
+      "recipe": "B16",
+      "family": "baseline",
+      "screen_mean_arm_change_mse": 0.0,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.605133312,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 82,
+      "development_episodes": 100,
+      "development_success_pct": 82.0,
+      "development_wilson_pct": [
+        73.33264161369925,
+        88.29977450105363
+      ],
+      "final_successes": 475,
+      "final_episodes": 500,
+      "final_success_pct": 95.0,
+      "final_wilson_pct": [
+        92.72318388284523,
+        96.59062547561506
+      ],
+      "benchmark_peak_allocated_gb": 5.605132288,
+      "benchmark_median_ms": 73.24967900058255,
+      "benchmark_p95_ms": 75.88754395255819,
+      "weights_gb": 5.532491478,
+      "final_paired_pp": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "final_per_task": {
+        "0": 50,
+        "1": 50,
+        "2": 50,
+        "3": 48,
+        "4": 48,
+        "5": 33,
+        "6": 50,
+        "7": 50,
+        "8": 47,
+        "9": 49
+      },
+      "final_transitions": {
+        "gained": 0,
+        "lost": 0
+      },
+      "source": "studies/program-v1/measurements/B16"
+    },
+    "format-lang-awq": {
+      "recipe": "format-lang-awq",
+      "family": "format-language",
+      "screen_mean_arm_change_mse": 0.00014242911238397936,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 3.536120832,
+      "effective_bits": {
+        "text": 6.380626918986412,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 80,
+      "development_episodes": 100,
+      "development_success_pct": 80.0,
+      "development_wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "source": "studies/program-v1/measurements/format-lang-awq"
+    },
+    "format-lang-gptq": {
+      "recipe": "format-lang-gptq",
+      "family": "format-language",
+      "screen_mean_arm_change_mse": 0.00021007736845604085,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 3.536137216,
+      "effective_bits": {
+        "text": 6.375827630309555,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 81,
+      "development_episodes": 100,
+      "development_success_pct": 81.0,
+      "development_wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "source": "studies/program-v1/measurements/format-lang-gptq"
+    },
+    "format-lang-hqq4": {
+      "recipe": "format-lang-hqq4",
+      "family": "format-language",
+      "screen_mean_arm_change_mse": 0.00012357377604530484,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 3.64887552,
+      "effective_bits": {
+        "text": 6.580597280522113,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 83,
+      "development_episodes": 100,
+      "development_success_pct": 83.0,
+      "development_wilson_pct": [
+        74.45199523239887,
+        89.10643388594006
+      ],
+      "source": "studies/program-v1/measurements/format-lang-hqq4"
+    },
+    "ladder-b16-graph-1step": {
+      "recipe": "ladder-b16-graph-1step",
+      "family": "execution-ladder",
+      "benchmark_peak_allocated_gb": 5.699900416,
+      "benchmark_median_ms": 18.31088700419059,
+      "benchmark_p95_ms": 18.740341996453935,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "weights_gb": 5.532491478,
+      "source": "studies/program-v1/measurements/ladder-b16-graph-1step"
+    },
+    "ladder-b16-graph-4step": {
+      "recipe": "ladder-b16-graph-4step",
+      "family": "execution-ladder",
+      "benchmark_peak_allocated_gb": 5.699900416,
+      "benchmark_median_ms": 21.713285997975618,
+      "benchmark_p95_ms": 22.248912055511028,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "weights_gb": 5.532491478,
+      "source": "studies/program-v1/measurements/ladder-b16-graph-4step"
+    },
+    "ladder-nf4-graph-1step-dense": {
+      "recipe": "ladder-nf4-graph-1step-dense",
+      "family": "execution-ladder",
+      "benchmark_peak_allocated_gb": 5.45177344,
+      "benchmark_median_ms": 20.047550497110933,
+      "benchmark_p95_ms": 38.45238699577749,
+      "effective_bits": {
+        "text": 4.83206841664539,
+        "vision": 4.254752540769314,
+        "action": 4.2069756351081775
+      },
+      "weights_gb": 1.337784743,
+      "source": "studies/program-v1/measurements/ladder-nf4-graph-1step-dense"
+    },
+    "ladder-nf4-graph-1step-packed": {
+      "recipe": "ladder-nf4-graph-1step-packed",
+      "family": "execution-ladder",
+      "final_successes": 489,
+      "final_episodes": 500,
+      "final_success_pct": 97.8,
+      "final_wilson_pct": [
+        96.10391387886837,
+        98.76719917300724
+      ],
+      "benchmark_peak_allocated_gb": 1.508324352,
+      "benchmark_median_ms": 28.089966996049043,
+      "benchmark_p95_ms": 40.83008550005616,
+      "effective_bits": {
+        "text": 4.83206841664539,
+        "vision": 4.254752540769314,
+        "action": 4.2069756351081775
+      },
+      "weights_gb": 1.337784743,
+      "final_paired_pp": [
+        2.8000000000000003,
+        1.2,
+        4.6
+      ],
+      "final_per_task": {
+        "0": 49,
+        "1": 50,
+        "2": 50,
+        "3": 50,
+        "4": 47,
+        "5": 44,
+        "6": 50,
+        "7": 50,
+        "8": 50,
+        "9": 49
+      },
+      "final_transitions": {
+        "gained": 18,
+        "lost": 4
+      },
+      "source": "studies/program-v1/measurements/ladder-nf4-graph-1step-packed"
+    },
+    "ladder-nf4-graph-4step": {
+      "recipe": "ladder-nf4-graph-4step",
+      "family": "execution-ladder",
+      "benchmark_peak_allocated_gb": 5.45177344,
+      "benchmark_median_ms": 21.822068505571224,
+      "benchmark_p95_ms": 22.42887405664078,
+      "effective_bits": {
+        "text": 4.83206841664539,
+        "vision": 4.254752540769314,
+        "action": 4.2069756351081775
+      },
+      "weights_gb": 1.337784743,
+      "source": "studies/program-v1/measurements/ladder-nf4-graph-4step"
+    },
+    "precision-action-hqq2": {
+      "recipe": "precision-action-hqq2",
+      "family": "precision-action",
+      "screen_mean_arm_change_mse": 2.5536939631365385e-05,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.476527104,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 9.4321402016723
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 81,
+      "development_episodes": 100,
+      "development_success_pct": 81.0,
+      "development_wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "source": "studies/program-v1/measurements/precision-action-hqq2"
+    },
+    "precision-action-hqq3": {
+      "recipe": "precision-action-hqq3",
+      "family": "precision-action",
+      "screen_mean_arm_change_mse": 1.740101701130925e-06,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.49068288,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 10.161902401486488
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 80,
+      "development_episodes": 100,
+      "development_success_pct": 80.0,
+      "development_wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "source": "studies/program-v1/measurements/precision-action-hqq3"
+    },
+    "precision-action-int8": {
+      "recipe": "precision-action-int8",
+      "family": "precision-action",
+      "screen_mean_arm_change_mse": 6.644105980058157e-07,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.52879104,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 12.125672210014255
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 81,
+      "development_episodes": 100,
+      "development_success_pct": 81.0,
+      "development_wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "source": "studies/program-v1/measurements/precision-action-int8"
+    },
+    "precision-action-nf4": {
+      "recipe": "precision-action-nf4",
+      "family": "precision-action",
+      "screen_mean_arm_change_mse": 2.9090507396745126e-06,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.494583296,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 16.000000629059002,
+        "action": 10.225467571397605
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 79,
+      "development_episodes": 100,
+      "development_success_pct": 79.0,
+      "development_wilson_pct": [
+        70.02003116591014,
+        85.8343459380847
+      ],
+      "source": "studies/program-v1/measurements/precision-action-nf4"
+    },
+    "precision-joint-va-hqq2": {
+      "recipe": "precision-joint-va-hqq2",
+      "family": "precision-joint-vision-action",
+      "screen_mean_arm_change_mse": 0.0029375481091847176,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 4.966919168,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 5.9820799961753215,
+        "action": 9.4321402016723
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 86,
+      "development_episodes": 100,
+      "development_success_pct": 86.0,
+      "development_wilson_pct": [
+        77.86281178903616,
+        91.47365634006086
+      ],
+      "source": "studies/program-v1/measurements/precision-joint-va-hqq2"
+    },
+    "precision-lang-hqq2": {
+      "recipe": "precision-lang-hqq2",
+      "family": "precision-language",
+      "screen_mean_arm_change_mse": 0.035730699345003815,
+      "screen_gripper_disagreement": 0.0053571430966258046,
+      "screen_peak_allocated_gb": 3.299699712,
+      "effective_bits": {
+        "text": 4.942440078821651,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 1,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 10.0,
+      "smoke_wilson_pct": [
+        1.7876213095072897,
+        40.41500267952385
+      ],
+      "development_successes": 20,
+      "development_episodes": 100,
+      "development_success_pct": 20.0,
+      "development_wilson_pct": [
+        13.33669333310325,
+        28.88291655931589
+      ],
+      "source": "studies/program-v1/measurements/precision-lang-hqq2"
+    },
+    "precision-lang-hqq3": {
+      "recipe": "precision-lang-hqq3",
+      "family": "precision-language",
+      "screen_mean_arm_change_mse": 0.0007835585180146154,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 3.583601664,
+      "effective_bits": {
+        "text": 6.171057980096998,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 7,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 70.0,
+      "smoke_wilson_pct": [
+        39.677814746114535,
+        89.2208732593699
+      ],
+      "development_successes": 80,
+      "development_episodes": 100,
+      "development_success_pct": 80.0,
+      "development_wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "source": "studies/program-v1/measurements/precision-lang-hqq3"
+    },
+    "precision-lang-int8": {
+      "recipe": "precision-lang-int8",
+      "family": "precision-language",
+      "screen_mean_arm_change_mse": 1.668459703410008e-05,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 4.299867648,
+      "effective_bits": {
+        "text": 9.458037469446493,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 81,
+      "development_episodes": 100,
+      "development_success_pct": 81.0,
+      "development_wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "final_successes": 474,
+      "final_episodes": 500,
+      "final_success_pct": 94.8,
+      "final_wilson_pct": [
+        92.48988560621544,
+        96.42697348842947
+      ],
+      "benchmark_peak_allocated_gb": 4.299864576,
+      "benchmark_median_ms": 150.27072849625256,
+      "benchmark_p95_ms": 154.59286105033243,
+      "weights_gb": 4.12555277,
+      "final_paired_pp": [
+        -0.2,
+        -1.2,
+        0.8
+      ],
+      "final_per_task": {
+        "0": 50,
+        "1": 50,
+        "2": 50,
+        "3": 49,
+        "4": 48,
+        "5": 31,
+        "6": 50,
+        "7": 50,
+        "8": 47,
+        "9": 49
+      },
+      "final_transitions": {
+        "gained": 3,
+        "lost": 4
+      },
+      "source": "studies/program-v1/measurements/precision-lang-int8"
+    },
+    "precision-lang-nf4": {
+      "recipe": "precision-lang-nf4",
+      "family": "precision-language",
+      "screen_mean_arm_change_mse": 0.00020033387309013052,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 3.537678336,
+      "effective_bits": {
+        "text": 6.276037733097892,
+        "vision": 16.000000629059002,
+        "action": 16.0
+      },
+      "smoke_successes": 7,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 70.0,
+      "smoke_wilson_pct": [
+        39.677814746114535,
+        89.2208732593699
+      ],
+      "development_successes": 81,
+      "development_episodes": 100,
+      "development_success_pct": 81.0,
+      "development_wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "final_successes": 480,
+      "final_episodes": 500,
+      "final_success_pct": 96.0,
+      "final_wilson_pct": [
+        93.90264041651491,
+        97.39592026102227
+      ],
+      "benchmark_peak_allocated_gb": 3.537677312,
+      "benchmark_median_ms": 90.12422599334968,
+      "benchmark_p95_ms": 93.14433784529683,
+      "weights_gb": 3.441321187,
+      "final_paired_pp": [
+        1.0,
+        -0.2,
+        2.2
+      ],
+      "final_per_task": {
+        "0": 50,
+        "1": 50,
+        "2": 49,
+        "3": 50,
+        "4": 47,
+        "5": 38,
+        "6": 50,
+        "7": 50,
+        "8": 47,
+        "9": 49
+      },
+      "final_transitions": {
+        "gained": 8,
+        "lost": 3
+      },
+      "source": "studies/program-v1/measurements/precision-lang-nf4"
+    },
+    "precision-vision-hqq2": {
+      "recipe": "precision-vision-hqq2",
+      "family": "precision-vision",
+      "screen_mean_arm_change_mse": 0.003143649527191883,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.095115776,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 5.9820799961753215,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 86,
+      "development_episodes": 100,
+      "development_success_pct": 86.0,
+      "development_wilson_pct": [
+        77.86281178903616,
+        91.47365634006086
+      ],
+      "source": "studies/program-v1/measurements/precision-vision-hqq2"
+    },
+    "precision-vision-hqq3": {
+      "recipe": "precision-vision-hqq3",
+      "family": "precision-vision",
+      "screen_mean_arm_change_mse": 0.0004407459643516631,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.156785152,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 7.095182288717953,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 83,
+      "development_episodes": 100,
+      "development_success_pct": 83.0,
+      "development_wilson_pct": [
+        74.45199523239887,
+        89.10643388594006
+      ],
+      "source": "studies/program-v1/measurements/precision-vision-hqq3"
+    },
+    "precision-vision-int8": {
+      "recipe": "precision-vision-int8",
+      "family": "precision-vision",
+      "screen_mean_arm_change_mse": 7.922666755177943e-06,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.32377344,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 10.087610934555217,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 79,
+      "development_episodes": 100,
+      "development_success_pct": 79.0,
+      "development_wilson_pct": [
+        70.02003116591014,
+        85.8343459380847
+      ],
+      "source": "studies/program-v1/measurements/precision-vision-int8"
+    },
+    "precision-vision-nf4": {
+      "recipe": "precision-vision-nf4",
+      "family": "precision-vision",
+      "screen_mean_arm_change_mse": 7.605706846334215e-05,
+      "screen_gripper_disagreement": 0.0,
+      "screen_peak_allocated_gb": 5.169570304,
+      "effective_bits": {
+        "text": 16.00000119029977,
+        "vision": 7.191450962334463,
+        "action": 16.0
+      },
+      "smoke_successes": 8,
+      "smoke_episodes": 10,
+      "smoke_success_pct": 80.0,
+      "smoke_wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "development_successes": 82,
+      "development_episodes": 100,
+      "development_success_pct": 82.0,
+      "development_wilson_pct": [
+        73.33264161369925,
+        88.29977450105363
+      ],
+      "source": "studies/program-v1/measurements/precision-vision-nf4"
+    }
+  },
+  "latency_ladder": {
+    "B16": {
+      "median_ms": 73.24967900058255,
+      "p95_ms": 75.88754395255819,
+      "peak_allocated_gb": 5.605132288
+    },
+    "ladder-b16-graph-1step": {
+      "median_ms": 18.31088700419059,
+      "p95_ms": 18.740341996453935,
+      "peak_allocated_gb": 5.699900416
+    },
+    "ladder-b16-graph-4step": {
+      "median_ms": 21.713285997975618,
+      "p95_ms": 22.248912055511028,
+      "peak_allocated_gb": 5.699900416
+    },
+    "ladder-nf4-graph-1step-dense": {
+      "median_ms": 20.047550497110933,
+      "p95_ms": 38.45238699577749,
+      "peak_allocated_gb": 5.45177344
+    },
+    "ladder-nf4-graph-1step-packed": {
+      "median_ms": 28.089966996049043,
+      "p95_ms": 40.83008550005616,
+      "peak_allocated_gb": 1.508324352
+    },
+    "ladder-nf4-graph-4step": {
+      "median_ms": 21.822068505571224,
+      "p95_ms": 22.42887405664078,
+      "peak_allocated_gb": 5.45177344
+    },
+    "precision-lang-int8": {
+      "median_ms": 150.27072849625256,
+      "p95_ms": 154.59286105033243,
+      "peak_allocated_gb": 4.299864576
+    },
+    "precision-lang-nf4": {
+      "median_ms": 90.12422599334968,
+      "p95_ms": 93.14433784529683,
+      "peak_allocated_gb": 3.537677312
+    }
+  },
+  "b16_failures_at_step_cap": 25,
+  "b16_step_cap": 280,
+  "b16_task5_failures": 17,
+  "census": {
+    "checkpoint": "lerobot/VLA-JEPA-LIBERO@735d9f692981e286ade093b5046627eda876e5d0",
+    "dtype": "bfloat16",
+    "parameters": {
+      "language decoder linear": 1409286144,
+      "vision encoder and mergers": 406957056,
+      "V-JEPA 2 encoder (world model)": 325971328,
+      "language embeddings and norms": 311288832,
+      "latent predictor (world model)": 161647616,
+      "action head": 155182343
+    }
+  },
+  "plan": {
+    "status": "ok",
+    "source": "studies/program-v1/precision_surface_plan.json",
+    "arms": [
+      "precision-lang-int8",
+      "precision-lang-nf4",
+      "precision-lang-hqq3",
+      "precision-lang-hqq2",
+      "precision-vision-int8",
+      "precision-vision-nf4",
+      "precision-vision-hqq3",
+      "precision-vision-hqq2",
+      "precision-action-int8",
+      "precision-action-nf4",
+      "precision-action-hqq3",
+      "precision-action-hqq2",
+      "precision-joint-va-hqq2"
+    ],
+    "hypotheses": {
+      "H1": "Language decoder at 2 bits loses more than 10 percentage points against B16.",
+      "H2": "Vision blocks at 2 bits are non-inferior within 5 points.",
+      "H3": "Action MLP at 2 bits is non-inferior within 5 points.",
+      "H4": "Joint vision+action 2-bit is non-inferior within 5 points; the interaction is not superadditive."
+    },
+    "decision_rules": {
+      "screen_failure": "runtime failure or nonfinite actions stops the arm",
+      "smoke_failure": "6/10 or worse stops the arm",
+      "development_gate": "77/100 only for promotion, not for curve inclusion",
+      "reserved_gate": "paired 95% interval above -5 pp",
+      "reserved_lock": "no reserved trial may inform selection"
+    }
+  },
+  "memory_ceiling": {
+    "decoder_linear_params": 1409286144,
+    "total_params": 2770333319,
+    "INT8": {
+      "saved_gb": 1.409286144,
+      "ceiling_pct": 25.142781143937203
+    },
+    "NF4": {
+      "saved_gb": 2.091565056,
+      "ceiling_pct": 37.31517738622907
+    }
+  },
+  "figures": {
+    "precision": "ok",
+    "format": "ok",
+    "ladder": "ok",
+    "divergence": "ok"
+  },
+  "divergence": {
+    "study": "studies/program-v1",
+    "counts": {
+      "included": 34,
+      "excluded": 27,
+      "by_phase": {
+        "smoke": {
+          "included": 17,
+          "excluded": 24
+        },
+        "development": {
+          "included": 17,
+          "excluded": 3
+        }
+      }
+    },
+    "phases": {
+      "smoke": {
+        "gate_min_successes": 8,
+        "n_cells": 17,
+        "spearman": {
+          "n": 17,
+          "rho": -0.4870881870470524,
+          "ci95": [
+            -0.7662834187721486,
+            -0.10256608591633991
+          ],
+          "p_value": 0.04736350273280664,
+          "bootstrap_resamples": 1933,
+          "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42"
+        },
+        "gate_passing": {
+          "n": 14,
+          "rho": null,
+          "ci95": null,
+          "p_value": null,
+          "note": "constant error or success; no ranking is possible",
+          "n_cells": 14
+        }
+      },
+      "development": {
+        "gate_min_successes": 77,
+        "n_cells": 17,
+        "spearman": {
+          "n": 17,
+          "rho": 0.2057670143591245,
+          "ci95": [
+            -0.37600581986317533,
+            0.7874311505473266
+          ],
+          "p_value": 0.428179417292149,
+          "bootstrap_resamples": 2000,
+          "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42"
+        },
+        "gate_passing": {
+          "n": 16,
+          "rho": 0.452051840072924,
+          "ci95": [
+            -0.1500920576258832,
+            0.8394443332824884
+          ],
+          "p_value": 0.0787584220348021,
+          "bootstrap_resamples": 2000,
+          "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42",
+          "n_cells": 16
+        }
+      }
+    }
+  },
+  "dream_rsi": {
+    "status": "ok",
+    "source": "studies/program-v1/cycles",
+    "count": 3,
+    "cycles": [
+      {
+        "cycle_id": "iter_000",
+        "iteration": 0,
+        "status": "done",
+        "best_score": 0.830174791747648,
+        "probes_used": 8,
+        "decision_rounds": 4,
+        "effective_sequential_rounds": 4,
+        "world_nodes": 8,
+        "policy_path": "policies/v000_initial/policy.py",
+        "baked_in_beta": 0.6,
+        "recorded_utc": "2026-11-15T16:43:39.115196+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_000-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.7957183789365125,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1209.985,
+            "agent_cost_usd": 0.102644,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b0-a0/proposal.md",
+            "proposal_bytes": 2734
+          },
+          {
+            "cell_id": "iter_000-b0-a1",
+            "parent_id": "iter_000-b0-a0",
+            "fail_class": "ok",
+            "score": 0.8468080505929854,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1206.544,
+            "agent_cost_usd": 0.086661,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b0-a1/proposal.md",
+            "proposal_bytes": 3013
+          },
+          {
+            "cell_id": "iter_000-b0-a2",
+            "parent_id": "iter_000-b0-a1",
+            "fail_class": "ok",
+            "score": 0.8559828617185049,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1333.583,
+            "agent_cost_usd": 0.089143,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b0-a2/proposal.md",
+            "proposal_bytes": 3904
+          },
+          {
+            "cell_id": "iter_000-b0-a3",
+            "parent_id": "iter_000-b0-a2",
+            "fail_class": "ok",
+            "score": 0.830174791747648,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1201.516,
+            "agent_cost_usd": 0.116826,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b0-a3/proposal.md",
+            "proposal_bytes": 3507,
+            "development_status": "ok",
+            "development_successes": 80,
+            "development_episodes": 100,
+            "score_old": 0.8690110115179489,
+            "audit_class": "honest",
+            "valid": true
+          },
+          {
+            "cell_id": "iter_000-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.6140347943151305,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1643.49,
+            "agent_cost_usd": 0.104034,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b1-a0/proposal.md",
+            "proposal_bytes": 3985
+          },
+          {
+            "cell_id": "iter_000-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.805866478725036,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1195.132,
+            "agent_cost_usd": 0.104227,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b2-a0/proposal.md",
+            "proposal_bytes": 4221
+          },
+          {
+            "cell_id": "iter_000-b2-a1",
+            "parent_id": "iter_000-b2-a0",
+            "fail_class": "ok",
+            "score": 0.8493652799713227,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 502.476,
+            "agent_cost_usd": 0.080393,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b2-a1/proposal.md",
+            "proposal_bytes": 3170
+          },
+          {
+            "cell_id": "iter_000-b2-a2",
+            "parent_id": "iter_000-b2-a1",
+            "fail_class": "ok",
+            "score": 0.8601456970344321,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 893.719,
+            "agent_cost_usd": 0.065875,
+            "proposal": "studies/program-v1/cycles/iter_000/nodes/iter_000-b2-a2/proposal.md",
+            "proposal_bytes": 3322
+          }
+        ],
+        "sources": [
+          "studies/program-v1/cycles/iter_000/tree.json",
+          "studies/program-v1/cycles/iter_000/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_001",
+        "iteration": 1,
+        "status": "done",
+        "best_score": 0.8160468389081215,
+        "probes_used": 8,
+        "decision_rounds": 4,
+        "effective_sequential_rounds": 4,
+        "world_nodes": 8,
+        "policy_path": "policies/iter_000/selected_policy.py",
+        "recorded_utc": "2026-11-15T19:25:48.125131+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_001-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.2870805346453379,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 702.188,
+            "agent_cost_usd": 0.877291,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b0-a0/proposal.md",
+            "proposal_bytes": 2686
+          },
+          {
+            "cell_id": "iter_001-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.6140355346975027,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1483.903,
+            "agent_cost_usd": 1.143681,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b1-a0/proposal.md",
+            "proposal_bytes": 3404
+          },
+          {
+            "cell_id": "iter_001-b1-a1",
+            "parent_id": "iter_001-b1-a0",
+            "fail_class": "ok",
+            "score": 0.7955325671825938,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1320.201,
+            "agent_cost_usd": 0.571476,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b1-a1/proposal.md",
+            "proposal_bytes": 3450
+          },
+          {
+            "cell_id": "iter_001-b1-a2",
+            "parent_id": "iter_001-b1-a1",
+            "fail_class": "ok",
+            "score": 0.8132044098615807,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 566.074,
+            "agent_cost_usd": 0.519585,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b1-a2/proposal.md",
+            "proposal_bytes": 3181
+          },
+          {
+            "cell_id": "iter_001-b1-a3",
+            "parent_id": "iter_001-b1-a2",
+            "fail_class": "ok",
+            "score": 0.8160468389081215,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1144.432,
+            "agent_cost_usd": 0.632788,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b1-a3/proposal.md",
+            "proposal_bytes": 4009,
+            "development_status": "ok",
+            "development_successes": 84,
+            "development_episodes": 100,
+            "score_old": 0.8403956639403705,
+            "audit_class": "honest",
+            "valid": true
+          },
+          {
+            "cell_id": "iter_001-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.6589583117695009,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1561.287,
+            "agent_cost_usd": 0.792462,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b2-a0/proposal.md",
+            "proposal_bytes": 2406
+          },
+          {
+            "cell_id": "iter_001-b2-a1",
+            "parent_id": "iter_001-b2-a0",
+            "fail_class": "ok",
+            "score": 0.8277172173777947,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 923.853,
+            "agent_cost_usd": 0.663287,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b2-a1/proposal.md",
+            "proposal_bytes": 3928
+          },
+          {
+            "cell_id": "iter_001-b2-a2",
+            "parent_id": "iter_001-b2-a1",
+            "fail_class": "ok",
+            "score": 0.837724686812843,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 836.38,
+            "agent_cost_usd": 0.812178,
+            "proposal": "studies/program-v1/cycles/iter_001/nodes/iter_001-b2-a2/proposal.md",
+            "proposal_bytes": 3997
+          }
+        ],
+        "sources": [
+          "studies/program-v1/cycles/iter_001/tree.json",
+          "studies/program-v1/cycles/iter_001/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_002",
+        "iteration": 2,
+        "status": "done",
+        "probes_used": 8,
+        "decision_rounds": 4,
+        "effective_sequential_rounds": 4,
+        "world_nodes": 8,
+        "policy_path": "policies/iter_001/selected_policy.py",
+        "recorded_utc": "2026-11-15T21:43:13.227643+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_002-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.2834746956891523,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 983.504,
+            "agent_cost_usd": 0.884071,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b0-a0/proposal.md",
+            "proposal_bytes": 3352,
+            "score_old": 0.504133368603636,
+            "audit_class": "deferred",
+            "valid": true
+          },
+          {
+            "cell_id": "iter_002-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.6830164238237129,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1205.278,
+            "agent_cost_usd": 1.109141,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b1-a0/proposal.md",
+            "proposal_bytes": 3571
+          },
+          {
+            "cell_id": "iter_002-b1-a1",
+            "parent_id": "iter_002-b1-a0",
+            "fail_class": "ok",
+            "score": 0.556877685015948,
+            "successes": 8,
+            "episodes": 10,
+            "agent_cost_usd": 0.287171,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b1-a1/proposal.md",
+            "proposal_bytes": 3157,
+            "score_old": 0.8137856461752099,
+            "audit_class": "deferred",
+            "valid": true
+          },
+          {
+            "cell_id": "iter_002-b1-a2",
+            "parent_id": "iter_002-b1-a1",
+            "fail_class": "ok",
+            "score": 0.5722759385201648,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1778.293,
+            "agent_cost_usd": 0.943964,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b1-a2/proposal.md",
+            "proposal_bytes": 2920,
+            "score_old": 0.8293851593175485,
+            "audit_class": "deferred",
+            "valid": true
+          },
+          {
+            "cell_id": "iter_002-b1-a3",
+            "parent_id": "iter_002-b1-a2",
+            "fail_class": "ok",
+            "score": 0.17248908436566912,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 323.271,
+            "agent_cost_usd": 0.42739,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b1-a3/proposal.md",
+            "proposal_bytes": 3866,
+            "score_old": 1.0,
+            "audit_class": "exploit",
+            "valid": false
+          },
+          {
+            "cell_id": "iter_002-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.8143709943585173,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 497.611,
+            "agent_cost_usd": 0.172067,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b2-a0/proposal.md",
+            "proposal_bytes": 3017
+          },
+          {
+            "cell_id": "iter_002-b2-a1",
+            "parent_id": "iter_002-b2-a0",
+            "fail_class": "ok",
+            "score": 0.2833657106341734,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 699.858,
+            "agent_cost_usd": 0.976792,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b2-a1/proposal.md",
+            "proposal_bytes": 3769,
+            "development_status": "ok",
+            "development_successes": 82,
+            "development_episodes": 100,
+            "score_old": 1.0,
+            "audit_class": "exploit",
+            "valid": false
+          },
+          {
+            "cell_id": "iter_002-b2-a2",
+            "parent_id": "iter_002-b2-a1",
+            "fail_class": "ok",
+            "score": 0.2837492137865638,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 589.981,
+            "agent_cost_usd": 0.550321,
+            "proposal": "studies/program-v1/cycles/iter_002/nodes/iter_002-b2-a2/proposal.md",
+            "proposal_bytes": 6431,
+            "score_old": 1.0,
+            "audit_class": "exploit",
+            "valid": false
+          }
+        ],
+        "sources": [
+          "studies/program-v1/cycles/iter_002/tree.json",
+          "studies/program-v1/cycles/iter_002/live_cycle_manifest.json"
+        ]
+      }
+    ]
+  },
+  "dream_rsi_v2": {
+    "status": "ok",
+    "source": "studies/program-v2/cycles",
+    "count": 3,
+    "cycles": [
+      {
+        "cycle_id": "iter_000",
+        "iteration": 0,
+        "status": "done",
+        "probes_used": 6,
+        "decision_rounds": 6,
+        "effective_sequential_rounds": 6,
+        "world_nodes": 6,
+        "policy_path": "policies/v000_initial/policy.py",
+        "baked_in_beta": 0.6,
+        "recorded_utc": "2026-11-16T04:55:13.484613+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_000-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.5269645743759053,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 507.134,
+            "agent_cost_usd": 0.07026,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b0-a0/proposal.md",
+            "proposal_bytes": 4050
+          },
+          {
+            "cell_id": "iter_000-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.7974576244089981,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1080.481,
+            "agent_cost_usd": 0.106784,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b1-a0/proposal.md",
+            "proposal_bytes": 4477
+          },
+          {
+            "cell_id": "iter_000-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.8101190750795577,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 740.026,
+            "agent_cost_usd": 0.09989,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b2-a0/proposal.md",
+            "proposal_bytes": 4498
+          },
+          {
+            "cell_id": "iter_000-b2-a1",
+            "parent_id": "iter_000-b2-a0",
+            "fail_class": "ok",
+            "score": 0.8120835466824647,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1784.316,
+            "agent_cost_usd": 0.117972,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b2-a1/proposal.md",
+            "proposal_bytes": 4363
+          },
+          {
+            "cell_id": "iter_000-b2-a2",
+            "parent_id": "iter_000-b2-a1",
+            "fail_class": "ok",
+            "score": 0.8340404267865715,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1398.759,
+            "agent_cost_usd": 0.131376,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b2-a2/proposal.md",
+            "proposal_bytes": 4206,
+            "development_status": "evaluator_failure"
+          },
+          {
+            "cell_id": "iter_000-b2-a3",
+            "parent_id": "iter_000-b2-a2",
+            "fail_class": "implementation_failure",
+            "score": 0.0,
+            "agent_seconds": 930.703,
+            "agent_cost_usd": 0.14055,
+            "proposal": "studies/program-v2/cycles/iter_000/nodes/iter_000-b2-a3/proposal.md",
+            "proposal_bytes": 4180
+          }
+        ],
+        "sources": [
+          "studies/program-v2/cycles/iter_000/tree.json",
+          "studies/program-v2/cycles/iter_000/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_001",
+        "iteration": 1,
+        "status": "done",
+        "best_score": 0.7961079637197613,
+        "probes_used": 3,
+        "decision_rounds": 3,
+        "effective_sequential_rounds": 3,
+        "world_nodes": 3,
+        "policy_path": "policies/iter_000/selected_policy.py",
+        "recorded_utc": "2026-11-16T06:09:45.139258+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_001-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.28374208819202196,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 721.188,
+            "agent_cost_usd": 0.087715,
+            "proposal": "studies/program-v2/cycles/iter_001/nodes/iter_001-b2-a0/proposal.md",
+            "proposal_bytes": 3071
+          },
+          {
+            "cell_id": "iter_001-b2-a1",
+            "parent_id": "iter_001-b2-a0",
+            "fail_class": "ok",
+            "score": 0.7961079637197613,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 547.967,
+            "agent_cost_usd": 0.080477,
+            "proposal": "studies/program-v2/cycles/iter_001/nodes/iter_001-b2-a1/proposal.md",
+            "proposal_bytes": 3159,
+            "development_status": "ok",
+            "development_successes": 82,
+            "development_episodes": 100
+          },
+          {
+            "cell_id": "iter_001-b2-a2",
+            "parent_id": "iter_001-b2-a1",
+            "fail_class": "ok",
+            "score": 0.7961079637197613,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1438.438,
+            "agent_cost_usd": 0.078894,
+            "proposal": "studies/program-v2/cycles/iter_001/nodes/iter_001-b2-a2/proposal.md",
+            "proposal_bytes": 2720
+          }
+        ],
+        "sources": [
+          "studies/program-v2/cycles/iter_001/tree.json",
+          "studies/program-v2/cycles/iter_001/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_002",
+        "iteration": 2,
+        "status": "done",
+        "best_score": 0.7905648906426783,
+        "probes_used": 3,
+        "decision_rounds": 3,
+        "effective_sequential_rounds": 3,
+        "world_nodes": 3,
+        "policy_path": "policies/iter_001/selected_policy.py",
+        "recorded_utc": "2026-11-16T07:33:37.425343+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_002-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.5209634534650716,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1106.546,
+            "agent_cost_usd": 0.106898,
+            "proposal": "studies/program-v2/cycles/iter_002/nodes/iter_002-b2-a0/proposal.md",
+            "proposal_bytes": 2272
+          },
+          {
+            "cell_id": "iter_002-b2-a1",
+            "parent_id": "iter_002-b2-a0",
+            "fail_class": "ok",
+            "score": 0.7198493028108186,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 859.597,
+            "agent_cost_usd": 0.057879,
+            "proposal": "studies/program-v2/cycles/iter_002/nodes/iter_002-b2-a1/proposal.md",
+            "proposal_bytes": 3044
+          },
+          {
+            "cell_id": "iter_002-b2-a2",
+            "parent_id": "iter_002-b2-a1",
+            "fail_class": "ok",
+            "score": 0.7905648906426783,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 877.622,
+            "agent_cost_usd": 0.125173,
+            "proposal": "studies/program-v2/cycles/iter_002/nodes/iter_002-b2-a2/proposal.md",
+            "proposal_bytes": 3836,
+            "development_status": "ok",
+            "development_successes": 83,
+            "development_episodes": 100
+          }
+        ],
+        "sources": [
+          "studies/program-v2/cycles/iter_002/tree.json",
+          "studies/program-v2/cycles/iter_002/live_cycle_manifest.json"
+        ]
+      }
+    ]
+  },
+  "reserved_summary": {
+    "status": "ok",
+    "source": "studies/program-v1/reserved/summary.json",
+    "complete": true,
+    "cells": [
+      {
+        "cell": "B16",
+        "kind": "recipe",
+        "development": {
+          "successes": 82,
+          "episodes": 100
+        },
+        "reserved": {
+          "successes": 475,
+          "episodes": 500,
+          "wilson95": [
+            0.9272318388284524,
+            0.9659062547561506
+          ],
+          "per_task": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 48,
+            "4": 48,
+            "5": 33,
+            "6": 50,
+            "7": 50,
+            "8": 47,
+            "9": 49
+          }
+        },
+        "memory_removed": 0.0,
+        "memory_rule": "resident tensor storage (storage_inventory)",
+        "paired_vs_B16": null
+      },
+      {
+        "cell": "iter_001-b1-a3",
+        "kind": "agent_solution",
+        "development": {
+          "successes": 84,
+          "episodes": 100
+        },
+        "reserved": {
+          "successes": 478,
+          "episodes": 500,
+          "wilson95": [
+            0.9342805571276716,
+            0.9707660443713928
+          ],
+          "per_task": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 45,
+            "5": 38,
+            "6": 48,
+            "7": 50,
+            "8": 47,
+            "9": 50
+          }
+        },
+        "memory_removed": 0.8160468389081215,
+        "memory_rule": "fixed evaluator (walk, live payloads, live CUDA, peak CUDA)",
+        "paired_vs_B16": {
+          "difference_pp": 0.6000000000000001,
+          "ci95_pp": [
+            -1.2,
+            2.4
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+          "gained": 12,
+          "lost": 9
+        }
+      },
+      {
+        "cell": "iter_000-b0-a3",
+        "kind": "agent_solution",
+        "development": {
+          "successes": 80,
+          "episodes": 100
+        },
+        "reserved": {
+          "successes": 467,
+          "episodes": 500,
+          "wilson95": [
+            0.9087605988391466,
+            0.9526214736402262
+          ],
+          "per_task": {
+            "0": 50,
+            "1": 48,
+            "2": 50,
+            "3": 50,
+            "4": 49,
+            "5": 32,
+            "6": 45,
+            "7": 48,
+            "8": 46,
+            "9": 49
+          }
+        },
+        "memory_removed": 0.830174791747648,
+        "memory_rule": "fixed evaluator (walk, live payloads, live CUDA, peak CUDA)",
+        "paired_vs_B16": {
+          "difference_pp": -1.6,
+          "ci95_pp": [
+            -3.599999999999999,
+            0.2000000000000001
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+          "gained": 8,
+          "lost": 16
+        }
+      },
+      {
+        "cell": "precision-lang-int8",
+        "kind": "recipe",
+        "development": {
+          "successes": 81,
+          "episodes": 100
+        },
+        "reserved": {
+          "successes": 474,
+          "episodes": 500,
+          "wilson95": [
+            0.9248988560621544,
+            0.9642697348842947
+          ],
+          "per_task": {
+            "0": 50,
+            "1": 50,
+            "2": 50,
+            "3": 49,
+            "4": 48,
+            "5": 31,
+            "6": 50,
+            "7": 50,
+            "8": 47,
+            "9": 49
+          }
+        },
+        "memory_removed": 0.25432430673447826,
+        "memory_rule": "resident tensor storage (storage_inventory)",
+        "paired_vs_B16": {
+          "difference_pp": -0.2,
+          "ci95_pp": [
+            -1.2,
+            0.8
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+          "gained": 3,
+          "lost": 4
+        }
+      },
+      {
+        "cell": "precision-lang-nf4",
+        "kind": "recipe",
+        "development": {
+          "successes": 81,
+          "episodes": 100
+        },
+        "reserved": {
+          "successes": 480,
+          "episodes": 500,
+          "wilson95": [
+            0.9390264041651492,
+            0.9739592026102227
+          ],
+          "per_task": {
+            "0": 50,
+            "1": 50,
+            "2": 49,
+            "3": 50,
+            "4": 47,
+            "5": 38,
+            "6": 50,
+            "7": 50,
+            "8": 47,
+            "9": 49
+          }
+        },
+        "memory_removed": 0.37802720566626835,
+        "memory_rule": "resident tensor storage (storage_inventory)",
+        "paired_vs_B16": {
+          "difference_pp": 1.0,
+          "ci95_pp": [
+            -0.2,
+            2.2
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+          "gained": 8,
+          "lost": 3
+        }
+      },
+      {
+        "cell": "ladder-nf4-graph-1step-packed",
+        "kind": "recipe",
+        "development": null,
+        "reserved": {
+          "successes": 489,
+          "episodes": 500,
+          "wilson95": [
+            0.9610391387886836,
+            0.9876719917300725
+          ],
+          "per_task": {
+            "0": 49,
+            "1": 50,
+            "2": 50,
+            "3": 50,
+            "4": 47,
+            "5": 44,
+            "6": 50,
+            "7": 50,
+            "8": 50,
+            "9": 49
+          }
+        },
+        "memory_removed": 0.7582756459388199,
+        "memory_rule": "resident tensor storage (storage_inventory)",
+        "paired_vs_B16": {
+          "difference_pp": 2.8000000000000003,
+          "ci95_pp": [
+            1.2,
+            4.6
+          ],
+          "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+          "gained": 18,
+          "lost": 4
+        }
+      }
+    ]
+  },
+  "dream_rsi_reserved": {
+    "status": "ok",
+    "source": "studies/program-v1/reserved",
+    "cells": [
+      {
+        "cell": "iter_000-b0-a3",
+        "successes": 467,
+        "episodes": 500,
+        "success_pct": 93.4,
+        "wilson_pct": [
+          90.87605988391466,
+          95.26214736402262
+        ],
+        "source": "studies/program-v1/reserved/iter_000-b0-a3/final/episodes.csv",
+        "difference_pp": -1.6,
+        "ci95_pp": [
+          -3.599999999999999,
+          0.2000000000000001
+        ],
+        "resident_gb": 0.951799808,
+        "size_reduction": 0.830174791747648,
+        "development_successes": 80,
+        "development_episodes": 100
+      },
+      {
+        "cell": "iter_001-b1-a3",
+        "successes": 478,
+        "episodes": 500,
+        "success_pct": 95.6,
+        "wilson_pct": [
+          93.42805571276716,
+          97.07660443713928
+        ],
+        "source": "studies/program-v1/reserved/iter_001-b1-a3/final/episodes.csv",
+        "difference_pp": 0.6000000000000001,
+        "ci95_pp": [
+          -1.2,
+          2.4
+        ],
+        "resident_gb": 1.03098112,
+        "size_reduction": 0.8160468389081215,
+        "development_successes": 84,
+        "development_episodes": 100
+      }
+    ]
+  },
+  "dream_rsi_v2_reserved": {
+    "status": "ok",
+    "source": "studies/program-v2/reserved",
+    "cells": [
+      {
+        "cell": "iter_001-b2-a1",
+        "successes": 475,
+        "episodes": 500,
+        "success_pct": 95.0,
+        "wilson_pct": [
+          92.72318388284523,
+          96.59062547561506
+        ],
+        "source": "studies/program-v2/reserved/iter_001-b2-a1/final/episodes.csv",
+        "difference_pp": 0.0,
+        "ci95_pp": [
+          -1.2,
+          1.2
+        ],
+        "resident_gb": 1.14273024,
+        "size_reduction": 0.7961079637197613,
+        "development_successes": 82,
+        "development_episodes": 100
+      },
+      {
+        "cell": "iter_002-b2-a2",
+        "successes": 481,
+        "episodes": 500,
+        "success_pct": 96.2,
+        "wilson_pct": [
+          94.1415227469356,
+          97.55398819441696
+        ],
+        "source": "studies/program-v2/reserved/iter_002-b2-a2/final/episodes.csv",
+        "difference_pp": 1.2,
+        "ci95_pp": [
+          -0.2000000000000001,
+          2.8000000000000003
+        ],
+        "resident_gb": 1.173796864,
+        "size_reduction": 0.7905648906426783,
+        "development_successes": 83,
+        "development_episodes": 100
+      }
+    ]
+  },
+  "recovery_dev": {
+    "recovered_successes": 31,
+    "baseline_successes": 82,
+    "episodes": 100,
+    "recovered_wilson_pct": [
+      22.77969721237604,
+      40.62605571948941
+    ],
+    "baseline_wilson_pct": [
+      73.33264161369925,
+      88.29977450105363
+    ]
+  }
+}

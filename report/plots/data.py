@@ -259,6 +259,8 @@ def solution_reserved(study: Path | None = None) -> dict:
     """Reserved-500 for Dream-RSI solution cells: success, paired difference, memory, development."""
     root = Path(study) if study is not None else STUDY
     base_path = root / "measurements" / "B16" / "final" / "episodes.csv"
+    if not base_path.exists():
+        base_path = STUDY / "measurements" / "B16" / "final" / "episodes.csv"
     audit = audit_record(root)
     expected = _reserved_trials(root)
     cells = []

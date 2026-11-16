@@ -203,8 +203,8 @@ the constrained search's 83.0\,\% at 80/100.}
 \toprule
 Node & Removed & Development & Reserved \\
 \midrule
-\texttt{iter\_002-b2-a2} & 79.1\,\% & 83/100 & \emph{(run)} \\
-\texttt{iter\_001-b2-a1} & 79.6\,\% & 82/100 & \emph{(run)} \\
+\texttt{iter\_002-b2-a2} & 79.1\,\% & 83/100 & 96.2\,\% \\
+\texttt{iter\_001-b2-a1} & 79.6\,\% & 82/100 & 95.0\,\% \\
 \texttt{iter\_000-b2-a2} & 83.4\,\% & timeout & -- \\
 \bottomrule
 \end{tabular}
@@ -216,6 +216,10 @@ ran three cycles and 12 nodes. Its best node with a complete development record 
 83/100, below the constrained search's 83.0\,\% at 80/100. Its highest-compression node (83.4\,\%)
 never produced a development number: at 1001\,ms per step it exhausted the 1800\,s evaluator budget
 at 59/100.
+
+On 500 reserved episodes the two complete nodes score 96.2\,\% ($+1.2$\,pp $[-0.2,+2.8]$) and
+95.0\,\% ($0.0$\,pp $[-1.2,+1.2]$). Both match the reference; neither is a better compression than
+the constrained search's 83.0\,\%.
 
 The policy steps improved in-sample replay value in every cycle (0.703 to 0.804, 0.511 to 0.618,
 0.552 to 0.580) and never improved held-out value (0.524 to 0.382, then flat). The agent learned to
