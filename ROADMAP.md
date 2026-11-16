@@ -147,10 +147,13 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 
 - **T7. Proposal arms.** BF16, INT8 and NF4 side by side: reserved success with interval, peak
   memory, latency. This answers the proposal's question in one picture.
-- **T8. Size timeline.** Best memory removed after each probe for v1, v2 and v3. Label each jump with
+- **T8. Size timeline.** Done for v1 and v2 (`figures/size-timeline.pdf`, `fig:size-timeline`); add
+  v3 after T1. Best memory removed after each probe for v1, v2 and v3. Label each jump with
   what the agent did ("drops the world model", "53-row embedding", "3-bit packing"). Mark the
   exploit nodes as invalid, not as records. After T1.
-- **T9. Latency timeline.** Same picture for v4: best speedup after each probe, jumps labelled.
+- **T9. Latency timeline.** Done for the partial v4 snapshot (`figures/latency-timeline.pdf`,
+  `fig:latency-timeline`); redraw with final v4 numbers after T4. Same picture for v4: best speedup
+  after each probe, jumps labelled.
 - **T10. Dreaming panel.** Replay score on seen trees and on held-out trees per cycle. It shows the
   policy fitting its own history while held-out value stays flat.
 - **T11. Ladder relabel.** Plain names ("INT8 decoder", "CUDA graph, 4 steps"); drop "Q8", "B16" and
@@ -162,7 +165,7 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 
 - **T14. v3 in the search section.** Say what the search found without the hints, and whether it
   still removes modules before it quantizes. If it finds less, say that is the cost of the hints.
-- **T15. Latency subsection.** The score, the guards in one paragraph, the result, the levers used,
+- **T15. Latency subsection.** Partial text in ("Searching for speed"); final numbers pending T4/T5. The score, the guards in one paragraph, the result, the levers used,
   and how the best result compares with our hand-built graph.
 - **T16. Trajectory paragraph** in "Why 2 bits breaks", after T6.
 - **T17. Voice pass** on every new paragraph: Haiku first, then a line-by-line check that no number
