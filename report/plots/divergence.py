@@ -10,8 +10,10 @@ come from two sources and are never pooled:
   action error, so they are inventoried and excluded, with the reason recorded.
 
 Phases stay separate because a 10-trial smoke result and a 100-trial development result answer
-different questions. The module takes the study directory as an argument, so it runs unchanged on
-`studies/program-v2`; `divergence_record` returns the compact record and `fig_divergence` plots it.
+different questions. The figure draws the development panel only; the smoke record stays in
+`numbers.json` and the rank statistics belong to the caption. The module takes the study directory
+as an argument, so it runs unchanged on `studies/program-v2`; `divergence_record` returns the
+compact record and `fig_divergence` plots it.
 """
 
 from __future__ import annotations
@@ -25,9 +27,10 @@ from scipy.stats import spearmanr
 from evaluation.analysis import wilson
 from evaluation.common import ROOT
 from report.plots.data import component_of, optional_json
-from report.plots.style import COLORS, FULL, INK, INK_2, MUTED, OUT, panel_label, style_axes
+from report.plots.style import COL, COLORS, INK_2, MUTED, OUT, style_axes
 
 PHASES = ("smoke", "development")
+PLOT_PHASE = "development"
 ACTION_ERROR_FIELD = "mean_physical_arm_change_mse"
 ACTION_ERROR_FRAMES = 80
 DEFAULT_GATES = {"smoke": 8, "development": 77}
@@ -236,107 +239,64 @@ def divergence_record(study_dir: Path | str) -> dict:
     }
 
 
-def _interval(stats: dict) -> str:
-    """One-line rho with its interval, or why it is undefined."""
-    if stats["rho"] is None:
-        return f"no ranking (n = {stats['n']})"
-    if stats["ci95"] is None:
-        return f"ρ = {stats['rho']:.2f}, interval withheld (n = {stats['n']})"
-    low, high = stats["ci95"]
-    return f"ρ = {stats['rho']:.2f} [{low:.2f}, {high:.2f}], n = {stats['n']}"
-
-
 def fig_divergence(record: dict) -> dict | None:
-    """Action error against success, one panel per phase; None until three cells exist."""
-    phases = [phase for phase in PHASES if record["phases"][phase]["n_cells"] >= 3]
-    if not phases:
+    """Development action error against success, single column.
+
+    The smoke panel and the rank statistics belong to the caption, not the plot. The returned
+    record keeps every phase with enough cells, so `numbers.json` carries both.
+    """
+    recorded = [phase for phase in PHASES if record["phases"][phase]["n_cells"] >= 3]
+    if PLOT_PHASE not in recorded:
         return None
-    cells = [cell for cell in record["cells"] if cell["included"]]
-    fig, axes = plt.subplots(
-        1, len(phases), figsize=(FULL if len(phases) == 2 else 3.45, 1.95), squeeze=False
-    )
-    fig.subplots_adjust(left=0.075, right=0.985, top=0.80, bottom=0.235, wspace=0.14)
-    halo = {"facecolor": "white", "alpha": 0.88, "edgecolor": "none", "pad": 1.0}
+    stats = record["phases"][PLOT_PHASE]
+    cells = [cell for cell in record["cells"] if cell["included"] and cell["phase"] == PLOT_PHASE]
+    fig, ax = plt.subplots(figsize=(COL, 1.95))
+    fig.subplots_adjust(left=0.135, right=0.985, top=0.965, bottom=0.215)
     errors = [cell["action_error"] for cell in cells]
     low, high = max(min(errors), FLOOR), max(errors)
+    gate_pct = 100 * stats["gate_min_successes"] / cells[0]["trials"]
 
-    for index, (ax, phase) in enumerate(zip(axes[0], phases, strict=True)):
-        phase_cells = [cell for cell in cells if cell["phase"] == phase]
-        stats = record["phases"][phase]
-        gate_pct = 100 * stats["gate_min_successes"] / phase_cells[0]["trials"]
-        for cell in phase_cells:
-            x = max(cell["action_error"], FLOOR)
-            y = cell["success_pct"]
-            interval = cell["wilson_pct"]
-            ax.errorbar(
-                x,
-                y,
-                yerr=[[y - interval[0]], [interval[1] - y]],
-                color=COLORS[cell["component"]],
-                marker="D" if cell["action_error"] == 0 else "o",
-                ms=3.2,
-                mfc="white" if cell["action_error"] == 0 else COLORS[cell["component"]],
-                mec=COLORS[cell["component"]],
-                mew=0.8,
-                lw=0,
-                elinewidth=0.6,
-                capsize=0,
-                zorder=3,
-            )
-        ax.axhline(gate_pct, color=MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
-        ax.text(
-            high * 1.6,
-            gate_pct - 3.5,
-            f"gate {stats['gate_min_successes']}/{phase_cells[0]['trials']}",
-            ha="right",
-            va="top",
-            fontsize=6.3,
-            color=MUTED,
-            style="italic",
+    for cell in cells:
+        x = max(cell["action_error"], FLOOR)
+        y = cell["success_pct"]
+        interval = cell["wilson_pct"]
+        ax.errorbar(
+            x,
+            y,
+            yerr=[[y - interval[0]], [interval[1] - y]],
+            color=COLORS[cell["component"]],
+            marker="D" if cell["action_error"] == 0 else "o",
+            ms=3.2,
+            mfc="white" if cell["action_error"] == 0 else COLORS[cell["component"]],
+            mec=COLORS[cell["component"]],
+            mew=0.8,
+            lw=0,
+            elinewidth=0.6,
+            capsize=0,
+            zorder=3,
         )
-        ax.set_xscale("log")
-        ax.set(xlim=(low / 6, high * 2.6), ylim=(-4, 122))
-        ax.set_xticks([FLOOR, 1e-6, 1e-4, 1e-2])
-        ax.set_xticklabels(["0", "1e-6", "1e-4", "1e-2"])
-        ax.minorticks_off()
-        style_axes(ax, yticks=[0, 25, 50, 75, 100])
-        if index == 0:
-            style_axes(
-                ax,
-                ylabel="Success (%)",
-                xlabel="Offline action error vs B16\n(mean arm MSE, 80 frames; 0 = identical)",
-            )
-        else:
-            ax.tick_params(axis="y", labelleft=False)
-        panel_label(ax, "ab"[index], f"{phase.capitalize()}, {phase_cells[0]['trials']} trials")
-        ax.text(
-            0.03,
-            0.97,
-            f"{_interval(stats['spearman'])}\ngate passers: {_interval(stats['gate_passing'])}",
-            transform=ax.transAxes,
-            ha="left",
-            va="top",
-            fontsize=6.3,
-            color=INK,
-            bbox=halo,
-            zorder=4,
-        )
-        if stats["gate_passing"]["rho"] is None and phase_cells:
-            at_gate = sum(cell["gate_passed"] for cell in phase_cells)
-            ax.text(
-                0.03,
-                0.04,
-                f"{at_gate} of {len(phase_cells)} cells sit at "
-                f"{stats['gate_min_successes']}/{phase_cells[0]['trials']}",
-                transform=ax.transAxes,
-                ha="left",
-                va="bottom",
-                fontsize=6.3,
-                color=INK_2,
-                style="italic",
-                bbox=halo,
-                zorder=4,
-            )
+    ax.axhline(gate_pct, color=MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
+    ax.text(
+        high * 2.2,
+        gate_pct + 1.5,
+        "gate",
+        ha="right",
+        va="bottom",
+        fontsize=6.3,
+        color=MUTED,
+        style="italic",
+    )
+    ax.set_xscale("log")
+    ax.set(xlim=(low / 2.5, high * 2.6), ylim=(-4, 112))
+    ax.set_xticks([FLOOR, 1e-6, 1e-4, 1e-2])
+    ax.set_xticklabels(["0", "1e-6", "1e-4", "1e-2"])
+    ax.minorticks_off()
+    style_axes(
+        ax,
+        ylabel="Development success (%)",
+        xlabel="Action error vs reference (MSE)",
+        yticks=[0, 25, 50, 75, 100],
+    )
 
     handles = [
         plt.Line2D(
@@ -354,18 +314,18 @@ def fig_divergence(record: dict) -> dict | None:
         if any(cell["component"] == name for cell in cells)
     ]
     if handles:
-        axes[0][-1].legend(
+        ax.legend(
             handles=handles,
-            loc="lower left",
+            loc="upper left",
             frameon=False,
             fontsize=6.2,
-            ncol=2,
-            columnspacing=0.8,
-            handlelength=1.0,
+            ncol=5,
+            columnspacing=0.7,
+            handlelength=0.9,
             handletextpad=0.3,
-            borderaxespad=0.4,
+            borderaxespad=0.2,
             labelcolor=INK_2,
         )
     fig.savefig(OUT / "divergence.pdf")
     plt.close(fig)
-    return {"phases": {phase: record["phases"][phase] for phase in phases}}
+    return {"phases": {phase: record["phases"][phase] for phase in recorded}}

@@ -6,6 +6,7 @@ storage each run records, never against nominal bits. Points are measured, not s
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Patch
 
 from report.plots.style import COLORS, FULL, INK_2, MUTED, OUT, panel_label, style_axes, tint
 
@@ -21,6 +22,18 @@ INTERACTION = [
     ("precision-action-hqq2", "action 2-bit"),
     ("precision-joint-va-hqq2", "joint 2-bit"),
 ]
+FORMAT_NAMES = {
+    "awq": "AWQ",
+    "gptq": "GPTQ",
+    "hqq4": "HQQ 4-bit",
+    "hqq3": "HQQ 3-bit",
+    "hqq2": "HQQ 2-bit",
+    "nf4": "NF4",
+    "int8": "INT8",
+}
+LABEL_GAP_GB = 0.1  # formats closer than this in memory would put their labels on top of each other
+FAN_LINE_PT = 8.1  # line height of the stacked label block, points
+FAN_DX_PT = 16.0  # leader-line length from point to label block, points
 
 
 def module_points(n: dict, family: str, module: str) -> list[dict]:
@@ -114,7 +127,7 @@ def fig_precision(n: dict) -> dict | None:
     style_axes(
         ax,
         ylabel="Development success (%)",
-        xlabel="Effective bits per module, $8S(x)/N(x)$",
+        xlabel="Effective bits per weight",
         yticks=[0, 25, 50, 75, 100],
     )
     panel_label(ax, "a", "Precision surface")
@@ -145,12 +158,83 @@ def fig_precision(n: dict) -> dict | None:
         b.set(xticks=positions, xticklabels=labels, ylim=(0, 112))
         b.tick_params(axis="x", labelsize=6.5)
         style_axes(b, yticks=[0, 25, 50, 75, 100])
-        b.tick_params(axis="y", labelleft=False)
-        panel_label(b, "b", "Joint 2-bit cell")
+        panel_label(b, "b", "2-bit cells")
 
     fig.savefig(OUT / "precision.pdf")
     plt.close(fig)
     return ledger
+
+
+def format_name(candidate: str) -> str:
+    """Readable format name from a cell id: `format-lang-hqq4` becomes `HQQ 4-bit`."""
+    suffix = candidate.removeprefix("precision-lang-").removeprefix("format-lang-")
+    return FORMAT_NAMES.get(suffix, suffix.upper())
+
+
+def label_groups(points: list[dict]) -> list[list[dict]]:
+    """Group memory-sorted points whose labels would collide, so they can be stacked."""
+    groups: list[list[dict]] = []
+    for point in points:
+        if groups and point["peak_gb"] - groups[-1][-1]["peak_gb"] < LABEL_GAP_GB:
+            groups[-1].append(point)
+        else:
+            groups.append([point])
+    return groups
+
+
+def annotate_formats(ax: plt.Axes, points: list[dict], xlim: tuple, ylim: tuple) -> None:
+    """Label each format; a memory cluster becomes one label block with a single leader line.
+
+    Offsets are in points, so the block keeps its spacing at any output size. The data-per-point
+    factors come from the axes box, which is final once the limits are set.
+    """
+    box = ax.get_position()
+    x_per_pt = (xlim[1] - xlim[0]) / (box.width * ax.figure.get_figwidth() * 72)
+    y_per_pt = (ylim[1] - ylim[0]) / (box.height * ax.figure.get_figheight() * 72)
+    high = max(point["peak_gb"] for point in points)
+    leader = {
+        "arrowstyle": "-",
+        "lw": 0.4,
+        "color": tint(INK_2, 0.45),
+        "shrinkA": 1.5,
+        "shrinkB": 2.5,
+    }
+    for group in label_groups(points):
+        if len(group) == 1:
+            point = group[0]
+            # The rightmost label goes above its point, clear of the reference band and line.
+            above = point["peak_gb"] >= high
+            ax.annotate(
+                format_name(point["candidate"]),
+                (point["peak_gb"], point["success_pct"]),
+                xytext=(0.0, 8.0) if above else (4.0, 0.0),
+                textcoords="offset points",
+                ha="center" if above else "left",
+                va="bottom" if above else "center",
+                fontsize=6.5,
+                color=INK_2,
+                annotation_clip=False,
+            )
+            continue
+        # The group is one blob: formats within 0.11 GB and 3 points of each other. One label
+        # block and one leader line say that, where five lines would graze each other's markers.
+        x_anchor = max(point["peak_gb"] for point in group) + FAN_DX_PT * x_per_pt
+        mean = sum(point["success_pct"] for point in group) / len(group)
+        height = len(group) * FAN_LINE_PT * y_per_pt
+        centre = max(mean - 8 * y_per_pt - height / 2, ylim[0] + 12 + height / 2)
+        ax.annotate(
+            "\n".join(format_name(point["candidate"]) for point in group),
+            (group[-1]["peak_gb"], group[-1]["success_pct"]),
+            xytext=(x_anchor, centre),
+            textcoords="data",
+            ha="left",
+            va="center",
+            fontsize=6.5,
+            color=INK_2,
+            linespacing=1.25,
+            arrowprops=dict(leader),
+            annotation_clip=False,
+        )
 
 
 def fig_format(n: dict) -> dict | None:
@@ -181,7 +265,7 @@ def fig_format(n: dict) -> dict | None:
     fig, ax = plt.subplots(figsize=(3.45, 1.85))
     fig.subplots_adjust(left=0.145, right=0.985, top=0.88, bottom=0.225)
     _reference(n, ax)
-    for index, point in enumerate(points):
+    for point in points:
         ax.errorbar(
             point["peak_gb"],
             point["success_pct"],
@@ -199,21 +283,26 @@ def fig_format(n: dict) -> dict | None:
             capsize=0,
             zorder=3,
         )
-        ax.annotate(
-            point["candidate"].removeprefix("precision-lang-").removeprefix("format-lang-"),
-            (point["peak_gb"], point["success_pct"]),
-            xytext=(3, 4 if index % 2 == 0 else -9),
-            textcoords="offset points",
-            fontsize=6.5,
-            color=INK_2,
-            annotation_clip=False,
-        )
     ax.set(xlim=(low - pad, high + pad), ylim=(-3, 104))
+    annotate_formats(ax, points, (low - pad, high + pad), (-3, 104))
     style_axes(
         ax,
         ylabel="Development success (%)",
         xlabel="Peak allocated GPU memory (GB)",
         yticks=[0, 25, 50, 75, 100],
+    )
+    ax.legend(
+        handles=[
+            Patch(facecolor=tint(MUTED, 0.86), edgecolor="none", label="reference 95 % interval")
+        ],
+        loc="upper left",
+        frameon=False,
+        fontsize=6.2,
+        handlelength=1.2,
+        handleheight=0.8,
+        handletextpad=0.4,
+        borderaxespad=0.3,
+        labelcolor=INK_2,
     )
     fig.savefig(OUT / "format.pdf")
     plt.close(fig)
