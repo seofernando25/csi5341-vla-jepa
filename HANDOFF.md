@@ -5,15 +5,14 @@ Live run state only. Everything else is in `CLAUDE.md`, `docs/`, the study READM
 
 ## State, 2026-11-16
 
-The report is four pages and committed. `main` is at `62f8e02`, level with `origin/main` before the
-current figure and docs work. Next steps and order: `ROADMAP.md` section 4.
+The report is four pages and committed on `main`. Next steps and order: `ROADMAP.md` section 4.
 
 | Run | State |
 |---|---|
 | Reserved-500, v1 selection | complete |
 | `program-v2` search | stopped, evidence merged to `main`; do not restart |
 | `program-v4` latency search | live since 16:05 UTC. Worktree `/home/fer/.t3/worktrees/csi5341-vla-jepa/t3-run-program-v4`, branch `t3/run-program-v4` (at `0970b90`), unit `rsi-home-fer-t3-worktrees-csi5341-vla-jepa-t3-run-program-v4-studies-program-v4.service`. Node snapshot: `studies/program-v4/nodes.json` |
-| `program-v3` debiased size search | paused (`STOP` in its study; not resumed). Worktree `/home/fer/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, branch `t3/b413d091`, tag `program-v3-debiased`. Evidence (`cycles/`) is uncommitted there. Not mine; resume only on Fernando's decision |
+| `program-v3` debiased size search | paused (`STOP` in its study; not resumed). Worktree `/home/fer/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, branch `t3/b413d091`, tag `program-v3-debiased`. Evidence (`cycles/`) is uncommitted there. Resume only on Fernando's decision |
 
 Neither branch is merged. Merge each when its run ends, then remove the worktree and delete the
 branch (ROADMAP T21).
