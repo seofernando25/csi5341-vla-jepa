@@ -19,7 +19,7 @@ both selected nodes matched the reference on the reserved 500.
 
 [program-v4/](program-v4/README.md) asks a different question: make the policy fast, not small. Its
 score is the speedup over the untouched policy's median observation-to-action latency, zero unless
-the smoke gate passes and peak CUDA memory is not above the reference's. Prepared, not launched.
+the smoke gate passes and peak CUDA memory is not above the reference's. Result: pending.
 
 ## Closed studies kept outside the reset
 

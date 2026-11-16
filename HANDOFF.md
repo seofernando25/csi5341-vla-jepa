@@ -18,22 +18,32 @@ The report is a four-page draft in `report/main.tex`, every number traced to
 `report/data/numbers.json`, with four figures and two tables. The v2 worktree and both side branches
 are gone; `main` is the only branch.
 
-## State at 08:00 EST, 2026-11-16
+## State at 09:15 EST, 2026-11-16
 
-- Plan for everything left: `ROADMAP.md` (requirements, figure plan, tasks T1 to T27).
-- Running: Dream-RSI `program-v3` (debiased size search: no compression code, no prompt token ids),
-  worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, tag `program-v3-debiased`,
-  launched 07:22, ends by about 15:20. Watcher log `/tmp/opencode/s2/J3-STATUS.md`.
-- Prepared, not run: latency search `program-v4`, worktree
-  `~/.t3/worktrees/csi5341-vla-jepa/t3-ba578c7d-e439f6d8dfe42299`, tag `program-v4-latency`; its timing
-  and cache guards are being fixed (`/tmp/opencode/s2/Q2-STATUS.md`). Launch on an idle GPU only.
+- Running: Dream-RSI `program-v4` (latency score: speedup over the untouched policy's median
+  observation-to-action latency, zero unless the smoke gate passes, peak CUDA is not above the
+  reference's and no guard fails). Worktree
+  `~/.t3/worktrees/csi5341-vla-jepa/t3-run-program-v4`, branch `t3/run-program-v4` at the merge
+  commit `a2fa591`, unit
+  `rsi-home-fer-t3-worktrees-csi5341-vla-jepa-t3-run-program-v4-studies-program-v4`, launched
+  08:54 EST, ends by 16:54 EST (`--max-hours 8`). Watcher log `/tmp/opencode/s2/V4-STATUS.md`.
+- First `program-v4` node `iter_000-b0-a0` (bit-exact CUDA-graph replay): smoke 8/10, speedup
+  point 2.62 [2.605, 2.676], score 0 because its peak CUDA was 2.25 % above the reference's and
+  the protocol allows 1 %. Identity control in the same run: score 0.903, point 0.979, no guard
+  violation.
+- Paused: Dream-RSI `program-v3` (debiased size search: no compression code, no prompt token ids),
+  worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, tag
+  `program-v3-debiased`, `STOP` in its study. Resume with the same command when the GPU is free.
+- Merged: the latency study's branch into `main` (`a2fa591`); that branch and its worktree are
+  gone.
 - Report on `main`: 4 pages, failure analysis and proposal verdict in (`cc1296a`).
 
 ## Next, in order
 
-1. Read `report/main.pdf` once for voice and accuracy.
-2. Ask Fernando before pushing or posting to the board.
-3. Optional: the presentation (`web/presentation/`) still shows the pre-cleanroom story.
+1. When `program-v4` stops: select on development, then the reserved 500, then the report.
+2. Read `report/main.pdf` once for voice and accuracy.
+3. Ask Fernando before pushing or posting to the board.
+4. Optional: the presentation (`web/presentation/`) still shows the pre-cleanroom story.
 
 ## Project explainer video (done, committed to main)
 
@@ -48,19 +58,10 @@ Flat scenes are borderless (no cards). `build/3d/` is gitignored; re-render with
 
 ## Branches
 
-`main` is the only working branch, and no other worktree exists. `origin/main` is at `ac06d1b`;
-nothing since is pushed and no board record is posted. Ask Fernando before either.
-
-## Next, in order
-
-1. When the two v2 reserved cells stop (~05:00): fill the reserved column of Table II in
-   `report/main.tex`, rebuild `vla-report-plots`, and commit the records, the figures and
-   `report/data/numbers.json`.
-2. Update `studies/program-v2/README.md` with the reserved result.
-3. Ask Fernando before pushing or posting to the board.
-
-The report draft is committed (`563958b`): four pages, four figures, two tables. Every number in it
-comes from `report/data/numbers.json`; the only placeholder is Table II's reserved column.
+`main` holds everything merged. Two worktrees exist: the paused `program-v3` run
+(`t3/b413d091`, tag `program-v3-debiased`) and the live `program-v4` run
+(`t3/run-program-v4`, at `a2fa591`). `origin/main` is at `ac06d1b`; nothing since is pushed and
+no board record is posted. Ask Fernando before either.
 
 ## Decisions Fernando made (2026-11-15)
 
