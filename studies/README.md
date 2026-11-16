@@ -9,12 +9,17 @@ The new evidence base is [program-v1/](program-v1/README.md). It holds the froze
 pre-registered precision surface with its development measurements, and the Dream-RSI cycles. Its
 README states what is measured and what is still running.
 
-## Open Dream-RSI namespace
+## Open Dream-RSI namespaces
 
 [program-v2/](program-v2/README.md) holds the Dream-RSI search under the open protocol: shell, GPU
 and network for the policy agent, anytime policy steps, live `plan_grid` under caps, and the fixed
 memory rule. It starts from the baseline policy with no history. Its nodes are not pooled with
-program-v1's, and no v1 node is used as its starting point. Results: pending.
+program-v1's, and no v1 node is used as its starting point. Result: no node beat v1's compression;
+both selected nodes matched the reference on the reserved 500.
+
+[program-v4/](program-v4/README.md) asks a different question: make the policy fast, not small. Its
+score is the speedup over the untouched policy's median observation-to-action latency, zero unless
+the smoke gate passes and peak CUDA memory is not above the reference's. Prepared, not launched.
 
 ## Closed studies kept outside the reset
 

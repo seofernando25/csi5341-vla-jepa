@@ -22,7 +22,7 @@ from rsi.api import (
     RUNTIME_FAILURE,
     gate_fail_class,
 )
-from rsi.online_evidence import build_discovery_prompt
+from rsi.online_evidence import build_discovery_prompt, discovery_prompt_path
 from rsi.runner import PHASES_ALLOWED
 from rsi.sandbox import (
     AgentRunResult,
@@ -209,7 +209,10 @@ def classify(raw: dict[str, Any], gate: int) -> Verdict:
             succ = int(raw["successes"])
             episodes = int(raw["episodes"])
             measured = raw["sizes"]
-            reduction = float(measured["size_reduction"])
+            score = raw.get("score")
+            if score is None:
+                score = measured["size_reduction"]
+            score = float(score)
         except (KeyError, TypeError, ValueError):
             return Verdict(
                 RUNTIME_FAILURE,
@@ -217,21 +220,24 @@ def classify(raw: dict[str, Any], gate: int) -> Verdict:
                 None,
                 None,
                 None,
-                "ok result lacks successes, episodes or size_reduction",
+                "ok result lacks successes, episodes or a score",
             )
+        reduction = measured.get("size_reduction")
+        reduction = float(reduction) if reduction is not None else None
         sizes = {
             "resident_bytes": measured.get("resident_bytes"),
             "baseline_resident_bytes": measured.get("baseline_resident_bytes"),
             "size_reduction": reduction,
+            "score": score,
         }
         fail_class = gate_fail_class(succ, gate)
         if fail_class == OK:
-            return Verdict(OK, reduction, succ, episodes, reduction, None, sizes)
+            return Verdict(OK, score, succ, episodes, reduction, None, sizes)
         return Verdict(
             fail_class, 0.0, succ, episodes, reduction, f"smoke={succ}/{episodes}<{gate}", sizes
         )
     error = str(raw.get("error") or status or "no status")[-EVAL_ERROR_TAIL:]
-    if status in ("solution_error", "size_violation"):
+    if status in ("solution_error", "size_violation", "guard_violation"):
         return Verdict(IMPLEMENTATION_FAILURE, 0.0, None, None, None, error)
     return Verdict(RUNTIME_FAILURE, 0.0, None, None, None, error)
 
@@ -393,6 +399,7 @@ def expand_node(ctx: NodeContext, job: NodeJob, registry: DigestRegistry) -> dic
         best_score=job.best_score,
         gpu_slots=ctx.gpu_slots,
         minutes=ctx.agent_timeout / 60.0,
+        prompt_path=discovery_prompt_path(ctx.study_dir),
     )
     res, timed_out = _run_agent(ctx, job, work, evidence, prompt)
     stats = _agent_stats(res, timed_out)

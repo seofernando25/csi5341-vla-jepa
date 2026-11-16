@@ -29,12 +29,26 @@ def _evaluator_prefix() -> list[str]:
 def _summary(record: dict) -> list[str]:
     lines = [f"status: {record.get('status')}"]
     sizes = record.get("sizes")
-    if sizes:
+    if sizes and sizes.get("size_reduction") is not None:
         reduction = 100.0 * sizes["size_reduction"]
         lines.append(
             f"memory removed: {reduction:.1f}% "
             f"(resident {sizes['resident_bytes']} of baseline {sizes['baseline_resident_bytes']} bytes)"
         )
+    latency = record.get("latency")
+    if latency:
+        lines.append(f"score: {latency['score']:.4f} ({latency.get('score_kind')})")
+        reference = (latency.get("reference") or {}).get("timing") or {}
+        candidate = latency.get("candidate") or {}
+        lines.append(
+            f"latency ms: reference median {reference.get('median_ms', float('nan')):.2f}, "
+            f"candidate median {candidate.get('median_ms', float('nan')):.2f}, "
+            f"p95 {candidate.get('p95_ms', float('nan')):.2f}"
+        )
+        if latency.get("zero_reason"):
+            lines.append(f"score is zero: {latency['zero_reason']}")
+        for violation in latency.get("violations") or []:
+            lines.append(f"guard: {violation}")
     if "action_error" in record:
         lines.append(f"action error (max normalized difference): {record['action_error']:.6g}")
     check = record.get("check")

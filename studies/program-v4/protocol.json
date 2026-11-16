@@ -1,0 +1,155 @@
+{
+  "protocol": "program-v4-latency",
+  "frozen_at": "2026-11-16",
+  "status": "frozen",
+  "supersedes": "program-v4 is a new question, not a revision of program-v2. It keeps v2's checkpoint, suite, task ids, seeds, phases, gates, statistics, agent and budgets, and replaces the memory score with a latency score. v2's nodes, scores and policies are not pooled with v4 and are not used as v4's starting point.",
+  "checkpoint": "lerobot/VLA-JEPA-LIBERO",
+  "checkpoint_revision": "735d9f692981e286ade093b5046627eda876e5d0",
+  "suite": "libero_spatial",
+  "task_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "seed": 1000,
+  "final_seed_offset": 10000,
+  "development_states_per_task": 10,
+  "reserved_states_per_task": 50,
+  "max_steps": 280,
+  "action_chunk": 7,
+  "flow_steps": 4,
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "calibration": {
+    "artifact": "outputs/compression/calibration.pt",
+    "description": "calibration.json",
+    "note": "The same frozen unlabeled artifact program-v1 and program-v2 used; it carries no robot outcomes."
+  },
+  "phases": {
+    "screen": {"trials": 80, "simulator": false},
+    "smoke": {"trials": 10, "simulator": true},
+    "development": {"trials": 100, "simulator": true},
+    "reserved": {"trials": 500, "simulator": true}
+  },
+  "gates": {
+    "smoke_min_successes": 8,
+    "development_min_successes": 77,
+    "final_noninferiority_pp": 5.0
+  },
+  "statistics": {
+    "interval": "wilson95",
+    "paired": "task-stratified bootstrap 10000 resamples",
+    "multiplicity": "pre-register primary comparisons; report all others as exploratory"
+  },
+  "reserved_lock": true,
+  "score": {
+    "kind": "latency_speedup",
+    "baseline": 1.0,
+    "reference": "uncompressed B16, four flow steps, stock execution path",
+    "formula": "reference_median_observation_to_action_ms / candidate_median_observation_to_action_ms",
+    "zero_unless": [
+      "the smoke gate passes: successes >= gates.smoke_min_successes",
+      "the candidate's peak CUDA bytes are not above the reference's"
+    ],
+    "timing": {
+      "warmup_calls": 20,
+      "timed_calls": 60,
+      "max_frames": 108,
+      "reference_trials": 1,
+      "reference_tasks": [0, 1, 2],
+      "frame_stride": 4,
+      "check": {
+        "warmup_calls": 8,
+        "timed_calls": 16,
+        "max_frames": 32,
+        "reference_trials": 1,
+        "reference_tasks": [0],
+        "frame_stride": 2
+      }
+    },
+    "guards": {
+      "reset_budget_ms": 2.0,
+      "reset_budget_fraction": 0.2,
+      "overhead_factor": 3.0,
+      "overhead_ms": 50.0,
+      "cpu_factor": 2.0,
+      "cpu_ms": 5.0,
+      "child_cpu_seconds": 1.0,
+      "novel_frame_factor": 3.0,
+      "novel_frame_ms": 20.0,
+      "gpu_over_wall_factor": 1.5,
+      "gpu_over_wall_ms": 5.0,
+      "action_atol": 0.001,
+      "min_action_spread": 0.0001,
+      "equivalence_frames": 8,
+      "max_new_threads": 0,
+      "peak_tolerance": 0.01
+    }
+  },
+  "starting_policy": {
+    "path": "rsi/policies/optimal.py",
+    "note": "The loop copies this default OptimalPolicy to policies/v000_initial/policy.py. The search starts with no trees, no beta sweeps and no scores: cycles/ and policies/ hold only what this run writes."
+  },
+  "run_budget": {
+    "cycles": 3,
+    "probe_budget": 8,
+    "max_parallelism": 2,
+    "promote_top_k": 1,
+    "max_hours": 8,
+    "max_agent_usd": 20,
+    "note": "Pre-registered launch budget. It matches the launch command in studies/program-v4/README.md; a run that changes it records the change in revisions."
+  },
+  "starting_rules": [
+    {
+      "field": "dream_rsi.evaluator.score",
+      "rule": "The score is reference median observation-to-action latency divided by the candidate's, measured by the fixed evaluator in one process on frames collected from reference episodes, with a device synchronize before and after every timed select_action call, after warm-up, on observations never timed before. The score is zero unless the smoke gate passes and the candidate's peak CUDA bytes are not above the reference's. The evaluator is evaluation/compression/solution.py with the latency module; a node never chooses its own measurement."
+    },
+    {
+      "field": "dream_rsi.evaluator.guards",
+      "rule": "Failing conditions, recorded as guard_violation: a replaced clock or CUDA synchronizer; a stored or cached answer (reproducibility, order, select_action/predict_action_chunk agreement, observation sensitivity, novel-frame cost); work moved into reset; background or asynchronous work (episode wall time per step minus the policy's own time against the reference's); CPU or child-process work above the caps; new threads during timing; peak CUDA bytes above the reference's. The discovery prompt states each one."
+    },
+    {
+      "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",
+      "rule": "The policy-development agent gets read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, and a runnable replay.py in the workspace. It may run and measure its own replay before answering. The harness still audits, replays and selects; the agent's own numbers are never used."
+    },
+    {
+      "field": "dream_rsi.policy_timeout_s",
+      "rule": "1200 s per policy-development step, one repair attempt also after a not-better step."
+    },
+    {
+      "field": "dream_rsi.policy_step_timeout",
+      "rule": "Anytime. The prompt asks for a valid method.py early and in-place improvement after that. On timeout the harness audits and replays the file as it stands and records timeout_salvaged; it is accepted only if it passes the audit and strictly beats the incumbent. A missing or unusable file leaves status timeout. Cost and transcript are kept."
+    },
+    {
+      "field": "dream_rsi.grid_plan",
+      "rule": "Live. The selected policy's plan_grid decides the next cycle's grid from the last three manifests and beta sweeps; the protocol grid values (max_parallelism, rounds_cap) and the run arguments (probe budget, GPU slots) are caps, and the protocol grid is the pre-registered fallback. A candidate whose plan_grid fails validation is rejected."
+    }
+  ],
+  "revisions": [],
+  "dream_rsi": {
+    "grid_plan": {
+      "max_branches": 4,
+      "max_attempts_per_branch": 3,
+      "max_parallelism": 2,
+      "rounds_cap": 6,
+      "rationale": "Pre-registered fallback grid and the caps on the policy's plan_grid. The live plan_grid chooses the applied grid within these caps."
+    },
+    "beta_grid": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "lambda_parallel": 0.05,
+    "gate_retry": false,
+    "sequential_gate": false,
+    "policy": "paper-faithful replay policy; generated policy code must be recorded by hash",
+    "reserved_trials_in_selection": false,
+    "agent": {
+      "backend": "pi",
+      "model": "mistral/deepseek-v4-1-flash-1017",
+      "effort": "max"
+    },
+    "discovery_tools": "read,write,edit,bash",
+    "policy_dev_tools": "read,write,edit,bash",
+    "agent_timeout_s": 1800,
+    "eval_timeout_s": 1800,
+    "policy_timeout_s": 1200,
+    "gpu_slots": 1
+  },
+  "old_evidence": {
+    "status": "not reused",
+    "reuse": "forbidden"
+  }
+}
