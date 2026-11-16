@@ -67,6 +67,15 @@ elif mode == "symlink":
     os.symlink("/etc/passwd", method)
 elif mode == "sleep":
     time.sleep(60)
+elif mode == "better_then_sleep":
+    method.write_text(pathlib.Path(extra).read_text())
+    time.sleep(60)
+elif mode == "broken_then_sleep":
+    method.write_text("def broken(:\\n")
+    time.sleep(60)
+elif mode == "delete_then_sleep":
+    method.unlink(missing_ok=True)
+    time.sleep(60)
 """
 
 WRITE_PROBE = """
@@ -283,17 +292,52 @@ def test_loop_forbidden_import_gets_one_repair(tmp_path: Path) -> None:
     assert variant["status"] == "not_better"
 
 
-def test_loop_timeout_is_recorded_as_timeout(tmp_path: Path) -> None:
+def test_loop_timeout_scores_the_file_left_behind(tmp_path: Path) -> None:
+    """A timed-out step whose file is untouched is scored and loses to the incumbent."""
     summary = _develop(tmp_path, _fake_agent(tmp_path, "sleep"), m=2, timeout=2.0)
     variant = summary["variants"][1]
-    assert variant["status"] == "timeout"
+    assert variant["status"] == "timeout_salvaged"
     assert variant["attempts"] == 1
+    assert variant["mean_v"] == pytest.approx(summary["incumbent_in_sample_V"])
     verdict = json.loads(
         (tmp_path / "out" / "evidence" / "history" / "step_01" / "verdict.json").read_text()
     )
-    assert verdict["status"] == "timeout"
+    assert verdict["status"] == "timeout_salvaged"
+    assert "timed out" in verdict["error"]
     assert summary["selected_slot"] == "m0_incumbent"
     assert len(_calls(tmp_path)) == 1
+
+
+def test_timeout_salvage_is_accepted_when_it_beats_the_incumbent(tmp_path: Path) -> None:
+    better = _better_policy(tmp_path)
+    summary = _develop(
+        tmp_path, _fake_agent(tmp_path, "better_then_sleep", extra=better), m=2, timeout=2.0
+    )
+    variant = summary["variants"][1]
+    assert variant["status"] == "timeout_salvaged"
+    assert variant["mean_v"] > summary["incumbent_in_sample_V"]
+    assert summary["selected_slot"] == "m1_llm"
+    assert (tmp_path / "out" / "selected_policy.py").read_text() == better.read_text()
+    # The killed run is still counted: the step cost money and ran turns.
+    assert summary["agent"]["calls"] == 1
+
+
+def test_timeout_salvage_rejected_by_audit_is_a_plain_timeout(tmp_path: Path) -> None:
+    summary = _develop(tmp_path, _fake_agent(tmp_path, "broken_then_sleep"), m=2, timeout=2.0)
+    variant = summary["variants"][1]
+    assert variant["status"] == "timeout"
+    assert variant["mean_v"] is None
+    assert "timed out" in variant["error"]
+    assert "salvage failed" in variant["error"]
+    assert summary["selected_slot"] == "m0_incumbent"
+
+
+def test_timeout_without_a_candidate_is_a_plain_timeout(tmp_path: Path) -> None:
+    summary = _develop(tmp_path, _fake_agent(tmp_path, "delete_then_sleep"), m=2, timeout=2.0)
+    variant = summary["variants"][1]
+    assert variant["status"] == "timeout"
+    assert variant["mean_v"] is None
+    assert summary["selected_slot"] == "m0_incumbent"
 
 
 def test_loop_symlinked_method_rejected(tmp_path: Path) -> None:
@@ -372,10 +416,11 @@ def test_timed_out_step_keeps_its_cost(tmp_path: Path, monkeypatch: pytest.Monke
     out = tmp_path / "out"
     evidence = out / "evidence"
     evidence.mkdir(parents=True)
+    world_paths = [save_tree_json(TRAIN[0], evidence / "worlds" / "00.json")]
     run = policy_dev._Run(
         cycle_id="t",
         history=TRAIN[:1],
-        world_paths=[],
+        world_paths=world_paths,
         evidence=evidence,
         out_root=out,
         steps=1,
@@ -388,7 +433,8 @@ def test_timed_out_step_keeps_its_cost(tmp_path: Path, monkeypatch: pytest.Monke
         use_bwrap=False,
     )
     rec = policy_dev._run_agent_step(run, 1, INCUMBENT.read_text(encoding="utf-8"), 0.5)
-    assert rec["status"] == "timeout"
+    # The seed file is still there, so the killed step is scored: it does not beat 0.5.
+    assert rec["status"] == "timeout_salvaged"
     assert "timed out" in rec["error"]
     assert [r.cost_usd for r in run.results] == [0.632185]
     assert agent_record(None, run.results)["cost_usd"] == 0.632185
@@ -429,7 +475,7 @@ def test_selection_counts_a_timed_out_step_cost(
         timeout=1.0,
         use_bwrap=False,
     )
-    assert summary["variants"][1]["status"] == "timeout"
+    assert summary["variants"][1]["status"] == "timeout_salvaged"
     assert summary["agent"]["cost_usd"] == 0.632185
     recorded = json.loads((tmp_path / "out" / "selection.json").read_text(encoding="utf-8"))
     assert recorded["agent"]["cost_usd"] == 0.632185

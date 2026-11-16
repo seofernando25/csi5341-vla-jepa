@@ -48,7 +48,7 @@ SECTION_FIELDS = _fields("id title recorded text chars tokens path note items fi
 EVENT_KINDS = {"text", "thinking", "tool_call", "tool_result", "result", "system"}
 LOOP_STATUSES = {"idle", "running", "stopped", "done", "error"}
 NODE_STATUSES = {"pending", "agent", "evaluating", "stopped", "done"}
-STEP_STATUSES = {"running", "accepted", "not_better", "timeout", "rejected"}
+STEP_STATUSES = {"running", "accepted", "not_better", "timeout", "timeout_salvaged", "rejected"}
 PURE_MODULES = (
     "store.js",
     "reducer.js",

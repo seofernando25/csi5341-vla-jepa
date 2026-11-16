@@ -5,7 +5,7 @@ import * as sel from "../selectors.js";
 import * as fmt from "../format.js";
 import { createChart } from "./chart.js";
 
-const STEP_TONE = { accepted: "ok", not_better: "warn", rejected: "err", running: "live", pending: "idle" };
+const STEP_TONE = { accepted: "ok", not_better: "warn", timeout_salvaged: "warn", rejected: "err", running: "live", pending: "idle" };
 
 export function mount(root, ctx) {
   const { dispatch, act, go } = ctx;

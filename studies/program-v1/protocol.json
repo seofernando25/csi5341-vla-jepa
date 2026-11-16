@@ -79,6 +79,13 @@
       "from": "read,write,edit; no shell, no GPU, five rsi/ files at /tmp/rsi_lib; 240 s CLI default",
       "to": "read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, runnable replay.py in the workspace; 1200 s default; one repair attempt also after a not-better step; a timed-out step is recorded as timeout",
       "reason": "Owner decision 2026-11-15: the policy-development agent is trusted like a discovery agent and must be able to run and measure its own replay before answering. The paper fixes the agent's inputs and output, not its tools. The harness still replays, audits and selects; the agent's own numbers are never used. Cycles iter_000..iter_002 ran under the old read/write/edit rule, so their policy steps had no shell, GPU or replay."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.policy_step_timeout",
+      "from": "a step that exceeds --policy-timeout is recorded as timeout and its workspace is discarded",
+      "to": "the step is anytime: the prompt asks for a valid method.py early and in-place improvement after that, and on timeout the harness audits and replays the file as it stands, recording timeout_salvaged. It is accepted only if it passes the audit and strictly beats the incumbent, like any other step; a missing or unusable file leaves status timeout. Cost and transcript are kept.",
+      "reason": "Two synthetic calibrations (600 s and 1200 s, m=2, 8 worlds) timed out with the agent still building its own search harness: no step answered, so the cycle had no policy to select. Discarding the file wasted a paid step; scoring it costs one replay. No evidence cycle has run under the new rule."
     }
   ],
   "dream_rsi": {

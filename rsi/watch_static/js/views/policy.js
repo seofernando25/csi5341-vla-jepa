@@ -7,6 +7,7 @@ const VERDICT_TONE = {
   accepted: "ok",
   not_better: "warn",
   timeout: "warn",
+  timeout_salvaged: "warn",
   rejected: "err",
   running: "live",
 };

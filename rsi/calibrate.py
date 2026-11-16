@@ -83,6 +83,13 @@ def _steps(summary: dict[str, Any]) -> list[dict[str, Any]]:
         status = v["status"]
         if status in ("rejected", "timeout"):
             reason = v["error"]
+        elif status == "timeout_salvaged":
+            better = (v["delta_vs_best"] or 0.0) > 0
+            reason = (
+                "scored after timeout; mean_v above best so far"
+                if better
+                else "scored after timeout; mean_v not above best so far"
+            )
         elif status == "accepted":
             reason = "mean_v above best so far"
         else:

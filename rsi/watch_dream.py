@@ -18,7 +18,7 @@ from rsi.watch_files import STEP_RE, inside, read_json, read_text
 __all__ = ["SIZE_CAP", "dream_payload", "policy_root"]
 
 SIZE_CAP, TRACES_CAP = 300_000, 2_000_000
-STATUSES = ("incumbent", "accepted", "not_better", "rejected")
+STATUSES = ("incumbent", "accepted", "not_better", "timeout_salvaged", "rejected")
 MACHINE = re.compile(r"/(?:home|Users|tmp|private|var|mnt|root|opt)/[^\s\"']*")
 KEYS = (  # noqa: SIM905 - an eleven-item tuple costs thirteen lines
     "source_dir recorded_utc protocol worlds tree candidates curves rounds heldout verdict agent"

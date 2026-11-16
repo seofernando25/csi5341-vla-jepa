@@ -412,6 +412,48 @@ def _reject(rec: dict[str, Any], error: str, status: str = "rejected") -> dict[s
     return rec
 
 
+def _salvage_timeout(
+    run: _Run,
+    ws: Path,
+    step_dir: Path,
+    rec: dict[str, Any],
+    best_mean_v: float,
+    timeout_error: str,
+) -> dict[str, Any]:
+    """Score the file a timed-out step left behind, so the step is not wasted.
+
+    The step is anytime: the agent is told to keep a valid `method.py` from early on, and the
+    harness audits and replays whatever is there when the clock runs out. A scored file is
+    `timeout_salvaged` and competes like any other candidate; a missing or unusable file leaves the
+    step a plain `timeout`, with the reason recorded.
+    """
+    if _workspace_bytes(ws) > MAX_WORKSPACE_BYTES:
+        return _reject(rec, f"workspace exceeds {MAX_WORKSPACE_BYTES} bytes", status="timeout")
+    try:
+        text = read_agent_output(ws, "method.py", max_bytes=MAX_METHOD_BYTES)
+    except SandboxOutputError:
+        return _reject(rec, timeout_error, status="timeout")
+    rec["text"] = text
+    try:
+        result, traces, plan = _check_text(run, step_dir, text)
+    except (SandboxTimeoutError, SandboxOutputError) as exc:
+        return _reject(rec, f"{timeout_error}; salvage failed: {exc}", status="timeout")
+    except (PolicyAuditError, PolicyReplayError) as exc:
+        return _reject(rec, f"{timeout_error}; salvage failed: {exc}", status="timeout")
+    mean_v = float(result["mean_v"])
+    rec.update(
+        status="timeout_salvaged",
+        result=result,
+        traces=traces,
+        plan=plan,
+        path=step_dir / "candidate.py",
+        mean_v=mean_v,
+        delta_vs_best=mean_v - best_mean_v,
+        error=timeout_error,
+    )
+    return rec
+
+
 def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) -> dict[str, Any]:
     """Rewrite the best policy so far; one repair attempt after any failed or flat step."""
     step_dir = run.out_root / f"step_{step:02d}"
@@ -471,7 +513,7 @@ def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) ->
             spent = timed_out_result(logs, sandboxed=run.use_bwrap)
             if spent is not None:
                 run.results.append(spent)
-            return _reject(rec, str(exc), status="timeout")
+            return _salvage_timeout(run, ws, step_dir, rec, best_mean_v, str(exc))
         run.results.append(agent)
         if agent.returncode != 0:
             return _reject(rec, f"Agent exited {agent.returncode}: {agent.stderr[-300:]}")
@@ -651,10 +693,16 @@ def develop_policies_llm(
             rec["status"] = "accepted" if rec["mean_v"] > best["mean_v"] else "not_better"
             if rec["status"] == "accepted":
                 best = rec
+        elif rec["status"] == "timeout_salvaged" and rec["mean_v"] > best["mean_v"]:
+            best = rec
         _write_history(evidence, rec, _verdict(rec))
         records.append(rec)
 
-    valid = [r for r in records if r["status"] in ("incumbent", "accepted", "not_better")]
+    valid = [
+        r
+        for r in records
+        if r["status"] in ("incumbent", "accepted", "not_better", "timeout_salvaged")
+    ]
     world_ids = [t.world_id for t in history]
     mean_by_slot = {r["slot"]: r["mean_v"] for r in valid}
     selected = max(valid, key=lambda r: (r["mean_v"], -r["step"]))
