@@ -1,27 +1,49 @@
-"""Precision response surface and format curve (Figure 2).
+"""Precision response surface (Figure 2) and the decoder format curve.
 
-Success is plotted against effective bits `8 S(x)/N(x)` per module, computed from the per-module
-storage each run records, never against nominal bits. Points are measured, not smoothed.
+The surface plots development success against nominal weight bits per module: one line per module,
+the uncompressed reference at 16 bits, and the joint vision+action 2-bit cell beside the
+single-module 2-bit cells. Nominal bits come from the cell's recipe, or from its format suffix
+when the recipe records none; where a module has several 4-bit formats, NF4 stands for the line.
+Points are measured development rollouts, never pooled with smoke.
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.patches import Patch
 
-from report.plots.style import COLORS, FULL, INK_2, MUTED, OUT, panel_label, style_axes, tint
+from report.plots.data import recipes
+from report.plots.style import COL, COLORS, INK_2, MUTED, OUT, style_axes, tint
 
-MODULES = [
-    ("language", "precision-language", "text"),
-    ("vision", "precision-vision", "vision"),
-    ("action", "precision-action", "action"),
-]
+MODULES = ("language", "vision", "action")
+FAMILIES = {
+    "language": {"precision-language", "format-language"},
+    "vision": {"precision-vision"},
+    "action": {"precision-action"},
+}
+SCOPES = {
+    "language": {"text"},
+    "vision": {"vision_blocks", "merger"},
+    "action": {"action_mlp"},
+}
+# Nominal bits by method or by the trailing format token of a cell id.
+BITS_BY_NAME = {
+    "int8": 8,
+    "nf4": 4,
+    "bnb": 4,
+    "awq": 4,
+    "awq_diagonal": 4,
+    "gptq": 4,
+    "hqq": 4,
+    "hqq4": 4,
+    "hqq3": 3,
+    "hqq2": 2,
+}
+REFERENCE_BITS = 16  # the uncompressed bfloat16 checkpoint
+BIT_TICKS = (2, 3, 4, 8, 16)
+OFFSETS = {"language": -0.16, "vision": 0.0, "action": 0.16}  # category units, so bars clear
+JOINT = ("precision-joint-va-hqq2", "vision + action")
+JOINT_OFFSET = 0.30
+LABEL_DY = {"language": 11.0, "vision": 3.0, "action": -8.0}  # points; the lines meet at 16 bits
 FORMAT_FAMILIES = {"precision-language", "format-language"}
-INTERACTION = [
-    ("B16", "B16"),
-    ("precision-vision-hqq2", "vision 2-bit"),
-    ("precision-action-hqq2", "action 2-bit"),
-    ("precision-joint-va-hqq2", "joint 2-bit"),
-]
 FORMAT_NAMES = {
     "awq": "AWQ",
     "gptq": "GPTQ",
@@ -36,129 +58,170 @@ FAN_LINE_PT = 8.1  # line height of the stacked label block, points
 FAN_DX_PT = 16.0  # leader-line length from point to label block, points
 
 
-def module_points(n: dict, family: str, module: str) -> list[dict]:
-    """Development cells of one module family, with their effective bits and Wilson interval."""
-    points = []
+def nominal_bits(candidate: str, recipe: dict, module: str) -> int:
+    """Nominal bit width of one module's weights: the recipe's change, else the cell's format."""
+    for change in recipe.get("changes") or []:
+        if change.get("scope") in SCOPES[module]:
+            bits = change.get("bits")
+            return int(bits) if bits is not None else BITS_BY_NAME[change["method"]]
+    return BITS_BY_NAME.get(candidate.rsplit("-", 1)[-1], REFERENCE_BITS)
+
+
+def _prefer(candidate: str, incumbent: str) -> bool:
+    """NF4 is the reference 4-bit format, so it stands for a width that several formats share."""
+    return candidate.endswith("-nf4") and not incumbent.endswith("-nf4")
+
+
+def module_points(n: dict, authored: dict, module: str) -> list[dict]:
+    """One development point per nominal width for a module, plus the uncompressed reference."""
+    points: dict[int, dict] = {}
     for candidate, row in n["rows"].items():
-        bits = (row.get("effective_bits") or {}).get(module)
-        if row.get("family") != family or bits is None:
+        if row.get("family") not in FAMILIES[module] or "development_success_pct" not in row:
             continue
-        if "development_successes" not in row:
+        bits = nominal_bits(candidate, authored.get(candidate) or {}, module)
+        if bits in points and not _prefer(candidate, points[bits]["candidate"]):
             continue
-        points.append(
-            {
-                "candidate": candidate,
-                "bits": bits,
-                "success_pct": row["development_success_pct"],
-                "wilson_pct": row["development_wilson_pct"],
-            }
-        )
-    return sorted(points, key=lambda point: point["bits"])
+        points[bits] = {
+            "candidate": candidate,
+            "bits": bits,
+            "success_pct": row["development_success_pct"],
+            "wilson_pct": row["development_wilson_pct"],
+        }
+    reference = n["rows"].get("B16") or {}
+    if "development_success_pct" in reference and REFERENCE_BITS not in points:
+        points[REFERENCE_BITS] = {
+            "candidate": "B16",
+            "bits": REFERENCE_BITS,
+            "success_pct": reference["development_success_pct"],
+            "wilson_pct": reference["development_wilson_pct"],
+        }
+    return [points[bits] for bits in sorted(points)]
 
 
-def _reference(n: dict, ax: plt.Axes):
-    """B16 development success as a dashed line with its Wilson band."""
+def _reference(n: dict, ax: plt.Axes) -> dict | None:
+    """B16 development success as a dashed line with its Wilson band; returns the record."""
     b16 = n["rows"].get("B16") or {}
     if "development_success_pct" not in b16:
-        return
+        return None
     low, high = b16["development_wilson_pct"]
     ax.axhspan(low, high, color=tint(MUTED, 0.86), lw=0, zorder=0)
     ax.axhline(b16["development_success_pct"], color=MUTED, lw=0.6, ls=(0, (1, 2)), zorder=1)
+    return {
+        "candidate": "B16",
+        "success_pct": b16["development_success_pct"],
+        "wilson_pct": b16["development_wilson_pct"],
+    }
 
 
 def fig_precision(n: dict) -> dict | None:
-    """Precision surface plus the joint 2-bit interaction; None until the curves exist."""
-    series = {name: module_points(n, family, module) for name, family, module in MODULES}
+    """Development success against nominal weight bits, one line per module; None without curves."""
+    authored = recipes()
+    series = {module: module_points(n, authored, module) for module in MODULES}
     if not any(len(points) >= 2 for points in series.values()):
         return None
-    interaction = [(label, n["rows"].get(candidate) or {}) for candidate, label in INTERACTION]
-    interaction = [(label, row) for label, row in interaction if "development_success_pct" in row]
-    panels = 2 if len(interaction) == 4 else 1
-    fig, axes = plt.subplots(
-        1, panels, figsize=(FULL, 1.95), gridspec_kw={"wspace": 0.22, "width_ratios": [1.55, 1.0]}
-    )
-    fig.subplots_adjust(left=0.075, right=0.985, top=0.80, bottom=0.235)
-    ax = axes[0] if panels == 2 else axes
-    ledger = {"series": {}, "interaction": {}}
+    joint = n["rows"].get(JOINT[0]) or {}
+    position = {bits: float(index) for index, bits in enumerate(BIT_TICKS)}
+    fig, ax = plt.subplots(figsize=(COL, 2.3))
+    fig.subplots_adjust(left=0.105, right=0.995, top=0.975, bottom=0.155)
+    ledger = {"reference": _reference(n, ax), "series": {}, "joint": None}
 
-    _reference(n, ax)
-    for name, _, _ in MODULES:
-        points = series[name]
+    for module in MODULES:
+        points = [point for point in series[module] if point["bits"] in position]
         if not points:
             continue
-        x = [point["bits"] for point in points]
+        x = [position[point["bits"]] + OFFSETS[module] for point in points]
         y = [point["success_pct"] for point in points]
-        low = [point["success_pct"] - point["wilson_pct"][0] for point in points]
-        high = [point["wilson_pct"][1] - point["success_pct"] for point in points]
+        # The band already carries the reference interval, so its repeated point needs no bar.
+        low = [
+            0.0 if point["candidate"] == "B16" else point["success_pct"] - point["wilson_pct"][0]
+            for point in points
+        ]
+        high = [
+            0.0 if point["candidate"] == "B16" else point["wilson_pct"][1] - point["success_pct"]
+            for point in points
+        ]
         ax.errorbar(
             x,
             y,
             yerr=[low, high],
-            color=COLORS[name],
+            color=COLORS[module],
             marker="o",
             ms=3,
-            mfc=COLORS[name],
+            mfc=COLORS[module],
             mec="white",
             mew=0.7,
-            lw=1.35,
+            lw=1.1,
             elinewidth=0.7,
             capsize=0,
-            label=name,
             zorder=3,
         )
-        ledger["series"][name] = {
+        # The three lines meet at 16 bits, so their names fan out from the shared right end.
+        ax.annotate(
+            module,
+            (x[-1], y[-1]),
+            xytext=(5.0, LABEL_DY[module]),
+            textcoords="offset points",
+            ha="left",
+            va="center",
+            fontsize=6.5,
+            color=COLORS[module],
+            annotation_clip=False,
+        )
+        ledger["series"][module] = {
             point["candidate"]: {
-                "effective_bits": point["bits"],
+                "nominal_bits": point["bits"],
                 "success_pct": point["success_pct"],
+                "wilson_pct": point["wilson_pct"],
             }
             for point in points
         }
-    ax.legend(
-        loc="lower right",
-        frameon=False,
-        fontsize=6.5,
-        handlelength=1.6,
-        handletextpad=0.4,
-        borderaxespad=0.2,
-        labelcolor=INK_2,
-    )
-    measured = [point["bits"] for points in series.values() for point in points]
-    ax.set(xlim=(min(measured) - 0.4, max(measured) + 0.9), ylim=(-3, 104))
+
+    if "development_success_pct" in joint:
+        x_joint = position[BIT_TICKS[0]] + JOINT_OFFSET
+        y_joint = joint["development_success_pct"]
+        low, high = joint["development_wilson_pct"]
+        ax.errorbar(
+            x_joint,
+            y_joint,
+            yerr=[[y_joint - low], [high - y_joint]],
+            color=COLORS["joint"],
+            marker="D",
+            ms=3.4,
+            mfc="white",
+            mec=COLORS["joint"],
+            mew=0.9,
+            lw=0,
+            elinewidth=0.7,
+            capsize=0,
+            zorder=4,
+        )
+        ax.annotate(
+            JOINT[1],
+            (x_joint, y_joint),
+            xytext=(0.0, 14.0),
+            textcoords="offset points",
+            ha="center",
+            va="center",
+            fontsize=6.5,
+            color=COLORS["joint"],
+            annotation_clip=False,
+        )
+        ledger["joint"] = {
+            "candidate": JOINT[0],
+            "nominal_bits": BIT_TICKS[0],
+            "success_pct": y_joint,
+            "wilson_pct": joint["development_wilson_pct"],
+        }
+
+    ax.set(xlim=(-0.6, 5.05), ylim=(-3, 104))
+    ax.set_xticks(range(len(BIT_TICKS)))
+    ax.set_xticklabels([str(bits) for bits in BIT_TICKS])
     style_axes(
         ax,
         ylabel="Development success (%)",
-        xlabel="Effective bits per weight",
+        xlabel="Weight bits",
         yticks=[0, 25, 50, 75, 100],
     )
-    panel_label(ax, "a", "Precision surface")
-
-    if panels == 2:
-        b = axes[1]
-        labels = [label for label, _ in interaction]
-        values = [row["development_success_pct"] for _, row in interaction]
-        colors = [COLORS["B16"], COLORS["vision"], COLORS["action"], COLORS["joint"]]
-        positions = np.arange(len(labels))
-        b.bar(positions, values, width=0.58, color=colors, zorder=3)
-        for index, (label, row) in enumerate(interaction):
-            low, high = row["development_wilson_pct"]
-            b.plot([index, index], [low, high], color=INK_2, lw=0.7, zorder=4)
-            b.text(
-                index,
-                high + 2,
-                f"{row['development_success_pct']:.0f}",
-                ha="center",
-                va="bottom",
-                fontsize=6.5,
-                color=INK_2,
-            )
-            ledger["interaction"][label] = {
-                "success_pct": row["development_success_pct"],
-                "wilson_pct": row["development_wilson_pct"],
-            }
-        b.set(xticks=positions, xticklabels=labels, ylim=(0, 112))
-        b.tick_params(axis="x", labelsize=6.5)
-        style_axes(b, yticks=[0, 25, 50, 75, 100])
-        panel_label(b, "b", "2-bit cells")
 
     fig.savefig(OUT / "precision.pdf")
     plt.close(fig)

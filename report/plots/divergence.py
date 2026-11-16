@@ -289,7 +289,7 @@ def fig_divergence(record: dict) -> dict | None:
     ax.set_xscale("log")
     ax.set(xlim=(low / 2.5, high * 2.6), ylim=(-4, 112))
     ax.set_xticks([FLOOR, 1e-6, 1e-4, 1e-2])
-    ax.set_xticklabels(["0", "1e-6", "1e-4", "1e-2"])
+    ax.set_xticklabels(["0", r"$10^{-6}$", r"$10^{-4}$", r"$10^{-2}$"])
     ax.minorticks_off()
     style_axes(
         ax,
