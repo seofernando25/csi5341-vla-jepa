@@ -62,6 +62,30 @@ evaluation at a time.
 
 ## Results
 
-Pending. No cycle has run under this protocol. The run writes `cycles/<cycle>/tree.json`,
-`live_cycle_manifest.json`, per-node `score.json` / `proposal.md` / `diff.patch` /
-`development.json`, and `policies/<cycle>/` with replay evidence and the selected policy hash.
+Three cycles, 12 nodes, 5.4 h, $2.32 of the $20 agent budget. No node scored above 0.95, no agent
+timed out, no harness-failure streak.
+
+| cycle | best node | removed | smoke | development |
+|---|---|---|---|---|
+| 1 | `iter_000-b2-a2` | 83.4 % | 8/10 | timeout at 59/100 |
+| 2 | `iter_001-b2-a1` | 79.6 % | 8/10 | 82/100 |
+| 3 | `iter_002-b2-a2` | 79.1 % | 8/10 | 83/100 |
+
+**Answer to the question: no.** Under the same memory rule, program-v1's two qualifying nodes
+removed 83.0 % at 80/100 and 81.6 % at 84/100. v2's best node with a complete development record
+removed 79.6 % at 82/100. Opening the policy agent did not buy compression.
+
+The highest-compression node, `iter_000-b2-a2` at 83.4 %, has no development number: its evaluator
+run hit the 1800 s limit at 59/100 episodes. The node is 2.7× slower than its parent (1001 ms
+against 366 ms median step), so 100 episodes do not fit the budget. It is not selectable.
+
+**Policy development.** Every cycle's accepted steps raised in-sample V (0.703→0.804, 0.511→0.618,
+0.552→0.580) and none raised held-out V: 0.524→0.382 in cycle 1, then flat at 0.382. The selected
+steps did not generalise.
+
+**Limitation.** All 12 nodes tie themselves to the 53 calibration prompt token ids: the text
+embedding is reduced to the rows those prompts use. That is a real compression for a fixed task
+suite, not a general one. `iter_002-b2-a0` does it silently, mapping unseen ids to a zero row.
+
+Reserved-500 for the selected node is recorded in `reserved/` when it runs; the search itself never
+reads a reserved episode.

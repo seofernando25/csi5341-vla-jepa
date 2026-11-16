@@ -1,0 +1,23 @@
+{
+  "cell_id": "iter_000-b2-a3",
+  "parent_id": "iter_000-b2-a2",
+  "parent_commit": "40ec2f926bccc737dd666a7d46300a757095d27b",
+  "commit": "a8969fe4cae4bfe87b54fca618a423a18c440953",
+  "fail_class": "implementation_failure",
+  "evaluated": false,
+  "score": 0.0,
+  "successes": null,
+  "episodes": null,
+  "sizes": {},
+  "digest": "b65f44b7ee9d6cc5a8a921d4acd2247a8e8d1489",
+  "workspace_sha256": "49b442b6bc8dfdbb867293fe33d3dbea441a2f0611e6b199f29ba0dc303215a4",
+  "status": "size_violation",
+  "error": "cpu tensor (4096,)",
+  "eval_seconds": 21.744,
+  "agent_output_invalid": false,
+  "agent_timed_out": false,
+  "agent_seconds": 930.703,
+  "agent_cost_usd": 0.14055,
+  "agent_turns": 51,
+  "per_task": {}
+}

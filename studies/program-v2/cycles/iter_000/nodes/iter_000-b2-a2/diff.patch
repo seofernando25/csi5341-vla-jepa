@@ -1,0 +1,299 @@
+diff --git a/proposal.md b/proposal.md
+index c144673..4e14004 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,79 +1,77 @@
+-# Node iter_000-b2-a1 — exact trims + INT3/INT4, with exact uint8 zero points
++# Node iter_000-b2-a2 — exact peak trims + INT3 vision/action (lower action error)
+ 
+-Parent: `iter_000-b2-a0` (score 0.810119, INT3 text + INT4 vision/action). This node keeps
+-the parent's deployed graph and quantization recipe, and makes one exact storage change:
+-the per-group zero points of the packed INT3 text linears are stored as `uint8` instead of
+-`bfloat16`. Zero points are integers in `[0, 7]`, so the dequantized weights are bit-identical;
+-the metadata drops from 22 MB to 11 MB.
++Parent: `iter_000-b2-a1` (score 0.812084, INT3 text + INT4 vision/action, uint8 zero
++points). This node keeps the parent's exact trims and its INT3 text recipe, attacks the
++figure that actually binds the score (the CUDA peak during the episodes), and replaces the
++INT4 tinygemm vision/action path with the same AWQ-scaled INT3 affine recipe used for text.
+ 
+ ## What changed relative to the parent
+ 
+-1. **Exact trims (unchanged from parent):** drop the JEPA world model
+-   (`video_encoder`, `video_predictor`, `video_processor`); replace the 151936x2048 token
+-   embedding with the 53 prompt rows (`calibration["token_ids"]`) plus a lookup; replace the
+-   tied, never-called `lm_head` with `nn.Identity()`.
+-2. **Text decoder (unchanged recipe):** 196 linears stored as packed 3-bit affine groups
+-   (group 128, 10 values per int32) with AWQ input scaling.
+-3. **Vision tower and action head (unchanged recipe):** INT4 tinygemm groups with AWQ input
+-   scaling; tiny linears stay bf16.
+-4. **New, exact:** `_Int3Linear.zeros` is a `uint8` buffer and is cast to bf16 only inside
+-   `forward` for the dequantization. This is a pure dtype change of integer metadata, so the
+-   reconstructed weights and actions are unchanged.
++1. **No KV cache (exact).** The deployed path is a single full forward
++   (`_qwen_last_decoder_hidden` calls the inner `Qwen3VLModel` once, never a decode loop),
++   but the config leaves `use_cache=True`, so the text decoder allocates a per-layer KV
++   cache that grows to about 27 MB and is charged to the peak. `compress` now sets
++   `use_cache=False` on every Qwen config that has the flag. The captured last-layer hidden
++   state is unchanged.
++2. **Chunked INT3 dequantization (exact weights).** The parent unpacked a whole text layer
++   to bf16 inside `_Int3Linear.forward` (the largest is 6144x2048 = 25.2 MB). The new
++   forward unpacks and dequantizes 480 output rows at a time (at most ~5.9 MB), writes each
++   chunk into a preallocated bf16 output, and never materializes the full layer. To make a
++   contiguous output-row chunk a contiguous packed-row range, `_pack3` now stores 10
++   consecutive logical rows per int32 instead of the HQQ lane-interleaved layout. The
++   packed values, scales and zeros are unchanged, so the dequantized weights are the same.
++3. **INT3 vision and action (approximate, measured).** The vision tower and action head
++   now use `_Int3Linear` with the same group-128 affine quantizer and AWQ input scaling as
++   the text decoder, instead of the INT4 tinygemm path. This removes about 77 MB of weights
++   and, more importantly, the INT4 `scales_zeros` convention was less accurate here: the
++   measured action error **falls** from 0.256836 (parent) to 0.179199 even though the
++   weights are smaller.
++4. The parent's exact trims are unchanged: JEPA world model dropped, compact 53-row token
++   embedding, `lm_head` = `nn.Identity`.
+ 
+-All surgery is in place on the same policy object; old modules are dropped and
+-`gc.collect()` + `torch.cuda.empty_cache()` run before returning. No file is opened or
+-written inside `compress`, no bf16 copy of a quantized weight is kept, and no workspace file
+-is over 1 MiB.
++All surgery is in place on the same policy object; no bf16 copy of a quantized weight is
++kept, no file is opened or written inside `compress`, and no workspace file is over 1 MiB.
+ 
+-## Rejected experiment (important negative result)
+-
+-The parent's calibration says text blocks 3-26 have tiny residual influence, so I tested
+-structured MLP channel pruning (Wanda-style ranking of the 6144 MLP hidden channels, applied
+-before quantization) and full text-block skipping:
++## Last check output (`python tools/check.py`)
+ 
+-| variant | action error | resident | smoke |
+-|---|---|---|---|
+-| parent (INT3 text, INT4 vision/action) | 0.257 | 1064 MB | 8/10 |
+-| prune 25% text-MLP channels | 0.371 | 983 MB | **7/10** (task 4 newly fails) |
+-| prune 50% text-MLP channels | 0.487 | 815 MB | **5/10** (tasks 1, 4, 5 newly fail) |
+-| prune 50% + INT4 text | 0.469 | 906 MB | not run |
+-| skip text blocks 3-26 | 1.578 | — | not run |
+-| skip text blocks 3-10 | 0.967 | — | not run |
++```
++status: ok
++memory removed: 83.4% (resident 930135552 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.179199
++latency ms: median 1000.62, p95 1180.06
++```
+ 
+-The block-influence signal is misleading because the residual stream is dominated by
+-massive activations; removing even 8 text blocks destroys the policy. The pruning code was
+-therefore disabled (`PRUNE_FRACTION = 0.0`), leaving the parent's proven quantization path.
+-The pruning helpers remain in `solution.py` but are inert.
++The parent measured resident 1053194752 and action error 0.256836. This node is 123 MB
++smaller and has a 30% lower action error. The resident figure is the CUDA peak, which is
++the binding one.
+ 
+-## Last check output (`python tools/check.py`)
++## Real gate evidence (evaluator's own smoke phase, same development seeds/states)
+ 
+ ```
+-status: ok
+-memory removed: 81.2% (resident 1053194752 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.256836
+-latency ms: median 366.24, p95 455.76
++python -m rsi.gpu run --slots-dir /tmp/gpu-slots --n 1 -- \
++  python -m evaluation.compression.study solution --workspace /tmp/work \
++  --phase smoke --out /tmp/out/smoke_int3all
++{"status": "ok", "phase": "smoke"}
++successes: 8 / 10,  size_reduction: 0.8340404267865715
++per_task: 0:0/1, 1:1/1, 2:1/1, 3:1/1, 4:1/1, 5:1/1, 6:1/1, 7:1/1, 8:0/1, 9:1/1
+ ```
+ 
+-The parent measured `resident 1064204800`, action error `0.256836`; the new resident is
+-`1053194752`, i.e. 11,010,048 bytes less with exactly the same action error. The binding
+-figure is the CUDA peak during the episodes, and the 11 MB metadata reduction lowers it
+-one-for-one. The parent's real smoke gate was 8/10 with the same failing tasks (0 and 8) as
+-the untouched policy; because this change is bit-exact in the dequantized weights, that
+-gate result carries over.
++The two failures (tasks 0 and 8) are exactly the tasks the untouched policy, the INT4
++sibling and the parent fail. The evaluator measured resident before inference 846.0 MB,
++after inference 846.1 MB, peak 930.1 MB; the peak is the binding figure and it is the
++packed INT3 weights plus the normal forward activation working set. The score is
++`1 - 930134528 / 5604584960 = 0.83404`.
+ 
+ ## Why this is not hiding memory
+ 
+-Nothing is parked, deferred or reloaded. The world model and dead embedding rows are
+-dropped and collected, `lm_head` is unregistered, and the packed INT3/INT4 tensors are the
+-resident representation. The only transient is one dequantized text layer inside its
+-`forward`, freed immediately after the matmul. No workspace file is over 1 MiB.
++Nothing is parked, deferred or reloaded. The KV cache is never allocated; the chunked
++dequantization holds one 480-row slice at a time and frees it before the next; the packed
++INT3 tensors remain the resident representation. The returned object is the same policy.
+ 
+ ## Next
+ 
+-- Chunk the INT3 dequantization by output rows to cut the ~25 MB full-layer transient. The
+-  packed layout is group-major (10 q-rows per int32), so a naive contiguous slice is wrong;
+-  it needs a group-aware unpack. A correct version should save ~20-30 MB of peak.
+-- Double-quantize the remaining bf16 group scales (about 22 MB) with a per-row fp16 scale;
+-  this is the next exact-ish metadata win.
+-- If more risk is acceptable, INT3 for the vision tower (about 47 MB) or action head (about
+-  15 MB) needs a real smoke run: the 0.25-pruning result shows the 8/10 gate has no margin.
++- If the smoke gate holds, the next safe win is packing the per-group INT3 zero points
++  3-bit (about 11 MB -> 4.1 MB, exact) and double-quantizing the bf16 group scales (about
++  22 MB -> 11 MB, small error).
++- More aggressive 2-bit text was already shown to destroy the policy in the parent; do not
++  repeat it.
+diff --git a/solution.py b/solution.py
+index 050aa4f..886d615 100644
+--- a/solution.py
++++ b/solution.py
+@@ -3,9 +3,10 @@
+ The deployed inference graph is only ``_encode_qwen`` (Qwen3-VL text + vision) and the
+ flow-matching action head.  The JEPA world model is training-only and the 151936-row token
+ embedding is replaced by the 53 prompt rows the frozen template can produce.  The text
+-decoder is then stored as packed 3-bit affine groups with AWQ-style input scaling; the
+-vision tower and action head use the Ampere tinygemm INT4 kernel.  Everything is rewritten
+-in place on the same policy object, so no second copy of the weights survives.
++decoder, vision tower and action head are stored as packed 3-bit affine groups with
++AWQ-style input scaling, dequantized one 480-row chunk at a time.  The KV cache is disabled
++because the deployed path is a single full forward.  Everything is rewritten in place on the
++same policy object, so no second copy of the weights survives.
+ """
+ 
+ from __future__ import annotations
+@@ -66,44 +67,41 @@ def _affine(weight, group_size, bits):
+ 
+ 
+ def _pack3(q):
+-    """Pack 3-bit values, 10 per int32 (the HQQ/AWQ layout)."""
++    """Pack 3-bit values, 10 consecutive logical rows per int32.
++
++    Consecutive-row packing (rather than the HQQ lane-interleaved layout) makes a
++    contiguous output-row chunk exactly one contiguous packed-row range, so a layer can
++    be dequantized in small chunks without materializing the whole matrix.
++    """
+     rows, cols = q.shape
+     padded = ((rows + 9) // 10) * 10
+     values = torch.zeros((padded, cols), dtype=torch.int32, device=q.device)
+     values[:rows] = q.to(torch.int32)
+-    step = padded // 10
++    chunks = values.reshape(padded // 10, 10, cols)
+     return (
+-        (values[:step] << 27)
+-        | (values[step : 2 * step] << 24)
+-        | (values[2 * step : 3 * step] << 21)
+-        | (values[3 * step : 4 * step] << 18)
+-        | (values[4 * step : 5 * step] << 15)
+-        | (values[5 * step : 6 * step] << 12)
+-        | (values[6 * step : 7 * step] << 9)
+-        | (values[7 * step : 8 * step] << 6)
+-        | (values[8 * step : 9 * step] << 3)
+-        | values[9 * step : 10 * step]
++        (chunks[:, 0] << 27)
++        | (chunks[:, 1] << 24)
++        | (chunks[:, 2] << 21)
++        | (chunks[:, 3] << 18)
++        | (chunks[:, 4] << 15)
++        | (chunks[:, 5] << 12)
++        | (chunks[:, 6] << 9)
++        | (chunks[:, 7] << 6)
++        | (chunks[:, 8] << 3)
++        | chunks[:, 9]
+     )
+ 
+ 
+ def _unpack3(packed, dtype):
+-    step = packed.shape[0]
+-    out = torch.empty((10 * step, packed.shape[1]), dtype=dtype, device=packed.device)
+-    out[0 * step : 1 * step] = (packed & 0x38000000) >> 27
+-    out[1 * step : 2 * step] = (packed & 0x07000000) >> 24
+-    out[2 * step : 3 * step] = (packed & 0x00E00000) >> 21
+-    out[3 * step : 4 * step] = (packed & 0x001C0000) >> 18
+-    out[4 * step : 5 * step] = (packed & 0x00038000) >> 15
+-    out[5 * step : 6 * step] = (packed & 0x00007000) >> 12
+-    out[6 * step : 7 * step] = (packed & 0x00000E00) >> 9
+-    out[7 * step : 8 * step] = (packed & 0x000001C0) >> 6
+-    out[8 * step : 9 * step] = (packed & 0x00000038) >> 3
+-    out[9 * step : 10 * step] = packed & 0x00000007
++    step, cols = packed.shape
++    out = torch.empty((10 * step, cols), dtype=dtype, device=packed.device)
++    for lane in range(10):
++        out[lane::10] = (packed >> (27 - 3 * lane)) & 7
+     return out
+ 
+ 
+ class _Int3Linear(nn.Module):
+-    """Packed 3-bit affine Linear; one layer is dequantized at a time and freed."""
++    """Packed 3-bit affine Linear; dequantized in output-row chunks and freed."""
+ 
+     def __init__(self, source, q, scales, zeros, input_scale=None, group_size=GROUP):
+         super().__init__()
+@@ -127,10 +125,30 @@ class _Int3Linear(nn.Module):
+     def forward(self, x):
+         if self.inv_scale is not None:
+             x = x * self.inv_scale
+-        weight = _unpack3(self.packed_weight, torch.bfloat16)[: self.rows]
+-        weight.sub_(self.zeros[:, None].to(torch.bfloat16)).mul_(self.scales[:, None])
+-        weight = weight.reshape(self.out_features, self.in_features)
+-        return F.linear(x.to(torch.bfloat16), weight, self.bias)
++        x = x.to(torch.bfloat16)
++        flat = x.reshape(-1, self.in_features)
++        out = torch.empty(
++            (*x.shape[:-1], self.out_features), dtype=torch.bfloat16, device=x.device
++        )
++        groups_per_row = self.in_features // self.group_size
++        chunk = 480
++        for start_row in range(0, self.out_features, chunk):
++            end_row = min(start_row + chunk, self.out_features)
++            start = start_row * groups_per_row
++            end = end_row * groups_per_row
++            first_pack = start // 10
++            last_pack = (end + 9) // 10
++            weight = _unpack3(self.packed_weight[first_pack:last_pack], torch.bfloat16)
++            weight = weight[start - first_pack * 10 : end - first_pack * 10]
++            weight.sub_(self.zeros[start:end, None].to(torch.bfloat16)).mul_(
++                self.scales[start:end, None]
++            )
++            weight = weight.reshape(end_row - start_row, self.in_features)
++            bias = self.bias[start_row:end_row] if self.bias is not None else None
++            out[..., start_row:end_row] = F.linear(flat, weight, bias).reshape(
++                *x.shape[:-1], end_row - start_row
++            )
++        return out
+ 
+ 
+ class _Int4Linear(nn.Module):
+@@ -313,9 +331,18 @@ def _compact_embedding(policy, calibration):
+ # ---------------------------------------------------------------------------
+ 
+ 
++def _disable_kv_cache(policy):
++    """The deployed path is one full forward, never a decode loop: no KV cache is needed."""
++    for module in policy.model.qwen.model.modules():
++        config = getattr(module, "config", None)
++        if config is not None and hasattr(config, "use_cache"):
++            config.use_cache = False
++
++
+ def compress(policy, calibration):
+     _remove_world_model(policy)
+     _compact_embedding(policy, calibration)
++    _disable_kv_cache(policy)
+     gc.collect()
+     torch.cuda.empty_cache()
+ 
+@@ -351,7 +378,7 @@ def compress(policy, calibration):
+             ),
+         )
+ 
+-    # Vision tower and action head: INT4 tinygemm with AWQ input scaling.
++    # Vision tower and action head: the same packed INT3 affine recipe with AWQ scaling.
+     for root_name in ("vision", "action"):
+         for name, linear in _linears(roots[root_name]):
+             full = f"{root_name}.{name}"
+@@ -365,7 +392,7 @@ def compress(policy, calibration):
+             _replace(
+                 roots[root_name],
+                 name,
+-                _quantize_int4(linear, activation.to(linear.weight.device)),
++                _quantize_text(linear, activation.to(linear.weight.device)),
+             )
+ 
+     gc.collect()

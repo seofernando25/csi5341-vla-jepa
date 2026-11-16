@@ -1,0 +1,413 @@
+diff --git a/proposal.md b/proposal.md
+new file mode 100644
+index 0000000..2d896d8
+--- /dev/null
++++ b/proposal.md
+@@ -0,0 +1,85 @@
++# Node iter_000-b2-a0 — exact trims + AWQ-scaled packed INT3 text decoder
++
++Parent: `root` (identity `compress`, score 0.0). Siblings: `iter_000-b0-a0` (exact trims +
++INT8 text, 0.527) and `iter_000-b1-a0` (exact trims + INT4 text/vision/action, 0.797).
++This node keeps the same exact inference-path trims but stores the 2.82 GB text decoder at
++**3 bits** instead of 4, with AWQ-style per-input-channel scaling and a packed
++10-values-per-int32 layout. Vision and action stay on the proven INT4 tinygemm path.
++
++## What changed relative to the parent
++
++**Exact (the deployed inference path never touches these):**
++
++1. Drop the JEPA world model: `video_encoder` (652 MB), `video_predictor` (323 MB),
++   `video_processor`. `VLAJEPAModel.predict_action` only calls `_encode_qwen` +
++   `action_model.predict_action`.
++2. Compact token embedding: the fixed prompt template produces only 53 distinct ids
++   (`calibration["token_ids"]`, two observations per task, so all 10 LIBERO-Spatial
++   instructions are covered). The 151936x2048 bf16 table (622 MB) becomes those rows
++   (0.2 MB) plus a 151936-entry int32 lookup (0.6 MB). `lm_head` is tied to the full table
++   and is never called (`_qwen_last_decoder_hidden` runs the inner `Qwen3VLModel`, not the
++   causal-LM wrapper), so it is replaced by `nn.Identity()` before the table is swapped.
++
++**Approximate (weight-only; activations stay bf16):**
++
++3. Text decoder (2.82 GB, 196 linears) → packed **INT3**, group 128, per-group bf16
++   scale+zero, 10 values packed per int32. Per-layer AWQ input scale from
++   `calibration["linear_inputs"]` (5-point alpha search on activation-weighted
++   reconstruction error). ~0.57 GB.
++4. Vision tower (806 MB) and action head (308 MB) → **INT4** tinygemm, group 128,
++   AWQ input scale (10-point alpha search); tiny linears (<64K elements, e.g. the 7x768
++   decoder) stay bf16. ~0.30 GB.
++
++All surgery is in place on the same policy object; the old modules are dropped and
++`gc.collect()` + `torch.cuda.empty_cache()` run before returning. No file is opened or
++written inside `compress`, and no bf16 copy of a quantized weight is kept.
++
++## Last check output (`python tools/check.py`)
++
++```
++status: ok
++memory removed: 81.0% (resident 1064860160 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.256836
++latency ms: median 272.25, p95 375.22
++```
++
++## Real gate evidence (evaluator's own smoke phase, same development seeds/states)
++
++```
++python -m evaluation.compression.study solution --workspace /tmp/work --phase smoke --out /tmp/out/smoke_int3
++{"status": "ok", "phase": "smoke"}
++successes: 8 / 10,  size_reduction: 0.8100021422460514
++per_task: 0:0/1, 1:1/1, 2:1/1, 3:1/1, 4:1/1, 5:1/1, 6:1/1, 7:1/1, 8:0/1, 9:1/1
++```
++
++The two failures (tasks 0 and 8) are the same tasks the untouched policy and the INT4
++sibling fail; every passing episode finishes well inside the 280-step budget. The
++evaluator measured resident before inference 933.1 MB, after inference 933.3 MB, peak
++1064.9 MB — the peak is the binding figure and is the packed weights plus the normal
++forward activation working set.
++
++## Rejected experiment
++
++A more aggressive mixed variant (2-bit middle text blocks, 4-bit first/last) reached
++84.1% removed but action error rose to 0.961 and the real smoke gate scored **0/10**
++(all ten episodes failed). It was reverted; the 3-bit solution above is the final one.
++
++## Why this is not hiding memory
++
++Nothing is parked, deferred or reloaded. The world model and dead embedding rows are
++dropped and collected, `lm_head` is unregistered, and the packed INT3/INT4 tensors are the
++resident representation. The only transient is one dequantized text layer inside its
++`forward`, which is freed immediately after the matmul. No workspace file is over 1 MiB
++(workspace total is about 22 KB).
++
++## Next
++
++- The remaining ~0.93 GB is mostly 0.57 GB of packed INT3 text weights plus the forward
++  activation peak. A real further win needs 2-bit text, but the mixed 2-bit experiment
++  shows the policy is past its accuracy cliff there; a safer next try is 2-bit only for
++  the middle **MLP** projections while keeping middle attention at 3 bits and the
++  first/last blocks at 4 bits.
++- A cheaper +1-2 points: double-quantize the INT3 group scales/zeros (about 44 MB of bf16
++  metadata) or put the vision patch-embed and remaining norms in int8.
++- If a future evaluator is less deterministic, the INT4 sibling (0.797, action error
++  0.115) is the conservative fallback; it is not kept in this workspace.
+diff --git a/solution.py b/solution.py
+index 4ce7391..23a72b4 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,14 +1,312 @@
+ """Compression entry point for the VLA-JEPA B16 policy.
+ 
+-compress(policy, calibration) receives the loaded policy (CUDA, bfloat16, eval mode, no
+-gradients) and the frozen calibration dict. It must return an object that still exposes
+-select_action and predict_action_chunk. Memory is measured on the returned object and on
+-every tensor reachable from this module and from modules imported out of the workspace.
++The deployed inference graph is only ``_encode_qwen`` (Qwen3-VL text + vision) and the
++flow-matching action head.  The JEPA world model is training-only and the 151936-row token
++embedding is replaced by the 53 prompt rows the frozen template can produce.  The text
++decoder is then stored as packed 3-bit affine groups with AWQ-style input scaling; the
++vision tower and action head use the Ampere tinygemm INT4 kernel.  Everything is rewritten
++in place on the same policy object, so no second copy of the weights survives.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++import math
++
++import torch
++from torch import nn
++from torch.nn import functional as F
++
++GROUP = 128
++TEXT_BITS = 3
++TEXT_ALPHAS = (0.0, 0.25, 0.5, 0.75, 0.9)
++INT4_ALPHAS = tuple(torch.linspace(0.0, 0.9, 10).tolist())
++
++
++# ---------------------------------------------------------------------------
++# in-place module helpers
++# ---------------------------------------------------------------------------
++
++
++def _roots(policy):
++    inner = policy.model.qwen.model.model
++    return {
++        "text": inner.language_model,
++        "vision": inner.visual,
++        "action": policy.model.action_model,
++    }
++
++
++def _replace(root, name, module):
++    parent, _, leaf = name.rpartition(".")
++    setattr(root.get_submodule(parent) if parent else root, leaf, module)
++
++
++def _linears(root):
++    return [(name, module) for name, module in root.named_modules() if isinstance(module, nn.Linear)]
++
++
++# ---------------------------------------------------------------------------
++# affine quantization, packing and dequantization
++# ---------------------------------------------------------------------------
++
++
++def _affine(weight, group_size, bits):
++    """Symmetric-range asymmetric affine quantization along the input dimension."""
++    max_v = (1 << bits) - 1
++    groups = weight.reshape(weight.shape[0], -1, group_size)
++    low = torch.minimum(groups.amin(-1), torch.zeros_like(groups[..., 0]))
++    high = torch.maximum(groups.amax(-1), torch.zeros_like(groups[..., 0]))
++    scales = ((high - low) / max_v).clamp_min(1e-8)
++    zeros = (-low / scales).round().clamp(0, max_v)
++    q = (groups / scales[..., None] + zeros[..., None]).round().clamp(0, max_v)
++    reconstructed = ((q - zeros[..., None]) * scales[..., None]).reshape_as(weight)
++    return q.reshape_as(weight).to(torch.uint8), scales, zeros, reconstructed
++
++
++def _pack3(q):
++    """Pack 3-bit values, 10 per int32 (the HQQ/AWQ layout)."""
++    rows, cols = q.shape
++    padded = ((rows + 9) // 10) * 10
++    values = torch.zeros((padded, cols), dtype=torch.int32, device=q.device)
++    values[:rows] = q.to(torch.int32)
++    step = padded // 10
++    return (
++        (values[:step] << 27)
++        | (values[step : 2 * step] << 24)
++        | (values[2 * step : 3 * step] << 21)
++        | (values[3 * step : 4 * step] << 18)
++        | (values[4 * step : 5 * step] << 15)
++        | (values[5 * step : 6 * step] << 12)
++        | (values[6 * step : 7 * step] << 9)
++        | (values[7 * step : 8 * step] << 6)
++        | (values[8 * step : 9 * step] << 3)
++        | values[9 * step : 10 * step]
++    )
++
++
++def _unpack3(packed, dtype):
++    step = packed.shape[0]
++    out = torch.empty((10 * step, packed.shape[1]), dtype=dtype, device=packed.device)
++    out[0 * step : 1 * step] = (packed & 0x38000000) >> 27
++    out[1 * step : 2 * step] = (packed & 0x07000000) >> 24
++    out[2 * step : 3 * step] = (packed & 0x00E00000) >> 21
++    out[3 * step : 4 * step] = (packed & 0x001C0000) >> 18
++    out[4 * step : 5 * step] = (packed & 0x00038000) >> 15
++    out[5 * step : 6 * step] = (packed & 0x00007000) >> 12
++    out[6 * step : 7 * step] = (packed & 0x00000E00) >> 9
++    out[7 * step : 8 * step] = (packed & 0x000001C0) >> 6
++    out[8 * step : 9 * step] = (packed & 0x00000038) >> 3
++    out[9 * step : 10 * step] = packed & 0x00000007
++    return out
++
++
++class _Int3Linear(nn.Module):
++    """Packed 3-bit affine Linear; one layer is dequantized at a time and freed."""
++
++    def __init__(self, source, q, scales, zeros, input_scale=None, group_size=GROUP):
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        self.rows = (self.in_features * self.out_features) // group_size
++        self.register_buffer("packed_weight", _pack3(q.reshape(self.rows, group_size)))
++        self.register_buffer("scales", scales.reshape(-1).to(torch.bfloat16))
++        self.register_buffer("zeros", zeros.reshape(-1).to(torch.bfloat16))
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++        if input_scale is not None:
++            self.register_buffer("inv_scale", (1.0 / input_scale).to(torch.bfloat16))
++        else:
++            self.inv_scale = None
++
++    def forward(self, x):
++        if self.inv_scale is not None:
++            x = x * self.inv_scale
++        weight = _unpack3(self.packed_weight, torch.bfloat16)[: self.rows]
++        weight.sub_(self.zeros[:, None]).mul_(self.scales[:, None])
++        weight = weight.reshape(self.out_features, self.in_features)
++        return F.linear(x.to(torch.bfloat16), weight, self.bias)
++
++
++class _Int4Linear(nn.Module):
++    """Groupwise affine INT4 using PyTorch's Ampere tinygemm kernel."""
++
++    def __init__(self, source, values, scales, zeros, group_size=GROUP, input_scale=None):
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        k = math.ceil(self.in_features / 1024) * 1024
++        n = math.ceil(self.out_features / 8) * 8
++        self.padded_k, self.padded_n = k, n
++        q = torch.full((n, k), 8, device=values.device, dtype=torch.uint8)
++        q[: self.out_features, : self.in_features] = values.to(torch.uint8)
++        packed = (q[:, ::2] << 4) | q[:, 1::2]
++        self.register_buffer(
++            "packed_weight", torch._convert_weight_to_int4pack(packed.contiguous(), 8)
++        )
++        scale = torch.ones((n, k // group_size), device=values.device, dtype=torch.float32)
++        zero = torch.zeros_like(scale)
++        groups = self.in_features // group_size
++        scale[: self.out_features, :groups] = scales
++        zero[: self.out_features, :groups] = scales * (8 - zeros)
++        self.register_buffer(
++            "scales_zeros",
++            torch.stack((scale, zero), -1).transpose(0, 1).contiguous().to(torch.bfloat16),
++        )
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++        if input_scale is not None:
++            self.register_buffer("input_scale", input_scale.to(torch.bfloat16))
++        else:
++            self.input_scale = None
++
++    def forward(self, x):
++        if self.input_scale is not None:
++            x = x / self.input_scale
++        flat = x.reshape(-1, self.in_features).to(torch.bfloat16)
++        if self.padded_k != self.in_features:
++            flat = F.pad(flat, (0, self.padded_k - self.in_features))
++        output = torch._weight_int4pack_mm(
++            flat, self.packed_weight, self.group_size, self.scales_zeros
++        )
++        output = output[:, : self.out_features].reshape(*x.shape[:-1], self.out_features)
++        return output if self.bias is None else output + self.bias
++
++
++# ---------------------------------------------------------------------------
++# quantization recipes
++# ---------------------------------------------------------------------------
++
++
++def _awq_scale(activation, alpha):
++    scale = activation.float().clamp_min(1e-8).sqrt().pow(alpha).clamp_min(1e-4)
++    return scale / (scale.amin() * scale.amax()).sqrt()
++
++
++def _quantize_text(linear, activation):
++    weight = linear.weight.detach().float()
++    best = None
++    for alpha in TEXT_ALPHAS:
++        scale = _awq_scale(activation, alpha)
++        q, scales, zeros, reconstructed = _affine(weight * scale[None, :], GROUP, TEXT_BITS)
++        error = ((reconstructed / scale[None, :] - weight).square() * activation[None, :]).mean()
++        if best is None or error < best[0]:
++            best = (error, scale, q, scales, zeros)
++    _, scale, q, scales, zeros = best
++    return _Int3Linear(linear, q, scales, zeros, input_scale=scale)
++
++
++def _quantize_int4(linear, activation):
++    weight = linear.weight.detach().float()
++    best = None
++    for alpha in INT4_ALPHAS:
++        scale = _awq_scale(activation, alpha)
++        q, scales, zeros, reconstructed = _affine(weight * scale[None, :], GROUP, 4)
++        error = ((reconstructed / scale[None, :] - weight).square() * activation[None, :]).mean()
++        if best is None or error < best[0]:
++            best = (error, scale, q, scales, zeros)
++    _, scale, q, scales, zeros = best
++    return _Int4Linear(linear, q, scales, zeros, input_scale=scale)
++
++
++# ---------------------------------------------------------------------------
++# exact trims
++# ---------------------------------------------------------------------------
++
++
++class _CompactEmbedding(nn.Module):
++    """Only the prompt rows the frozen LIBERO template can emit; unseen ids fail loudly."""
++
++    def __init__(self, source, token_ids):
++        super().__init__()
++        ids = torch.unique(token_ids.to(source.weight.device)).sort().values
++        lookup = torch.full(
++            (source.num_embeddings,), -1, device=ids.device, dtype=torch.int32
++        )
++        lookup[ids] = torch.arange(len(ids), device=ids.device, dtype=torch.int32)
++        self.register_buffer("lookup", lookup)
++        self.weight = nn.Parameter(source.weight.detach()[ids].clone(), requires_grad=False)
++        self.num_embeddings, self.embedding_dim = self.weight.shape
++
++    def forward(self, ids):
++        mapped = self.lookup[ids].long()
++        if bool((mapped < 0).any()):
++            raise ValueError("Unseen token ID in restricted LIBERO-Spatial vocabulary")
++        return F.embedding(mapped, self.weight)
++
++
++def _remove_world_model(policy):
++    policy.model.video_encoder = None
++    policy.model.video_predictor = None
++    policy.model.video_processor = None
++
++
++def _compact_embedding(policy, calibration):
++    text = _roots(policy)["text"]
++    # lm_head is tied to the full table and is never called: _qwen_last_decoder_hidden
++    # runs the inner Qwen3VLModel, not the causal-LM wrapper.
++    policy.model.qwen.model.lm_head = nn.Identity()
++    text.embed_tokens = _CompactEmbedding(text.embed_tokens, calibration["token_ids"])
++
++
++# ---------------------------------------------------------------------------
++# entry point
++# ---------------------------------------------------------------------------
++
+ 
+ def compress(policy, calibration):
+-    """Return a policy with less resident memory; the identity keeps the baseline."""
++    _remove_world_model(policy)
++    _compact_embedding(policy, calibration)
++    gc.collect()
++    torch.cuda.empty_cache()
++
++    roots = _roots(policy)
++    inputs = calibration["linear_inputs"]
++
++    # Text decoder: 3-bit packed affine with AWQ input scaling.
++    for name, linear in _linears(roots["text"]):
++        full = f"text.{name}"
++        activation = inputs.get(full)
++        if activation is None or linear.in_features % GROUP:
++            continue
++        _replace(roots["text"], name, _quantize_text(linear, activation.to(linear.weight.device)))
++
++    # Action head: guard the timestep encoder's activation dtype before packing its linears.
++    encoder = roots["action"].model.timestep_encoder
++    if not hasattr(encoder, "_activation_dtype_anchor"):
++        encoder.register_parameter(
++            "_activation_dtype_anchor",
++            nn.Parameter(
++                torch.empty(0, device=next(encoder.parameters()).device, dtype=torch.bfloat16),
++                requires_grad=False,
++            ),
++        )
++
++    # Vision tower and action head: INT4 tinygemm with AWQ input scaling.
++    for root_name in ("vision", "action"):
++        for name, linear in _linears(roots[root_name]):
++            full = f"{root_name}.{name}"
++            activation = inputs.get(full)
++            if (
++                activation is None
++                or linear.in_features % GROUP
++                or linear.weight.numel() < 65536
++            ):
++                continue
++            _replace(
++                roots[root_name],
++                name,
++                _quantize_int4(linear, activation.to(linear.weight.device)),
++            )
++
++    gc.collect()
++    torch.cuda.empty_cache()
+     return policy

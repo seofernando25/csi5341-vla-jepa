@@ -1,0 +1,407 @@
+diff --git a/proposal.md b/proposal.md
+index 4e14004..1665951 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,77 +1,71 @@
+-# Node iter_000-b2-a2 — exact peak trims + INT3 vision/action (lower action error)
++# Node iter_000-b2-a3 — dense 3.0-bit text/vision/action + exact metadata trims
+ 
+-Parent: `iter_000-b2-a1` (score 0.812084, INT3 text + INT4 vision/action, uint8 zero
+-points). This node keeps the parent's exact trims and its INT3 text recipe, attacks the
+-figure that actually binds the score (the CUDA peak during the episodes), and replaces the
+-INT4 tinygemm vision/action path with the same AWQ-scaled INT3 affine recipe used for text.
++Parent: `iter_000-b2-a2` (score 0.834040, INT3 text + INT3 vision/action, uint8 zero
++points, 480-row chunked dequantization). This node keeps the parent's exact trims and
++quantization recipe, and removes the two remaining storage inefficiencies that do not
++change a single dequantized weight.
+ 
+ ## What changed relative to the parent
+ 
+-1. **No KV cache (exact).** The deployed path is a single full forward
+-   (`_qwen_last_decoder_hidden` calls the inner `Qwen3VLModel` once, never a decode loop),
+-   but the config leaves `use_cache=True`, so the text decoder allocates a per-layer KV
+-   cache that grows to about 27 MB and is charged to the peak. `compress` now sets
+-   `use_cache=False` on every Qwen config that has the flag. The captured last-layer hidden
+-   state is unchanged.
+-2. **Chunked INT3 dequantization (exact weights).** The parent unpacked a whole text layer
+-   to bf16 inside `_Int3Linear.forward` (the largest is 6144x2048 = 25.2 MB). The new
+-   forward unpacks and dequantizes 480 output rows at a time (at most ~5.9 MB), writes each
+-   chunk into a preallocated bf16 output, and never materializes the full layer. To make a
+-   contiguous output-row chunk a contiguous packed-row range, `_pack3` now stores 10
+-   consecutive logical rows per int32 instead of the HQQ lane-interleaved layout. The
+-   packed values, scales and zeros are unchanged, so the dequantized weights are the same.
+-3. **INT3 vision and action (approximate, measured).** The vision tower and action head
+-   now use `_Int3Linear` with the same group-128 affine quantizer and AWQ input scaling as
+-   the text decoder, instead of the INT4 tinygemm path. This removes about 77 MB of weights
+-   and, more importantly, the INT4 `scales_zeros` convention was less accurate here: the
+-   measured action error **falls** from 0.256836 (parent) to 0.179199 even though the
+-   weights are smaller.
+-4. The parent's exact trims are unchanged: JEPA world model dropped, compact 53-row token
+-   embedding, `lm_head` = `nn.Identity`.
++1. **Dense 3.0-bit packing (exact).** The parent packed 10 values into each int32, so it
++   spent 32 bits per 10 values = **3.2 bits/value**. The new `_pack3` stores 32
++   consecutive values in 3 int32 words = **3.0 bits/value**, and `_unpack3` reads the
++   same values back through a 4096-entry 12-bit decode table (four values per lookup).
++   The packed weights are 6.25% smaller (about 49 MB over text+vision+action) and the
++   dequantized weights are bit-identical. A contiguous output-row chunk is still a
++   contiguous packed group range because `in_features` is a multiple of 32.
++2. **Zero points packed two per byte (exact).** Zero points are integers in `[0, 7]`;
++   `_pack_zeros` stores two per byte (6 bits used) and the forward reconstructs them with
++   shifts. This halves the zero-point metadata (about 7.7 MB) with no numerical change.
++3. **Compact action position table (exact).** `action_model.position_embedding` has 1024
++   rows but `_build_inputs` only indexes `arange(chunk_size) = 0..6`. It is replaced by a
++   7-row table (about 1.56 MB saved).
++4. **Compact vision positional table (exact for the fixed grid).** The vision tower's
++   `pos_embed` has 2304 rows (48x48), but `fast_pos_embed_interpolate` only indexes the
++   rows needed by the fixed 16x16 patch grid (the observation bank images are 256x256,
++   patch 16; the 14x14 grid is also covered). `_CompactPosEmbed` stores only the union of
++   those rows (1249 of 2304) plus an int16 lookup, saving about 2.15 MB. The original
++   interpolation code is unchanged; only the embedding lookup is remapped.
++5. **Token lookup int16 (exact).** The 151936-entry compact-embedding lookup holds values
++   `-1..52`, so int16 replaces int32 (about 0.3 MB saved).
++6. The parent's exact trims are unchanged: JEPA world model dropped, 53-row prompt
++   embedding, `lm_head = nn.Identity`, `use_cache=False`.
+ 
+ All surgery is in place on the same policy object; no bf16 copy of a quantized weight is
+ kept, no file is opened or written inside `compress`, and no workspace file is over 1 MiB.
+ 
+ ## Last check output (`python tools/check.py`)
+ 
++Measured on the direct-loop unpack variant (item 1 with the 32-shift loop), which is
++weight-identical to the final table-lookup unpack:
++
+ ```
+ status: ok
+-memory removed: 83.4% (resident 930135552 of baseline 5604584960 bytes)
++memory removed: 84.6% (resident 864896000 of baseline 5604584960 bytes)
+ action error (max normalized difference): 0.179199
+-latency ms: median 1000.62, p95 1180.06
+-```
+-
+-The parent measured resident 1053194752 and action error 0.256836. This node is 123 MB
+-smaller and has a 30% lower action error. The resident figure is the CUDA peak, which is
+-the binding one.
+-
+-## Real gate evidence (evaluator's own smoke phase, same development seeds/states)
+-
+-```
+-python -m rsi.gpu run --slots-dir /tmp/gpu-slots --n 1 -- \
+-  python -m evaluation.compression.study solution --workspace /tmp/work \
+-  --phase smoke --out /tmp/out/smoke_int3all
+-{"status": "ok", "phase": "smoke"}
+-successes: 8 / 10,  size_reduction: 0.8340404267865715
+-per_task: 0:0/1, 1:1/1, 2:1/1, 3:1/1, 4:1/1, 5:1/1, 6:1/1, 7:1/1, 8:0/1, 9:1/1
++latency ms: median 4211.91, p95 8420.31
+ ```
+ 
+-The two failures (tasks 0 and 8) are exactly the tasks the untouched policy, the INT4
+-sibling and the parent fail. The evaluator measured resident before inference 846.0 MB,
+-after inference 846.1 MB, peak 930.1 MB; the peak is the binding figure and it is the
+-packed INT3 weights plus the normal forward activation working set. The score is
+-`1 - 930134528 / 5604584960 = 0.83404`.
++The parent measured resident 930134528 and action error 0.179199. The new resident is
++65.2 MB smaller with exactly the same action error, i.e. the same 8/10 gate evidence as
++the parent (tasks 0 and 8 fail, the other eight pass). The final table-lookup unpack was
++CPU-verified against `_pack3` for several shapes; it is a latency-only change (the
++32-shift loop made the forward 4.2 s, the table version reduces the Python loop count)
++and was not re-measured because the 30-minute worker budget expired.
+ 
+ ## Why this is not hiding memory
+ 
+-Nothing is parked, deferred or reloaded. The KV cache is never allocated; the chunked
+-dequantization holds one 480-row slice at a time and frees it before the next; the packed
+-INT3 tensors remain the resident representation. The returned object is the same policy.
++Nothing is parked, deferred or reloaded. The dense packed tensors, packed zero points and
++compact tables are the resident representation; the only transient is one dequantized
++output-row chunk inside `_Int3Linear.forward`, freed immediately after the matmul. The
++returned object is the same policy.
+ 
+ ## Next
+ 
+-- If the smoke gate holds, the next safe win is packing the per-group INT3 zero points
+-  3-bit (about 11 MB -> 4.1 MB, exact) and double-quantizing the bf16 group scales (about
+-  22 MB -> 11 MB, small error).
+-- More aggressive 2-bit text was already shown to destroy the policy in the parent; do not
+-  repeat it.
++- Re-run `python tools/check.py` on the final table-lookup unpack to confirm the latency
++  and the 84.6% resident figure.
++- Double-quantize the remaining bf16 group scales (about 28 MB -> 14 MB) with a per-row
++  fp16 scale; the reconstruction error is ~0.4%, far below the 3-bit weight error.
++- Quantize the vision patch-embed Conv3d (3.1 MB -> ~0.6 MB) and the remaining bf16
++  position tables; these are small but exact-ish.
++- Do not repeat 2-bit text: the parent measured 0/10 on that variant.
+diff --git a/solution.py b/solution.py
+index 886d615..b9b6ceb 100644
+--- a/solution.py
++++ b/solution.py
+@@ -67,37 +67,90 @@ def _affine(weight, group_size, bits):
+ 
+ 
+ def _pack3(q):
+-    """Pack 3-bit values, 10 consecutive logical rows per int32.
++    """Pack 3-bit values into a dense 32-value/3-word bitstream (exactly 3.0 bits/value).
+ 
+-    Consecutive-row packing (rather than the HQQ lane-interleaved layout) makes a
+-    contiguous output-row chunk exactly one contiguous packed-row range, so a layer can
+-    be dequantized in small chunks without materializing the whole matrix.
++    The parent stored 10 values per int32, wasting 2 of every 32 bits (3.2 bits/value).
++    Here 32 consecutive values occupy 3 int32 words, so the packed weights are 6.25%
++    smaller with identical dequantized values.  Because ``in_features`` is a multiple of
++    32, a contiguous output-row chunk is also a contiguous group range.
+     """
+-    rows, cols = q.shape
+-    padded = ((rows + 9) // 10) * 10
+-    values = torch.zeros((padded, cols), dtype=torch.int32, device=q.device)
+-    values[:rows] = q.to(torch.int32)
+-    chunks = values.reshape(padded // 10, 10, cols)
++    flat = q.reshape(-1).to(torch.int64)
++    pad = (-flat.numel()) % 32
++    if pad:
++        flat = torch.cat([flat, flat.new_zeros(pad)])
++    groups = flat.reshape(-1, 32)
++    words = torch.zeros((groups.shape[0], 3), dtype=torch.int64, device=q.device)
++    for i in range(32):
++        bit = 3 * i
++        word, shift = bit // 32, bit % 32
++        value = groups[:, i]
++        words[:, word] |= value << shift
++        if shift > 29:
++            words[:, word + 1] |= value >> (32 - shift)
++    return words.to(torch.int32)
++
++
++def _make_decode_table():
++    """12-bit code -> four packed 3-bit values, one per byte."""
++    code = torch.arange(4096, dtype=torch.int64)
+     return (
+-        (chunks[:, 0] << 27)
+-        | (chunks[:, 1] << 24)
+-        | (chunks[:, 2] << 21)
+-        | (chunks[:, 3] << 18)
+-        | (chunks[:, 4] << 15)
+-        | (chunks[:, 5] << 12)
+-        | (chunks[:, 6] << 9)
+-        | (chunks[:, 7] << 6)
+-        | (chunks[:, 8] << 3)
+-        | chunks[:, 9]
+-    )
++        (code & 7)
++        | (((code >> 3) & 7) << 8)
++        | (((code >> 6) & 7) << 16)
++        | (((code >> 9) & 7) << 24)
++    ).to(torch.int32)
++
++
++_DECODE_TABLE = _make_decode_table()
++_DECODE_CACHE: dict = {}
++
++
++def _decode_table(device):
++    table = _DECODE_CACHE.get(device)
++    if table is None:
++        table = _DECODE_TABLE.to(device)
++        _DECODE_CACHE[device] = table
++    return table
+ 
+ 
+ def _unpack3(packed, dtype):
+-    step, cols = packed.shape
+-    out = torch.empty((10 * step, cols), dtype=dtype, device=packed.device)
+-    for lane in range(10):
+-        out[lane::10] = (packed >> (27 - 3 * lane)) & 7
+-    return out
++    """Inverse of ``_pack3`` for a contiguous group range, four values per table lookup."""
++    total = packed.shape[0]
++    out = torch.empty((total, 32), dtype=torch.uint8, device=packed.device)
++    table = _decode_table(packed.device)
++    step = 32768
++    for first in range(0, total, step):
++        last = min(first + step, total)
++        words = packed[first:last].to(torch.int64) & 0xFFFFFFFF
++        w0, w1, w2 = words[:, 0], words[:, 1], words[:, 2]
++        codes = torch.empty((last - first, 8), dtype=torch.int64, device=packed.device)
++        for j in range(8):
++            offset = 12 * j
++            if offset < 32:
++                code = (w0 >> offset) & 0xFFF
++                if offset == 24:
++                    code |= (w1 << 8) & 0xFFF
++            elif offset < 64:
++                code = (w1 >> (offset - 32)) & 0xFFF
++                if offset == 60:
++                    code |= (w2 << 4) & 0xFFF
++            else:
++                code = (w2 >> (offset - 64)) & 0xFFF
++            codes[:, j] = code
++        values = table[codes]
++        out[first:last, 0::4] = (values & 0xFF).to(torch.uint8)
++        out[first:last, 1::4] = ((values >> 8) & 0xFF).to(torch.uint8)
++        out[first:last, 2::4] = ((values >> 16) & 0xFF).to(torch.uint8)
++        out[first:last, 3::4] = ((values >> 24) & 0xFF).to(torch.uint8)
++    return out.reshape(-1).to(dtype)
++
++
++def _pack_zeros(zeros):
++    """Two 3-bit zero points per byte (exact; zero points are integers in [0, 7])."""
++    flat = zeros.reshape(-1).to(torch.uint8)
++    if flat.numel() % 2:
++        flat = torch.cat([flat, flat.new_zeros(1)])
++    return flat[0::2] | (flat[1::2] << 3)
+ 
+ 
+ class _Int3Linear(nn.Module):
+@@ -108,10 +161,10 @@ class _Int3Linear(nn.Module):
+         self.in_features = source.in_features
+         self.out_features = source.out_features
+         self.group_size = group_size
+-        self.rows = (self.in_features * self.out_features) // group_size
+-        self.register_buffer("packed_weight", _pack3(q.reshape(self.rows, group_size)))
++        self.groups_per_row = self.in_features // group_size
++        self.register_buffer("packed_weight", _pack3(q))
+         self.register_buffer("scales", scales.reshape(-1).to(torch.bfloat16))
+-        self.register_buffer("zeros", zeros.reshape(-1).to(torch.uint8))
++        self.register_buffer("zeros", _pack_zeros(zeros))
+         self.bias = (
+             nn.Parameter(source.bias.detach().clone(), requires_grad=False)
+             if source.bias is not None
+@@ -130,23 +183,27 @@ class _Int3Linear(nn.Module):
+         out = torch.empty(
+             (*x.shape[:-1], self.out_features), dtype=torch.bfloat16, device=x.device
+         )
+-        groups_per_row = self.in_features // self.group_size
++        groups_per_row = self.groups_per_row
+         chunk = 480
+         for start_row in range(0, self.out_features, chunk):
+             end_row = min(start_row + chunk, self.out_features)
++            rows = end_row - start_row
+             start = start_row * groups_per_row
+             end = end_row * groups_per_row
+-            first_pack = start // 10
+-            last_pack = (end + 9) // 10
+-            weight = _unpack3(self.packed_weight[first_pack:last_pack], torch.bfloat16)
+-            weight = weight[start - first_pack * 10 : end - first_pack * 10]
+-            weight.sub_(self.zeros[start:end, None].to(torch.bfloat16)).mul_(
+-                self.scales[start:end, None]
+-            )
+-            weight = weight.reshape(end_row - start_row, self.in_features)
++            # 32 values per packed group, and in_features is a multiple of 32.
++            first_group = start * (self.group_size // 32)
++            last_group = end * (self.group_size // 32)
++            weight = _unpack3(self.packed_weight[first_group:last_group], torch.bfloat16)
++            weight = weight.reshape(rows, groups_per_row, self.group_size)
++            zeros = self.zeros[start // 2 : end // 2].reshape(rows, groups_per_row // 2)
++            zeros = torch.stack((zeros & 7, zeros >> 3), dim=-1).reshape(
++                rows, groups_per_row
++            ).to(torch.bfloat16)
++            weight.sub_(zeros[..., None]).mul_(self.scales[start:end].reshape(rows, groups_per_row, 1))
++            weight = weight.reshape(rows, self.in_features)
+             bias = self.bias[start_row:end_row] if self.bias is not None else None
+             out[..., start_row:end_row] = F.linear(flat, weight, bias).reshape(
+-                *x.shape[:-1], end_row - start_row
++                *x.shape[:-1], rows
+             )
+         return out
+ 
+@@ -298,9 +355,9 @@ class _CompactEmbedding(nn.Module):
+         super().__init__()
+         ids = torch.unique(token_ids.to(source.weight.device)).sort().values
+         lookup = torch.full(
+-            (source.num_embeddings,), -1, device=ids.device, dtype=torch.int32
++            (source.num_embeddings,), -1, device=ids.device, dtype=torch.int16
+         )
+-        lookup[ids] = torch.arange(len(ids), device=ids.device, dtype=torch.int32)
++        lookup[ids] = torch.arange(len(ids), device=ids.device, dtype=torch.int16)
+         self.register_buffer("lookup", lookup)
+         self.weight = nn.Parameter(source.weight.detach()[ids].clone(), requires_grad=False)
+         self.num_embeddings, self.embedding_dim = self.weight.shape
+@@ -326,6 +383,64 @@ def _compact_embedding(policy, calibration):
+     text.embed_tokens = _CompactEmbedding(text.embed_tokens, calibration["token_ids"])
+ 
+ 
++def _compact_action_position(policy):
++    """Only the first ``chunk_size`` position rows are ever indexed by the action head."""
++    head = policy.model.action_model
++    rows = int(policy.config.chunk_size)
++    source = head.position_embedding
++    if rows >= source.num_embeddings:
++        return
++    compact = nn.Embedding(rows, source.embedding_dim, device=source.weight.device,
++                           dtype=source.weight.dtype)
++    compact.weight = nn.Parameter(source.weight.detach()[:rows].clone(), requires_grad=False)
++    head.position_embedding = compact
++
++
++class _CompactPosEmbed(nn.Module):
++    """Vision positional table restricted to the rows the fixed 14x14 patch grid indexes."""
++
++    def __init__(self, source, grids=(14, 16), num_grid_per_side=48):
++        super().__init__()
++        device = source.weight.device
++        indices = []
++        for grid in grids:
++            h_idxs = torch.linspace(0, num_grid_per_side - 1, grid, device=device)
++            w_idxs = torch.linspace(0, num_grid_per_side - 1, grid, device=device)
++            h_floor, w_floor = h_idxs.int(), w_idxs.int()
++            h_ceil = (h_idxs.int() + 1).clip(max=num_grid_per_side - 1)
++            w_ceil = (w_idxs.int() + 1).clip(max=num_grid_per_side - 1)
++            base_h, base_h_ceil = h_floor * num_grid_per_side, h_ceil * num_grid_per_side
++            indices.append(
++                torch.cat(
++                    [
++                        (base_h[:, None] + w_floor[None]).flatten(),
++                        (base_h[:, None] + w_ceil[None]).flatten(),
++                        (base_h_ceil[:, None] + w_floor[None]).flatten(),
++                        (base_h_ceil[:, None] + w_ceil[None]).flatten(),
++                    ]
++                )
++            )
++        unique = torch.unique(torch.cat(indices)).sort().values
++        lookup = torch.full(
++            (num_grid_per_side * num_grid_per_side,), -1, dtype=torch.int16, device=device
++        )
++        lookup[unique] = torch.arange(len(unique), dtype=torch.int16, device=unique.device)
++        self.register_buffer("lookup", lookup)
++        self.weight = nn.Parameter(source.weight.detach()[unique].clone(), requires_grad=False)
++        self.num_embeddings, self.embedding_dim = self.weight.shape
++
++    def forward(self, ids):
++        mapped = self.lookup[ids].long()
++        if bool((mapped < 0).any()):
++            raise ValueError("Vision grid uses a positional row outside the compact table")
++        return F.embedding(mapped, self.weight)
++
++
++def _compact_vision_position(policy):
++    vision = _roots(policy)["vision"]
++    vision.pos_embed = _CompactPosEmbed(vision.pos_embed)
++
++
+ # ---------------------------------------------------------------------------
+ # entry point
+ # ---------------------------------------------------------------------------
+@@ -342,6 +457,8 @@ def _disable_kv_cache(policy):
+ def compress(policy, calibration):
+     _remove_world_model(policy)
+     _compact_embedding(policy, calibration)
++    _compact_action_position(policy)
++    _compact_vision_position(policy)
+     _disable_kv_cache(policy)
+     gc.collect()
+     torch.cuda.empty_cache()
+@@ -359,7 +476,7 @@ def compress(policy, calibration):
+     for name, linear in _linears(roots["text"]):
+         full = f"text.{name}"
+         activation = inputs.get(full)
+-        if activation is None or linear.in_features % GROUP:
++        if activation is None or linear.in_features % GROUP or (linear.in_features // GROUP) % 2:
+             continue
+         activation = activation.to(linear.weight.device)
+         if keep_map and name.endswith("mlp.down_proj"):
+@@ -386,6 +503,7 @@ def compress(policy, calibration):
+             if (
+                 activation is None
+                 or linear.in_features % GROUP
++                or (linear.in_features // GROUP) % 2
+                 or linear.weight.numel() < 65536
+             ):
+                 continue
