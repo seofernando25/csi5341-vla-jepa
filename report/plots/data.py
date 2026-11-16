@@ -140,10 +140,31 @@ def wilson_pct(successes, episodes):
     return [100 * value for value in wilson(int(successes), int(episodes))]
 
 
+def audit_record(study: Path) -> dict[str, dict]:
+    """Post-fix score and audit class per node, from the exploit re-measure record."""
+    record = optional_json(study / "exploit" / "remeasure.json") or {}
+    return {
+        node["node"]: node
+        for node in record.get("nodes", [])
+        if isinstance(node, dict) and node.get("node")
+    }
+
+
+def _final_episodes(candidate: str) -> Path:
+    """Reserved episodes for a recipe cell (`measurements/`) or a solution cell (`reserved/`)."""
+    for path in (
+        STUDY / "measurements" / candidate / "final" / "episodes.csv",
+        STUDY / "reserved" / candidate / "final" / "episodes.csv",
+    ):
+        if path.exists():
+            return path
+    return STUDY / "measurements" / candidate / "final" / "episodes.csv"
+
+
 def reserved_pair(candidate: str) -> dict | None:
     """Paired reserved difference against B16, or None when either arm is incomplete."""
     base_path = STUDY / "measurements" / "B16" / "final" / "episodes.csv"
-    other_path = STUDY / "measurements" / candidate / "final" / "episodes.csv"
+    other_path = _final_episodes(candidate)
     if not (base_path.exists() and other_path.exists()):
         return None
     base, other = pd.read_csv(base_path), pd.read_csv(other_path)
@@ -217,6 +238,58 @@ def latency_ladder(rows: dict) -> dict:
         }
         for candidate, row in rows.items()
         if "benchmark_median_ms" in row
+    }
+
+
+def _node_file(root: Path, cell: str, name: str) -> dict:
+    """First record named `name` for a node, wherever its cycle lives."""
+    for path in sorted((root / "cycles").glob(f"*/nodes/{cell}/{name}")):
+        return optional_json(path) or {}
+    return {}
+
+
+def solution_reserved(study: Path | None = None) -> dict:
+    """Reserved-500 for Dream-RSI solution cells: success, paired difference, memory, development."""
+    root = Path(study) if study is not None else STUDY
+    base_path = root / "measurements" / "B16" / "final" / "episodes.csv"
+    audit = audit_record(root)
+    cells = []
+    for path in sorted((root / "reserved").glob("*/final/episodes.csv")):
+        cell = path.parent.parent.name
+        rows = pd.read_csv(path)
+        successes, episodes = int(rows.success.sum()), len(rows)
+        entry = {
+            "cell": cell,
+            "successes": successes,
+            "episodes": episodes,
+            "success_pct": 100 * successes / episodes if episodes else None,
+            "wilson_pct": wilson_pct(successes, episodes) if episodes else None,
+            "source": rel(path),
+        }
+        if base_path.exists():
+            base = pd.read_csv(base_path)
+            try:
+                difference = paired_difference(base.to_dict("records"), rows.to_dict("records"))
+                entry["difference_pp"] = difference["difference_pp"]
+                entry["ci95_pp"] = difference["ci95_pp"]
+            except (KeyError, ValueError):
+                pass
+        fixed = (audit.get(cell) or {}).get("new") or {}
+        sizes = _node_file(root, cell, "score.json").get("sizes") or {}
+        resident = fixed.get("resident_bytes") or sizes.get("resident_bytes")
+        baseline = fixed.get("baseline_resident_bytes") or sizes.get("baseline_resident_bytes")
+        if resident and baseline:
+            entry["resident_gb"] = resident / GB
+            entry["size_reduction"] = 1 - resident / baseline
+        development = _node_file(root, cell, "development.json")
+        if development.get("successes") is not None:
+            entry["development_successes"] = int(development["successes"])
+            entry["development_episodes"] = int(development.get("episodes") or 0)
+        cells.append(entry)
+    return {
+        "status": "ok" if cells else "empty",
+        "source": rel(root / "reserved"),
+        "cells": cells,
     }
 
 

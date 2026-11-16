@@ -18,6 +18,7 @@ from report.plots.data import (
     parameter_census,
     plan,
     recovery_dev,
+    solution_reserved,
 )
 from report.plots.divergence import divergence_record, fig_divergence
 from report.plots.precision import fig_format, fig_precision
@@ -62,6 +63,9 @@ def main() -> None:
     }
     n["figures"]["divergence"] = build("divergence", fig_divergence, record)
     n["dream_rsi"] = dream_rsi_cycles()
+    n["dream_rsi_v2"] = dream_rsi_cycles(STUDY.parent / "program-v2")
+    n["dream_rsi_reserved"] = solution_reserved()
+    n["dream_rsi_v2_reserved"] = solution_reserved(STUDY.parent / "program-v2")
     n["recovery_dev"] = recovery_dev()
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")
