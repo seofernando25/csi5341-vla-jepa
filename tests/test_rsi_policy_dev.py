@@ -396,6 +396,45 @@ def test_timed_out_step_keeps_its_cost(tmp_path: Path, monkeypatch: pytest.Monke
     assert (out / "step_01" / "workspace" / "replay.py").is_file()
 
 
+def test_selection_counts_a_timed_out_step_cost(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def timed_out(**kw: object) -> None:
+        logs = Path(str(kw["logs_dir"]))
+        logs.mkdir(parents=True, exist_ok=True)
+        (logs / "agent_result.json").write_text(
+            json.dumps(
+                {
+                    "backend": "pi",
+                    "model": "m",
+                    "effort": "max",
+                    "returncode": -1,
+                    "cost_usd": 0.632185,
+                    "num_turns": 27,
+                    "is_error": None,
+                    "text": "",
+                }
+            ),
+            encoding="utf-8",
+        )
+        raise SandboxTimeoutError("Sandboxed process timed out after 1.0s")
+
+    monkeypatch.setattr(policy_dev, "run_sandboxed_agent", timed_out)
+    summary = develop_policies_llm(
+        TRAIN[:1],
+        cycle_id="t",
+        output_dir=tmp_path / "out",
+        m=2,
+        agent_cmd=["true"],
+        timeout=1.0,
+        use_bwrap=False,
+    )
+    assert summary["variants"][1]["status"] == "timeout"
+    assert summary["agent"]["cost_usd"] == 0.632185
+    recorded = json.loads((tmp_path / "out" / "selection.json").read_text(encoding="utf-8"))
+    assert recorded["agent"]["cost_usd"] == 0.632185
+
+
 def test_prompt_states_the_real_limit_and_the_closed_lines() -> None:
     text = policy_dev._build_policy_dev_prompt(
         cycle_id="c",
