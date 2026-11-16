@@ -10,14 +10,14 @@ from report.plots.style import COLORS, FULL, INK, MUTED, OUT, panel_label, tint
 
 # (plan id, label, palette key)
 LADDER = [
-    ("B16", "B16 stock, 4 steps", "B16"),
-    ("precision-lang-int8", "Q8: INT8 decoder", "Q8"),
-    ("precision-lang-nf4", "Q4: NF4 decoder", "Q4"),
-    ("ladder-b16-graph-4step", "B16 graph, 4 steps", "B16"),
-    ("ladder-nf4-graph-4step", "NF4 graph, 4 steps", "Q4"),
-    ("ladder-b16-graph-1step", "B16 graph, 1 step (timing)", "B16"),
-    ("ladder-nf4-graph-1step-dense", "NF4 dense, 1 step", "other"),
-    ("ladder-nf4-graph-1step-packed", "NF4 packed, 1 step", "C2"),
+    ("B16", "Original, 4 flow steps", "B16"),
+    ("precision-lang-int8", "INT8 decoder", "Q8"),
+    ("precision-lang-nf4", "NF4 decoder", "Q4"),
+    ("ladder-b16-graph-4step", "Original + graph, 4 steps", "B16"),
+    ("ladder-nf4-graph-4step", "NF4 + graph, 4 steps", "Q4"),
+    ("ladder-b16-graph-1step", "Original + graph, 1 step", "B16"),
+    ("ladder-nf4-graph-1step-dense", "NF4 unpacked + graph, 1 step", "other"),
+    ("ladder-nf4-graph-1step-packed", "NF4 packed + graph, 1 step", "C2"),
 ]
 
 
@@ -34,7 +34,7 @@ def fig_ladder(n: dict) -> dict | None:
         figsize=(FULL, 2.15),
         gridspec_kw={"wspace": 0.10, "width_ratios": [1.0, 1.0]},
     )
-    fig.subplots_adjust(left=0.205, right=0.985, top=0.82, bottom=0.19)
+    fig.subplots_adjust(left=0.25, right=0.985, top=0.82, bottom=0.19)
     memory, latency = axes
     labels = [label for _, label, _ in LADDER]
     positions = range(len(LADDER))
@@ -72,15 +72,30 @@ def fig_ladder(n: dict) -> dict | None:
     memory.set(
         xlim=(0, max(rows[key]["benchmark_peak_allocated_gb"] for key, _, _ in LADDER) * 1.22)
     )
+    above = memory.get_xaxis_transform()
     memory.text(
         target + 0.06,
-        len(LADDER) - 0.55,
+        1.015,
         "25% target",
         fontsize=6.5,
         color=MUTED,
-        va="center",
+        va="bottom",
         ha="left",
+        transform=above,
+        clip_on=False,
     )
+    if "NF4" in ceiling:
+        memory.text(
+            b16_peak - ceiling["NF4"]["saved_gb"] - 0.06,
+            1.015,
+            "NF4 limit (37%)",
+            fontsize=6.5,
+            color=COLORS["Q4"],
+            va="bottom",
+            ha="right",
+            transform=above,
+            clip_on=False,
+        )
 
     for index, (key, _, palette) in enumerate(LADDER):
         rung = ladder[key]
@@ -126,8 +141,8 @@ def fig_ladder(n: dict) -> dict | None:
         ax.tick_params(axis="y", length=0, pad=4)
     memory.set_yticklabels(labels)
     latency.set_yticklabels([])
-    panel_label(memory, "a", "Peak memory", x=0.0, y=1.06)
-    panel_label(latency, "b", "Latency: median (dot) to p95 (whisker)", x=0.0, y=1.06)
+    panel_label(memory, "a", "Peak memory", x=0.0, y=1.12)
+    panel_label(latency, "b", "Latency: median (dot) to 95th percentile", x=0.0, y=1.12)
 
     fig.savefig(OUT / "ladder.pdf")
     plt.close(fig)

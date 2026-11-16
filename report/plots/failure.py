@@ -23,7 +23,7 @@ ORDER = (16, 8, 4, 3, 2)  # the bfloat16 reference, then the four cells by nomin
 SERIES = (
     ("cka_decoder", "decoder, all tokens", COLORS["language"]),
     ("cka_image", "decoder, image tokens", COLORS["vision"]),
-    ("cka_conditioning", "action conditioning", COLORS["action"]),
+    ("cka_conditioning", "action head input", COLORS["action"]),
 )
 FLOOR = 2e-8  # B16 acts identically to itself; a log axis needs a finite stand-in
 TASK_PHASES = ("development", "reserved")
