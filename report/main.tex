@@ -86,7 +86,7 @@ Intervals are 95\,\% Wilson intervals~\cite{wilson}, which suit success counts. 
 against the reference uses a task-stratified paired percentile bootstrap (10{,}000 resamples,
 seed 42): both policies start from the same task and initial state. We never pool phases.
 
-\subsection{Search}
+\subsection{The search loop}
 In Dream-RSI, a coding agent proposes a compression, written as a \texttt{compress} function,
 and a fixed evaluator scores it. Each proposal is a node in a search tree. A node scores the
 fraction of memory it removes if it passes smoke, and zero otherwise. Between rounds, a second
@@ -191,26 +191,26 @@ attempt, at 3.7 times, failed the 10-episode check. A first launch was stopped: 
 only on a task the reference already fails, where most timed calls fell. We then timed every task
 equally and judged each task on its own. The final numbers will replace these.
 
-\subsection{Search}
+\subsection{Searching for less memory}
 \begin{table}[t]
 \centering
-\caption{Reserved results (500 episodes). Memory is the evaluator's resident rule for search
-nodes and resident tensor storage for recipe cells; the two are not pooled. $\Delta$ is the paired
-difference against B16 on identical states, in percentage points, with its 95\,\% interval.}
+\caption{Results on the 500 reserved episodes. ``Removed'' is the share of the original's
+memory a policy removes. ``Dev.'' counts successes in 100 development episodes. $\Delta$ is the
+difference from the original on the same episodes, in points, with its 95\,\% interval.}
 \label{tab:reserved}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrr}
 \toprule
-Cell & Memory & Dev. & Reserved & $\Delta$ (pp) \\
+Policy & Removed & Dev. & Reserved & $\Delta$ (pp) \\
 \midrule
-B16 & -- & 82/100 & 95.0\,\% & -- \\
-\texttt{iter\_001-b1-a3} & 81.6\,\% & 84/100 & 95.6\,\% & $+0.6$ [$-1.2,+2.4$] \\
-\texttt{iter\_000-b0-a3} & 83.0\,\% & 80/100 & 93.4\,\% & $-1.6$ [$-3.6,+0.2$] \\
-packed NF4 + graph & 75.8\,\% & -- & 97.8\,\% & $+2.8$ [$+1.2,+4.6$] \\
+Original (B16) & -- & 82/100 & 95.0\,\% & -- \\
+First search, cycle 2 & 81.6\,\% & 84/100 & 95.6\,\% & $+0.6$ [$-1.2,+2.4$] \\
+First search, cycle 1 & 83.0\,\% & 80/100 & 93.4\,\% & $-1.6$ [$-3.6,+0.2$] \\
+4-bit text, graph, 1 step & 75.8\,\% & -- & 97.8\,\% & $+2.8$ [$+1.2,+4.6$] \\
 \midrule
-v2 \texttt{iter\_002-b2-a2} & 79.1\,\% & 83/100 & 96.2\,\% & $+1.2$ [$-0.2,+2.8$] \\
-v2 \texttt{iter\_001-b2-a1} & 79.6\,\% & 82/100 & 95.0\,\% & $0.0$ [$-1.2,+1.2$] \\
+Second search, cycle 3 & 79.1\,\% & 83/100 & 96.2\,\% & $+1.2$ [$-0.2,+2.8$] \\
+Second search, cycle 2 & 79.6\,\% & 82/100 & 95.0\,\% & $0.0$ [$-1.2,+1.2$] \\
 \bottomrule
 \end{tabular}
 \end{table}
