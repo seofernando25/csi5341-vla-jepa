@@ -1,0 +1,75 @@
+{
+  "protocol": "program-v1-cleanroom",
+  "kind": "selection-freeze",
+  "frozen_at": "2026-11-16T01:20:00Z",
+  "code_commit": "fbd1e7fd69badaa4d5e432ebc67b63ac80370af0",
+  "checkpoint_revision": "735d9f692981e286ade093b5046627eda876e5d0",
+  "commit_note": "code_commit is HEAD when the selection was computed; this file is committed in the next commit, before any reserved episode runs. `git log -- studies/program-v1/freeze.json` names the freeze commit.",
+  "memory_rules": {
+    "agent_solution": "max(tensor walk, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, peak CUDA bytes during the phase), measured after compress and again after inference; baseline sized the same way with one forward pass. Protocol revision `dream_rsi.evaluator.memory_rule+prompt`; evaluator commit 49507417b3252530e7f67ccf7fa0fb665c26510a, merged in f2dba2e.",
+    "recipe": "resident tensor storage from `storage_inventory` (benchmark phase where present, else screen), the quantity the recipe runs record. Not the agent-solution rule; the table below names the rule per row."
+  },
+  "rule": {
+    "selection_data": "development phase only; no reserved episode existed when this record was written",
+    "development_gate": 77,
+    "steps": [
+      "The uncompressed reference B16 is always selected as the paired control.",
+      "A Dream-RSI node is selected when it has a valid score under the fixed memory rule, passes the development gate (>= 77/100) and is not one of the three cycle-3 exploit nodes. Both qualifying nodes are selected; neither dominates the other (84/100 at 81.6 % removed versus 80/100 at 83.0 % removed).",
+      "Precision-surface reserved cells are the cells of the pre-registered reserved queue `queue-reserved.json`, applied as written: B16, precision-lang-int8, precision-lang-nf4, ladder-nf4-graph-1step-packed. That file instantiates the plan's reserved rule (`precision_surface_plan.json`: reserved trials only after a deployment recipe is frozen) and the README reading that Q8/Q4 reuse the decoder INT8/NF4 arms and the packed NF4 one-step ladder is the deployment stand-in. No cell is added.",
+      "Joint recipes C1/C2 are defined by development outcomes in the plan and are not authored. They are not run and no reserved cell is invented for them.",
+      "No candidate is added by taste. Cells outside the reserved queue are not selected however well they scored in development."
+    ],
+    "statistics": "Wilson 95 % per arm; task-stratified paired bootstrap (10000 resamples, seed 42) against B16 on identical task/state/seed keys. Development and reserved stay in separate columns and are never pooled."
+  },
+  "candidates": [
+    {"id": "B16", "kind": "reference", "development": "82/100", "memory_removed": 0.0, "memory_rule": "recipe", "decision": "selected", "reason": "paired control for every reserved claim"},
+    {"id": "iter_000-b0-a3", "kind": "dream-rsi", "cycle": "iter_000", "development": "80/100", "memory_removed": 0.830174791747648, "memory_rule": "agent_solution", "decision": "selected", "reason": "passes the development gate under the fixed rule; highest memory removed of the two valid nodes"},
+    {"id": "iter_001-b1-a3", "kind": "dream-rsi", "cycle": "iter_001", "development": "84/100", "memory_removed": 0.8160468389081215, "memory_rule": "agent_solution", "decision": "selected", "reason": "passes the development gate under the fixed rule; highest development success of the two valid nodes"},
+    {"id": "precision-lang-int8", "kind": "precision-surface", "development": "81/100", "memory_removed": 0.2543, "memory_rule": "recipe", "decision": "selected", "reason": "pre-registered reserved anchor Q8"},
+    {"id": "precision-lang-nf4", "kind": "precision-surface", "development": "81/100", "memory_removed": 0.3780, "memory_rule": "recipe", "decision": "selected", "reason": "pre-registered reserved anchor Q4"},
+    {"id": "ladder-nf4-graph-1step-packed", "kind": "execution-ladder", "development": null, "memory_removed": 0.7583, "memory_rule": "recipe", "decision": "selected", "reason": "pre-registered deployment arm of the reserved queue; no development rollout was run for it, so the table reports its development cell as not run"},
+    {"id": "precision-lang-hqq3", "kind": "precision-surface", "development": "80/100", "memory_removed": 0.3821, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-lang-hqq2", "kind": "precision-surface", "development": "20/100", "memory_removed": 0.4299, "memory_rule": "recipe", "decision": "not selected", "reason": "fails the development gate"},
+    {"id": "precision-vision-int8", "kind": "precision-surface", "development": "79/100", "memory_removed": 0.0544, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-vision-nf4", "kind": "precision-surface", "development": "82/100", "memory_removed": 0.0810, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-vision-hqq3", "kind": "precision-surface", "development": "83/100", "memory_removed": 0.0819, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-vision-hqq2", "kind": "precision-surface", "development": "86/100", "memory_removed": 0.0920, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-action-int8", "kind": "precision-surface", "development": "81/100", "memory_removed": 0.0136, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-action-nf4", "kind": "precision-surface", "development": "79/100", "memory_removed": 0.0202, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-action-hqq3", "kind": "precision-surface", "development": "80/100", "memory_removed": 0.0204, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-action-hqq2", "kind": "precision-surface", "development": "81/100", "memory_removed": 0.0230, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue"},
+    {"id": "precision-joint-va-hqq2", "kind": "precision-surface", "development": "86/100", "memory_removed": 0.1151, "memory_rule": "recipe", "decision": "not selected", "reason": "not in the pre-registered reserved queue; H4 is reported from development only"},
+    {"id": "format-lang-hqq4", "kind": "format-curve", "development": "83/100", "memory_removed": 0.3662, "memory_rule": "recipe", "decision": "not selected", "reason": "format curve is development evidence; not in the reserved queue"},
+    {"id": "format-lang-gptq", "kind": "format-curve", "development": "81/100", "memory_removed": 0.3741, "memory_rule": "recipe", "decision": "not selected", "reason": "format curve is development evidence; not in the reserved queue"},
+    {"id": "format-lang-awq", "kind": "format-curve", "development": "80/100", "memory_removed": 0.3739, "memory_rule": "recipe", "decision": "not selected", "reason": "format curve is development evidence; not in the reserved queue"}
+  ],
+  "excluded": [
+    {"id": "iter_002-b1-a3", "class": "exploit", "decision": "never selectable", "reason": "scored 1.0 by parking weights outside the measured object and restoring them at inference; invalid under the fixed rule (0.172)"},
+    {"id": "iter_002-b2-a1", "class": "exploit", "decision": "never selectable", "reason": "same exploit; the cycle-3 promotion is not a result (fixed-rule score 0.283)"},
+    {"id": "iter_002-b2-a2", "class": "exploit", "decision": "never selectable", "reason": "same exploit with redundant restore triggers (fixed-rule score 0.284)"},
+    {"id": "iter_002-b0-a0", "class": "deferred", "decision": "not a candidate", "reason": "deferred decompression; no development rollout under the fixed rule"},
+    {"id": "iter_002-b1-a1", "class": "deferred", "decision": "not a candidate", "reason": "deferred decompression; no development rollout under the fixed rule"},
+    {"id": "iter_002-b1-a2", "class": "deferred", "decision": "not a candidate", "reason": "deferred decompression; no development rollout under the fixed rule"}
+  ],
+  "selected": [
+    {"cell": "B16", "runner": "recipe", "phase": "final", "role": "reference"},
+    {"cell": "iter_001-b1-a3", "runner": "solution", "phase": "final", "role": "dream-rsi candidate"},
+    {"cell": "iter_000-b0-a3", "runner": "solution", "phase": "final", "role": "dream-rsi candidate"},
+    {"cell": "precision-lang-int8", "runner": "recipe", "phase": "final", "role": "reserved anchor Q8"},
+    {"cell": "precision-lang-nf4", "runner": "recipe", "phase": "final", "role": "reserved anchor Q4"},
+    {"cell": "ladder-nf4-graph-1step-packed", "runner": "recipe", "phase": "final", "role": "deployment arm"}
+  ],
+  "not_run": [
+    {"cell": "C1", "reason": "the plan defines C1 by development outcomes and no C1 recipe was authored; authoring it now would be selection after the freeze"},
+    {"cell": "C2", "reason": "same as C1"}
+  ],
+  "reserved_state": "No reserved (final, 500-trial) episode existed when this record was written: no studies/program-v1/measurements/*/final directory and no studies/program-v1/reserved directory existed. The reserved runs that follow this commit are the first.",
+  "evidence": {
+    "development": "studies/program-v1/measurements/<recipe>/development/run.json",
+    "recipe_memory": "studies/program-v1/measurements/<recipe>/benchmark/run.json or screen/run.json (resident_tensor_storage_bytes)",
+    "dream_rsi_development": "studies/program-v1/cycles/iter_00{0,1}/nodes/<node>/development.json",
+    "dream_rsi_memory": "studies/program-v1/exploit/remeasure.json",
+    "reserved_queue": "studies/program-v1/queue-reserved.json",
+    "precision_plan": "studies/program-v1/precision_surface_plan.json"
+  }
+}

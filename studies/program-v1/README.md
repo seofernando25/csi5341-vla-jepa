@@ -156,6 +156,31 @@ Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rs
 `eval_timeout_s` (1800 each), `policy_timeout_s` (1200) and `gpu_slots` (2). `allowed_methods` and
 `agent_tools` were removed.
 
+## Selection freeze, 2026-11-16
+
+[freeze.json](freeze.json) records the selection, written on development data only at code commit
+`fbd1e7f`, before any reserved episode ran. Six cells go to Reserved-500:
+
+| Cell | Runner | Development | Memory removed | Rule |
+|---|---|---:|---:|---|
+| `B16` | recipe | 82/100 | — | reference |
+| `iter_001-b1-a3` | solution | 84/100 | 81.6 % | fixed evaluator |
+| `iter_000-b0-a3` | solution | 80/100 | 83.0 % | fixed evaluator |
+| `precision-lang-int8` | recipe | 81/100 | 25.4 % | tensor walk |
+| `precision-lang-nf4` | recipe | 81/100 | 37.8 % | tensor walk |
+| `ladder-nf4-graph-1step-packed` | recipe | not run | 75.8 % | tensor walk |
+
+The rule: the reference, both valid Dream-RSI nodes that pass the 77/100 development gate, and the
+cells of the pre-registered reserved queue [queue-reserved.json](queue-reserved.json) applied as
+written. No cell is added by taste. The three cycle-3 exploit nodes are never selectable; the three
+deferred cycle-3 nodes are not candidates. C1/C2 are defined by development outcomes and are not
+authored, so they are not run.
+
+"Memory removed" names two quantities. Dream-RSI nodes use the fixed evaluator rule (tensor walk,
+live payloads, live CUDA, peak CUDA during the phase; baseline 5 604 584 960 B). Recipe cells use
+resident tensor storage from `storage_inventory` (baseline 5 532 276 494 B). The two are not
+comparable and are not pooled.
+
 ## Status
 
 - Protocol frozen.
@@ -163,6 +188,7 @@ Protocol additions, dated 2026-11-15 and made before any recorded run: `dream_rs
 - Recipes: 22 arms under `recipes/`; queue: 59 cells, 431 estimated minutes. All 59 cells ran.
 - Evidence: one Dream-RSI run (3 cycles, 24 probes); three cycle-3 nodes invalid, two development
   winners preliminary (see the section above).
+- Selection frozen in [freeze.json](freeze.json); Reserved-500 pending.
 - Report: stale. Do not quote pre-cleanroom numbers.
 - Old namespace: deleted from the working tree; recoverable at `pre-cleanroom-20261115`.
 
