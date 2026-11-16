@@ -65,6 +65,8 @@ studies/*/cycles/*/nodes/*/eval/
 studies/*/cycles/*/nodes/*/development/
 # The effective grid plan is duplicated in live_cycle_manifest.json.
 studies/*/cycles/*/grid_plan.json
+# The requested/applied plan record is duplicated in live_cycle_manifest.json.
+studies/*/cycles/*/grid_plan_request.json
 # The cycle's snapshot store and GPU slot locks are runtime state, never evidence.
 studies/*/cycles/*/snapshots.git/
 studies/*/cycles/*/gpu-slots/

@@ -60,26 +60,36 @@ class CellMeta:
 
 
 @dataclass(frozen=True)
-class GridPlanningContext:
-    """Cross-cycle context passed to plan_grid before creating a new live grid."""
-
-    iteration: int
-    max_parallelism: int
-    recent_live_manifests: tuple[dict[str, Any], ...] = ()
-    recent_beta_sweeps: tuple[dict[str, Any], ...] = ()
-    history_summaries: tuple[dict[str, Any], ...] = ()
-    default_budget: int | None = None
-
-
-@dataclass(frozen=True)
 class GridPlan:
-    """Deterministic next-cycle grid configuration."""
+    """Next-cycle grid capacity (Appendix D.2 `plan_grid` output).
+
+    `max_branches` x `max_attempts_per_branch` is the paper's branch x refine capacity; it bounds
+    the slots, it does not pre-generate the candidates inside them. `max_parallelism` and
+    `rounds_cap` are repo additions, clamped by the protocol caps before a cycle uses them.
+    """
 
     max_branches: int
     max_attempts_per_branch: int
     max_parallelism: int
     rounds_cap: int
     rationale: str = ""
+
+
+@dataclass(frozen=True)
+class GridPlanningContext:
+    """Cross-cycle input to `plan_grid`, read before a live grid is created (Appendix D.2).
+
+    `recent_live_manifests` and `recent_beta_sweeps` are the paper's inputs: the manifests and
+    beta sweeps of the cycles already run. `iteration`, `max_parallelism` and `fallback_plan`
+    are repo additions: the cycle index, the worker cap, and the pre-registered plan to return
+    when history is insufficient (cycle 1).
+    """
+
+    iteration: int
+    max_parallelism: int
+    fallback_plan: GridPlan
+    recent_live_manifests: tuple[dict[str, Any], ...] = ()
+    recent_beta_sweeps: tuple[dict[str, Any], ...] = ()
 
 
 @dataclass
