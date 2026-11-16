@@ -36,9 +36,9 @@ They must pass with no warnings. Mark slow or GPU tests `@pytest.mark.slow`.
 |---|---|
 | `report/` | `main.tex`; `plots/` builds every figure and `data/numbers.json` from committed evidence |
 | `studies/<study>/` | Evidence. Each has a README (question, result, evidence, reproduction command), compact tables the report reads, and raw per-run records. Indexed in `studies/README.md` |
-| `evaluation/` | Rollouts, timing, analysis, `fastpath.py` (CUDA-graph engine), `nf4.py` |
+| `evaluation/` | Rollouts, timing, analysis, `fastpath.py` (CUDA-graph engine), `nf4.py`, `fsm.py` (state machines for persisted statuses) |
 | `evaluation/compression/` | Recipes and transforms; `solution.py` is the fixed evaluator for an agent-written `solution.py` |
-| `rsi/` | Dream-RSI: discovery and policy-development agents, `bwrap` sandbox, replay, gates, live cycles, watch page |
+| `rsi/` | Dream-RSI: discovery and policy-development agents, `bwrap` sandbox, replay, gates, live cycles, watch page. Layout and state machines: `rsi/README.md` |
 | `web/` | Presentation and explainer sources (`web/README.md`) |
 | `scripts/` | Board tooling and small runners |
 | `docs/` | `COMMANDS.md`, `DREAM_RSI.md`, `ORCHESTRATION.md`, `COMPRESSION_PROGRAM.md`, README assets |
