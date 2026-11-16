@@ -17,15 +17,18 @@ RED = "#DC2626"
 LABELS = {  # node id -> what changed, for the jumps that matter
     "program-v1": {
         "iter_000-b0-a1": "drop world model",
-        "iter_000-b2-a2": "packed int3",
+        "iter_000-b0-a3": "prune MLP channels",
     },
     "program-v2": {
-        "iter_000-b0-a0": "exact trims, int8 text",
-        "iter_000-b1-a0": "int4 all",
-        "iter_000-b2-a2": "int3 vision, action",
+        "iter_000-b0-a0": "trim, 8-bit text",
+        "iter_000-b1-a0": "4-bit weights",
+        "iter_000-b2-a2": "3-bit vision, action",
     },
 }
-LATENCY_LABELS = {"iter_000-b0-a0": "CUDA graph", "iter_000-b0-a1": "no per-call eval walk"}
+LATENCY_LABELS = {
+    "iter_000-b0-a0": "CUDA graph",
+    "iter_000-b0-a1": "drop a redundant per-call reset",
+}
 
 
 def running_best(points: Sequence[dict]) -> list[float | None]:
@@ -52,23 +55,22 @@ def _boundaries(points: Sequence[dict]) -> list[float]:
     return [i - 0.5 for i in range(1, len(points)) if points[i]["cycle"] != points[i - 1]["cycle"]]
 
 
-def draw_timeline(ax: plt.Axes, points: Sequence[dict], color: str, labels: dict, scale: float):
-    """Grey dots, a step line for the running best, red x for invalid nodes, direct labels."""
+def draw_timeline(ax: plt.Axes, points: Sequence[dict], color: str, scale: float, hollow=False):
+    """Grey dots, a step line for the running best; invalid nodes are red x, or hollow rings.
+
+    An invalid point is drawn at its `plot` value when it has one, else at its score.
+    """
     x = list(range(len(points)))
     for edge in _boundaries(points):
         ax.axvline(edge, color=GRID, lw=0.8, zorder=0)
     ok = [i for i, p in enumerate(points) if p.get("valid", True)]
     ax.scatter(ok, [points[i]["score"] * scale for i in ok], s=9, color="#A8B1BD", lw=0, zorder=2)
     bad = [i for i in x if i not in ok]
-    ax.scatter(
-        bad,
-        [points[i]["score"] * scale for i in bad],
-        s=18,
-        marker="x",
-        color=RED,
-        lw=0.9,
-        zorder=3,
-    )
+    ys = [points[i].get("plot", points[i]["score"]) * scale for i in bad]
+    if hollow:
+        ax.scatter(bad, ys, s=14, facecolor="white", edgecolor=color, lw=0.9, zorder=3)
+    else:
+        ax.scatter(bad, ys, s=18, marker="x", color=RED, lw=0.9, zorder=3)
     best = running_best(points)
     start = next(i for i, b in enumerate(best) if b is not None)
     ax.step(
@@ -123,22 +125,36 @@ def _tree_order(cycle: dict, source: str) -> list[str]:
 
 
 def study_points(cycles: dict) -> list[dict]:
-    """Probes of one study in search order, with the corrected score and validity."""
+    """Probes of one study in search order, scored as the search saw them.
+
+    `score_old` is the search-time score of an audited node. Audited nodes that were deferred or
+    exploited are suspect; honest ones carry their re-measured score as `remeasured`.
+    """
     points = []
     for index, cycle in enumerate(cycles.get("cycles", [])):
         nodes = {n["cell_id"]: n for n in cycle["nodes"]}
         for cell_id in _tree_order(cycle, cycles["source"]):
             node = nodes.get(cell_id)
-            if node and node.get("score") is not None:
-                valid = node.get("valid", True)
-                points.append(
-                    {"cell_id": cell_id, "cycle": index, "score": node["score"], "valid": valid}
-                )
+            if not node or node.get("score") is None:
+                continue
+            audit = node.get("audit_class")
+            point = {
+                "cell_id": cell_id,
+                "cycle": index,
+                "score": node.get("score_old", node["score"]),
+                "valid": audit not in ("exploit", "deferred"),
+            }
+            if audit == "honest" and "score_old" in node:
+                point["remeasured"] = node["score"]
+            points.append(point)
     return points
 
 
 SIZE_OFFSETS = {
-    "program-v1": {"iter_000-b0-a1": (8, -26), "iter_000-b2-a2": (6, 12)},
+    "program-v1": {
+        "iter_000-b0-a1": (10, -22),
+        "iter_000-b0-a3": (10, 12),
+    },
     "program-v2": {
         "iter_000-b0-a0": (6, -10),
         "iter_000-b1-a0": (6, -14),
@@ -147,20 +163,55 @@ SIZE_OFFSETS = {
 }
 
 
+def _remeasured(ax, points):
+    """Filled diamonds at the re-measured score, joined to the search-time dot by a thin line."""
+    marked = [(i, p) for i, p in enumerate(points) if "remeasured" in p]
+    for i, p in marked:
+        ax.plot([i, i], [p["score"] * 100, p["remeasured"] * 100], color=INK_2, lw=0.6, zorder=3)
+        ax.scatter([i], [p["remeasured"] * 100], s=14, marker="D", color=INK_2, lw=0, zorder=6)
+    if marked:
+        i, p = marked[-1]
+        ax.annotate(
+            "re-measured",
+            (i, p["remeasured"] * 100),
+            xytext=(-5, -13),
+            textcoords="offset points",
+            fontsize=6.5,
+            color=INK_2,
+            ha="right",
+            va="center",
+            annotation_clip=False,
+        )
+    suspect = [i for i, p in enumerate(points) if not p["valid"]]
+    if suspect:
+        top = max(points[i]["score"] for i in suspect) * 100
+        ax.annotate(
+            "suspect",
+            (suspect[len(suspect) // 2], top),
+            xytext=(0, 6),
+            textcoords="offset points",
+            fontsize=6.5,
+            color=RED,
+            ha="center",
+            annotation_clip=False,
+        )
+
+
 def fig_size_timeline(n: dict) -> dict | None:
     """Memory removed per probe for both size searches, stacked; None without v1 and v2 cycles."""
     studies = {"program-v1": n.get("dream_rsi") or {}, "program-v2": n.get("dream_rsi_v2") or {}}
     series = {name: study_points(c) for name, c in studies.items() if c.get("cycles")}
     if len(series) < 2:
         return None
-    fig, axes = plt.subplots(2, 1, figsize=(COL, 2.9))
+    fig, axes = plt.subplots(2, 1, figsize=(COL, 3.1), gridspec_kw={"height_ratios": [1.3, 1]})
     fig.subplots_adjust(left=0.115, right=0.985, top=0.95, bottom=0.115, hspace=0.5)
     colors = {"program-v1": COLORS["Q4"], "program-v2": COLORS["C1"]}
     names = {"program-v1": "First search", "program-v2": "Second search"}
     ledger = {}
     for ax, (name, points) in zip(axes, series.items(), strict=True):
-        draw_timeline(ax, points, colors[name], LABELS[name], 100.0)
+        draw_timeline(ax, points, colors[name], 100.0)
         _label_jumps(ax, points, LABELS[name], 100.0, colors[name], SIZE_OFFSETS[name])
+        _remeasured(ax, points)
         ax.set(xlim=(-0.7, len(points) - 0.3), ylim=(0, 105))
         ax.set_xticks(range(3, len(points), 4))
         ax.set_xticklabels([str(i + 1) for i in range(3, len(points), 4)])
@@ -171,7 +222,10 @@ def fig_size_timeline(n: dict) -> dict | None:
             "probes": len(points),
             "cycle_sizes": [sum(1 for p in points if p["cycle"] == c) for c in range(3)],
             "best_pct": round(best[-1] * 100, 2),
-            "exploit_nodes": [p["cell_id"] for p in points if not p["valid"]],
+            "suspect_nodes": [p["cell_id"] for p in points if not p["valid"]],
+            "remeasured": {
+                p["cell_id"]: round(p["remeasured"] * 100, 2) for p in points if "remeasured" in p
+            },
             "jumps": [
                 {
                     "probe": i + 1,
@@ -188,11 +242,18 @@ def fig_size_timeline(n: dict) -> dict | None:
 
 
 def latency_points(table: dict) -> list[dict]:
-    """Probes of the latency run in evaluation order; score is the guarded lower bound."""
-    return [
-        {"cell_id": row["cell_id"], "cycle": row["cycle"], "score": row["score"] or 0.0}
-        for row in table["nodes"]
-    ]
+    """Probes of the latency run in evaluation order; score is the guarded lower bound.
+
+    A node scored 0 by the smoke gate is invalid and is drawn at its speedup point.
+    """
+    points = []
+    for row in table["nodes"]:
+        point = {"cell_id": row["cell_id"], "cycle": row["cycle"], "score": row["score"] or 0.0}
+        gated = not row["score"] and (row.get("speedup") or {}).get("point")
+        if gated:
+            point.update(valid=False, plot=row["speedup"]["point"])
+        points.append(point)
+    return points
 
 
 def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
@@ -210,7 +271,7 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
     fig, ax = plt.subplots(figsize=(COL, 2.1))
     fig.subplots_adjust(left=0.115, right=0.985, top=0.97, bottom=0.17)
     color = COLORS["Q8"]
-    draw_timeline(ax, points, color, LATENCY_LABELS, 1.0)
+    draw_timeline(ax, points, color, 1.0, hollow=True)
     for value, text in ((1.0, "untouched policy"), (reference, "hand-built graph")):
         ax.axhline(value, color=MUTED, lw=0.8, ls=(0, (3, 2)), zorder=1)
         ax.annotate(
@@ -223,6 +284,18 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
             color=MUTED,
             annotation_clip=False,
         )
+    for i, p in enumerate(points):
+        if not p.get("valid", True):
+            ax.annotate(
+                "failed 10-episode check",
+                (i, p["plot"]),
+                xytext=(6, 0),
+                textcoords="offset points",
+                va="center",
+                fontsize=6.5,
+                color=color,
+                annotation_clip=False,
+            )
     _label_jumps(
         ax,
         points,

@@ -2543,12 +2543,19 @@
         8,
         8
       ],
-      "best_pct": 86.01,
-      "exploit_nodes": [
+      "best_pct": 86.9,
+      "suspect_nodes": [
+        "iter_002-b0-a0",
+        "iter_002-b1-a1",
         "iter_002-b2-a1",
+        "iter_002-b1-a2",
         "iter_002-b2-a2",
         "iter_002-b1-a3"
       ],
+      "remeasured": {
+        "iter_000-b0-a3": 83.02,
+        "iter_001-b1-a3": 81.6
+      },
       "jumps": [
         {
           "probe": 1,
@@ -2571,9 +2578,9 @@
           "pct": 85.6
         },
         {
-          "probe": 8,
-          "cell_id": "iter_000-b2-a2",
-          "pct": 86.01
+          "probe": 7,
+          "cell_id": "iter_000-b0-a3",
+          "pct": 86.9
         }
       ]
     },
@@ -2585,7 +2592,8 @@
         3
       ],
       "best_pct": 83.4,
-      "exploit_nodes": [],
+      "suspect_nodes": [],
+      "remeasured": {},
       "jumps": [
         {
           "probe": 1,

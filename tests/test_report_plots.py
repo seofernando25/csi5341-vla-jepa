@@ -237,7 +237,10 @@ def _cycles(tmp_path, scores):
         "cycles": [
             {
                 "cycle_id": f"iter_{i}",
-                "nodes": [{"cell_id": c, "score": v, "valid": ok} for c, v, ok in cycle],
+                "nodes": [
+                    {"cell_id": c, "score": v, **({} if ok else {"audit_class": "exploit"})}
+                    for c, v, ok in cycle
+                ],
             }
             for i, cycle in enumerate(scores)
         ],
@@ -264,9 +267,23 @@ def test_size_timeline_marks_exploits_and_keeps_them_out_of_the_best(synthetic, 
     }
     ledger = timeline.fig_size_timeline(n)
     assert ledger["program-v1"]["best_pct"] == 80.0
-    assert ledger["program-v1"]["exploit_nodes"] == ["c"]
+    assert ledger["program-v1"]["suspect_nodes"] == ["c"]
     assert [j["cell_id"] for j in ledger["program-v2"]["jumps"]] == ["a", "b"]
     assert (synthetic.parent / "figures" / "size-timeline.pdf").is_file()
+
+
+def test_size_timeline_plots_search_time_scores_and_overlays_remeasured(synthetic, tmp_path):
+    v1 = _cycles(tmp_path / "a", [[("a", 0.6, True), ("b", 0.9, True)]])
+    b = v1["cycles"][0]["nodes"][1]
+    b.update(score=0.8, score_old=0.9, audit_class="honest")
+    v1["cycles"][0]["nodes"].append(
+        {"cell_id": "c", "score": 0.3, "score_old": 1.0, "audit_class": "deferred"}
+    )
+    n = {"dream_rsi": v1, "dream_rsi_v2": _cycles(tmp_path / "b", [[("a", 0.5, True)]])}
+    ledger = timeline.fig_size_timeline(n)["program-v1"]
+    assert ledger["best_pct"] == 90.0  # the score the search saw
+    assert ledger["remeasured"] == {"b": 80.0}
+    assert ledger["suspect_nodes"] == ["c"]
 
 
 def test_size_timeline_needs_both_searches(synthetic, tmp_path):
@@ -292,6 +309,10 @@ def test_latency_timeline_reads_the_node_table(synthetic, tmp_path):
     }
     ledger = timeline.fig_latency_timeline({"rows": rows}, tmp_path / "nodes.json")
     assert ledger["nodes"] == 3
+    assert timeline.latency_points(table)[1] == {"cell_id": "n1", "cycle": 0, "score": 0.0}
+    gated = {"nodes": [{"cell_id": "g", "cycle": 0, "score": 0.0, "speedup": {"point": 3.7}}]}
+    assert timeline.latency_points(gated)[0]["plot"] == 3.7
+    assert timeline.latency_points(gated)[0]["valid"] is False
     assert ledger["best_lower_bound"] == 2.5
     assert ledger["hand_built_speedup"] == 3.5
     assert timeline.fig_latency_timeline({"rows": rows}, tmp_path / "absent.json") is None
