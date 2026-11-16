@@ -55,6 +55,7 @@ HASH_FILE_LIMIT = 50 << 20
 WORKSPACE_FILE_CHARGE_BYTES = 1 << 20
 REQUIRED_DEVICE = "cuda"
 PROTOCOL_PATH = calib.STUDY / "protocol.json"
+PROTOCOL_ENV = "VLA_PROTOCOL"
 ALWAYS_ALLOWED = ("/dev", "/proc", "/sys")
 POLICY_API = ("select_action", "predict_action_chunk")
 CHECK_KEYS = (
@@ -74,6 +75,19 @@ class _Verdict(Exception):
     def __init__(self, status: str, message: str) -> None:
         super().__init__(message)
         self.status = status
+
+
+def protocol_path(override: Path | str | None = None) -> Path:
+    """Protocol the evaluation reads: the argument, then `$VLA_PROTOCOL`, then program-v1.
+
+    The harness names the study's protocol explicitly, so a run under another study never reads
+    program-v1's phases, gates or seed by accident. The last fallback keeps a bare
+    `vla-compress solution` call working.
+    """
+    if override is not None:
+        return Path(override)
+    from_env = os.environ.get(PROTOCOL_ENV)
+    return Path(from_env) if from_env else PROTOCOL_PATH
 
 
 def workspace_hash(workspace: Path) -> tuple[str, list[str]]:
@@ -252,11 +266,17 @@ class _Run:
     """One evaluation of a workspace; fills the result record stage by stage."""
 
     def __init__(
-        self, workspace: Path, phase: str, out_dir: Path, record: dict, limit: float
+        self,
+        workspace: Path,
+        phase: str,
+        out_dir: Path,
+        record: dict,
+        limit: float,
+        protocol: Path | str | None = None,
     ) -> None:
         self.workspace, self.phase, self.out_dir = workspace, phase, out_dir
         self.record, self.limit = record, limit
-        self.protocol = read_json(PROTOCOL_PATH)
+        self.protocol = read_json(protocol_path(protocol))
         self.log: list[str] = []
         self.baseline_bytes = 0
         self.baseline_violations: Counter[str] = Counter()
@@ -418,17 +438,19 @@ def run_solution(
     out_dir: Path | str,
     *,
     time_limit_s: float = DEFAULT_TIME_LIMIT_S,
+    protocol: Path | str | None = None,
 ) -> dict:
     """Evaluate workspace/solution.py in one phase; writes out_dir/result.json and log.txt.
 
-    Solution failures are recorded in the result, never raised. Phase final is not accepted.
+    `protocol` names the study's `protocol.json`; without it `$VLA_PROTOCOL` and then program-v1
+    decide. Solution failures are recorded in the result, never raised. Phase final is not accepted.
     """
     if phase not in PHASES:
         raise ValueError(f"phase must be one of {PHASES}")
     workspace, out_dir = Path(workspace).resolve(), Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     record: dict = {"phase": phase, "time_limit_s": time_limit_s, "stage_seconds": {}}
-    run = _Run(workspace, phase, out_dir, record, time_limit_s)
+    run = _Run(workspace, phase, out_dir, record, time_limit_s, protocol)
     with recorded_run(out_dir / "result.json", record):
         try:
             run.evaluate()

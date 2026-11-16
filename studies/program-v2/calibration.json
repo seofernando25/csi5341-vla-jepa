@@ -1,0 +1,176 @@
+{
+  "purpose": "Unlabeled calibration; no optimizer updates or robot outcomes",
+  "bank_indices": [
+    0,
+    1,
+    10,
+    11,
+    20,
+    21,
+    30,
+    31,
+    40,
+    41,
+    50,
+    51,
+    60,
+    61,
+    70,
+    71,
+    80,
+    81,
+    90,
+    91
+  ],
+  "states_per_task": 2,
+  "linear_modules": 423,
+  "token_count": 53,
+  "block_influence": {
+    "vision.0": 0.8235255599021911,
+    "vision.1": 0.41665579080581666,
+    "vision.2": 0.3411609962582588,
+    "vision.3": 0.1807420425117016,
+    "vision.4": 0.18134773299098014,
+    "vision.5": 0.20888544991612434,
+    "vision.6": 0.23068464323878288,
+    "vision.7": 0.20473934710025787,
+    "vision.8": 0.22813763245940208,
+    "vision.9": 0.2303265944123268,
+    "vision.10": 1.5976321637630462,
+    "vision.11": 0.2792613491415977,
+    "vision.12": 0.060627271234989163,
+    "vision.13": 0.06627302970737219,
+    "vision.14": 0.08420060202479362,
+    "vision.15": 0.07019549533724785,
+    "vision.16": 0.04858257956802845,
+    "vision.17": 0.05322423223406077,
+    "vision.18": 0.06950946375727654,
+    "vision.19": 0.06743338070809841,
+    "vision.20": 0.08277868963778019,
+    "vision.21": 0.10029735304415226,
+    "vision.22": 0.14276234805583954,
+    "vision.23": 16.249131822586058,
+    "text.0": 1.2522077918052674,
+    "text.1": 0.1554284006357193,
+    "text.2": 1575.0920532226562,
+    "text.3": 4.611558688338846e-05,
+    "text.4": 5.803845378977712e-05,
+    "text.5": 5.8430704302736555e-05,
+    "text.6": 9.779794236237649e-05,
+    "text.7": 0.00012439832717063836,
+    "text.8": 0.00013844056229572743,
+    "text.9": 0.00021793223786517046,
+    "text.10": 0.00021939086509519256,
+    "text.11": 0.0003787273686612025,
+    "text.12": 0.0003473108823527582,
+    "text.13": 0.0003661829439806752,
+    "text.14": 0.0005639231181703508,
+    "text.15": 0.0005976862186798826,
+    "text.16": 0.000682990686618723,
+    "text.17": 0.0019380667014047503,
+    "text.18": 0.0015957012365106493,
+    "text.19": 0.0023181695607490836,
+    "text.20": 0.0039622084121219816,
+    "text.21": 0.0037875114590860902,
+    "text.22": 0.004754618974402547,
+    "text.23": 0.0051724446238949895,
+    "text.24": 0.005663424520753324,
+    "text.25": 0.007382205547764897,
+    "text.26": 0.012127332156524062,
+    "text.27": 0.08071394376456738,
+    "action.0": 2.0279974028468133,
+    "action.1": 0.1362640299834311,
+    "action.2": 0.09217947321012616,
+    "action.3": 0.005978500266792253,
+    "action.4": 0.006804981944151222,
+    "action.5": 0.0029323804017622026,
+    "action.6": 0.0026776439699460752,
+    "action.7": 0.002010825171601027,
+    "action.8": 0.004009979713009671,
+    "action.9": 0.0016050547055783682,
+    "action.10": 0.0022229776252061127,
+    "action.11": 0.002124851944972761,
+    "action.12": 0.02051356484880671,
+    "action.13": 0.002646893834753428,
+    "action.14": 0.00610339471604675,
+    "action.15": 0.0029921180015662686
+  },
+  "model": {
+    "variant": "B16",
+    "status": "published_trained_policy",
+    "logical_parameters": 2766137991,
+    "quantized_modules": [],
+    "parameter_dtypes": {
+      "torch.bfloat16": 1612
+    },
+    "chunk_size": 7,
+    "n_action_steps": 7,
+    "num_inference_timesteps": 4,
+    "world_model_loaded": true,
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "checkpoint_compatibility": {
+      "missing_keys": [],
+      "ignored_keys": [
+        "model.qwen.model.model.language_model.embed_tokens.weight",
+        "model.video_predictor.extrinsics_encoder.bias",
+        "model.video_predictor.extrinsics_encoder.weight",
+        "model.video_predictor.state_encoder.bias",
+        "model.video_predictor.state_encoder.weight"
+      ],
+      "tied_embedding_equality_verified": true,
+      "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+    },
+    "Q8_internal_activation_cast": null
+  },
+  "environment": {
+    "recorded_at": "2026-11-15T09:53:04.134092+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "cfe509b9a4ac931d7c22dcdf15c35da26d771ad5",
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25348210688,
+    "cuda_compute_verified": true,
+    "driver": "615.78.08"
+  }
+}

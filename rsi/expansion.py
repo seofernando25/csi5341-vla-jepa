@@ -122,6 +122,7 @@ class NodeContext:
     smoke_gate: int
     dev_gate: int
     evaluator: Evaluator
+    study_dir: Path
     agent_cmd: str | list[str] | None = None
     use_bwrap: bool = True
 
@@ -169,8 +170,13 @@ class DigestRegistry:
             return owner
 
 
-def sandboxed_evaluator(eval_timeout: float, gpu_slots_dir: Path, gpu_slots: int) -> Evaluator:
-    """Evaluator that runs the fixed `solution` evaluator in the GPU sandbox."""
+def sandboxed_evaluator(
+    eval_timeout: float, gpu_slots_dir: Path, gpu_slots: int, study_dir: Path | None = None
+) -> Evaluator:
+    """Evaluator that runs the fixed `solution` evaluator in the GPU sandbox.
+
+    `study_dir` names the study whose `protocol.json` the evaluator reads.
+    """
 
     def _run(snapshot_dir: Path, phase: str, out_dir: Path) -> dict[str, Any]:
         return run_sandboxed_evaluator(
@@ -180,6 +186,7 @@ def sandboxed_evaluator(eval_timeout: float, gpu_slots_dir: Path, gpu_slots: int
             timeout=eval_timeout,
             gpu_slots_dir=gpu_slots_dir,
             gpu_slot_count=gpu_slots,
+            study_dir=study_dir,
         )
 
     return _run
@@ -278,8 +285,9 @@ def _run_agent(
             timeout=ctx.agent_timeout,
             use_bwrap=ctx.use_bwrap,
             gpu=True,
-            source_ro=repo_source_binds(),
+            source_ro=repo_source_binds(study_dir=ctx.study_dir),
             gpu_slots_dir=ctx.gpu_slots_dir,
+            study_dir=ctx.study_dir,
             env_overrides={"RSI_GPU_SLOTS": str(ctx.gpu_slots)},
         )
     except SandboxTimeoutError:

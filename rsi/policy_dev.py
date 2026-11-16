@@ -20,9 +20,10 @@ from rsi.agent_backends import (
     SANDBOX_PKGS,
     SANDBOX_REPO,
     SANDBOX_WORK,
+    STUDY_DIR,
     AgentSpec,
     agent_record,
-    default_agent_spec,
+    load_agent_spec,
 )
 from rsi.api import GridPlanningContext
 from rsi.dream import leave_one_world_out
@@ -174,7 +175,7 @@ def _build_policy_dev_prompt(
     )
 
 
-def _agent_sandbox(step_dir: Path) -> dict[str, Any]:
+def _agent_sandbox(step_dir: Path, study_dir: Path | None = None) -> dict[str, Any]:
     """Extra mounts and env for the policy agent: repo source, GPU, and a writable package dir."""
     pkgs = Path(step_dir) / PKG_DIR_NAME
     pkgs.mkdir(parents=True, exist_ok=True)
@@ -186,7 +187,7 @@ def _agent_sandbox(step_dir: Path) -> dict[str, Any]:
         binds[Path(uv)] = UV_BIN
         path.insert(0, str(Path(UV_BIN).parent))
     return {
-        "source_ro": repo_source_binds(exclude=POLICY_DEV_SOURCE_EXCLUDE),
+        "source_ro": repo_source_binds(study_dir=study_dir, exclude=POLICY_DEV_SOURCE_EXCLUDE),
         "writable_dirs": {pkgs: SANDBOX_PKGS},
         "extra_ro_binds": binds,
         "env_overrides": {
@@ -334,6 +335,7 @@ class _Run:
     timeout: float
     use_bwrap: bool
     plan_context: GridPlanningContext | None = None
+    study_dir: Path | None = None
     results: list[AgentRunResult] = field(default_factory=list)
 
     def replay(
@@ -474,7 +476,7 @@ def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) ->
     )
     # `run_sandboxed_agent` rewrites evidence/TASK.md on every call; keep the step's own copy.
     (step_dir / "TASK.md").write_text(base_prompt, encoding="utf-8")
-    sandbox = _agent_sandbox(step_dir) if run.use_bwrap else {}
+    sandbox = _agent_sandbox(step_dir, run.study_dir) if run.use_bwrap else {}
     rec: dict[str, Any] = {
         "step": step,
         "slot": f"m{step}_llm",
@@ -642,7 +644,7 @@ def develop_policies_llm(
     for name in ("api.py", "tree.py", "objective.py"):
         shutil.copyfile(RSI_DIR / name, evidence / "reference" / name)
 
-    spec = agent or default_agent_spec()
+    spec = agent or load_agent_spec(record_root or STUDY_DIR)
     run = _Run(
         cycle_id=cycle_id,
         history=history,
@@ -658,6 +660,7 @@ def develop_policies_llm(
         timeout=timeout,
         use_bwrap=use_bwrap,
         plan_context=_plan_context(manifests, max_parallelism),
+        study_dir=Path(record_root) if record_root is not None else None,
     )
 
     inc_text = inc_src.read_text(encoding="utf-8")

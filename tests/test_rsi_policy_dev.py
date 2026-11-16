@@ -382,6 +382,7 @@ def test_selected_policy_path_is_relative_to_record_root(tmp_path: Path) -> None
         output_dir=study / "policies" / "iter_000",
         m=2,
         agent_cmd=_fake_agent(tmp_path, "noop"),
+        agent=AgentSpec(backend="custom", model="none", effort=None, tools="read,write,edit,bash"),
         timeout=60.0,
         use_bwrap=False,
         record_root=study,

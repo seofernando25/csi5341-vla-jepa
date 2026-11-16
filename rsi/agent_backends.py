@@ -488,11 +488,6 @@ def load_agent_spec(
     )
 
 
-def default_agent_spec() -> AgentSpec:
-    """The agent named by the repository's frozen protocol."""
-    return load_agent_spec(STUDY_DIR)
-
-
 @functools.cache
 def agent_cli_version(backend: str) -> str | None:
     """Host-side `--version` string of the backend CLI, captured once per process."""

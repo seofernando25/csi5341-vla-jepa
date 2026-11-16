@@ -211,13 +211,19 @@ def main():
         "--phase", choices=["check", "smoke", "development"], required=True
     )
     solution_parser.add_argument("--out", type=Path, required=True)
+    solution_parser.add_argument(
+        "--protocol",
+        type=Path,
+        default=None,
+        help="Study protocol.json; default $VLA_PROTOCOL, then studies/program-v1/protocol.json",
+    )
     args = parser.parse_args()
     if args.command == "calibrate":
         calib.calibrate()
     elif args.command == "solution":
         from evaluation.compression.solution import run_solution
 
-        result = run_solution(args.workspace, args.phase, args.out)
+        result = run_solution(args.workspace, args.phase, args.out, protocol=args.protocol)
         print(json.dumps({"status": result["status"], "phase": args.phase}))
     else:
         run(args.recipe, args.phase, args.predictions, args.measurements_root)

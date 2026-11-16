@@ -120,6 +120,7 @@ def _ctx(root: Path, cmd: list[str], evaluator: Any, agent_timeout: float = 30.0
         smoke_gate=8,
         dev_gate=77,
         evaluator=evaluator,
+        study_dir=root,
         agent_cmd=cmd,
         use_bwrap=False,
     )

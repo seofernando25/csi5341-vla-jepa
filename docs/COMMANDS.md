@@ -22,6 +22,10 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Build presentation | `python3 web/presentation/tools/assemble.py` | After browser authoring export; serve with `python3 -m http.server 8000 --bind 127.0.0.1` |
 | Checks | `uv run --no-sync ruff check . && uv run --no-sync ruff format --check . && uv run --no-sync pytest -q` | Fast CPU checks: `pytest -q -m "not slow"` |
 
+`--study-dir` names the study, and that study's `protocol.json` is the only protocol a Dream-RSI
+run reads: the evaluator, the sandbox binds and the agent's own `tools/check.py` all resolve it
+there. [studies/program-v2/](../studies/program-v2/README.md) is the open-protocol namespace.
+
 ## Additional CLI entry points
 
 All scripts accept `--help` without running GPU jobs or modifying outputs:

@@ -248,7 +248,9 @@ def run_online_cycle(
         smoke_trials=cfg.smoke_trials,
         smoke_gate=cfg.smoke_gate,
         dev_gate=cfg.dev_gate,
-        evaluator=evaluator or sandboxed_evaluator(node_eval_timeout, gpu_dir, cfg.gpu_slots),
+        evaluator=evaluator
+        or sandboxed_evaluator(node_eval_timeout, gpu_dir, cfg.gpu_slots, study_dir=study_root),
+        study_dir=study_root,
         agent_cmd=agent_cmd,
         use_bwrap=use_bwrap,
     )

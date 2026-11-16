@@ -9,6 +9,13 @@ The new evidence base is [program-v1/](program-v1/README.md). It holds the froze
 pre-registered precision surface and no measurements yet. The report is stale until the clean runs
 land.
 
+## Open Dream-RSI namespace
+
+[program-v2/](program-v2/README.md) holds the Dream-RSI search under the open protocol: shell, GPU
+and network for the policy agent, anytime policy steps, live `plan_grid` under caps, and the fixed
+memory rule. It starts from the baseline policy with no history. Its nodes are not pooled with
+program-v1's, and no v1 node is used as its starting point. Results: pending.
+
 ## Closed studies kept outside the reset
 
 These are separate from the compression clean room. They are not used to select compression
