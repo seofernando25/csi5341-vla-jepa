@@ -16,7 +16,7 @@ One canonical command per task. Run from the repository root after `CMAKE_POLICY
 | Dream-RSI status | `uv run --no-sync vla-rsi status --study-dir studies/program-v1 [--json]` | Launcher state, lock holder, stage, nodes done/total, best score, agent cost, log tail; reads only |
 | Dream-RSI live watch | `uv run --no-sync vla-rsi watch --study-dir studies/program-v1 [--port 8787] [--host 127.0.0.1]` | Read-only page on loopback: live transcripts, node and policy-dev state; works while the loop runs, finished or not started; no GPU |
 | Dream-RSI stop | `uv run --no-sync vla-rsi stop --study-dir studies/program-v1 [--grace 120]` | Touches `DIR/STOP`, waits for clean exit, then stops the unit or process group |
-| Calibrate policy-update instructions | `uv run --no-sync vla-rsi calibrate --tag NAME --prompt rsi/prompts/policy_dev.md` | Synthetic worlds only, LLM API; the agent may execute inside the sandbox; no GPU work is scored; writes `outputs/rsi-calibration/<tag>/` (refuses `studies/`) |
+| Calibrate policy-update instructions | `uv run --no-sync vla-rsi calibrate --tag NAME --prompt rsi/prompts/policy_dev.md` | Synthetic worlds only, LLM API; the agent may execute inside the sandbox; writes `outputs/rsi-calibration/<tag>/` (refuses `studies/`) |
 | Rebuild report plots | `uv run --no-sync vla-report-plots` | CPU only; writes `report/figures/*.pdf` and `report/data/numbers.json` |
 | Build report PDF | `cd report && latexmk -pdf main.tex` | Writes `report/main.pdf` |
 | Build presentation | `python3 web/presentation/tools/assemble.py` | After browser authoring export; serve with `python3 -m http.server 8000 --bind 127.0.0.1` |
