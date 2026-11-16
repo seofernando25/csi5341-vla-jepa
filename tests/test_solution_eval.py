@@ -65,9 +65,20 @@ def workspace(root: Path, source: str, **extra: str) -> Path:
     return path
 
 
-def run(root: Path, source: str, phase: str = "check", limit: float = 60.0, **extra: str) -> dict:
+def run(
+    root: Path,
+    source: str,
+    phase: str = "check",
+    limit: float = 60.0,
+    allow_reserved: bool = False,
+    **extra: str,
+) -> dict:
     result = solution.run_solution(
-        workspace(root, source, **extra), phase, root / "out", time_limit_s=limit
+        workspace(root, source, **extra),
+        phase,
+        root / "out",
+        time_limit_s=limit,
+        allow_reserved=allow_reserved,
     )
     assert json.loads((root / "out" / "result.json").read_text())["status"] == result["status"]
     assert (root / "out" / "log.txt").exists()
@@ -308,6 +319,38 @@ def test_final_phase_is_rejected_by_cli(monkeypatch, tmp_path):
     with pytest.raises(SystemExit) as exit_info:
         study.main()
     assert exit_info.value.code == 2
+
+
+def test_final_phase_requires_allow_reserved(tmp_path):
+    ws = workspace(tmp_path, "def compress(policy, calibration):\n    return policy\n")
+    with pytest.raises(ValueError, match="reserved"):
+        solution.run_solution(ws, "final", tmp_path / "out", time_limit_s=1.0)
+    assert not (tmp_path / "out" / "result.json").exists()
+
+
+def test_final_phase_runs_fifty_trials_per_task_on_final_states(cpu_env, monkeypatch):
+    seen = {}
+
+    def fake_rollout(variant, tasks, phase, episodes, policy, pipeline, folder):
+        seen.update(phase=phase, episodes=episodes)
+        with (folder / "episodes.csv").open("w", newline="") as handle:
+            writer = csv.DictWriter(handle, fieldnames=["task_id", "success"])
+            writer.writeheader()
+            for task in tasks:
+                writer.writerow({"task_id": task, "success": 1})
+        return {"episodes": len(tasks), "successes": len(tasks), "task_ids": tasks, "phase": phase}
+
+    monkeypatch.setattr(solution, "rollout", fake_rollout)
+    result = run(
+        cpu_env,
+        "def compress(policy, calibration):\n    return policy\n",
+        phase="final",
+        allow_reserved=True,
+    )
+    assert result["status"] == "ok"
+    assert seen["phase"] == "final"
+    assert seen["episodes"] == PROTOCOL["phases"]["reserved"]["trials"] // len(PROTOCOL["task_ids"])
+    assert result["rollout"]["phase"] == "final"
 
 
 def test_numpy_module_walk_counts_nbytes():

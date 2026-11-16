@@ -49,7 +49,11 @@ from evaluation.models import load_policy
 from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
 from evaluation.rollout import rollout
 
-PHASES = ("check", "smoke", "development")
+PHASES = ("check", "smoke", "development", "final")
+# Rollout phase and protocol trial count per evaluator phase. Smoke shares the development
+# states and seeds, as study.run does; final uses the reserved states.
+ROLLOUT_PHASE = {"smoke": "development", "development": "development", "final": "final"}
+TRIAL_PHASE = {"smoke": "smoke", "development": "development", "final": "reserved"}
 DEFAULT_TIME_LIMIT_S = 900.0
 HASH_FILE_LIMIT = 50 << 20
 WORKSPACE_FILE_CHARGE_BYTES = 1 << 20
@@ -392,17 +396,17 @@ class _Run:
         self.record["action_error"] = summary["maximum_normalized_action_difference"]
 
     def rollouts(self, policy: object) -> None:
-        trials = self.protocol["phases"][self.phase]["trials"]
+        phase = ROLLOUT_PHASE[self.phase]
+        trials = self.protocol["phases"][TRIAL_PHASE[self.phase]]["trials"]
         tasks = self.protocol["task_ids"]
         if trials % len(tasks):
             raise ValueError("protocol trials must divide evenly across tasks")
         name = f"solution-{self.record['workspace_sha256'][:16]}"
         with self.stage("rollout"):
-            # Smoke and development share the development seeds and states, as study.run does.
             summary = rollout(
                 name,
                 tasks,
-                "development",
+                phase,
                 trials // len(tasks),
                 policy,
                 Pipeline(policy),
@@ -418,13 +422,17 @@ def run_solution(
     out_dir: Path | str,
     *,
     time_limit_s: float = DEFAULT_TIME_LIMIT_S,
+    allow_reserved: bool = False,
 ) -> dict:
     """Evaluate workspace/solution.py in one phase; writes out_dir/result.json and log.txt.
 
-    Solution failures are recorded in the result, never raised. Phase final is not accepted.
+    Solution failures are recorded in the result, never raised. The reserved phase (`final`)
+    is refused unless `allow_reserved` is set, so a search loop cannot consume reserved trials.
     """
     if phase not in PHASES:
         raise ValueError(f"phase must be one of {PHASES}")
+    if phase == "final" and not allow_reserved:
+        raise ValueError("phase final is reserved; pass allow_reserved=True")
     workspace, out_dir = Path(workspace).resolve(), Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     record: dict = {"phase": phase, "time_limit_s": time_limit_s, "stage_seconds": {}}

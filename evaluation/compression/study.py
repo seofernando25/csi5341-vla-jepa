@@ -190,6 +190,8 @@ def run(recipe_path, phase, predictions, measurements_root=None):
 
 
 def main():
+    from evaluation.compression.solution import PHASES as SOLUTION_PHASES
+
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("calibrate")
@@ -207,8 +209,11 @@ def main():
     )
     solution_parser = commands.add_parser("solution", help="Evaluate an agent-written solution.py")
     solution_parser.add_argument("--workspace", type=Path, required=True)
+    solution_parser.add_argument("--phase", choices=list(SOLUTION_PHASES), required=True)
     solution_parser.add_argument(
-        "--phase", choices=["check", "smoke", "development"], required=True
+        "--allow-reserved",
+        action="store_true",
+        help="Run the reserved (final) phase. Required for --phase final.",
     )
     solution_parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
@@ -217,7 +222,11 @@ def main():
     elif args.command == "solution":
         from evaluation.compression.solution import run_solution
 
-        result = run_solution(args.workspace, args.phase, args.out)
+        if args.phase == "final" and not args.allow_reserved:
+            parser.error("--phase final requires --allow-reserved")
+        result = run_solution(
+            args.workspace, args.phase, args.out, allow_reserved=args.allow_reserved
+        )
         print(json.dumps({"status": result["status"], "phase": args.phase}))
     else:
         run(args.recipe, args.phase, args.predictions, args.measurements_root)
