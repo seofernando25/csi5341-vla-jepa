@@ -22,6 +22,7 @@ not seen.
 from __future__ import annotations
 
 import csv
+import gc
 import hashlib
 import importlib.util
 import os
@@ -42,6 +43,7 @@ import torch
 
 from evaluation.common import environment, read_json, recorded_run
 from evaluation.compression import calibration as calib
+from evaluation.compression import latency as latency_score
 from evaluation.compression import study
 from evaluation.compression.inventory import ResidentWalk, live_cuda_bytes
 from evaluation.compression.memory import live_payloads, new_payloads
@@ -158,6 +160,20 @@ def _forget_workspace_modules(workspace: Path) -> None:
             del sys.modules[name]
 
 
+def _free_candidate(roots: tuple) -> None:
+    """Drop the candidate's module namespaces and its device memory.
+
+    The sandwich's after blocks need the candidate's memory back before the reference is loaded
+    again, so every reference to the returned object goes: the module namespaces here, the
+    caller's locals there.
+    """
+    for module_vars in roots:
+        module_vars.clear()
+    gc.collect()
+    if REQUIRED_DEVICE == "cuda":
+        torch.cuda.empty_cache()
+
+
 def _open_targets() -> set[tuple[str, str]]:
     result = set()
     for fd in os.listdir("/proc/self/fd"):
@@ -195,11 +211,22 @@ def _tree_state(roots: list[Path]) -> dict[str, tuple[int, int]]:
 
 
 class _Probe:
-    """Files opened outside the allowed roots, or created and changed in watched trees, during a call."""
+    """Files opened outside the allowed roots, or created and changed in watched trees, during a call.
 
-    def __init__(self, workspace: Path, out_dir: Path) -> None:
-        self.allowed = (str(workspace), sys.prefix, sys.base_prefix, *ALWAYS_ALLOWED)
-        self.watched = [workspace, out_dir, Path(tempfile.gettempdir())]
+    `watch_temp=False` is used by the latency protocol: a compiler cache or a Triton autotune
+    directory under the temp dir is not a hidden weight store, and the latency score cannot be
+    gamed by a file. The workspace and the output directory stay watched.
+    """
+
+    def __init__(self, workspace: Path, out_dir: Path, watch_temp: bool = True) -> None:
+        allowed = [str(workspace), sys.prefix, sys.base_prefix, *ALWAYS_ALLOWED]
+        watched = [workspace, out_dir]
+        if watch_temp:
+            watched.append(Path(tempfile.gettempdir()))
+        else:
+            allowed.append(str(tempfile.gettempdir()))
+        self.allowed = tuple(allowed)
+        self.watched = watched
 
     def start(self) -> None:
         self.fds, self.maps, self.trees = (
@@ -285,6 +312,11 @@ class _Run:
         self.baseline_bytes = 0
         self.baseline_violations: Counter[str] = Counter()
         self.baseline_payloads: frozenset = frozenset()
+        self.score_kind = str((self.protocol.get("score") or {}).get("kind") or "")
+        self.reference: latency_score.Reference | None = None
+        self.reference_policy = (
+            (lambda: load_policy("B16")[0]) if self.score_kind == latency_score.SCORE_KIND else None
+        )
 
     @contextmanager
     def stage(self, name: str) -> Iterator[None]:
@@ -311,8 +343,18 @@ class _Run:
             with self.stage("baseline"):
                 baseline = measure(policy, ())
                 self.baseline_violations = Counter(baseline["violations"])
-                peak = self.baseline_peak(policy, calibration)
-                self.baseline_bytes = max(baseline["resident_bytes"], peak)
+                if self.score_kind == latency_score.SCORE_KIND:
+                    # Frames come from episodes the evaluator runs, before compress, and the
+                    # payload snapshot is taken after them so the evaluator's own frames are
+                    # never charged to the candidate.
+                    self.reference = latency_score.run_reference(
+                        policy, self.protocol, self.phase, self.out_dir
+                    )
+                    peak = self.reference.peak_cuda_bytes
+                    self.baseline_bytes = max(baseline["resident_bytes"], peak)
+                else:
+                    peak = self.baseline_peak(policy, calibration)
+                    self.baseline_bytes = max(baseline["resident_bytes"], peak)
                 self.baseline_payloads = frozenset(live_payloads())
             record.update(
                 baseline_resident_bytes=self.baseline_bytes,
@@ -356,7 +398,11 @@ class _Run:
         np.random.seed(seed)
         random.seed(seed)
         record["seed"] = seed
-        probe = _Probe(self.workspace, self.out_dir)
+        probe = _Probe(
+            self.workspace,
+            self.out_dir,
+            watch_temp=self.score_kind != latency_score.SCORE_KIND,
+        )
         with self.stage("compress"):
             probe.start()
             with _time_limit(self.limit):
@@ -377,7 +423,19 @@ class _Run:
             raise _Verdict("size_violation", "; ".join(violations[:20]))
         record["sizes"] = self.sizes(sized["resident_bytes"], None, 0, file_bytes)
         if self.phase == "check":
-            self.check(returned, calibration)
+            if self.score_kind == latency_score.SCORE_KIND:
+                self.latency_candidate(returned, gate=0, tasks=[0], trials=1)
+            else:
+                self.check(returned, calibration)
+        elif self.score_kind == latency_score.SCORE_KIND:
+            trials = self.protocol["phases"][TRIAL_PHASE[self.phase]]["trials"]
+            tasks = self.protocol["task_ids"]
+            self.latency_candidate(
+                returned,
+                gate=int(self.protocol["gates"]["smoke_min_successes"]),
+                tasks=tasks,
+                trials=trials // len(tasks),
+            )
         else:
             self.rollouts(returned)
         # Measure again after inference: a solution that restores or re-creates weights for
@@ -391,6 +449,12 @@ class _Run:
         new = Counter(after["violations"]) - self.baseline_violations
         if new:
             raise _Verdict("size_violation", "; ".join(sorted(new.elements())[:20]))
+        if self.score_kind == latency_score.SCORE_KIND and self.reference is not None:
+            # The sandwich's after blocks need the candidate's memory back.
+            _forget_workspace_modules(self.workspace)
+            _free_candidate(roots)
+            returned = roots = module = None
+            self.latency_finish()
         record["status"] = "ok"
 
     def sizes(self, before: int, after: int | None, peak: int, file_bytes: int) -> dict:
@@ -414,6 +478,44 @@ class _Run:
             summary, _ = study.screen(policy, calibration, compiled=False)
         self.record["check"] = {key: summary[key] for key in CHECK_KEYS}
         self.record["action_error"] = summary["maximum_normalized_action_difference"]
+
+    def latency_candidate(self, policy: object, *, gate: int, tasks: list, trials: int) -> None:
+        """Score one candidate on the latency protocol; a guard violation fails the node."""
+        if self.reference is None:
+            raise _Verdict("solution_error", "latency protocol ran no reference pass")
+        with self.stage("latency"):
+            report = latency_score.run_candidate(
+                policy,
+                self.protocol,
+                self.reference,
+                self.out_dir,
+                phase=ROLLOUT_PHASE.get(self.phase, "development"),
+                tasks=tasks,
+                trials=trials,
+                gate=gate,
+                reference_loader=self.reference_policy,
+            )
+        self.record["latency"] = report
+        self.record["score"] = 0.0 if report["violations"] else report["score"]
+        self.record.update(successes=report["successes"], episodes=report["episodes"])
+        self.record["rollout"] = {
+            **report["rollout"],
+            "per_task": _per_task(self.out_dir / "episodes.csv"),
+        }
+        if report["violations"]:
+            raise _Verdict("guard_violation", "; ".join(report["violations"][:20]))
+
+    def latency_finish(self) -> None:
+        """Sandwich: time the reference again once the candidate's memory is free, then score."""
+        report = self.record.get("latency")
+        if not report or self.reference is None:
+            return
+        with self.stage("latency_after"):
+            report = latency_score.finish_sandwich(
+                report, self.reference, self.protocol, self.reference_policy
+            )
+        self.record["latency"] = report
+        self.record["score"] = 0.0 if report["violations"] else report["score"]
 
     def rollouts(self, policy: object) -> None:
         phase = ROLLOUT_PHASE[self.phase]

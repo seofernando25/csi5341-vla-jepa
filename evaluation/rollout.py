@@ -26,7 +26,24 @@ EPISODE_FIELDS = [
 ]
 
 
-def run_episode(policy, pipeline, env, task, seed):
+def _step(policy, pipeline, inputs, trace):
+    """One observation-to-action step.
+
+    The trace wants the policy's own time, so the post-processor stays out of it.
+    """
+    with torch.inference_mode(), inference_autocast():
+        started = time.perf_counter()
+        predicted = policy.select_action(inputs)
+        if trace is not None:
+            torch.cuda.synchronize()
+            seconds = time.perf_counter() - started
+        action = pipeline.post(predicted)
+    if trace is not None:
+        trace(inputs, seconds)
+    return action
+
+
+def run_episode(policy, pipeline, env, task, seed, trace=None):
     from lerobot.utils.random_utils import set_seed
 
     set_seed(seed)
@@ -36,8 +53,7 @@ def run_episode(policy, pipeline, env, task, seed):
     success = False
     for step in range(env._max_episode_steps):
         inputs = pipeline.prepare(batch_raw(raw), task["instruction"])
-        with torch.inference_mode(), inference_autocast():
-            action = pipeline.post(policy.select_action(inputs))
+        action = _step(policy, pipeline, inputs, trace)
         raw, _, terminated, truncated, info = env.step(action[0].float().cpu().numpy())
         success = bool(info.get("is_success", False))
         if terminated or truncated or success:
@@ -45,8 +61,12 @@ def run_episode(policy, pipeline, env, task, seed):
     return success, step + 1
 
 
-def rollout(variant, tasks, phase, episodes, policy, pipeline, result_dir):
-    """Run `episodes` matched trials per task; write episodes.csv as they finish."""
+def rollout(variant, tasks, phase, episodes, policy, pipeline, result_dir, trace=None):
+    """Run `episodes` matched trials per task; write episodes.csv as they finish.
+
+    `trace`, when given, is called with every policy input batch and the policy's own seconds
+    for that step; the latency evaluator collects frames and episode overhead through it.
+    """
     records = []
     with (result_dir / "episodes.csv").open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=EPISODE_FIELDS)
@@ -57,7 +77,7 @@ def rollout(variant, tasks, phase, episodes, policy, pipeline, result_dir):
                 for index in range(episodes):
                     seed = episode_seed(task_id, index, phase)
                     started = time.perf_counter()
-                    success, steps = run_episode(policy, pipeline, env, task, seed)
+                    success, steps = run_episode(policy, pipeline, env, task, seed, trace)
                     row = {
                         "variant": variant,
                         "phase": phase,

@@ -21,6 +21,7 @@ from rsi.expansion import (
     expand_node,
 )
 from rsi.online_evidence import observation, revealed_nodes, tree_index
+from rsi.runner import load_protocol
 from rsi.tree import DiscoveryTree, TreeNode
 from rsi.workspace import code_digest, commit_root, init_store
 
@@ -38,7 +39,10 @@ class OnlineDiscoveryQuestion:
         self.ctx = ctx
         self.rounds_cap = grid_plan.rounds_cap
         self.max_parallelism = grid_plan.max_parallelism
-        self.baseline_score = 0.0
+        # A latency study scores speedup, so its identity baseline is 1.0, not 0.0.
+        self.baseline_score = float(
+            (load_protocol(ctx.study_dir).get("score") or {}).get("baseline", 0.0)
+        )
 
         self._slots: dict[str, CellMeta] = {}
         self.roots: list[str] = []
@@ -66,7 +70,7 @@ class OnlineDiscoveryQuestion:
 
         self._revealed: dict[str, Observation] = {}
         self._revealed_order: list[str] = []
-        self.best_so_far = 0.0
+        self.best_so_far = self.baseline_score
         self.budget_spent = 0
         self.decision_rounds = 0
         self.effective_sequential_rounds = 0
@@ -74,7 +78,7 @@ class OnlineDiscoveryQuestion:
     def reset(self) -> None:
         self._revealed.clear()
         self._revealed_order.clear()
-        self.best_so_far = 0.0
+        self.best_so_far = self.baseline_score
         self.budget_spent = 0
         self.decision_rounds = 0
         self.effective_sequential_rounds = 0

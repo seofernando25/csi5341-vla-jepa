@@ -12,6 +12,15 @@ from rsi.api import OK, CellMeta, Observation
 DISCOVERY_PROMPT = Path(__file__).resolve().parent / "prompts" / "discovery.md"
 
 
+def discovery_prompt_path(study_dir: Path | None = None) -> Path:
+    """The study's own `discovery.md` when it has one, else the shared discovery prompt."""
+    if study_dir is not None:
+        candidate = Path(study_dir) / "discovery.md"
+        if candidate.is_file():
+            return candidate
+    return DISCOVERY_PROMPT
+
+
 def build_discovery_prompt(
     *,
     cell_id: str,
@@ -22,9 +31,11 @@ def build_discovery_prompt(
     best_score: float,
     gpu_slots: int,
     minutes: float,
+    prompt_path: Path | None = None,
 ) -> str:
     """Format the orchestrator's discovery prompt for one node."""
-    return DISCOVERY_PROMPT.read_text(encoding="utf-8").format(
+    path = Path(prompt_path) if prompt_path is not None else DISCOVERY_PROMPT
+    return path.read_text(encoding="utf-8").format(
         cell_id=cell_id,
         cycle_id=cycle_id,
         parent_id=parent_id,
@@ -70,13 +81,15 @@ def one_line_summary(record: dict[str, Any]) -> str:
     """The node's single-line result, shown in the observation summary."""
     sizes = record.get("sizes") or {}
     reduction = sizes.get("size_reduction")
-    red = "na" if reduction is None else f"{float(reduction):.4f}"
+    red = "" if reduction is None else f" size_reduction={float(reduction):.4f}"
+    score = record.get("score")
+    scored = "na" if score is None else f"{float(score):.4f}"
     succ = record.get("successes")
     eps = record.get("episodes")
     smoke = "na" if succ is None else f"{succ}/{eps}"
     return (
-        f"{record['cell_id']}: {record['fail_class']} smoke={smoke} "
-        f"size_reduction={red} agent_timed_out={record.get('agent_timed_out', False)}"
+        f"{record['cell_id']}: {record['fail_class']} smoke={smoke} score={scored}{red} "
+        f"agent_timed_out={record.get('agent_timed_out', False)}"
     )
 
 

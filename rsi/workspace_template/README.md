@@ -1,4 +1,4 @@
-# Compression workspace
+# Node workspace
 
 ## Contract
 `solution.py` must define a top-level `compress(policy, calibration)` that returns a policy
@@ -28,16 +28,13 @@ Roots are `text`, `vision` and `action`. The calibration holds no robot outcomes
 - action head: `policy.model.action_model` (blocks in `.model.transformer_blocks`)
 
 ## Check
-`python tools/check.py` runs the evaluator's offline check on this workspace (GPU slot
-held) and prints memory removed, action error against the uncompressed policy, latency,
-or the error. Exit code 0 only if status is `ok`. Results go to `.check/<timestamp>/`.
+`python tools/check.py` runs the evaluator's offline check on this workspace (GPU slot held) and
+prints the score, the figures behind it, any guard violation, or the error. Exit code 0 only if
+status is `ok`. Results go to `.check/<timestamp>/`.
 
-## Scoring and memory
-- Memory: the returned object and everything reachable from it or from this workspace's
-  modules, each storage counted once, or live CUDA bytes if larger. Memory removed is
-  `1 - resident / baseline`, where baseline is the untouched policy measured the same way.
-- Violations fail the node: meta or off-device tensors, memory maps, files opened outside
-  the workspace during `compress`, and files created or changed in the workspace, the
-  output directory or the temp directory during `compress`.
-- `compress` has a wall-clock limit of 900 s.
-- Action error is not task success. A large error predicts failure.
+## Scoring
+The score is a single number defined by the study's `protocol.json`; `tools/check.py` prints it
+and the measurement it came from. The evaluator also records resident bytes, peak CUDA bytes and
+the action change against the untouched policy. A node that hides work from the measurement, or
+that fails a guard, fails the node whatever its score would have been. `compress` has a
+wall-clock limit of 900 s.
