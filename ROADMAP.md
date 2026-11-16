@@ -14,7 +14,7 @@ What the report has to show. Each requirement names its source.
 | R1 | Decoder-only INT8 and NF4 against the BF16 reference, 500 matched episodes each, with success, peak memory, latency and intervals | Proposal | Done |
 | R2 | Verdict on the hypothesis: at least 25 % less peak memory, success within 5 points | Proposal | Done (NF4 36.9 % passes, INT8 23.3 % misses) |
 | R3 | Failure analysis on identical observations: representations, spatial attention, action trajectories, on the tasks that drop | Proposal | Partial: frames done, episode trajectories missing |
-| R4 | Dream-RSI used to search for structural changes that keep performance | Proposal ("if time permits") | Done for size; latency pending |
+| R4 | Dream-RSI used to search for structural changes that keep performance | Proposal ("if time permits") | Done for size (v1, v2); latency next; debiased size rerun paused |
 | R5 | Every number traceable to `report/data/numbers.json`, built by `vla-report-plots` from `studies/` | `CLAUDE.md` | Holds today; recheck after each evidence change |
 | R6 | IEEE two-column, at most 5 pages | Course | 4 pages now |
 | R7 | Plain "we" voice, few numbers in prose, no AI tell-tale phrasing | Owners | Draft passes one review; recheck after new sections |
@@ -68,75 +68,133 @@ listed in `studies/program-v4/README.md` on its branch.
 ## 3. Tasks
 
 Owner F = Fernando's agent, N = Noah's agent, H = a human decision. GPU tasks run one at a time.
+Each task says why it matters, the steps, the traps, and the check that closes it.
 
 ### 3.1 Experiments
 
-- [ ] **T1. Finish the debiased size search (v3).** Running since 07:22, ends by about 15:20.
-  Acceptance: three cycles recorded, no node read the hidden code or used token ids (watcher
-  report), evidence committed with relative paths. Owner F.
-- [ ] **T2. Select v3 winners on development data, freeze, run Reserved-500.** Acceptance: freeze
-  record committed before the first reserved episode; reserved results in
-  `studies/program-v3/reserved/`. About 1 h per cell. Owner F.
-- [ ] **T3. Close the latency-score holes (Q2).** Acceptance: four identity runs score at most 1.0
-  with point estimates within 5 %; a nearest-neighbour cache fails a test; checks pass. Owner F.
-- [ ] **T4. Run the latency search (v4).** Needs the GPU free of other tenants (ask Fernando to
-  close `llama-server`). About 8 h. Acceptance: three cycles, every winner re-timed on an idle GPU
-  with `vla-core-benchmark`, levers used by each winner listed. Owner F, decision H.
-- [ ] **T5. Reserved-500 for the v4 winners**, with latency re-measured on an idle GPU. Owner F.
-- [ ] **T6. Episode-level failure analysis (R3).** Replay identical episodes for B16 and the
-  2-bit language cell on tasks 1, 4 and 9, and for INT8 on task 5; record where the arm
-  trajectory departs and the outcome. About 30 GPU-minutes. Acceptance: compact trajectory record
-  under `studies/program-v1/failure/` and one figure panel. Owner F.
+#### T3. Close the latency-score holes (in progress)
+*Why.* A score that a search optimises gets attacked. The first latency evaluator let the untouched
+policy "beat itself" by up to 30 % on a shared GPU, and a table of cached actions could have passed.
+Either would produce fake wins.
+1. Time the reference and the candidate in alternating blocks inside one evaluation, so a burst
+   from another GPU process hits both equally.
+2. Report the speedup with a 95 % interval over blocks and score its lower bound, so noise can only
+   lower a score, never raise it.
+3. Record what other processes do on the GPU while timing, and flag the node if they were busy.
+4. Check that a candidate still acts like B16: on frames it has never seen, and on slightly
+   perturbed copies of known frames, its action error against B16 must stay under a threshold set
+   from the screen records, and its actions must move when the input moves.
+5. Tests: a nearest-neighbour cache fails; the identity and an NF4 solution pass.
+*Traps.* Setting the threshold by feel instead of from recorded screens; testing only on the frames
+the agent can see.
+*Done when* four identity runs score at most 1.0 with point estimates within 5 %, the cache test
+fails, and all checks pass.
+
+#### T4. Run the latency search (v4)
+*Why.* The owners' second step: let the loop find a faster policy that still works, the way the
+size search found a smaller one.
+1. Review the latency code before merging it: split files that do two jobs, merge duplicated
+   helpers, delete leftovers, one `vla-*` command row per runner (T21 covers the merge).
+2. Merge into `main`, then launch from a fresh worktree of `main` so `main` stays editable.
+3. Make sure the GPU has no other tenant (no `llama-server`, notebooks idle).
+4. Launch with one GPU slot. Timing must never share the card with another evaluation.
+5. The first node is the untouched policy. It must score about 1.0 or below; above 1.05 means the
+   score is biased, so stop and fix.
+6. A watchdog checks the run every 20 minutes: guard violations, cached answers, timer tricks,
+   speedups that come from fewer flow steps or a smaller model (allowed, but reported as such), and
+   any speedup above 3×, compared with our hand-built CUDA graph (22 ms at 4 flow steps).
+*Traps.* Comparing a 1-flow-step candidate with a 4-step reference without saying so (we made this
+mistake in the draft once); trusting timings taken while the GPU was shared.
+*Done when* three cycles are recorded and every winner is re-timed on an idle GPU with
+`vla-core-benchmark`.
+
+#### T5. Reserved-500 for the latency winners
+1. Pick winners on development data only and write a freeze record before any reserved episode.
+2. Run 500 reserved episodes per winner; re-measure latency on an idle GPU.
+3. List the levers each winner used (graph capture, fusion, custom kernels, fewer flow steps).
+*Done when* the results and the freeze record are committed.
+
+#### T1. Resume the debiased size search (v3, paused)
+*Why.* The first two searches could read our compression code and were handed the 53 prompt
+token ids, and most nodes used both. v3 hides both, so it shows what the search finds on its own.
+1. Resume after T4 and T5 with the same `vla-rsi start` command from the v3 worktree; it continues
+   from `loop_state.json` and reruns the node that was in progress when it was paused.
+2. Restart a watchdog that also flags any node that reaches the hidden code or uses token ids.
+3. Commit the evidence with relative paths.
+*Traps.* Comparing v3's best memory with v1's without saying v1 had the hints.
+*Done when* three cycles are recorded and the watchdog reports no leak.
+
+#### T2. Reserved-500 for the v3 winners
+Same steps as T5, with memory measured under the fixed rule.
+
+#### T6. Episode-level failure analysis
+*Why.* The proposal promised analysis on "identical observation sequences" and "downstream action
+trajectories". We have it on 80 single frames; we do not yet have whole episodes.
+1. Replay the same episodes (same state and seed) for B16 and the 2-bit language cell on tasks 1,
+   4 and 9, where the 2-bit cell fails every time, and for INT8 on task 5, where it loses two.
+2. Record the arm trajectory per step and the gripper state for both policies.
+3. Find the first step where the trajectories part by more than a set distance, and what happens
+   after (missed grasp, wrong object, timeout).
+4. One small figure panel: distance between trajectories over time, one line per task.
+*Traps.* Different seeds between the two policies make any divergence meaningless; check the first
+observation is identical.
+*Done when* a compact record is under `studies/program-v1/failure/` and the panel builds.
 
 ### 3.2 Figures
 
-- [ ] **T7. Proposal-arms figure** (BF16, INT8, NF4). Owner F.
-- [ ] **T8. Size timeline** for v1, v2, v3 with labelled steps, in the style of a best-so-far
-  progress curve. After T1. Owner F.
-- [ ] **T9. Latency timeline** for v4. After T4. Owner F.
-- [ ] **T10. Dreaming panel** (seen and held-out replay score per cycle). Owner F.
-- [ ] **T11. Ladder relabel**: plain names, no "Q8" or "timing" tags. Owner F.
-- [ ] **T12. Precision figure**: separate the crowded "vision" and "language" end labels. Owner F.
-- [ ] **T13. Reserved figure**: add v3 and v4 winners after T2 and T5. Owner F.
+Rules for all: one column unless the data needs width; statistics in the caption, not the plot;
+readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
+
+- **T7. Proposal arms.** BF16, INT8 and NF4 side by side: reserved success with interval, peak
+  memory, latency. This answers the proposal's question in one picture.
+- **T8. Size timeline.** Best memory removed after each probe for v1, v2 and v3. Label each jump with
+  what the agent did ("drops the world model", "53-row embedding", "3-bit packing"). Mark the
+  exploit nodes as invalid, not as records. After T1.
+- **T9. Latency timeline.** Same picture for v4: best speedup after each probe, jumps labelled.
+- **T10. Dreaming panel.** Replay score on seen trees and on held-out trees per cycle. It shows the
+  policy fitting its own history while held-out value stays flat.
+- **T11. Ladder relabel.** Plain names ("INT8 decoder", "CUDA graph, 4 steps"); drop "Q8", "B16" and
+  "(timing)".
+- **T12. Precision labels.** Separate the crowded "vision" and "language" end labels.
+- **T13. Reserved figure.** Add the v3 and v4 winners.
 
 ### 3.3 Report text
 
-- [ ] **T14. Add v3 results** to the search section: what the search found without our hints,
-  and whether the direction (remove modules first, then quantize) still appears. Owner F.
-- [ ] **T15. Add the latency search** as its own subsection, with its exploit guards in one
-  paragraph. Owner F.
-- [ ] **T16. Trajectory paragraph** in "Why 2 bits breaks" after T6. Owner F.
-- [ ] **T17. Voice pass** on every new paragraph (Haiku, then line-by-line review); no number or
-  claim changes. Owner F.
-- [ ] **T18. Page budget**: stay at 5 pages or fewer; cut the action-error figure first if needed.
-- [ ] **T19. Acknowledgment wording** confirmed by Noah. Owner H (Noah).
-- [ ] **T20. Final read** of the PDF by both authors. Owner H.
+- **T14. v3 in the search section.** Say what the search found without the hints, and whether it
+  still removes modules before it quantizes. If it finds less, say that is the cost of the hints.
+- **T15. Latency subsection.** The score, the guards in one paragraph, the result, the levers used,
+  and how the best result compares with our hand-built graph.
+- **T16. Trajectory paragraph** in "Why 2 bits breaks", after T6.
+- **T17. Voice pass** on every new paragraph: Haiku first, then a line-by-line check that no number
+  or claim moved.
+- **T18. Page budget.** At most 5 pages. If it overflows, merge the two timelines first, then cut the
+  action-error figure, and only then cut text.
+- **T19. Acknowledgment.** Noah confirms the sentence about his work.
+- **T20. Final read.** Both authors read the PDF once, aloud if possible.
 
 ### 3.4 Codebase and docs cleanup
 
-- [ ] **T21. Merge branches**: `t3/implement-brief-q` (latency study) after T4, the v3 worktree
-  branch after T1; remove the worktrees and delete the branches the same day (`CLAUDE.md`
-  "Branches"). Owner F.
-- [ ] **T22. Correct `HANDOFF.md`**: its 05:15 table swaps the two v1 winners (cycle 1 scored
-  93.4 %, cycle 2 95.6 %). Owner F.
-- [ ] **T23. Retire the unused format figure** (`fig_format` still builds `figures/format.pdf`,
-  which the report no longer includes). Owner F.
-- [ ] **T24. Study READMEs**: v3 and v4 each get question, result, evidence and reproduction
-  command; `studies/README.md` indexes them. Owner F.
-- [ ] **T25. `docs/DREAM_RSI.md`**: add the v3 exclusions and the v4 score as protocol choices. Owner F.
-- [ ] **T26. Presentation** (`web/presentation/`) still tells the pre-clean-room story; update it
-  from the final figures before 2026-12-04. Owner F and N.
-- [ ] **T27. Push and board record** only after Fernando says so. Owner H.
+- **T21. Branches.** Merge each worktree branch when its run ends; remove the worktree and delete
+  the branch the same day.
+- **T22. Handoff.** Done: the swapped v1 winner results are corrected.
+- **T23. Format figure.** Retire `fig_format`; the report no longer uses `figures/format.pdf`.
+- **T24. Study READMEs.** v3 and v4 each get question, result, evidence and reproduction command,
+  indexed in `studies/README.md`.
+- **T25. `docs/DREAM_RSI.md`.** Record the v3 exclusions and the v4 score as protocol choices.
+- **T26. Presentation.** `web/presentation/` still tells the pre-clean-room story; rebuild it from
+  the final figures before 2026-12-04.
+- **T27. Push and board record** only after Fernando says so.
 
 ## 4. Order and timing
 
-| When | GPU | Other work |
+| Step | GPU | Alongside |
 |---|---|---|
-| Now to about 15:20 | v3 search (T1) | T3, T7, T10, T11, T12, T22, T23 |
-| After T1 | T6 (30 min), then T2 (about 2 h) | T8, T14, T24 |
-| After T2, GPU idle | T4 (about 8 h) | T25, T26 draft |
-| After T4 | T5 | T9, T13, T15, T16, T17 |
-| Before 2026-12-04 | none | T26, T18, T20 |
+| 1 | T3 checks (short) | T7, T10, T11, T12, T23 |
+| 2 | T4 latency search (about 8 h) | T6 analysis code, T24 and T25 drafts |
+| 3 | T5 reserved for v4 winners | T9, T15 |
+| 4 | T1 resume v3 (about 8 h) | T26 draft |
+| 5 | T2 reserved for v3 winners, then T6 (30 min) | T8, T13, T14, T16 |
+| Before 2026-12-04 | none | T26, T17, T18 |
 | Before 2026-12-09 | none | T19, T20, T21, T27 |
 
 ## 5. Risks
