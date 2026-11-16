@@ -18,7 +18,13 @@ on the recorded trees and prints V per world and mean V.
     python /tmp/work/replay.py /tmp/work/method.py
 
 Iterate until mean V stops rising, then leave the best file in `/tmp/work/method.py`.
-Keep the best version there at every point: a step that runs over the limit is lost.
+
+## Time budget
+
+You have {minutes} minutes. Spend at most half of them exploring. After that, keep `method.py`
+holding your best policy and rerun `replay.py` after every change. Leave the last two minutes to
+write the final file and your three closing lines. A step that runs over is lost, whatever is in
+the workspace.
 
 ## Files
 

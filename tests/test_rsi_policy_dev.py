@@ -447,6 +447,7 @@ def test_prompt_states_the_real_limit_and_the_closed_lines() -> None:
     )
     assert "20 minutes" in text
     assert "240" not in text
+    assert "at most half" in text
     assert "/tmp/work/replay.py" in text
     for phrase in ("read-only", "held-out", "never used for selection", "No writes outside"):
         assert phrase in text
