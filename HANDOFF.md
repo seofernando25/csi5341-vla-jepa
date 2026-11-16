@@ -10,13 +10,24 @@ Every run is finished and committed. No GPU job is running.
 
 | Run | Result |
 |---|---|
-| Reserved-500, v1 selection (6 cells) | reference 95.0 %, cycle-1 winner 95.6 %, cycle-2 winner 93.4 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 % |
+| Reserved-500, v1 selection (6 cells) | reference 95.0 %, cycle-1 winner 93.4 %, cycle-2 winner 95.6 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 % |
 | `program-v2` search (3 cycles, 12 nodes) | did not beat v1: best complete node 79.1 % at 83/100; its 83.4 % node timed out in development |
 | Reserved-500, v2 winners (2 cells) | 96.2 % and 95.0 %, both at the reference |
 
 The report is a four-page draft in `report/main.tex`, every number traced to
 `report/data/numbers.json`, with four figures and two tables. The v2 worktree and both side branches
 are gone; `main` is the only branch.
+
+## State at 08:00 EST, 2026-11-16
+
+- Plan for everything left: `ROADMAP.md` (requirements, figure plan, tasks T1 to T27).
+- Running: Dream-RSI `program-v3` (debiased size search: no compression code, no prompt token ids),
+  worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, tag `program-v3-debiased`,
+  launched 07:22, ends by about 15:20. Watcher log `/tmp/opencode/s2/J3-STATUS.md`.
+- Prepared, not run: latency search `program-v4`, worktree
+  `~/.t3/worktrees/csi5341-vla-jepa/t3-ba578c7d-e439f6d8dfe42299`, tag `program-v4-latency`; its timing
+  and cache guards are being fixed (`/tmp/opencode/s2/Q2-STATUS.md`). Launch on an idle GPU only.
+- Report on `main`: 4 pages, failure analysis and proposal verdict in (`cc1296a`).
 
 ## Next, in order
 
