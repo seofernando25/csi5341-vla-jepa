@@ -40,7 +40,7 @@ and its replay is the only judge. A step that ends with no valid `method.py` is 
   per-round decisions of the policy in `method.py` as it stands now.
 - `/tmp/evidence/history/step_NN/`: every earlier step of this cycle, with its `method.py`,
   `scaling_curve.json` (probes, attainment and rounds per world and beta, and V) and
-  `verdict.json` (accepted, not better, timeout or rejected, and why).
+  `verdict.json` (accepted, not better, timeout, timeout_salvaged or rejected, and why).
 - `/tmp/evidence/live_cycle_manifests.json`: summaries of past live cycles.
 - `/tmp/evidence/reference/`: read-only copies of `api.py`, `tree.py`, `objective.py`.
 - `/tmp/repo`: the project source, read-only.
