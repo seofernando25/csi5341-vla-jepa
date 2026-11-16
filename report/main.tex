@@ -110,6 +110,25 @@ Precision alone has a ceiling. The decoder holds 1.41\,B of the policy's 2.77\,B
 4-bit decoder weights save at most about 37\,\% of peak memory. NF4 gets there. To go further we
 have to remove modules.
 
+\subsection{Why 2 bits breaks}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/failure.pdf}
+\caption{Language-decoder cells against the reference on the same 80 frames. Top: linear CKA of
+decoder hidden states and of the action head's input. Bottom: arm action error. The all-token
+curve stays near 1 because a few large text channels dominate it.}
+\label{fig:failure}
+\end{figure}
+
+To see where the 2-bit decoder fails, we ran each cell on the same 80 frames as the reference and
+compared what it computes (Fig.~\ref{fig:failure}). The text tokens barely change at any width.
+The image tokens inside the decoder drift early: their similarity to the reference falls to 0.91
+at 4 bits, 0.71 at 3 and 0.18 at 2. The action head's input holds up until 2 bits, where it falls
+to 0.71 and the arm actions move about two thousand times further from the reference than at 8 bits.
+Quantizing the decoder damages how it carries the scene before it damages the instruction, and the
+policy survives that until the damage reaches the action head. At 2 bits three tasks fail all ten
+development episodes. The share of attention on image tokens stays put from 8 to 3 bits and shifts layer by layer at 2.
+
 \subsection{Execution}
 \begin{figure*}[t]
 \centering
