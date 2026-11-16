@@ -1,0 +1,15 @@
+{
+  "name": "project-explainer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "tts": "bun tools/tts.mjs",
+    "align": "./.venv-align/bin/python tools/align.py",
+    "audio": "./.venv-align/bin/python tools/audio.py",
+    "capture": "bun tools/capture.mjs",
+    "mux": "bun tools/mux.mjs",
+    "build": "bun run tts && bun run align && bun run audio && bun run capture && bun run mux"
+  },
+  "dependencies": {}
+}

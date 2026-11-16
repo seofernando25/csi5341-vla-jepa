@@ -31,3 +31,12 @@ predates the clean-room cut; re-render before presenting.
 - **Tracked output:** `dist/dream-rsi-explainer-720p24.mp4` stays tracked because `tools/tts.mjs` requires online OpenRouter TTS (`OPENROUTER_API_KEY`) and synthesized `audio/` is gitignored, so the video cannot be regenerated offline from tracked sources alone.
 
 Details: [dream-rsi-explainer/README.md](dream-rsi-explainer/README.md).
+
+## `web/project-explainer/` — Project explainer video
+
+Narrated 4-minute explainer of the project and how the evaluation works (18 scenes, `1280×720`, `30 fps`). OhRats paper look (warm grid, hairlines, brown accent, Inter + JetBrains Mono); 2D canvas, no GPU. Numbers come from recorded runs only.
+
+- **Build:** `cd web/project-explainer && bun run build` (needs network for OpenRouter TTS; `dist/` is gitignored).
+- **Style:** soft whip transitions aligned to the audio, karaoke word highlighting, voice `Charon` via Gemini TTS.
+
+Details: [project-explainer/README.md](project-explainer/README.md).

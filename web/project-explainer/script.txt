@@ -1,0 +1,91 @@
+# hook | THE QUESTION
+This is a robot @brain:*brain*. Five and a half @gb:*gigabytes*, released already trained, someone else's checkpoint.
+Our job was simple: make it smaller, and prove it still works.
+
+# why | WHY SHRINK IT
+Why bother? Because it runs on a benchtop, not a robot.
+Shrink it by six and you can start thinking about arms, not workstations.
+Compression is the easy part. The @proof:*proof* is what this is about.
+
+# policy | THE POLICY
+The policy is @vla:*{VLA-JEPA|V L A J E P A}*. Vision, language, action.
+It sees a frame, reads a sentence, moves the arm.
+The benchmark is @libero:*{LIBERO|Li B E R O}*: ten tabletop tasks. Bowl from the counter, onto the plate.
+
+# success | WHAT COUNTS
+What counts as success? The bowl is on the @plate:*plate*, or it isn't.
+No partial credit. No style points.
+A policy that looks busy and fails is still a failure.
+
+# episode | ONE ROLLOUT
+Here's a single @trial:*trial*. The simulator resets to a fixed initial state, with a fixed seed.
+The policy sees one frame and one instruction, and acts, step by step, until the task is done or the clock runs out.
+Every candidate sees those same states. Same @frames:*frames*, same @words:*words*, same *seeds*.
+
+# rule | THE MEMORY RULE
+Smaller means one thing here: @bytes:*bytes*. Resident memory.
+Every tensor the solution keeps alive: the tensor walk, the @live:*live CUDA* bytes, the @peak:*peak CUDA* bytes.
+We take the largest of the three, so hiding work in memory doesn't count as progress.
+
+# footprint | THE WHOLE THING
+Five and a half gigs is the policy resident at once. Weights, caches, every buffer the pipeline keeps open.
+Shrinking it means the arithmetic still has to reach the same place.
+
+# phases | THREE PHASES
+Every claim comes with a phase attached, and every phase has a rule.
+@smoke:*Smoke*: ten trials, one per task. @eight:{8/10|eight of ten} gets you promoted.
+@dev:*Development*: a hundred trials. Development guides selection.
+@reserved:*Reserved*: five hundred trials, fifty per task, read once, after selection is frozen. Reserved never guides selection.
+
+# budget | AN AFTERNOON
+An episode is maybe ten seconds. Five hundred of them is an afternoon on one GPU.
+That's the order: smoke first, development second, reserved last. And last, only once.
+
+# paired | SAME FIVE HUNDRED
+Five hundred states, fixed in advance, fifty per task.
+Every candidate runs the same five hundred, so a win isn't luck.
+At a hundred trials the margin is about fifteen points. At five hundred, it's about *four*.
+
+# audit | WHO CHECKS
+Nobody marks their own homework here.
+Agents write the solutions, a fixed evaluator scores them, and an auditor reads every diff looking for tricks.
+Most failures aren't bad ideas. They're good ideas, measured badly.
+
+# gate | NO BENDING
+And the evaluator can't be argued with. It's fixed code.
+The gate won't bend for a candidate.
+If a solution fails, it gets reported as failed.
+
+# search | THE SEARCH
+The search is @rsi:*{Dream-RSI|Dream R S I}*. An agent walks a tree of compression branches, one node at a time.
+A development gate decides what survives, and a policy trained on the search's own history decides where to look next.
+It dreams on the history of the search, not on new rollouts.
+
+# exploit | THE CAUGHT TRICK
+Cycle three gave us a good one. A node claiming a hundred percent removal.
+Its smoke score was exactly the reference's @d82:*{82|eighty two}*.
+It was the reference, unchanged. Two more nodes had the same trick.
+We threw all three out.
+
+# results | WHAT WE FOUND
+On development, the reference solves @d82b:*{82|eighty two}* of a hundred.
+Our best cut removes more than *eighty percent* of the memory and still solves @d84:*{84|eighty four}*.
+Another removes @d87:*{87|eighty seven}* percent, at eighty of a hundred. Within noise.
+One caveat worth saying out loud: that best one runs about @lat:*{2.7x|two point seven times}* slower. Size was the score. Speed wasn't.
+
+# reserved | THE SEALED READ
+Then the freeze. Selection locks. Only then do we open the reserved five hundred.
+The reference: @r475:*{475|four hundred seventy five}* of five hundred.
+The first winner: @r478:*{478|four hundred seventy eight}* of five hundred.
+About *ninety-five percent* either way. So we're calling it what it is: *no loss*, not a win.
+
+# honest | TWO FOOTNOTES
+A smaller loss in the weights is not a better robot on the task.
+And held-out action error didn't rank the winners either.
+Only the robot decides.
+
+# close | WHERE WE STOOD
+So: a released policy, cut to about *one sixth* of its size.
+Same states. Same seeds. Same answer.
+When the search finishes, the winners get their own five hundred. The report tells you which is which.
+Compression you can @measure:*measure*. Or it isn't compression.
