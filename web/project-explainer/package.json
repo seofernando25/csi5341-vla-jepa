@@ -7,9 +7,12 @@
     "tts": "bun tools/tts.mjs",
     "align": "./.venv-align/bin/python tools/align.py",
     "audio": "./.venv-align/bin/python tools/audio.py",
-    "capture": "bun tools/capture.mjs",
-    "mux": "bun tools/mux.mjs",
-    "build": "bun run tts && bun run align && bun run audio && bun run capture && bun run mux"
+    "render": "bun src/render.mjs",
+    "build": "bun run tts && bun run align && bun run audio && bun run render"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@fontsource/inter": "5.2.8",
+    "@fontsource/jetbrains-mono": "5.2.8",
+    "skia-canvas": "4.0.1"
+  }
 }

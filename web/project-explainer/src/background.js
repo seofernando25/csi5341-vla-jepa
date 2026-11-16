@@ -1,10 +1,7 @@
 // The OhRats-style paper backdrop: warm gradient, faint blueprint grid, slow dust, vignette.
 import { PAPER, PAPER_DEEP } from "./lib.js";
 
-export function createBackground(W, H) {
-  const noise = document.createElement("canvas");
-  noise.width = noise.height = 128;
-  const nctx = noise.getContext("2d");
+export function fillNoise(nctx) {
   const img = nctx.createImageData(128, 128);
   let seed = 7;
   const rnd = () => {
@@ -19,7 +16,20 @@ export function createBackground(W, H) {
     img.data[i + 3] = 14 + Math.floor(rnd() * 14);
   }
   nctx.putImageData(img, 0, 0);
+}
 
+export function createBackground(W, H, noiseArg) {
+  const noise = noiseArg || document.createElement("canvas");
+  if (!noiseArg) {
+    noise.width = noise.height = 128;
+    fillNoise(noise.getContext("2d"));
+  }
+
+  let dustSeed = 1234;
+  const rnd = () => {
+    dustSeed = (dustSeed * 16807) % 2147483647;
+    return dustSeed / 2147483647;
+  };
   const dust = [];
   for (let i = 0; i < 46; i++) {
     dust.push({

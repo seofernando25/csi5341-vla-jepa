@@ -1,0 +1,51 @@
+{
+  "lockfileVersion": 2,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "project-explainer",
+      "dependencies": {
+        "@fontsource/inter": "5.2.8",
+        "@fontsource/jetbrains-mono": "5.2.8",
+        "skia-canvas": "^4.0.1",
+      },
+    },
+  },
+  "packages": {
+    "@fontsource/inter": ["@fontsource/inter@5.2.8", "", {}, "sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg=="],
+
+    "@fontsource/jetbrains-mono": ["@fontsource/jetbrains-mono@5.2.8", "", {}, "sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ=="],
+
+    "@skia-canvas/darwin-arm64": ["@skia-canvas/darwin-arm64@4.0.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-agmys9AtQDf+T1ukYHOQrqssWV7qsw252rQlYdZitLaopkVzs3MQm9CTbqoWmnXkHLupXHfw1C5mVyou1XdoDQ=="],
+
+    "@skia-canvas/darwin-x64": ["@skia-canvas/darwin-x64@4.0.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-w9IX9oPtOPLOGzrtSCREdu+U3myKqz7oUcfphXvXLtYclWPtlMIn2ZDVLqPPR+/Hpk+/dLlCsA4XC+6gLIYg2A=="],
+
+    "@skia-canvas/linux-arm64-glibc": ["@skia-canvas/linux-arm64-glibc@4.0.1", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-2lHGi1PEK1pAXzr/9Atim6IoZ7eTgIl5r9xt7jYVtnZS9E1QRJYiJKNiOLGaWr29AMY5McMYcwfiIO/mzTrdVQ=="],
+
+    "@skia-canvas/linux-arm64-musl": ["@skia-canvas/linux-arm64-musl@4.0.1", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-UctbI9FPwnZ5iwgNbPJk2BRMnhJ/9mUVJY8MDdfiwN/2sXW2O7JHt+HJrwznQHu5sc5CPv09r03ycyJEo4dKTA=="],
+
+    "@skia-canvas/linux-x64-glibc": ["@skia-canvas/linux-x64-glibc@4.0.1", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-JZ3i8ohkEA88WDjbqcw260x+iFv64HtgmXHQLAsyMAClMPpxxrarNUTlQEUOV+noakvX0dyTXRd3JW66eaLgRA=="],
+
+    "@skia-canvas/linux-x64-musl": ["@skia-canvas/linux-x64-musl@4.0.1", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-NkD2hhuBo0OQmMmP64BtAG/zeRo/V3u3aRXfy/wDuoiiDFtjHqJB08PhGANu4tnYgvppZCbzsh5xuSD1hWkBKg=="],
+
+    "@skia-canvas/win32-arm64": ["@skia-canvas/win32-arm64@4.0.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-K48VJ0cAbmxmPX9q7Hvs9YW/cF9c/4Q2uBaRumjNdMJ7VbhIOuk8HQCrCJNNoTVi3JJY7RoA/x43+HWiJ0bNBQ=="],
+
+    "@skia-canvas/win32-x64": ["@skia-canvas/win32-x64@4.0.1", "", { "os": "win32", "cpu": "x64" }, "sha512-OLv/NPt8pKT/OrPqaetaYNbYd33ZJvjoz1qEL+gcShTEQOsoPA4lp8abwYsbo0+/+O/Nxw601/t5J60QZmcGRQ=="],
+
+    "agent-base": ["agent-base@9.0.0", "", {}, "sha512-TQf59BsZnytt8GdJKLPfUZ54g/iaUL2OWDSFCCvMOhsHduDQxO8xC4PNeyIkVcA5KwL2phPSv0douC0fgWzmnA=="],
+
+    "debug": ["debug@4.4.3", "", { "dependencies": { "ms": "^2.1.3" }, "peerDependencies": { "supports-color": "*" }, "optionalPeers": ["supports-color"] }, "sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA=="],
+
+    "detect-libc": ["detect-libc@2.1.2", "", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
+
+    "follow-redirects": ["follow-redirects@1.16.3", "", { "peerDependencies": { "debug": "*" }, "optionalPeers": ["debug"] }, "sha512-toOSoqN6d51Wjf1aOFJYcoVv1aND9rj/CwjLU0Vz40oDuSpWDayCeKe4JpL5NL0WdFvoOOCI3BRo69HahjbR1A=="],
+
+    "https-proxy-agent": ["https-proxy-agent@9.1.0", "", { "dependencies": { "agent-base": "9.0.0", "debug": "^4.3.4", "proxy-agent-negotiate": "1.1.0" } }, "sha512-ag87y7cJJ9/3+GxFr8Oy4O5faDsGRGnBGsJj/YjOSsSx/5eadKLYTMPlzuR6obgoCDDm0abAAZitXXQkMOPSpA=="],
+
+    "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
+
+    "proxy-agent-negotiate": ["proxy-agent-negotiate@1.1.0", "", { "peerDependencies": { "kerberos": "^2.0.0" }, "optionalPeers": ["kerberos"] }, "sha512-N8IBcM3UgCVzz2L2Lqv8DVntDnnC8/hiV4nEDUPkqq72TPUgYWjQc+bdZlBPZK9LzPAvOY//gAt0S0DApoOXWQ=="],
+
+    "skia-canvas": ["skia-canvas@4.0.1", "", { "dependencies": { "detect-libc": "^2.1.2", "follow-redirects": "^1.16.1", "https-proxy-agent": "^9.1.0" }, "optionalDependencies": { "@skia-canvas/darwin-arm64": "4.0.1", "@skia-canvas/darwin-x64": "4.0.1", "@skia-canvas/linux-arm64-glibc": "4.0.1", "@skia-canvas/linux-arm64-musl": "4.0.1", "@skia-canvas/linux-x64-glibc": "4.0.1", "@skia-canvas/linux-x64-musl": "4.0.1", "@skia-canvas/win32-arm64": "4.0.1", "@skia-canvas/win32-x64": "4.0.1" } }, "sha512-EdHk0VDe/qe/FfwfW2C8y8/Rl0a28z1ZGQMkgPnoIehP6Gikv4cHiHCen6MWnY1e8zvliDnxGu70zaA9e7Mc7w=="],
+  }
+}

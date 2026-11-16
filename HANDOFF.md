@@ -17,6 +17,15 @@ imports it) or touch the v2 worktree until they stop. Documents and tests are sa
 The first three reserved cells are done; the int8 anchor is running. v2 finished cycles 0 and 1 and
 is in policy development before its last cycle. Watch page for v2: port 8899.
 
+## Project explainer video (done, merged to main)
+
+`web/project-explainer/` is the tracked deliverable: 240 s, 1280×720 @ 30 fps,
+`dist/project-explainer-720p30.mp4`, h264 High/yuv420p + AAC stereo, ~35 MB.
+Direct Skia render pipeline (`src/render.mjs` — no browser, no screenshots, frames stream raw
+into ffmpeg; ~5 ms/frame). Scenes fade in over 0.24 s so the whip never shows a washed-out
+scene. `web/dream-rsi-explainer/` is superseded and deleted; the watch page is unchanged and
+points at `studies/program-v2`.
+
 ## Branches
 
 `main` is the only working branch. `origin/main` is at `ac06d1b`; nothing since is pushed and no

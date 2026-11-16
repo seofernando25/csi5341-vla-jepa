@@ -13,25 +13,6 @@ Static browser presentation of the VLA-JEPA paper and project proposal (October 
 
 Details: [presentation/README.md](presentation/README.md).
 
-## `web/dream-rsi-explainer/` — Dream-RSI explainer video
-
-Deterministic Three.js + Canvas 2D renderer producing a 208 s (`1280×720`, `24 fps`, 14 scenes)
-narrated explainer from `script.txt`. The search-tree geometry comes from
-`studies/program-v1/protocol.json` (`dream_rsi.grid_plan`), not from run data. The tracked MP4
-predates the clean-room cut; re-render before presenting.
-
-- **Build:**
-  ```sh
-  cd web/dream-rsi-explainer
-  cp .env.example .env   # set OPENROUTER_API_KEY
-  bun install
-  python3 -m venv .venv-align && ./.venv-align/bin/pip install faster-whisper
-  bun run build          # writes dist/dream-rsi-explainer-720p24.mp4
-  ```
-- **Tracked output:** `dist/dream-rsi-explainer-720p24.mp4` stays tracked because `tools/tts.mjs` requires online OpenRouter TTS (`OPENROUTER_API_KEY`) and synthesized `audio/` is gitignored, so the video cannot be regenerated offline from tracked sources alone.
-
-Details: [dream-rsi-explainer/README.md](dream-rsi-explainer/README.md).
-
 ## `web/project-explainer/` — Project explainer video
 
 Narrated 4-minute explainer of the project and how the evaluation works (18 scenes, `1280×720`, `30 fps`). OhRats paper look (warm grid, hairlines, brown accent, Inter + JetBrains Mono); 2D canvas, no GPU. Numbers come from recorded runs only.

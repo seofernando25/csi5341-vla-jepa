@@ -1,6 +1,6 @@
 # Project explainer video
 
-A 242-second narrated explainer (`1280×720`, `30 fps`, 18 scenes) of the project:
+A 240-second narrated explainer (`1280×720`, `30 fps`, 18 scenes) of the project:
 what the policy is, how the evaluation works, and what the search found.
 Built to the OhRats paper look (warm grid paper, hairlines, one brown accent,
 Inter + JetBrains Mono); all motion is drawn on a 2D canvas, so no GPU is used.
@@ -33,22 +33,22 @@ has not happened. The narration says so.
   mapped onto script tokens; writes `build/timeline.json`.
 - `tools/audio.py` — 48 kHz stereo master: narration, ducked synth pulse,
   whooshes on scene wipes, slam impacts on cues.
-- `tools/capture.mjs` — deterministic headless capture of `src/index.html`
-  (background grid + scene painters + captions) at 30 fps.
-- `tools/mux.mjs` — H.264 High@L4.0 `yuv420p` CFR, `+faststart`; refuses a
-  stale `frames/` sequence; writes `dist/project-explainer-720p30.mp4`.
+- `src/render.mjs` — direct Skia renderer (no browser, no screenshots): draws every
+  frame with the same scene painters and captions, streams raw RGBA into ffmpeg,
+  and muxes the audio master into `dist/project-explainer-720p30.mp4`.
 
 ## Build
 
 ```sh
 cd web/project-explainer
 cp .env.example .env   # set OPENROUTER_API_KEY (gitignored)
-bun install           # only fonts are needed; canvas is dependency-free
-ln -s ../dream-rsi-explainer/.venv-align .venv-align   # faster-whisper
+bun install           # fonts + skia-canvas
+python3 -m venv .venv-align && ./.venv-align/bin/pip install faster-whisper
 bun run build         # writes dist/project-explainer-720p30.mp4
 ```
 
-The MP4 is gitignored by default; the build needs network access for TTS.
+The MP4 is tracked so the video can be watched without a rebuild;
+`bun run build` needs network access for TTS.
 
 ## Captions and transitions
 

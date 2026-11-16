@@ -5,11 +5,11 @@ import {
 } from "./lib.js";
 import { clamp, outCubic } from "./ease.js";
 
-const ENTER = 0.42;
+const ENTER = 0.24;
 
 function env(t, s0) {
-  const a = outCubic(appear(t, s0 + 0.04, ENTER));
-  return { a, dy: (1 - a) * 16 };
+  const a = outCubic(appear(t, s0, ENTER));
+  return { a, dy: (1 - a) * 12 };
 }
 
 function bar(ctx, x, y, w, h, fill, r = 4) {

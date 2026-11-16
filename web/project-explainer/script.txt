@@ -49,7 +49,7 @@ At a hundred trials the margin is about fifteen points. At five hundred, it's ab
 # audit | WHO CHECKS
 Nobody marks their own homework here.
 Agents write the solutions, a fixed evaluator scores them, and an auditor reads every diff looking for tricks.
-Most failures aren't bad ideas. They're good ideas, measured badly.
+Most of the time, what breaks is the measurement, not the idea.
 
 # gate | NO BENDING
 And the evaluator can't be argued with. It's fixed code.
@@ -71,7 +71,7 @@ We threw all three out.
 On development, the reference solves @d82b:*{82|eighty two}* of a hundred.
 Our best cut removes more than *eighty percent* of the memory and still solves @d84:*{84|eighty four}*.
 Another removes @d87:*{87|eighty seven}* percent, at eighty of a hundred. Within noise.
-One caveat worth saying out loud: that best one runs about @lat:*{2.7x|two point seven times}* slower. Size was the score. Speed wasn't.
+One caveat worth saying out loud: that best one runs about @lat:*{2.7x|two point seven times}* slower. We scored size, not speed.
 
 # reserved | THE SEALED READ
 Then the freeze. Selection locks. Only then do we open the reserved five hundred.
