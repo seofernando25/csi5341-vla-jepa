@@ -28,6 +28,60 @@ run worktree until they stop. Nothing is pushed; no board record.
 - Briefs, status files and reports of this session's agents: `/tmp/opencode/s2/` (lost on reboot).
 - Fernando rejected a vector / LLM-judge score for now: the scalar score stays.
 
+### Orchestrator state of mind, 22:00 EST (added so a fresh or compacted session can resume)
+
+**Goal.** Fernando wants every experiment for the report finished by the morning of 2026-11-16,
+honestly: "this is a real stakes report for my future", "don't try to game me". The report is now
+centred on Dream-RSI discoveries. Plots and text come after the experiments.
+
+**Decisions Fernando made tonight**
+- The policy-development agent must be open by default (shell, GPU, uv installs, own replay). The v1
+  run boxed it in, so the search is re-run as `program-v2` and v2 is the main result. v1 is kept as
+  the record of the memory-score exploit and as a floor: its two winners are real compressions.
+- Hand-authored joint recipes C1/C2 are dropped. Dream-RSI winners (which are joint recipes) take
+  that place.
+- The scalar score stays. No vector score, no LLM judge (discussed, rejected for now; an LLM audit
+  flag and a Pareto-hypervolume attainment are ideas for a later protocol change).
+- A divergence analysis is welcome as an optional extra.
+- Jupyter kernels of `csi5341-a3` stay on the GPU; never kill his processes.
+- Writing: short, human, "we" voice, few numbers (`terse-writing`, "Voice" section).
+
+**Agents alive (DeepSeek via `delegate_task`, provider `opencode`); completion wakes the orchestrator**
+- G: owns the Reserved-500 run and its records in the main checkout; will commit results and a
+  README table when the six cells finish.
+- J: read-only watcher of the v2 run, checks every 20 min, returns early on stall, harness failures
+  or a score above 0.95; log `J-STATUS.md`.
+- K: divergence analysis in its own worktree (`divergence.json`, one figure); not merged.
+If the session died, these agents may be gone: read the status files, then restart only what is
+missing. Briefs and status files are copied to `outputs/session-s2/` (gitignored, survives reboot;
+the live copies are in `/tmp/opencode/s2/`).
+
+**If the machine rebooted**
+- v2: from its worktree run the same `vla-rsi start --study-dir studies/program-v2 -- --cycles 3
+  --probe-budget 8 --max-parallelism 2 --promote-top-k 1 --max-hours 8 --max-agent-usd 20
+  --policy-timeout 1200`; it resumes from `loop_state.json`.
+- Reserved: see `outputs/session-s2/run_reserved.sh` and `G.md`. Never rerun a cell that has a
+  record; a half-finished cell is resumed or reported, never restarted on different states.
+
+**Morning sequence**
+1. Gate G's reserved table (rerun checks; development and reserved in separate columns).
+2. When v2 stops: read J's report; have each promoted node audited for memory tricks; pick winners
+   on development data only; write a v2 freeze record; then Reserved-500 for them (about 45 to 60
+   min per cell); the reference's reserved result from v1 is reused, same states.
+3. Merge `t3/brief-e-implementation` (with v2 evidence, absolute paths stripped) and K's branch.
+4. `vla-report-plots`, check `report/data/numbers.json`, write the report: mechanism curves,
+   Dream-RSI discoveries, the gaming subsection (already in `report/main.tex`), execution.
+5. Ask Fernando before pushing or posting to the board.
+
+**Promises to keep**: reserved never guides selection; bad or missing results are reported as such;
+if v2 ends at two cycles or does worse than v1, the report says so; no substitute measurement is
+passed off as the planned one.
+
+**Known weak points**: the open policy agent passed one synthetic step, not a live cycle; the
+anytime-salvage path has CPU tests only; v2's identity check was skipped (its baseline node is the
+check); GPU is shared, so all times are estimates; the reserved reference was 246/250 on tasks 0-4
+when last counted (partial, not a result).
+
 ## Rules for the next orchestrator
 
 - **Spend few tokens.** The Claude session limit drains fast. Do not read code or logs yourself:
