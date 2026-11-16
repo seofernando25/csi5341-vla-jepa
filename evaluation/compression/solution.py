@@ -22,6 +22,7 @@ not seen.
 from __future__ import annotations
 
 import csv
+import gc
 import hashlib
 import importlib.util
 import os
@@ -299,6 +300,9 @@ class _Run:
         self.baseline_payloads: frozenset = frozenset()
         self.score_kind = str((self.protocol.get("score") or {}).get("kind") or "")
         self.reference: latency_score.Reference | None = None
+        self.reference_policy = (
+            (lambda: load_policy("B16")[0]) if self.score_kind == latency_score.SCORE_KIND else None
+        )
 
     @contextmanager
     def stage(self, name: str) -> Iterator[None]:
@@ -431,6 +435,19 @@ class _Run:
         new = Counter(after["violations"]) - self.baseline_violations
         if new:
             raise _Verdict("size_violation", "; ".join(sorted(new.elements())[:20]))
+        if self.score_kind == latency_score.SCORE_KIND and self.reference is not None:
+            # The sandwich's after blocks need the candidate's device memory back. Drop every
+            # reference to the returned object before the reference is loaded again.
+            _forget_workspace_modules(self.workspace)
+            for module_vars in roots:
+                module_vars.clear()
+            returned = None
+            roots = None
+            module = None
+            gc.collect()
+            if REQUIRED_DEVICE == "cuda":
+                torch.cuda.empty_cache()
+            self.latency_finish()
         record["status"] = "ok"
 
     def sizes(self, before: int, after: int | None, peak: int, file_bytes: int) -> dict:
@@ -469,6 +486,7 @@ class _Run:
                 tasks=tasks,
                 trials=trials,
                 gate=gate,
+                reference_loader=self.reference_policy,
             )
         self.record["latency"] = report
         self.record["score"] = 0.0 if report["violations"] else report["score"]
@@ -479,6 +497,18 @@ class _Run:
         }
         if report["violations"]:
             raise _Verdict("guard_violation", "; ".join(report["violations"][:20]))
+
+    def latency_finish(self) -> None:
+        """Sandwich: time the reference again once the candidate's memory is free, then score."""
+        report = self.record.get("latency")
+        if not report or self.reference is None:
+            return
+        with self.stage("latency_after"):
+            report = latency_score.finish_sandwich(
+                report, self.reference, self.protocol, self.reference_policy
+            )
+        self.record["latency"] = report
+        self.record["score"] = 0.0 if report["violations"] else report["score"]
 
     def rollouts(self, policy: object) -> None:
         phase = ROLLOUT_PHASE[self.phase]

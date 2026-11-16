@@ -42,25 +42,31 @@
     "kind": "latency_speedup",
     "baseline": 1.0,
     "reference": "uncompressed B16, four flow steps, stock execution path",
-    "formula": "reference_median_observation_to_action_ms / candidate_median_observation_to_action_ms",
+    "formula": "lower bound of the 95% interval of reference_median_observation_to_action_ms / candidate_median_observation_to_action_ms; both sides are timed in alternating blocks of the same evaluation, and the interval is a percentile cluster bootstrap over blocks",
     "zero_unless": [
       "the smoke gate passes: successes >= gates.smoke_min_successes",
-      "the candidate's peak CUDA bytes are not above the reference's"
+      "the candidate's peak CUDA bytes are not above the reference's",
+      "no guard is violated"
     ],
     "timing": {
       "warmup_calls": 20,
       "timed_calls": 60,
+      "blocks": 6,
+      "bootstrap_resamples": 10000,
+      "bootstrap_seed": 20261116,
       "max_frames": 108,
       "reference_trials": 1,
       "reference_tasks": [0, 1, 2],
       "frame_stride": 4,
       "check": {
-        "warmup_calls": 8,
-        "timed_calls": 16,
-        "max_frames": 32,
+        "warmup_calls": 4,
+        "timed_calls": 24,
+        "blocks": 6,
+        "bootstrap_resamples": 2000,
+        "max_frames": 40,
         "reference_trials": 1,
         "reference_tasks": [0],
-        "frame_stride": 2
+        "frame_stride": 1
       }
     },
     "guards": {
@@ -79,7 +85,14 @@
       "min_action_spread": 0.0001,
       "equivalence_frames": 8,
       "max_new_threads": 0,
-      "peak_tolerance": 0.01
+      "peak_tolerance": 0.01,
+      "arm_action_mse_max": 0.01,
+      "arm_check_frames": 32,
+      "perturbation_frames": 8,
+      "perturbation_levels": 8,
+      "perturbation_min_correlation": 0.5,
+      "other_gpu_utilisation_max_pct": 50.0,
+      "sandwich_drift_max": 0.1
     }
   },
   "starting_policy": {
@@ -98,11 +111,11 @@
   "starting_rules": [
     {
       "field": "dream_rsi.evaluator.score",
-      "rule": "The score is reference median observation-to-action latency divided by the candidate's, measured by the fixed evaluator in one process on frames collected from reference episodes, with a device synchronize before and after every timed select_action call, after warm-up, on observations never timed before. The score is zero unless the smoke gate passes and the candidate's peak CUDA bytes are not above the reference's. The evaluator is evaluation/compression/solution.py with the latency module; a node never chooses its own measurement."
+      "rule": "The score is the lower bound of the 95% interval of reference median observation-to-action latency divided by the candidate's, measured by the fixed evaluator in one process on frames collected from reference episodes, with a device synchronize before and after every timed select_action call, after warm-up, on observations never timed before. Both sides are timed in alternating blocks of the same evaluation, so a co-tenant burst lands in both; when a second reference does not fit beside the candidate, the reference is timed in blocks before compress and again after the candidate episodes and the two pools are combined. The interval is a percentile cluster bootstrap over blocks, so timing noise cannot create a win. The score is zero unless the smoke gate passes and the candidate's peak CUDA bytes are not above the reference's. The evaluator is evaluation/compression/solution.py with the latency module; a node never chooses its own measurement."
     },
     {
       "field": "dream_rsi.evaluator.guards",
-      "rule": "Failing conditions, recorded as guard_violation: a replaced clock or CUDA synchronizer; a stored or cached answer (reproducibility, order, select_action/predict_action_chunk agreement, observation sensitivity, novel-frame cost); work moved into reset; background or asynchronous work (episode wall time per step minus the policy's own time against the reference's); CPU or child-process work above the caps; new threads during timing; peak CUDA bytes above the reference's. The discovery prompt states each one."
+      "rule": "Failing conditions, recorded as guard_violation: a replaced clock or CUDA synchronizer; a stored or cached answer (reproducibility, order, select_action/predict_action_chunk agreement, observation sensitivity, novel-frame cost, physical arm-action error against the untouched policy on fresh frames, and the correlation of the arm change under a small pixel perturbation with the untouched policy's); work moved into reset; background or asynchronous work (episode wall time per step minus the policy's own time against the reference's); CPU or child-process work above the caps; new threads during timing; another process above a set share of the GPU during the timing blocks; an incomplete or drifting sandwich reference; peak CUDA bytes above the reference's. The discovery prompt states each one."
     },
     {
       "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",

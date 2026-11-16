@@ -3,8 +3,16 @@
 The score is the reference median observation-to-action latency divided by the candidate's,
 both measured in this process on frames the evaluator collected from episodes it ran. The
 reference is the untouched B16 policy on the stock path; the candidate is whatever `compress`
-returned. The score is zero unless the smoke gate passes and the candidate's peak CUDA bytes
-do not exceed the reference's.
+returned. The score is zero unless the smoke gate passes and the candidate's peak CUDA bytes do
+not exceed the reference's.
+
+Timing is block-based. Each side is timed in `blocks` blocks of `timed_calls / blocks` calls,
+after warm-up, on frames that were never timed before. When a second copy of the reference fits
+beside the candidate, the blocks alternate reference, candidate, reference, candidate (ABAB), so
+a co-tenant burst lands in both sides. When it does not fit, the reference is timed in blocks
+before `compress` and again after the candidate episodes and the two pools are combined
+(sandwich). The speedup is reported with a 95 % cluster-bootstrap interval over blocks and the
+score is its lower bound, so timing noise cannot create a win.
 
 Each guard is a failing condition, not a warning:
 
@@ -16,12 +24,17 @@ Each guard is a failing condition, not a warning:
   reproducible, must not answer the previous frame, and must change with the observation;
 - a novel frame (a blend of two collected frames) must not cost more than a set factor above the
   median, which catches a cache with a slow fallback;
+- the candidate's physical arm actions on fresh frames must stay within a set distance of the
+  untouched policy's, and its arm changes under a small pixel perturbation must correlate with the
+  untouched policy's, which catches a lookup table that returns a stored answer;
 - `reset` must stay cheap, so work cannot move out of the timed call into it;
 - the episode batch's wall time per step, minus the policy's own time in the episodes, must not
   exceed the reference's by more than a set factor, so background or asynchronous work is
   charged to the candidate;
 - CPU seconds per call and child-process CPU seconds are capped against the reference's, so work
   cannot move to the CPU or another process, and new threads during timing fail;
+- another process using more than a set share of the GPU during the timing blocks fails the node,
+  because the measurement is not trustworthy;
 - peak CUDA bytes must not exceed the reference's.
 """
 
@@ -30,24 +43,28 @@ from __future__ import annotations
 import os
 import resource
 import statistics
+import subprocess
 import threading
 import time
 from collections.abc import Callable
 from contextlib import nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import torch
 
-from evaluation.pipeline import Pipeline, inference_autocast
+from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
 from evaluation.rollout import rollout
 
 SCORE_KIND = "latency_speedup"
 MIN_TIMED_CALLS = 8
 RESET_PROBES = 8
 NOVEL_PAIRS = 4
+PMON = ("nvidia-smi", "pmon", "-c", "1")
+APPS = ("nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits")
+INTERVAL_PERCENTILES = (2.5, 97.5)
 
 
 def _noop() -> None:
@@ -131,6 +148,9 @@ class Limits:
 
     warmup_calls: int
     timed_calls: int
+    blocks: int
+    bootstrap_resamples: int
+    bootstrap_seed: int
     max_frames: int
     reference_trials: int
     reference_tasks: tuple[int, ...]
@@ -151,6 +171,13 @@ class Limits:
     equivalence_frames: int
     max_new_threads: int
     peak_tolerance: float
+    arm_action_mse_max: float
+    arm_check_frames: int
+    perturbation_frames: int
+    perturbation_levels: int
+    perturbation_min_correlation: float
+    other_gpu_utilisation_max_pct: float
+    sandwich_drift_max: float
 
     @classmethod
     def from_protocol(cls, protocol: dict, phase: str = "smoke") -> Limits:
@@ -162,6 +189,9 @@ class Limits:
         return cls(
             warmup_calls=int(timing["warmup_calls"]),
             timed_calls=int(timing["timed_calls"]),
+            blocks=int(timing["blocks"]),
+            bootstrap_resamples=int(timing["bootstrap_resamples"]),
+            bootstrap_seed=int(timing["bootstrap_seed"]),
             max_frames=int(timing["max_frames"]),
             reference_trials=int(timing["reference_trials"]),
             reference_tasks=tuple(int(task) for task in timing["reference_tasks"]),
@@ -182,6 +212,13 @@ class Limits:
             equivalence_frames=int(guards["equivalence_frames"]),
             max_new_threads=int(guards["max_new_threads"]),
             peak_tolerance=float(guards["peak_tolerance"]),
+            arm_action_mse_max=float(guards["arm_action_mse_max"]),
+            arm_check_frames=int(guards["arm_check_frames"]),
+            perturbation_frames=int(guards["perturbation_frames"]),
+            perturbation_levels=int(guards["perturbation_levels"]),
+            perturbation_min_correlation=float(guards["perturbation_min_correlation"]),
+            other_gpu_utilisation_max_pct=float(guards["other_gpu_utilisation_max_pct"]),
+            sandwich_drift_max=float(guards["sandwich_drift_max"]),
         )
 
 
@@ -278,8 +315,7 @@ def peak_violation(reference_bytes: int, candidate_bytes: int, limits: Limits) -
 
 
 def speedup(
-    reference_ms: float,
-    candidate_ms: float,
+    interval: dict,
     *,
     gate: int,
     successes: int,
@@ -288,48 +324,58 @@ def speedup(
     candidate_peak: int,
     limits: Limits,
 ) -> tuple[float, str | None]:
-    """The score and the reason it is zero, if it is."""
+    """The score (the lower bound of the speedup interval) and the reason it is zero, if it is."""
     if gate and successes < gate:
         return 0.0, f"smoke gate: {successes}/{episodes} < {gate}"
     above = peak_violation(reference_peak, candidate_peak, limits)
     if above is not None:
         return 0.0, above
-    return reference_ms / candidate_ms, None
+    return float(interval["low"]), None
 
 
-def time_calls(
-    policy: object,
-    frames: list[Any],
-    limits: Limits,
-    seed: int,
-    clock: Clock = CLOCK,
-    first: int = 0,
-) -> dict:
-    """Time full select_action calls on distinct frames, after warm-up, with a device sync.
+def calls_per_block(limits: Limits) -> int:
+    """Timed calls in one block; at least one."""
+    return max(1, limits.timed_calls // max(1, limits.blocks))
 
-    `first` leaves the equivalence and novel-frame probes out of the timed pool, so no timed
-    frame was ever passed to the policy before. Warm-up indices are spread over the whole pool
-    (so every task's shapes are seen) and the timed indices are the rest.
+
+def frame_plan(count: int, limits: Limits, first: int = 0) -> tuple[list[int], list[list[int]]]:
+    """Warm-up indices and the timed blocks, disjoint and drawn from `frames[first:]`.
+
+    Warm-up indices are spread over the whole pool so every task's shapes are seen; the timed
+    indices are the rest, split by stride so every block covers the same spread of frames.
     """
-    pool = list(range(first, len(frames)))
-    warmup = min(limits.warmup_calls, max(0, len(pool) - MIN_TIMED_CALLS))
+    pool = list(range(first, count))
+    needed = limits.blocks * calls_per_block(limits)
+    if len(pool) < needed + 1:
+        raise RuntimeError(f"need {needed + 1} frames after index {first}, collected {count}")
+    warmup = min(limits.warmup_calls, len(pool) - needed)
     step = max(1, len(pool) // max(1, warmup))
     warm = pool[::step][:warmup]
     warm_set = set(warm)
-    timed_indices = [index for index in pool if index not in warm_set][: limits.timed_calls]
-    if len(timed_indices) < MIN_TIMED_CALLS:
-        raise RuntimeError(f"need {MIN_TIMED_CALLS} distinct frames, collected {len(frames)}")
+    timed = [index for index in pool if index not in warm_set][:needed]
+    blocks = [timed[offset :: limits.blocks] for offset in range(limits.blocks)]
+    return warm, blocks
+
+
+def warm_up(policy: object, frames: list[Any], indices: list[int], seed: int, clock: Clock) -> None:
+    """Untimed calls that prime the policy on frames disjoint from the timed blocks."""
     clock.sync()
-    for index in warm:
+    for index in indices:
         policy.reset()
         torch.manual_seed(seed + index)
         with torch.inference_mode(), _autocast(clock):
             policy.select_action(frames[index])
     clock.sync()
+
+
+def time_block(
+    policy: object, frames: list[Any], indices: list[int], seed: int, clock: Clock = CLOCK
+) -> dict:
+    """Time one block of full select_action calls on distinct frames, with a device sync."""
     wall: list[float] = []
     gpu: list[float] = []
     cpu_before = _cpu(clock)
-    for index in timed_indices:
+    for index in indices:
         start_event = clock.event(enable_timing=True) if clock.event else None
         end_event = clock.event(enable_timing=True) if clock.event else None
         policy.reset()
@@ -349,12 +395,26 @@ def time_calls(
             clock.sync()
             gpu.append(float(start_event.elapsed_time(end_event)))
     cpu_after = _cpu(clock)
+    return {
+        "wall": wall,
+        "gpu": gpu,
+        "cpu_seconds": max(0.0, cpu_after[0] - cpu_before[0]),
+        "child_seconds": max(0.0, cpu_after[1] - cpu_before[1]),
+    }
+
+
+def _timing_summary(results: list[dict], warmup: int) -> dict:
+    """Pooled figures over timed blocks, plus the CPU and GPU totals the guards read."""
+    wall = [value for result in results for value in result["wall"]]
+    gpu = [value for result in results for value in result["gpu"]]
     timing = _summary(wall)
     timing.update(
-        calls=len(timed_indices),
+        calls=len(wall),
         warmup=warmup,
-        cpu_ms_per_call=1000.0 * max(0.0, cpu_after[0] - cpu_before[0]) / len(timed_indices),
-        child_cpu_seconds=max(0.0, cpu_after[1] - cpu_before[1]),
+        blocks=len(results),
+        block_medians_ms=[float(np.median(result["wall"])) for result in results],
+        cpu_ms_per_call=1000.0 * sum(result["cpu_seconds"] for result in results) / len(wall),
+        child_cpu_seconds=sum(result["child_seconds"] for result in results),
         wall_total_ms=float(sum(wall)),
         gpu_total_ms=float(sum(gpu)) if gpu else None,
     )
@@ -364,6 +424,167 @@ def time_calls(
         timing["gpu_p95_ms"] = gpu_summary["p95_ms"]
         timing["gpu_mean_ms"] = gpu_summary["mean_ms"]
     return timing
+
+
+def time_calls(
+    policy: object,
+    frames: list[Any],
+    limits: Limits,
+    seed: int,
+    clock: Clock = CLOCK,
+    first: int = 0,
+) -> dict:
+    """Time every block of the plan on one policy and pool the figures."""
+    warm, blocks = frame_plan(len(frames), limits, first)
+    warm_up(policy, frames, warm, seed, clock)
+    results = [time_block(policy, frames, block, seed, clock) for block in blocks]
+    return _timing_summary(results, len(warm))
+
+
+def bootstrap_speedup(
+    reference_blocks: list[list[float]],
+    candidate_blocks: list[list[float]],
+    limits: Limits,
+    *,
+    paired: bool = True,
+) -> dict:
+    """Point estimate and 95 % cluster-bootstrap interval of the speedup over blocks.
+
+    `paired` resamples one block index and takes both sides of that block, which is the
+    interleaved design. Without it the two sides are resampled independently, which is the
+    sandwich design where the blocks are not adjacent in time.
+    """
+    reference = [np.asarray(block, dtype=float) for block in reference_blocks]
+    candidate = [np.asarray(block, dtype=float) for block in candidate_blocks]
+    point = float(np.median(np.concatenate(reference)) / np.median(np.concatenate(candidate)))
+    rng = np.random.default_rng(limits.bootstrap_seed)
+    draws = np.empty(limits.bootstrap_resamples, dtype=float)
+    for draw in range(limits.bootstrap_resamples):
+        if paired:
+            pick = rng.integers(0, len(reference), len(reference))
+            left = np.concatenate([reference[index] for index in pick])
+            right = np.concatenate([candidate[index] for index in pick])
+        else:
+            left = np.concatenate(
+                [reference[index] for index in rng.integers(0, len(reference), len(reference))]
+            )
+            right = np.concatenate(
+                [candidate[index] for index in rng.integers(0, len(candidate), len(candidate))]
+            )
+        draws[draw] = float(np.median(left) / np.median(right))
+    low, high = np.percentile(draws, INTERVAL_PERCENTILES)
+    return {
+        "point": point,
+        "low": float(low),
+        "high": float(high),
+        "blocks": len(reference),
+        "candidate_blocks": len(candidate),
+        "resamples": limits.bootstrap_resamples,
+        "paired": paired,
+        "method": "95 % percentile cluster bootstrap over timing blocks",
+    }
+
+
+def _pmon_other(text: str, ours: set[int]) -> float:
+    """Sum of the SM utilisation percentages of compute processes that are not ours."""
+    total, found = 0.0, False
+    for line in text.splitlines():
+        if line.startswith("#") or not line.strip():
+            continue
+        fields = line.split()
+        if len(fields) < 4:
+            continue
+        try:
+            pid = int(fields[1])
+        except ValueError:
+            continue
+        if pid in ours:
+            continue
+        try:
+            total += float(fields[3])
+            found = True
+        except ValueError:
+            continue
+    return total if found else 0.0
+
+
+def _apps_other(text: str, ours: set[int]) -> float:
+    """MiB held by compute processes that are not ours."""
+    total = 0.0
+    for line in text.splitlines():
+        fields = [part.strip() for part in line.split(",")]
+        if len(fields) < 2:
+            continue
+        try:
+            pid, mib = int(fields[0]), float(fields[1])
+        except ValueError:
+            continue
+        if pid not in ours:
+            total += mib
+    return total
+
+
+class GpuWatch:
+    """Other processes' GPU use, sampled between timing blocks with nvidia-smi.
+
+    `pmon` reports per-process SM utilisation, so the evaluator's own kernels are excluded by
+    pid. When it is unavailable the device-wide figure is recorded instead and the guard is not
+    applied, because the evaluator's own work is part of that figure.
+    """
+
+    def __init__(self, level_pct: float) -> None:
+        self.level = float(level_pct)
+        self.ours = {os.getpid()} | child_pids()
+        self.samples: list[dict] = []
+        self.error: str | None = None
+
+    def sample(self) -> None:
+        entry: dict = {"other_utilisation_pct": None, "other_memory_mib": None}
+        try:
+            completed = subprocess.run(
+                PMON, capture_output=True, text=True, timeout=20, check=False
+            )
+            entry["other_utilisation_pct"] = _pmon_other(completed.stdout, self.ours)
+        except (OSError, subprocess.SubprocessError) as error:
+            self.error = f"pmon: {error}"
+        try:
+            completed = subprocess.run(
+                APPS, capture_output=True, text=True, timeout=20, check=False
+            )
+            entry["other_memory_mib"] = _apps_other(completed.stdout, self.ours)
+        except (OSError, subprocess.SubprocessError) as error:
+            self.error = f"{self.error}; apps: {error}" if self.error else f"apps: {error}"
+        self.samples.append(entry)
+
+    def summary(self) -> dict:
+        utilisation = [
+            sample["other_utilisation_pct"]
+            for sample in self.samples
+            if sample["other_utilisation_pct"] is not None
+        ]
+        memory = [
+            sample["other_memory_mib"]
+            for sample in self.samples
+            if sample["other_memory_mib"] is not None
+        ]
+        return {
+            "level_pct": self.level,
+            "samples": len(self.samples),
+            "other_utilisation_max_pct": max(utilisation) if utilisation else None,
+            "other_utilisation_mean_pct": float(np.mean(utilisation)) if utilisation else None,
+            "other_memory_max_mib": max(memory) if memory else None,
+            "per_sample": self.samples,
+            "error": self.error,
+        }
+
+    def violation(self) -> str | None:
+        peak = self.summary()["other_utilisation_max_pct"]
+        if peak is not None and peak > self.level:
+            return (
+                f"another process used {peak:.0f} % of the GPU during timing, "
+                f"above {self.level:.0f} %"
+            )
+        return None
 
 
 def _call(policy: object, batch: Any, seed: int, clock: Clock) -> torch.Tensor:
@@ -496,9 +717,123 @@ def novel_frame_cost(
     }
 
 
+def arm_chunk(policy: object, batch: Any, seed: int, clock: Clock = CLOCK) -> torch.Tensor:
+    """One predicted action chunk, on the CPU, under the given seed."""
+    policy.reset()
+    torch.manual_seed(seed)
+    with torch.inference_mode(), _autocast(clock):
+        chunk = policy.predict_action_chunk(batch)
+    return chunk.float().detach().cpu()
+
+
+def physical_arm(chunk: torch.Tensor, pipeline: Any) -> torch.Tensor:
+    """Post-processed arm dimensions (the first six) of a chunk, on the CPU."""
+    physical = pipeline.post(chunk.float().clone()).float()
+    return physical[..., :6].detach().cpu()
+
+
+def arm_actions(
+    policy: object,
+    frames: list[Any],
+    count: int,
+    seed: int,
+    pipeline: Any,
+    clock: Clock = CLOCK,
+    offset: int = 0,
+) -> list[torch.Tensor]:
+    """Physical arm actions of the policy on `count` frames starting at `offset`."""
+    return [
+        physical_arm(
+            arm_chunk(policy, frames[offset + index], seed + offset + index, clock), pipeline
+        )
+        for index in range(count)
+    ]
+
+
+def arm_error(reference: list[torch.Tensor], candidate: list[torch.Tensor]) -> float:
+    """Mean over frames of the squared physical arm-action difference against the reference."""
+    if not reference or len(reference) != len(candidate):
+        return float("inf")
+    return float(
+        np.mean(
+            [
+                float((left - right).square().mean())
+                for left, right in zip(reference, candidate, strict=True)
+            ]
+        )
+    )
+
+
+def perturb_raw(raw: Any, levels: int, generator: torch.Generator) -> Any:
+    """Integer pixel noise in [-levels, levels] on the uint8 image tensors of a raw observation."""
+    if isinstance(raw, dict):
+        return {key: perturb_raw(value, levels, generator) for key, value in raw.items()}
+    if torch.is_tensor(raw) and raw.dtype == torch.uint8:
+        noise = torch.randint(
+            -levels, levels + 1, raw.shape, generator=generator, dtype=torch.int16
+        )
+        return (raw.to(torch.int16) + noise).clamp_(0, 255).to(torch.uint8)
+    return raw
+
+
+def perturbation_pairs(
+    bank: list[Any], indices: list[int], levels: int, seed: int
+) -> list[tuple[Any, Any]]:
+    """Original and pixel-perturbed visible bank samples, with the same noise for every policy."""
+    generator = torch.Generator().manual_seed(seed)
+    return [
+        (bank[index], {**bank[index], "raw": perturb_raw(bank[index]["raw"], levels, generator)})
+        for index in indices
+    ]
+
+
+def perturbation_deltas(
+    policy: object,
+    originals: list[Any],
+    perturbed: list[Any],
+    seed: int,
+    pipeline: Any,
+    clock: Clock = CLOCK,
+) -> list[torch.Tensor]:
+    """Physical arm change under the perturbation, per frame, with the flow noise held fixed."""
+    deltas = []
+    for index, (original, changed) in enumerate(zip(originals, perturbed, strict=True)):
+        before = physical_arm(arm_chunk(policy, original, seed + 900 + index, clock), pipeline)
+        after = physical_arm(arm_chunk(policy, changed, seed + 900 + index, clock), pipeline)
+        deltas.append((after - before).flatten())
+    return deltas
+
+
+def perturbation_correlation(reference: list[torch.Tensor], candidate: list[torch.Tensor]) -> float:
+    """Pearson correlation of the arm changes under the same perturbation.
+
+    A lookup table returns the stored action for both frames, so its changes are zero and the
+    correlation is zero.
+    """
+    if not reference or len(reference) != len(candidate):
+        return 0.0
+    left = torch.cat(reference).double()
+    right = torch.cat(candidate).double()
+    left = left - left.mean()
+    right = right - right.mean()
+    denominator = float(left.norm() * right.norm())
+    if denominator == 0.0:
+        return 0.0
+    return float((left * right).sum() / denominator)
+
+
+def _bank_indices(bank: list[Any], count: int) -> list[int]:
+    """Visible bank frames spread over the bank, so every task is represented."""
+    total = len(bank)
+    if total == 0 or count <= 0:
+        return []
+    step = max(1, total // count)
+    return list(range(0, total, step))[:count]
+
+
 @dataclass
 class Reference:
-    """Reference pass: frames, timing and the figures the candidate is compared against."""
+    """Reference pass: frames, timing, action baselines and the figures compared against."""
 
     limits: Limits
     frames: list[Any]
@@ -509,6 +844,13 @@ class Reference:
     steps: int
     successes: int
     episodes: int
+    warm: list[int] = field(default_factory=list)
+    block_frames: list[list[int]] = field(default_factory=list)
+    blocks: list[list[float]] = field(default_factory=list)
+    arm: list[torch.Tensor] = field(default_factory=list)
+    probe: dict = field(default_factory=dict)
+    pipeline: Any = None
+    watch: GpuWatch | None = None
 
     def as_record(self) -> dict:
         return {
@@ -522,16 +864,19 @@ class Reference:
             "episode_wall_seconds": self.episode_wall_seconds,
             "overhead_per_step_ms": self.overhead_per_step_ms,
             "peak_cuda_bytes": self.peak_cuda_bytes,
+            "arm_frames": len(self.arm),
+            "probe_frames": len(self.probe.get("originals", [])),
         }
 
 
 def run_reference(policy: object, protocol: dict, phase: str, out_dir: Path, clock: Clock = CLOCK):
-    """Run reference episodes, collect fresh frames and time the untouched policy on them."""
+    """Run reference episodes, collect fresh frames and time the untouched policy in blocks."""
     limits = Limits.from_protocol(protocol, phase)
     collector = FrameCollector(limits.max_frames, limits.frame_stride)
     folder = Path(out_dir) / "reference"
     folder.mkdir(parents=True, exist_ok=True)
     pipeline = Pipeline(policy)
+    watch = GpuWatch(limits.other_gpu_utilisation_max_pct)
     clock.empty_cache()
     clock.reset_peak()
     started = clock.perf_ns()
@@ -546,8 +891,32 @@ def run_reference(policy: object, protocol: dict, phase: str, out_dir: Path, clo
         trace=collector,
     )
     wall = (clock.perf_ns() - started) / 1e9
-    timing = time_calls(
-        policy, collector.frames, limits, protocol["seed"], clock, first=limits.equivalence_frames
+    warm, block_frames = frame_plan(len(collector.frames), limits, limits.equivalence_frames)
+    warm_up(policy, collector.frames, warm, protocol["seed"], clock)
+    results = []
+    for block in block_frames:
+        watch.sample()
+        results.append(time_block(policy, collector.frames, block, protocol["seed"], clock))
+    timing = _timing_summary(results, len(warm))
+    count = max(0, min(limits.arm_check_frames, len(collector.frames) - limits.equivalence_frames))
+    arm = arm_actions(
+        policy,
+        collector.frames,
+        count,
+        protocol["seed"],
+        pipeline,
+        clock,
+        offset=limits.equivalence_frames,
+    )
+    bank = observation_bank()
+    indices = _bank_indices(bank, limits.perturbation_frames)
+    pairs = perturbation_pairs(bank, indices, limits.perturbation_levels, protocol["seed"] + 7000)
+    probe = {
+        "originals": [pipeline.sample(original) for original, _ in pairs],
+        "perturbed": [pipeline.sample(perturbed) for _, perturbed in pairs],
+    }
+    probe["reference_deltas"] = perturbation_deltas(
+        policy, probe["originals"], probe["perturbed"], protocol["seed"], pipeline, clock
     )
     peak = clock.max_allocated()
     steps = max(1, collector.seen)
@@ -561,7 +930,60 @@ def run_reference(policy: object, protocol: dict, phase: str, out_dir: Path, clo
         steps=collector.seen,
         successes=summary["successes"],
         episodes=summary["episodes"],
+        warm=warm,
+        block_frames=block_frames,
+        blocks=[result["wall"] for result in results],
+        arm=arm,
+        probe=probe,
+        pipeline=pipeline,
+        watch=watch,
     )
+
+
+def _load_second(loader: Callable[[], object] | None, peak_bytes: int, clock: Clock):
+    """A second untouched policy, or None when it does not fit or cannot be loaded."""
+    if loader is None:
+        return None
+    if clock.cuda:
+        free, _ = torch.cuda.mem_get_info()
+        if free < peak_bytes * 1.02:
+            return None
+    try:
+        return loader()
+    except (RuntimeError, MemoryError):
+        clock.empty_cache()
+        return None
+
+
+def _interleaved(
+    reference_policy: object,
+    candidate: object,
+    frames: list[Any],
+    blocks: list[list[int]],
+    seed: int,
+    clock: Clock,
+    watch: GpuWatch,
+) -> tuple[list[list[float]], list[list[float]], list[dict]]:
+    """Time reference and candidate blocks in alternation, so a burst lands in both sides.
+
+    The order inside a pair alternates, so a clock ramp at the start of a block does not
+    systematically favour the side that always runs second.
+    """
+    reference_blocks: list[list[float]] = []
+    candidate_blocks: list[list[float]] = []
+    results: list[dict] = []
+    for index, block in enumerate(blocks):
+        watch.sample()
+        if index % 2:
+            candidate_result = time_block(candidate, frames, block, seed, clock)
+            reference_result = time_block(reference_policy, frames, block, seed, clock)
+        else:
+            reference_result = time_block(reference_policy, frames, block, seed, clock)
+            candidate_result = time_block(candidate, frames, block, seed, clock)
+        reference_blocks.append(reference_result["wall"])
+        candidate_blocks.append(candidate_result["wall"])
+        results.append(candidate_result)
+    return reference_blocks, candidate_blocks, results
 
 
 def run_candidate(
@@ -575,11 +997,13 @@ def run_candidate(
     trials: int,
     gate: int,
     clock: Clock = CLOCK,
+    reference_loader: Callable[[], object] | None = None,
 ) -> dict:
-    """Guards, timing and episodes for one candidate; returns the latency record."""
+    """Guards, block timing and episodes for one candidate; returns the latency record."""
     limits = reference.limits
+    seed = protocol["seed"]
     violations = list(rebinds(clock))
-    checks = equivalence(policy, reference.frames, limits, protocol["seed"], clock)
+    checks = equivalence(policy, reference.frames, limits, seed, clock)
     violations += checks["violations"]
     reset_ms = reset_cost(policy, reference.frames, clock)
     reset_limit = max(
@@ -587,15 +1011,57 @@ def run_candidate(
     )
     if reset_ms > reset_limit:
         violations.append(f"reset costs {reset_ms:.2f} ms, above {reset_limit:.2f} ms")
+    arm = arm_actions(
+        policy,
+        reference.frames,
+        len(reference.arm),
+        seed,
+        reference.pipeline,
+        clock,
+        offset=limits.equivalence_frames,
+    )
+    error = arm_error(reference.arm, arm)
+    if error > limits.arm_action_mse_max:
+        violations.append(f"arm action error {error:.3g} is above {limits.arm_action_mse_max:g}")
+    deltas = perturbation_deltas(
+        policy,
+        reference.probe["originals"],
+        reference.probe["perturbed"],
+        seed,
+        reference.pipeline,
+        clock,
+    )
+    correlation = perturbation_correlation(reference.probe["reference_deltas"], deltas)
+    if correlation < limits.perturbation_min_correlation:
+        violations.append(
+            f"perturbation response correlation {correlation:.3f} is below "
+            f"{limits.perturbation_min_correlation:g}"
+        )
+    watch = reference.watch or GpuWatch(limits.other_gpu_utilisation_max_pct)
+    clock.empty_cache()
+    second = _load_second(reference_loader, reference.peak_cuda_bytes, clock)
     threads_before = threading.active_count()
     children_before = child_pids()
-    cpu_before = _cpu(clock)
+    warm_up(policy, reference.frames, reference.warm, seed, clock)
+    if second is not None:
+        warm_up(second, reference.frames, reference.warm, seed, clock)
+        reference_blocks, candidate_blocks, results = _interleaved(
+            second, policy, reference.frames, reference.block_frames, seed, clock, watch
+        )
+        mode = "interleaved"
+    else:
+        results = []
+        for block in reference.block_frames:
+            watch.sample()
+            results.append(time_block(policy, reference.frames, block, seed, clock))
+        reference_blocks = reference.blocks
+        candidate_blocks = [result["wall"] for result in results]
+        mode = "sandwich"
+    # The second reference must be gone before the episode peak is measured, or the candidate
+    # would be charged for it.
+    second = None
     clock.empty_cache()
-    clock.reset_peak()
-    timing = time_calls(
-        policy, reference.frames, limits, protocol["seed"], clock, first=limits.equivalence_frames
-    )
-    cpu_after = _cpu(clock)
+    timing = _timing_summary(results, len(reference.warm))
     threads_after = threading.active_count()
     children_after = child_pids()
     cpu_message = cpu_violation(
@@ -603,7 +1069,7 @@ def run_candidate(
     )
     if cpu_message is not None:
         violations.append(cpu_message)
-    child_seconds = max(0.0, cpu_after[1] - cpu_before[1])
+    child_seconds = sum(result["child_seconds"] for result in results)
     child_message = child_cpu_violation(child_seconds, limits)
     if child_message is not None:
         violations.append(child_message)
@@ -623,9 +1089,7 @@ def run_candidate(
                 f"GPU time {timing['gpu_total_ms']:.2f} ms is above {gpu_limit:.2f} ms "
                 "for the timed calls"
             )
-    novel = novel_frame_cost(
-        policy, reference.frames, timing["median_ms"], limits, protocol["seed"], clock
-    )
+    novel = novel_frame_cost(policy, reference.frames, timing["median_ms"], limits, seed, clock)
     if novel["violation"]:
         violations.append(
             f"a novel frame costs {novel['median_ms']:.2f} ms, above {novel['limit_ms']:.2f} ms"
@@ -652,9 +1116,21 @@ def run_candidate(
     overhead_message = overhead_violation(reference.overhead_per_step_ms, overhead, limits)
     if overhead_message is not None:
         violations.append(overhead_message)
+    watch_message = watch.violation()
+    if watch_message is not None:
+        violations.append(watch_message)
+    interval = bootstrap_speedup(
+        reference_blocks, candidate_blocks, limits, paired=mode == "interleaved"
+    )
+    timing["speedup"] = interval
+    timing["mode"] = mode
+    timing["sandwich_pending"] = mode == "sandwich"
+    timing["reference_blocks_after"] = 0
+    timing["reference_block_medians_ms"] = [float(np.median(block)) for block in reference_blocks]
+    timing["candidate_blocks"] = candidate_blocks
+    timing["gpu_watch"] = watch.summary()
     score, reason = speedup(
-        reference.timing["median_ms"],
-        timing["median_ms"],
+        interval,
         gate=gate,
         successes=summary["successes"],
         episodes=summary["episodes"],
@@ -671,6 +1147,7 @@ def run_candidate(
         "score_kind": SCORE_KIND,
         "zero_reason": reason,
         "violations": violations,
+        "gate": gate,
         "reference": reference.as_record(),
         "candidate": {
             **timing,
@@ -685,9 +1162,93 @@ def run_candidate(
             "child_cpu_seconds": child_seconds,
             "new_threads": new_threads,
             "new_child_pids": sorted(new_pids),
+            "arm_action_error": error,
+            "arm_action_error_limit": limits.arm_action_mse_max,
+            "perturbation_correlation": correlation,
+            "perturbation_correlation_min": limits.perturbation_min_correlation,
         },
         "equivalence": checks,
         "successes": summary["successes"],
         "episodes": summary["episodes"],
         "rollout": summary,
     }
+
+
+def finish_sandwich(
+    report: dict,
+    reference: Reference,
+    protocol: dict,
+    loader: Callable[[], object] | None,
+    clock: Clock = CLOCK,
+) -> dict:
+    """Time the reference again after the candidate episodes, when the two do not fit together.
+
+    The caller frees the candidate first. The after blocks join the before blocks in one pooled
+    reference median; the interval resamples the two sides independently because they are not
+    adjacent in time.
+    """
+    timing = report.get("candidate") or {}
+    if timing.get("mode") != "sandwich" or not timing.get("sandwich_pending"):
+        return report
+    timing["sandwich_pending"] = False
+    second = _load_second(loader, reference.peak_cuda_bytes, clock)
+    if second is None:
+        timing["reference_blocks_after"] = 0
+        report["violations"].append(
+            "the reference could not be re-timed after the candidate: "
+            "the sandwich measurement is incomplete"
+        )
+        report["score"] = 0.0
+        return report
+    warm_up(second, reference.frames, reference.warm, protocol["seed"], clock)
+    watch = reference.watch
+    after = []
+    try:
+        for block in reference.block_frames:
+            if watch is not None:
+                watch.sample()
+            after.append(
+                time_block(second, reference.frames, block, protocol["seed"], clock)["wall"]
+            )
+    except (RuntimeError, MemoryError):
+        timing["reference_blocks_after"] = 0
+        report["violations"].append(
+            "the reference could not be re-timed after the candidate: "
+            "the sandwich measurement is incomplete"
+        )
+        report["score"] = 0.0
+        return report
+    timing["reference_blocks_after"] = len(after)
+    before_median = float(np.median([value for block in reference.blocks for value in block]))
+    after_median = float(np.median([value for block in after for value in block]))
+    drift = abs(after_median / before_median - 1.0)
+    timing["sandwich_drift"] = drift
+    if drift > reference.limits.sandwich_drift_max:
+        report["violations"].append(
+            f"the reference moved {100.0 * drift:.0f} % between the before and after blocks, "
+            f"above {100.0 * reference.limits.sandwich_drift_max:.0f} %"
+        )
+    interval = bootstrap_speedup(
+        reference.blocks + after, timing["candidate_blocks"], reference.limits, paired=False
+    )
+    timing["speedup"] = interval
+    pooled = _summary([value for block in reference.blocks + after for value in block])
+    reference.timing.update(pooled)
+    timing["reference_median_ms"] = pooled["median_ms"]
+    if watch is not None:
+        timing["gpu_watch"] = watch.summary()
+        message = watch.violation()
+        if message is not None and message not in report["violations"]:
+            report["violations"].append(message)
+    report["score"], report["zero_reason"] = speedup(
+        interval,
+        gate=int(report.get("gate", 0)),
+        successes=int(report.get("successes", 0)),
+        episodes=int(report.get("episodes", 0)),
+        reference_peak=reference.peak_cuda_bytes,
+        candidate_peak=int(report["candidate"]["peak_cuda_bytes"]),
+        limits=reference.limits,
+    )
+    if report["violations"]:
+        report["score"] = 0.0
+    return report

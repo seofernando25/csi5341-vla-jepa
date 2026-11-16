@@ -2,8 +2,10 @@
 
 import csv
 import json
+import os
 import time
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 import torch
@@ -191,10 +193,9 @@ def test_peak_memory_above_the_reference_fails():
     assert latency.peak_violation(1000, 1011, LIMITS) is not None
 
 
-def test_score_is_the_speedup_when_the_gate_and_memory_pass():
+def test_score_is_the_lower_bound_when_the_gate_and_memory_pass():
     score, reason = latency.speedup(
-        100.0,
-        50.0,
+        {"point": 2.0, "low": 1.8, "high": 2.2},
         gate=8,
         successes=9,
         episodes=10,
@@ -202,14 +203,13 @@ def test_score_is_the_speedup_when_the_gate_and_memory_pass():
         candidate_peak=900,
         limits=LIMITS,
     )
-    assert score == pytest.approx(2.0)
+    assert score == pytest.approx(1.8)
     assert reason is None
 
 
 def test_score_is_zero_below_the_gate_or_above_the_memory():
     below, reason = latency.speedup(
-        100.0,
-        50.0,
+        {"point": 2.0, "low": 1.8, "high": 2.2},
         gate=8,
         successes=7,
         episodes=10,
@@ -219,8 +219,7 @@ def test_score_is_zero_below_the_gate_or_above_the_memory():
     )
     assert below == 0.0 and "smoke gate" in reason
     above, reason = latency.speedup(
-        100.0,
-        50.0,
+        {"point": 2.0, "low": 1.8, "high": 2.2},
         gate=8,
         successes=9,
         episodes=10,
@@ -229,6 +228,331 @@ def test_score_is_zero_below_the_gate_or_above_the_memory():
         limits=LIMITS,
     )
     assert above == 0.0 and "peak CUDA" in reason
+
+
+# -- block timing and the bootstrap interval --
+
+
+class FakeWatch:
+    """Stands in for the GPU sampler so block timing tests never shell out."""
+
+    def __init__(self) -> None:
+        self.samples = 0
+
+    def sample(self) -> None:
+        self.samples += 1
+
+
+def test_the_frame_plan_has_disjoint_blocks_and_warmup():
+    warm, blocks = latency.frame_plan(48, LIMITS, LIMITS.equivalence_frames)
+    assert len(blocks) == LIMITS.blocks
+    assert all(len(block) == latency.calls_per_block(LIMITS) for block in blocks)
+    timed = [index for block in blocks for index in block]
+    assert len(set(timed)) == len(timed)
+    assert not set(warm) & set(timed)
+    assert min(timed) >= LIMITS.equivalence_frames
+    assert len(warm) == LIMITS.warmup_calls
+
+
+def test_the_interval_lower_bound_is_below_the_point_estimate():
+    reference = [[100.0 + index for index in range(4)] for _ in range(LIMITS.blocks)]
+    candidate = [[50.0 + index for index in range(4)] for _ in range(LIMITS.blocks)]
+    interval = latency.bootstrap_speedup(reference, candidate, LIMITS)
+    assert interval["point"] == pytest.approx(2.0, rel=0.02)
+    assert interval["low"] <= interval["point"] <= interval["high"]
+    assert interval["blocks"] == LIMITS.blocks
+
+
+def test_a_burst_in_one_candidate_block_lowers_the_lower_bound():
+    reference = [[100.0] * 4 for _ in range(LIMITS.blocks)]
+    quiet = [[50.0] * 4 for _ in range(LIMITS.blocks)]
+    burst = [[50.0] * 4 for _ in range(LIMITS.blocks - 1)] + [[200.0] * 4]
+    quiet_interval = latency.bootstrap_speedup(reference, quiet, LIMITS)
+    burst_interval = latency.bootstrap_speedup(reference, burst, LIMITS)
+    # The pooled median absorbs one bad block; the interval is what pays for it.
+    assert burst_interval["point"] == pytest.approx(quiet_interval["point"])
+    assert burst_interval["low"] < quiet_interval["low"]
+
+
+def test_a_burst_in_one_block_of_both_sides_does_not_create_a_win():
+    reference = [[100.0] * 4 for _ in range(LIMITS.blocks)]
+    candidate = [[100.0] * 4 for _ in range(LIMITS.blocks)]
+    reference[2] = [300.0] * 4
+    candidate[2] = [300.0] * 4
+    interval = latency.bootstrap_speedup(reference, candidate, LIMITS)
+    assert interval["point"] == pytest.approx(1.0)
+    assert interval["low"] <= 1.0
+
+
+def test_interleaved_blocks_alternate_reference_and_candidate():
+    data = frames(48)
+    _, blocks = latency.frame_plan(len(data), LIMITS, 0)
+    watch = FakeWatch()
+    reference_blocks, candidate_blocks, results = latency._interleaved(
+        FakePolicy(cost_s=0.002),
+        FakePolicy(cost_s=0.001),
+        data,
+        blocks,
+        0,
+        latency.CPU_CLOCK,
+        watch,
+    )
+    assert len(reference_blocks) == len(candidate_blocks) == LIMITS.blocks
+    assert watch.samples == LIMITS.blocks
+    assert len(results) == LIMITS.blocks
+
+
+def test_a_second_reference_is_not_loaded_when_it_does_not_fit(monkeypatch):
+    monkeypatch.setattr(latency.torch.cuda, "mem_get_info", lambda: (1000, 10**9))
+    loaded = []
+    assert latency._load_second(lambda: loaded.append(True), 5000, latency.CLOCK) is None
+    assert loaded == []
+
+
+def test_a_second_reference_is_loaded_when_it_fits(monkeypatch):
+    monkeypatch.setattr(latency.torch.cuda, "mem_get_info", lambda: (10**9, 10**9))
+    sentinel = object()
+    assert latency._load_second(lambda: sentinel, 5000, latency.CLOCK) is sentinel
+
+
+# -- answer caching: the candidate must be the policy --
+
+
+class IdentityPost:
+    """The post-processor is the identity in these tests; the metric is the raw arm chunk."""
+
+    def post(self, value):
+        return value
+
+
+class NearestCache:
+    """A lookup table keyed on the observation: returns the nearest stored action."""
+
+    def __init__(self, data):
+        self.keys = [float(item["x"].mean()) for item in data]
+        self.values = [torch.full((1, 7), key) for key in self.keys]
+
+    def reset(self):
+        return None
+
+    def predict_action_chunk(self, batch):
+        key = float(batch["x"].mean())
+        nearest = min(range(len(self.keys)), key=lambda index: abs(self.keys[index] - key))
+        return self.values[nearest].unsqueeze(1).repeat(1, 7, 1)
+
+    def select_action(self, batch):
+        return self.predict_action_chunk(batch)[:, 0]
+
+
+class Quantized(FakePolicy):
+    """A policy whose action is rounded to a grid, like a 4-bit action head."""
+
+    def __init__(self, step: float = 0.02) -> None:
+        super().__init__()
+        self.step = step
+
+    def _action(self, batch):
+        value = float(batch["x"].mean())
+        return torch.full((1, 7), round(value / self.step) * self.step)
+
+
+def _fresh(count: int = 8, offset: float = 0.5) -> list[dict]:
+    return [{"x": torch.full((1, 4), offset + index)} for index in range(count)]
+
+
+def _probe(scale: float = 0.1, spread: float = 0.01):
+    originals = [{"x": torch.full((1, 4), float(index))} for index in range(8)]
+    perturbed = [{"x": item["x"] + scale + spread * index} for index, item in enumerate(originals)]
+    return originals, perturbed
+
+
+def test_the_identity_passes_the_arm_check():
+    fresh = _fresh()
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.arm_actions(
+        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    assert latency.arm_error(reference, candidate) == 0.0
+
+
+def test_a_nearest_neighbour_cache_fails_the_arm_check():
+    cache = NearestCache(frames(40))
+    fresh = _fresh()
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.arm_actions(cache, fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK)
+    assert latency.arm_error(reference, candidate) > LIMITS.arm_action_mse_max
+
+
+def test_a_quantized_policy_passes_the_arm_check():
+    fresh = _fresh()
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.arm_actions(
+        Quantized(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    assert latency.arm_error(reference, candidate) < LIMITS.arm_action_mse_max
+
+
+def test_the_identity_passes_the_perturbation_check():
+    originals, perturbed = _probe()
+    reference = latency.perturbation_deltas(
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.perturbation_deltas(
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    assert latency.perturbation_correlation(reference, candidate) == pytest.approx(1.0)
+
+
+def test_a_quantized_policy_passes_the_perturbation_check():
+    originals, perturbed = _probe()
+    reference = latency.perturbation_deltas(
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.perturbation_deltas(
+        Quantized(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    assert (
+        latency.perturbation_correlation(reference, candidate)
+        >= LIMITS.perturbation_min_correlation
+    )
+
+
+def test_a_lookup_table_fails_the_perturbation_check():
+    cache = NearestCache(frames(40))
+    originals, perturbed = _probe()
+    reference = latency.perturbation_deltas(
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    candidate = latency.perturbation_deltas(
+        cache, originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+    )
+    assert latency.perturbation_correlation(reference, candidate) == 0.0
+
+
+# -- shared GPU --
+
+
+def test_the_gpu_watch_counts_only_other_processes():
+    text = f"# gpu pid type sm mem\n    0 {os.getpid()} C 99 10\n    0 4242 C 30 10\n"
+    assert latency._pmon_other(text, {os.getpid()}) == pytest.approx(30.0)
+    apps = f"{os.getpid()}, 5000\n4242, 12000\n"
+    assert latency._apps_other(apps, {os.getpid()}) == pytest.approx(12000.0)
+
+
+def test_another_process_above_the_level_fails_the_node(monkeypatch):
+    def fake_run(command, **kwargs):
+        if "pmon" in command:
+            return SimpleNamespace(stdout="# gpu pid type sm mem\n 0 4242 C 40 10\n")
+        return SimpleNamespace(stdout="4242, 12000\n")
+
+    monkeypatch.setattr(latency.subprocess, "run", fake_run)
+    watch = latency.GpuWatch(25.0)
+    watch.sample()
+    assert watch.violation() is not None
+    assert watch.summary()["other_utilisation_max_pct"] == pytest.approx(40.0)
+
+
+def test_a_quiet_gpu_passes_the_watch(monkeypatch):
+    def fake_run(command, **kwargs):
+        if "pmon" in command:
+            return SimpleNamespace(stdout="# gpu pid type sm mem\n 0 4242 C 0 10\n")
+        return SimpleNamespace(stdout="4242, 0\n")
+
+    monkeypatch.setattr(latency.subprocess, "run", fake_run)
+    watch = latency.GpuWatch(25.0)
+    watch.sample()
+    assert watch.violation() is None
+
+
+# -- sandwich --
+
+
+def _sandwich_report(reference: latency.Reference) -> dict:
+    return {
+        "score": 1.0,
+        "zero_reason": None,
+        "violations": [],
+        "gate": 0,
+        "reference": reference.as_record(),
+        "candidate": {
+            "peak_cuda_bytes": 1000,
+            "mode": "sandwich",
+            "sandwich_pending": True,
+            "candidate_blocks": [[50.0] * 4 for _ in range(LIMITS.blocks)],
+        },
+        "successes": 1,
+        "episodes": 1,
+    }
+
+
+def _sandwich_reference() -> latency.Reference:
+    reference = _fake_reference()
+    reference.blocks = [[100.0] * 4 for _ in range(LIMITS.blocks)]
+    reference.block_frames = [[index] for index in range(LIMITS.blocks)]
+    reference.warm = []
+    reference.watch = None
+    return reference
+
+
+def test_the_sandwich_adds_the_after_blocks(monkeypatch):
+    reference = _sandwich_reference()
+    monkeypatch.setattr(
+        latency,
+        "time_block",
+        lambda *args, **kwargs: {
+            "wall": [100.0] * 4,
+            "gpu": [],
+            "cpu_seconds": 0.0,
+            "child_seconds": 0.0,
+        },
+    )
+    monkeypatch.setattr(latency, "warm_up", lambda *args, **kwargs: None)
+    finished = latency.finish_sandwich(
+        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), latency.CPU_CLOCK
+    )
+    assert finished["candidate"]["reference_blocks_after"] == LIMITS.blocks
+    assert finished["candidate"]["speedup"]["blocks"] == 2 * LIMITS.blocks
+    assert finished["score"] == pytest.approx(2.0)
+
+
+def test_the_sandwich_without_a_second_reference_fails_the_node():
+    reference = _sandwich_reference()
+    finished = latency.finish_sandwich(
+        _sandwich_report(reference), reference, PROTOCOL, None, latency.CPU_CLOCK
+    )
+    assert finished["candidate"]["reference_blocks_after"] == 0
+    assert finished["score"] == 0.0
+    assert any("sandwich measurement is incomplete" in item for item in finished["violations"])
+
+
+def test_the_sandwich_fails_when_the_reference_drifts(monkeypatch):
+    reference = _sandwich_reference()
+
+    def drifting(*args, **kwargs):
+        return {"wall": [200.0] * 4, "gpu": [], "cpu_seconds": 0.0, "child_seconds": 0.0}
+
+    monkeypatch.setattr(latency, "time_block", drifting)
+    monkeypatch.setattr(latency, "warm_up", lambda *args, **kwargs: None)
+    finished = latency.finish_sandwich(
+        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), latency.CPU_CLOCK
+    )
+    assert finished["candidate"]["sandwich_drift"] == pytest.approx(1.0)
+    assert finished["score"] == 0.0
+    assert any("the reference moved" in item for item in finished["violations"])
+
+
+def test_the_interleaved_path_has_no_after_blocks():
+    reference = _sandwich_reference()
+    report = _sandwich_report(reference)
+    report["candidate"]["mode"] = "interleaved"
+    report["candidate"]["sandwich_pending"] = False
+    assert latency.finish_sandwich(report, reference, PROTOCOL, None, latency.CPU_CLOCK) is report
 
 
 # -- protocol and harness wiring --
@@ -242,6 +566,21 @@ def test_the_v4_protocol_scores_latency_and_keeps_the_v2_constants():
         assert PROTOCOL[field] == v2[field]
     v1 = json.loads((ROOT / "studies/program-v1/protocol.json").read_text())
     assert "score" not in v1
+
+
+def test_the_v4_protocol_carries_the_block_timing_and_the_new_guards():
+    timing = PROTOCOL["score"]["timing"]
+    assert timing["blocks"] >= 6
+    assert timing["timed_calls"] % timing["blocks"] == 0
+    assert timing["bootstrap_resamples"] >= 1000
+    assert timing["check"]["blocks"] >= 6
+    assert timing["check"]["timed_calls"] % timing["check"]["blocks"] == 0
+    guards = PROTOCOL["score"]["guards"]
+    assert guards["arm_action_mse_max"] == pytest.approx(0.01)
+    assert guards["perturbation_min_correlation"] > 0
+    assert guards["other_gpu_utilisation_max_pct"] > 0
+    assert "lower bound" in PROTOCOL["score"]["formula"]
+    assert any("guard" in line for line in PROTOCOL["score"]["zero_unless"])
 
 
 def test_limits_read_the_check_block_for_the_check_phase():
@@ -293,12 +632,15 @@ def test_the_v4_prompt_states_the_score_and_guards_without_methods():
     )
     flat = " ".join(prompt.split())
     assert "reference median latency / your median latency" in flat
+    assert "lower bound of the 95 % interval" in flat
     assert "device synchronize" in flat
     for guard in (
         "Returning a stored answer",
+        "Not being the policy",
         "Background or asynchronous work",
         "Moving work to the CPU",
         "Peak GPU memory above the reference's",
+        "Another process using more than a set share of the GPU",
     ):
         assert guard in flat
     for method in ("CUDA graph", "torch.compile", "Triton", "kernel fusion", "fuse"):
@@ -319,7 +661,17 @@ def test_the_check_tool_prints_the_latency_score():
                 "score": 1.75,
                 "score_kind": "latency_speedup",
                 "reference": {"timing": {"median_ms": 100.0}},
-                "candidate": {"median_ms": 57.1, "p95_ms": 60.0},
+                "candidate": {
+                    "median_ms": 57.1,
+                    "p95_ms": 60.0,
+                    "mode": "interleaved",
+                    "speedup": {"point": 1.81, "low": 1.75, "high": 1.9, "blocks": 6},
+                    "arm_action_error": 0.0004,
+                    "arm_action_error_limit": 0.01,
+                    "perturbation_correlation": 0.98,
+                    "perturbation_correlation_min": 0.5,
+                    "gpu_watch": {"samples": 12, "other_utilisation_max_pct": 4.0},
+                },
                 "violations": ["a guard"],
                 "zero_reason": None,
             },
@@ -327,6 +679,10 @@ def test_the_check_tool_prints_the_latency_score():
     )
     assert any("score: 1.7500" in line for line in lines)
     assert any("reference median 100.00" in line for line in lines)
+    assert any("95% [1.7500, 1.9000]" in line for line in lines)
+    assert any("arm action error: 0.0004" in line for line in lines)
+    assert any("perturbation correlation: 0.980" in line for line in lines)
+    assert any("other GPU use: max 4.0 %" in line for line in lines)
     assert any("guard: a guard" in line for line in lines)
 
 

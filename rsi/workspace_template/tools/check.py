@@ -40,11 +40,36 @@ def _summary(record: dict) -> list[str]:
         lines.append(f"score: {latency['score']:.4f} ({latency.get('score_kind')})")
         reference = (latency.get("reference") or {}).get("timing") or {}
         candidate = latency.get("candidate") or {}
+        speedup = candidate.get("speedup") or {}
+        if speedup:
+            lines.append(
+                f"speedup: point {speedup.get('point', float('nan')):.4f}, "
+                f"95% [{speedup.get('low', float('nan')):.4f}, "
+                f"{speedup.get('high', float('nan')):.4f}], "
+                f"{speedup.get('blocks', 0)}+{speedup.get('candidate_blocks', 0)} blocks, "
+                f"{candidate.get('mode', '?')}"
+            )
         lines.append(
             f"latency ms: reference median {reference.get('median_ms', float('nan')):.2f}, "
             f"candidate median {candidate.get('median_ms', float('nan')):.2f}, "
             f"p95 {candidate.get('p95_ms', float('nan')):.2f}"
         )
+        if "arm_action_error" in candidate:
+            lines.append(
+                f"arm action error: {candidate['arm_action_error']:.6g} "
+                f"(limit {candidate.get('arm_action_error_limit', float('nan')):g})"
+            )
+        if "perturbation_correlation" in candidate:
+            lines.append(
+                f"perturbation correlation: {candidate['perturbation_correlation']:.3f} "
+                f"(min {candidate.get('perturbation_correlation_min', float('nan')):g})"
+            )
+        watch = candidate.get("gpu_watch") or {}
+        if watch.get("samples"):
+            lines.append(
+                f"other GPU use: max {watch.get('other_utilisation_max_pct')} %, "
+                f"{watch['samples']} samples"
+            )
         if latency.get("zero_reason"):
             lines.append(f"score is zero: {latency['zero_reason']}")
         for violation in latency.get("violations") or []:
