@@ -20,8 +20,8 @@ def linear_cka(x, y):
     x = x.float() - x.float().mean(0)
     y = y.float() - y.float().mean(0)
     k = x @ x.T
-    l = y @ y.T
-    return float((k * l).sum() / (k.square().sum() * l.square().sum()).sqrt().clamp_min(1e-12))
+    ly = y @ y.T
+    return float((k * ly).sum() / (k.square().sum() * ly.square().sum()).sqrt().clamp_min(1e-12))
 
 
 def main():

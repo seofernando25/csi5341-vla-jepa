@@ -14,6 +14,7 @@ const POLICY = {
   diff: { mount: policyStep.mountDiff },
   replay: { mount: policyStep.mountReplay },
   verdict: { mount: policyStep.mountVerdict },
+  transcript: { mount: transcript.mount },
 };
 
 export function mountView(kind, view, root, ctx) {

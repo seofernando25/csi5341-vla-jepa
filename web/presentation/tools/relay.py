@@ -5,6 +5,7 @@ import argparse
 import hmac
 import json
 import math
+import re
 import secrets
 import socket
 import threading
@@ -15,8 +16,6 @@ from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 # Use the same chapter/cue definitions as the browser; no separately maintained map.
-import re
-
 CUES = {}
 for scene, body in re.findall(
     r"(\d+):\s*\[(.*?)\]", (ROOT / "src/timing/cues.js").read_text(), re.DOTALL

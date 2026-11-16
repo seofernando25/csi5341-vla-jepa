@@ -1,0 +1,103 @@
+{
+  "protocol": "program-v2-cleanroom",
+  "frozen_at": "2026-11-15",
+  "status": "frozen",
+  "supersedes": "program-v1. v1's three cycles ran with a read/edit-only policy agent, a static grid and the memory rule that cycle 3 exploited. v2 starts from the baseline policy with no history, under the rules below. v1 nodes, scores and policies are not pooled with v2 and are not used as v2's starting point.",
+  "checkpoint": "lerobot/VLA-JEPA-LIBERO",
+  "checkpoint_revision": "735d9f692981e286ade093b5046627eda876e5d0",
+  "suite": "libero_spatial",
+  "task_ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "seed": 1000,
+  "final_seed_offset": 10000,
+  "development_states_per_task": 10,
+  "reserved_states_per_task": 50,
+  "max_steps": 280,
+  "action_chunk": 7,
+  "flow_steps": 4,
+  "dtype": "bfloat16",
+  "batch_size": 1,
+  "phases": {
+    "screen": {"trials": 80, "simulator": false},
+    "smoke": {"trials": 10, "simulator": true},
+    "development": {"trials": 100, "simulator": true},
+    "reserved": {"trials": 500, "simulator": true}
+  },
+  "gates": {
+    "smoke_min_successes": 8,
+    "development_min_successes": 77,
+    "final_noninferiority_pp": 5.0
+  },
+  "statistics": {
+    "interval": "wilson95",
+    "paired": "task-stratified bootstrap 10000 resamples",
+    "multiplicity": "pre-register primary comparisons; report all others as exploratory"
+  },
+  "reserved_lock": true,
+  "starting_policy": {
+    "path": "rsi/policies/optimal.py",
+    "note": "The loop copies this default OptimalPolicy to policies/v000_initial/policy.py. The search starts with no trees, no beta sweeps and no scores: cycles/ and policies/ hold only what this run writes."
+  },
+  "run_budget": {
+    "cycles": 3,
+    "probe_budget": 8,
+    "max_parallelism": 2,
+    "promote_top_k": 1,
+    "max_hours": 8,
+    "max_agent_usd": 20,
+    "note": "Pre-registered launch budget. It matches the launch command in studies/program-v2/README.md; a run that changes it records the change in revisions."
+  },
+  "starting_rules": [
+    {
+      "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",
+      "rule": "The policy-development agent gets read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, and a runnable replay.py in the workspace. It may run and measure its own replay before answering. The harness still audits, replays and selects; the agent's own numbers are never used."
+    },
+    {
+      "field": "dream_rsi.policy_timeout_s",
+      "rule": "1200 s per policy-development step, one repair attempt also after a not-better step."
+    },
+    {
+      "field": "dream_rsi.policy_step_timeout",
+      "rule": "Anytime. The prompt asks for a valid method.py early and in-place improvement after that. On timeout the harness audits and replays the file as it stands and records timeout_salvaged; it is accepted only if it passes the audit and strictly beats the incumbent. A missing or unusable file leaves status timeout. Cost and transcript are kept."
+    },
+    {
+      "field": "dream_rsi.grid_plan",
+      "rule": "Live. The selected policy's plan_grid decides the next cycle's grid from the last three manifests and beta sweeps; the protocol grid values (max_parallelism, rounds_cap) and the run arguments (probe budget, GPU slots) are caps, and the protocol grid is the pre-registered fallback. A candidate whose plan_grid fails validation is rejected."
+    },
+    {
+      "field": "dream_rsi.evaluator.memory_rule+prompt",
+      "rule": "Resident bytes are the largest of the tensor walk of the returned policy and workspace modules, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, and peak CUDA bytes during the episodes; measured after compress and again after inference. Workspace files over 1 MiB count in full. The discovery prompt states that hiding or deferring memory fails the node."
+    }
+  ],
+  "revisions": [],
+  "dream_rsi": {
+    "grid_plan": {
+      "max_branches": 4,
+      "max_attempts_per_branch": 3,
+      "max_parallelism": 2,
+      "rounds_cap": 6,
+      "rationale": "Pre-registered fallback grid and the caps on the policy's plan_grid. The live plan_grid chooses the applied grid within these caps."
+    },
+    "beta_grid": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "lambda_parallel": 0.05,
+    "gate_retry": false,
+    "sequential_gate": false,
+    "policy": "paper-faithful replay policy; generated policy code must be recorded by hash",
+    "reserved_trials_in_selection": false,
+    "agent": {
+      "backend": "pi",
+      "model": "mistral/deepseek-v4-1-flash-1017",
+      "effort": "max"
+    },
+    "discovery_tools": "read,write,edit,bash",
+    "policy_dev_tools": "read,write,edit,bash",
+    "agent_timeout_s": 1800,
+    "eval_timeout_s": 1800,
+    "policy_timeout_s": 1200,
+    "gpu_slots": 1
+  },
+  "old_evidence": {
+    "status": "deleted from working tree",
+    "git_tag": "pre-cleanroom-20261115",
+    "reuse": "forbidden"
+  }
+}

@@ -81,8 +81,15 @@ def _steps(summary: dict[str, Any]) -> list[dict[str, Any]]:
         if v["step"] == 0:
             continue
         status = v["status"]
-        if status == "rejected":
+        if status in ("rejected", "timeout"):
             reason = v["error"]
+        elif status == "timeout_salvaged":
+            better = (v["delta_vs_best"] or 0.0) > 0
+            reason = (
+                "scored after timeout; mean_v above best so far"
+                if better
+                else "scored after timeout; mean_v not above best so far"
+            )
         elif status == "accepted":
             reason = "mean_v above best so far"
         else:
@@ -104,7 +111,7 @@ def _steps(summary: dict[str, Any]) -> list[dict[str, Any]]:
 def _rule_breaks(steps: list[dict[str, Any]]) -> dict[str, int]:
     counts = dict.fromkeys(RULE_KEYS, 0)
     for s in steps:
-        if s["status"] == "rejected":
+        if s["status"] in ("rejected", "timeout"):
             counts[classify_rule_break(s["reason"] or "")] += 1
     return counts
 

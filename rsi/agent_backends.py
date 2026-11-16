@@ -27,6 +27,7 @@ SANDBOX_OUT = "/tmp/out"
 SANDBOX_REPO = "/tmp/repo"
 SANDBOX_HF_HUB = "/tmp/.cache/huggingface/hub"
 SANDBOX_EVIDENCE = "/tmp/evidence"
+SANDBOX_PKGS = "/tmp/pkgs"
 SANDBOX_PI_AGENT = "/tmp/pi-agent"
 SANDBOX_CLAUDE_CREDENTIALS = "/tmp/.claude/.credentials.json"
 BACKENDS = ("claude", "pi")
@@ -35,7 +36,7 @@ DEFAULT_BACKEND = "pi"
 DEFAULT_CLAUDE_MODEL = "haiku"
 DEFAULT_PI_EFFORT = "max"
 DEFAULT_CLAUDE_EFFORT = "low"
-DEFAULT_TOOLS = "read,write,edit"
+DEFAULT_TOOLS = "read,write,edit,bash"
 CLAUDE_TOOL_NAMES = {"read": "Read", "write": "Write", "edit": "Edit", "bash": "Bash"}
 MISTRAL_PLACEHOLDER_API = "openai-completions"
 MISTRAL_NATIVE_API = "mistral-conversations"
@@ -485,11 +486,6 @@ def load_agent_spec(
         effort=effort or base.get("effort") or _default_effort(chosen),
         tools=str(drsi.get("policy_dev_tools", DEFAULT_TOOLS)),
     )
-
-
-def default_agent_spec() -> AgentSpec:
-    """The agent named by the repository's frozen protocol."""
-    return load_agent_spec(STUDY_DIR)
 
 
 @functools.cache

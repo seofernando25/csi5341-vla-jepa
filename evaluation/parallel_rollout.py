@@ -352,7 +352,10 @@ def compare_trials(first: list[dict], second: list[dict]) -> dict:
     Returns missing/extra keys plus per-trial success and step diffs. Steps may
     differ under simulator nondeterminism; successes must not.
     """
-    key = lambda r: (int(r["task_id"]), int(r["trial"]))
+
+    def key(r: dict) -> tuple[int, int]:
+        return int(r["task_id"]), int(r["trial"])
+
     a = {key(r): r for r in first}
     b = {key(r): r for r in second}
     success_diffs = [

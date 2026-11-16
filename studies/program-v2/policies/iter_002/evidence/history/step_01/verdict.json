@@ -1,0 +1,16 @@
+{
+  "step": 1,
+  "slot": "m1_llm",
+  "status": "accepted",
+  "mean_v": 0.5796952276942772,
+  "delta_vs_best": 0.027952705674948897,
+  "error": null,
+  "attempts": 1,
+  "grid_plan": {
+    "max_branches": 2,
+    "max_attempts_per_branch": 5,
+    "max_parallelism": 1,
+    "rounds_cap": 6,
+    "rationale": "prior manifests: 3 with a passing refinement, 2 plateaued"
+  }
+}

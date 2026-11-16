@@ -7,7 +7,14 @@ import * as fmt from "../format.js";
 
 const highlightReady = import("../highlight.js").catch(() => null);
 const diffReady = import("../diff.js").catch(() => null);
-const VERDICT_TONE = { accepted: "ok", not_better: "warn", rejected: "err", running: "live" };
+const VERDICT_TONE = {
+  accepted: "ok",
+  not_better: "warn",
+  timeout: "warn",
+  timeout_salvaged: "warn",
+  rejected: "err",
+  running: "live",
+};
 
 /* --- shared chrome ------------------------------------------------------- */
 

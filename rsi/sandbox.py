@@ -23,10 +23,11 @@ from rsi.agent_backends import (
     SANDBOX_OUT,
     SANDBOX_REPO,
     SANDBOX_WORK,
+    STUDY_DIR,
     AgentSpec,
     agent_cli_version,
     agent_command,
-    default_agent_spec,
+    load_agent_spec,
     parse_agent_output,
 )
 from rsi.gpu import GPU_ENV, GPU_SLOTS_DIR, gpu_bind_args, gpu_slot
@@ -37,11 +38,11 @@ EVALUATOR_PHASES = ("check", "smoke", "development")
 EVALUATOR_RESULT = "result.json"
 EVALUATOR_LOG = "log.txt"
 MAX_RESULT_BYTES = 8 * 1024 * 1024
+DEFAULT_STUDY = "studies/program-v1"
 REPO_SOURCE_PATHS = (
     "evaluation",
     "rsi",
     "pyproject.toml",
-    "studies/program-v1/protocol.json",
     "outputs/compression/calibration.pt",
     "outputs/compression/references.pt",
     "outputs/compression/vendor",
@@ -159,12 +160,47 @@ def _python_homes(venv_python: Path) -> list[Path]:
     return list(homes)
 
 
-def repo_source_binds(repo_root: Path = REPO_ROOT) -> dict[Path, str]:
-    """Read-only repo source and evaluator inputs, each at its path under /tmp/repo, if present."""
+def study_rel(study_dir: Path | None, repo_root: Path = REPO_ROOT) -> str | None:
+    """Repo-relative study directory: the program-v1 default when none is named, None if outside."""
+    if study_dir is None:
+        return DEFAULT_STUDY
+    try:
+        return Path(study_dir).resolve().relative_to(Path(repo_root).resolve()).as_posix()
+    except ValueError:
+        return None
+
+
+def study_protocol(study_dir: Path | None, repo_root: Path = REPO_ROOT) -> str | None:
+    """Repo-relative `protocol.json` of the named study, or None when it cannot be mounted."""
+    rel = study_rel(study_dir, repo_root)
+    return f"{rel}/protocol.json" if rel else None
+
+
+def repo_source_binds(
+    repo_root: Path = REPO_ROOT, *, study_dir: Path | None = None, exclude: tuple[str, ...] = ()
+) -> dict[Path, str]:
+    """Read-only repo source and evaluator inputs, each at its path under /tmp/repo, if present.
+
+    A repo-relative path in `exclude` is left out. When it names a file inside a listed
+    directory, that directory is bound child by child instead, so the file cannot be reached.
+    The study's own `protocol.json` is the only protocol bound, so a run under one study cannot
+    read another study's phases, gates or seed.
+    """
     repo = Path(repo_root).resolve()
-    return {
-        repo / rel: f"{SANDBOX_REPO}/{rel}" for rel in REPO_SOURCE_PATHS if (repo / rel).exists()
-    }
+    binds: dict[Path, str] = {}
+    protocol = study_protocol(study_dir, repo)
+    for rel in (*REPO_SOURCE_PATHS, *([protocol] if protocol else [])):
+        src = repo / rel
+        if not src.exists():
+            continue
+        if not any(item == rel or item.startswith(f"{rel}/") for item in exclude):
+            binds[src] = f"{SANDBOX_REPO}/{rel}"
+            continue
+        for child in sorted(src.iterdir()):
+            child_rel = f"{rel}/{child.name}"
+            if child_rel not in exclude:
+                binds[child] = f"{SANDBOX_REPO}/{child_rel}"
+    return binds
 
 
 def build_bwrap_argv(
@@ -175,6 +211,7 @@ def build_bwrap_argv(
     repo_root: Path = REPO_ROOT,
     mount_venv: bool = True,
     extra_ro_binds: dict[Path, str] | None = None,
+    writable_dirs: dict[Path, str] | None = None,
     network: bool = False,
     env_overrides: dict[str, str] | None = None,
     gpu: bool = False,
@@ -208,6 +245,12 @@ def build_bwrap_argv(
     cmd.extend([workspace_mode, str(workspace), SANDBOX_WORK, "--chdir", SANDBOX_WORK])
     if out_dir is not None:
         cmd.extend(["--bind", str(Path(out_dir).resolve()), SANDBOX_OUT])
+    # Writable scratch outside the workspace (e.g. a package dir). Bound before the read-only
+    # mounts so a later read-only bind wins if the two ever name the same path.
+    for src, dst in (writable_dirs or {}).items():
+        target = Path(src).resolve()
+        target.mkdir(parents=True, exist_ok=True)
+        cmd.extend(["--bind", str(target), dst])
     if evidence_dir is not None:
         cmd.extend(["--ro-bind", str(Path(evidence_dir).resolve()), SANDBOX_EVIDENCE])
     for src, dst in (extra_ro_binds or {}).items():
@@ -548,29 +591,9 @@ def _evaluator_failure(message: str) -> dict[str, Any]:
     return {"status": "evaluator_failure", "error": message[-2000:]}
 
 
-def run_sandboxed_evaluator(
-    workspace_dir: Path,
-    phase: str,
-    out_dir: Path,
-    *,
-    timeout: float,
-    gpu_slots_dir: Path | None = None,
-    gpu_slot_count: int = 1,
-) -> dict[str, Any]:
-    """Run the fixed `solution` evaluator on a read-only workspace; return its parsed result.json.
-
-    Network is off, the workspace is read-only at /tmp/work and `out_dir` is writable at /tmp/out.
-    The run holds one GPU slot. `timeout` bounds the slot wait and the run separately. Any
-    timeout, missing or invalid result becomes `{"status": "evaluator_failure"}`.
-    """
-    if phase not in EVALUATOR_PHASES:
-        raise ValueError(f"phase must be one of {EVALUATOR_PHASES}; got {phase!r}")
-    workspace = Path(workspace_dir).resolve()
-    out = Path(out_dir).resolve()
-    out.mkdir(parents=True, exist_ok=True)
-    for stale in (EVALUATOR_RESULT, EVALUATOR_LOG):
-        (out / stale).unlink(missing_ok=True)
-    inner = [
+def evaluator_argv(phase: str, protocol: str) -> list[str]:
+    """Sandboxed `solution` evaluator argv for one phase, reading `protocol` under /tmp/repo."""
+    return [
         f"{SANDBOX_VENV}/bin/python",
         "-P",
         "-m",
@@ -582,7 +605,41 @@ def run_sandboxed_evaluator(
         phase,
         "--out",
         SANDBOX_OUT,
+        "--protocol",
+        protocol,
     ]
+
+
+def run_sandboxed_evaluator(
+    workspace_dir: Path,
+    phase: str,
+    out_dir: Path,
+    *,
+    timeout: float,
+    gpu_slots_dir: Path | None = None,
+    gpu_slot_count: int = 1,
+    study_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Run the fixed `solution` evaluator on a read-only workspace; return its parsed result.json.
+
+    Network is off, the workspace is read-only at /tmp/work and `out_dir` is writable at /tmp/out.
+    The run holds one GPU slot. `timeout` bounds the slot wait and the run separately. Any
+    timeout, missing or invalid result becomes `{"status": "evaluator_failure"}`. `study_dir`
+    selects the `protocol.json` the evaluator reads; without it the program-v1 study is used.
+    """
+    if phase not in EVALUATOR_PHASES:
+        raise ValueError(f"phase must be one of {EVALUATOR_PHASES}; got {phase!r}")
+    workspace = Path(workspace_dir).resolve()
+    out = Path(out_dir).resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    for stale in (EVALUATOR_RESULT, EVALUATOR_LOG):
+        (out / stale).unlink(missing_ok=True)
+    protocol = study_protocol(study_dir)
+    if protocol is None:
+        raise ValueError(
+            f"study dir {study_dir} is not under the repo; its protocol cannot be read"
+        )
+    inner = evaluator_argv(phase, f"{SANDBOX_REPO}/{protocol}")
     argv = build_bwrap_argv(
         inner,
         workspace_dir=workspace,
@@ -591,7 +648,7 @@ def run_sandboxed_evaluator(
         network=False,
         gpu=True,
         gpu_slots_dir=gpu_slots_dir,
-        source_ro=repo_source_binds(REPO_ROOT),
+        source_ro=repo_source_binds(REPO_ROOT, study_dir=study_dir),
     )
     try:
         with gpu_slot(Path(gpu_slots_dir or GPU_SLOTS_DIR), gpu_slot_count, timeout=timeout):
@@ -626,17 +683,21 @@ def run_sandboxed_agent(
     use_bwrap: bool = True,
     repo_root: Path = REPO_ROOT,
     extra_ro_binds: dict[Path, str] | None = None,
+    writable_dirs: dict[Path, str] | None = None,
     env_overrides: dict[str, str] | None = None,
     network: bool = False,
     gpu: bool = False,
     source_ro: dict[Path, str] | None = None,
     gpu_slots_dir: Path | None = None,
+    study_dir: Path | None = None,
 ) -> AgentRunResult:
     """Execute a discovery or policy-dev agent in an allowlist sandbox (`bwrap`).
 
     Built-in backends (`agent`, default: the protocol's agent) always get network access and
     require bwrap. A custom `agent_cmd` (tests, wrappers) gets network only with `network=True`
     and may run without bwrap via `use_bwrap=False`; it receives the prompt on stdin.
+    `study_dir` selects the study whose protocol names the default agent and the protocol the
+    workspace's own `tools/check.py` evaluates against.
     """
     custom = agent_cmd is not None
     if not custom and not use_bwrap:
@@ -649,7 +710,7 @@ def run_sandboxed_agent(
     logs.mkdir(parents=True, exist_ok=True)
     (evidence / "TASK.md").write_text(prompt_text, encoding="utf-8")
 
-    spec = None if custom else (agent or default_agent_spec())
+    spec = None if custom else (agent or load_agent_spec(study_dir or STUDY_DIR))
     backend_binds: dict[Path, str] = {}
     backend_env: dict[str, str] = {}
     if spec is None:
@@ -660,6 +721,9 @@ def run_sandboxed_agent(
     else:
         inner_argv, backend_binds, backend_env = agent_command(spec)
     backend = spec.backend if spec else "custom"
+    # The agent's `tools/check.py` runs the same evaluator; point it at this study's protocol.
+    protocol = study_protocol(study_dir, repo_root)
+    study_env = {"VLA_PROTOCOL": f"{SANDBOX_REPO}/{protocol}"} if protocol else {}
 
     if use_bwrap:
         argv = build_bwrap_argv(
@@ -669,8 +733,9 @@ def run_sandboxed_agent(
             repo_root=repo_root,
             mount_venv=True,
             extra_ro_binds={**backend_binds, **(extra_ro_binds or {})},
+            writable_dirs=writable_dirs,
             network=network or not custom,
-            env_overrides={**backend_env, **(env_overrides or {})},
+            env_overrides={**backend_env, **study_env, **(env_overrides or {})},
             gpu=gpu,
             gpu_slots_dir=gpu_slots_dir,
             source_ro=source_ro,
@@ -686,6 +751,7 @@ def run_sandboxed_agent(
             "CUDA_VISIBLE_DEVICES": "",
             "RSI_WORKSPACE_DIR": str(workspace),
             "RSI_EVIDENCE_DIR": str(evidence),
+            **study_env,
             **(env_overrides or {}),
         }
 

@@ -1,0 +1,228 @@
+diff --git a/proposal.md b/proposal.md
+index fdf9561..a20b3b3 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,55 +1,62 @@
+-# iter_002-b2-a1: NF4-packed inference core
++# iter_002-b2-a2: chunked NF4 dequantization + group 64 (peak-CUDA cut)
+ 
+-## Change relative to parent (`iter_002-b2-a0`)
+-- Keep the parent's exact removals: delete the V-JEPA2 video encoder/predictor/processor, replace
+-  the unused tied `lm_head` with `nn.Identity`, and replace the 151936-row token embedding with a
+-  compact embedding over the 53 calibration token ids.
+-- Replace the parent's selective INT8 packing with **NF4** (4-bit normal-float, group size 32,
+-  FP16 group scales) on every remaining inference Linear:
+-  - all Qwen vision-tower Linears;
+-  - all text-decoder self-attention projections;
+-  - all text-decoder MLP projections (all 28 layers, not only the middle 3-26);
+-  - all action-head Linears (any Linear whose input width is odd falls back to INT8, since NF4
+-    nibble packing needs an even width).
+-- Each packed layer is dequantized inside its own `forward`, so no BF16 copy survives `compress`.
+-- All changes are in place on the evaluator's policy object; no compressed copy is left behind.
++## Change relative to parent (`iter_002-b2-a1`)
++Keep the parent's exact removals (V-JEPA2 encoder/predictor/processor, tied `lm_head`, compact
++token embedding over the calibration token ids) and its NF4 packing of every remaining inference
++Linear (text attention, text MLP, vision tower, action head; odd input widths fall back to INT8).
++Two changes:
++
++1. **Chunked dequantization inside each packed layer.** The parent materialized the whole
++   dequantized weight with int64 index tensors before the GEMM. For a 12.6M-weight text-MLP layer
++   that is ~300 MB of int64 indices plus ~100 MB of float32 copies alive at once, which set the
++   evaluator's peak-CUDA figure (1.57 GB peak against 1.12 GB of packed weights). The new forward
++   allocates the final weight buffer once and fills it in chunks of ~1.5M weights; each chunk
++   decodes packed bytes with a single 256-row embedding lookup
++   (`byte_table[byte] = [codebook[low nibble], codebook[high nibble]]`) instead of shift + int64
++   scatter, scales in float32, and copies into the buffer. The single GEMM then runs on the same
++   values in the same order as the parent, so outputs are **bit-identical** (verified for NF4 and
++   INT8, odd/even widths, and under autocast with fp32 inputs).
++2. **NF4 group size 32 → 64** (still FP16 group scales). This halves the scale metadata
++   (~62 MB across the model) at the standard bitsandbytes block size. Measured action error on the
++   80 held-out frames improved from 0.109375 to 0.0820312, and the 10-episode gate kept the same
++   two failures (tasks 0 and 8) as the untouched policy.
++3. The weight buffer is allocated in the autocast dtype (bf16) when autocast is active. The parent
++   allocated it in the input dtype (fp32 for the vision merger) and let autocast cast it inside
++   `F.linear`; filling bf16 directly applies the same rounding and halves that buffer.
++
++All changes are in place on the evaluator's policy object; no compressed copy is left behind.
+ 
+ ## Why
+-NF4 stores 4 bits/weight plus a small FP16 scale per 32 weights (~0.5625 bytes/weight), versus
+-~1.0625 bytes/weight for INT8. After the parent's exact removals, the remaining weights are the
+-vision tower, text attention/MLP and action head. Packing all of them to NF4 cuts the resident
+-weight set from ~2.68 GB to ~1.12 GB. The action error stayed at 0.0547 when the action head
+-moved to NF4, and stayed at 0.109 when the first/last text MLPs moved to NF4; text-attention NF4
+-raised it from 0.055 to 0.109. The 10-episode smoke rollout kept the same two failures as the
+-untouched policy.
++The parent's resident figure was peak-bound: 1.570 GB peak vs 1.118 GB of packed weights, so
++~450 MB was transient dequantization storage. Chunking removes that transient without changing a
++single weight value (bit-exact outputs), and group 64 removes scale bytes. Both attack the two
++terms of `resident = max(walk, live CUDA, peak CUDA)` without touching the zero-margin 8/10 gate.
+ 
+ ## Last check output
+ ```
+ status: ok
+-memory removed: 72.0% (resident 1570129408 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.109375
+-latency ms: median 324.33, p95 357.14
++memory removed: 79.1% (resident 1173797888 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.08203125
++latency ms: median 244.10, p95 280.08
+ ```
++Run as `python -P -m evaluation.compression.study solution --workspace /tmp/work --phase check`
++(final workspace state, `workspace_sha256` ddcf536b114ea8f2a6bf24c266e5d9375e3ae8e8324dce94dab582780ed74e6c).
+ 
+-## Smoke rollout (same 10 development episodes as the gate)
++## Gate smoke rollout (same 10 development episodes the evaluator runs)
+ ```
+ status: ok, successes: 8/10
+-size_reduction: 0.7198493028108186
+-resident_bytes: 1570128384, baseline_resident_bytes: 5604584960
+-resident_before_inference_bytes: 1118204934
+-peak_cuda_bytes: 1570128384
++size_reduction: 0.7905648906426783
++resident_bytes: 1173796864, baseline_resident_bytes: 5604584960
++resident_before_inference_bytes: 1057599910
++resident_after_inference_bytes: 1057724505
++peak_cuda_bytes: 1173796864
+ ```
+-The two failures are tasks 0 and 8, the same tasks the untouched policy fails on this smoke set.
+-All ten tasks otherwise succeeded, so the gate's 8/10 threshold is met with the same failure set
+-as the parent and the untouched policy.
++Failures are tasks 0 and 8, exactly the tasks the untouched policy fails; tasks 1-7 and 9 pass.
+ 
+ ## Next
+-- The resident figure is now peak-CUDA bound (1.12 GB weights vs 1.57 GB peak). The largest
+-  remaining opportunity is activation/peak reduction, not weight bytes:
+-  - chunk the NF4 dequantization along output rows so the temporary index/weight tensor for a
+-    25M-weight MLP layer is not materialized in full;
+-  - dequantize directly to the input dtype (BF16) instead of float32.
+-- A small additional weight cut is possible with NF4 group size 64 (saves ~0.03 GB) or by
+-  quantizing the remaining norms, but both are minor compared with peak reduction.
+-- If more quality margin is needed, keep the action head BF16 or INT8; the current NF4 action
+-  head is the most aggressive choice and should be the first rollback if a new episode fails.
++- The remaining gap is 1.174 GB peak vs 1.058 GB of packed weights; the leftover is the full bf16
++  weight buffer of the largest layer plus activations. Chunking the GEMM itself would remove it
++  (~40 MB, ~0.7 points) but changes accumulation order by ~1 bf16 ulp, so it needs a gate run.
++- A 3-bit codebook for the low-influence middle text MLPs (using `calibration["block_influence"]`)
++  would save ~130 MB (~2.5 points) but changes weight values materially; validate on the gate.
++- Group size 128 saves another ~31 MB but is the next quality risk after group 64.
+diff --git a/solution.py b/solution.py
+index a0804db..67fded8 100644
+--- a/solution.py
++++ b/solution.py
+@@ -3,12 +3,11 @@
+ The inference path only uses the Qwen text/vision towers and the flow-matching action head.
+ The V-JEPA2 world model is training-only, and the tied vocabulary output head is unused because
+ the policy calls the inner Qwen model directly.  We remove those, keep only the prompt token
+-rows of the input embedding, and store the vision projections plus the text attention and
+-middle-layer MLP projections as packed low-bit weights.
++rows of the input embedding, and store every remaining inference Linear as packed NF4
++(4-bit normal-float, group size 64, FP16 group scales; odd input widths fall back to INT8).
+ 
+-Vision and the middle text MLP use NF4 (4-bit normal-float) with per-group scales; text
+-attention stays INT8.  The action head and the first/last text blocks stay BF16.  Each packed
+-layer is dequantized inside its own forward, so no BF16 copy survives `compress`.
++Each packed layer is dequantized inside its own forward in bounded chunks, so no BF16 copy
++survives `compress` and no full-size int64 index tensor is ever materialized.
+ """
+ 
+ from __future__ import annotations
+@@ -19,7 +18,7 @@ import torch
+ import torch.nn.functional as F
+ from torch import nn
+ 
+-_GROUP_SIZE = 32
++_GROUP_SIZE = 64
+ 
+ # Standard NF4 codebook (bitsandbytes), sorted ascending.
+ _NF4 = (
+@@ -43,7 +42,16 @@ _NF4 = (
+ 
+ 
+ class _PackedLinear(nn.Module):
+-    """Frozen Linear stored as packed INT8 or NF4 with per-group symmetric scales."""
++    """Frozen Linear stored as packed INT8 or NF4 with per-group symmetric scales.
++
++    Dequantization is chunked along output rows: a full float32 copy of a 12.6M-weight MLP
++    layer plus its int64 index tensor costs ~400 MB of transient CUDA storage, which dominates
++    the evaluator's peak-CUDA figure. A chunk of `_CHUNK_ELEMENTS` weights keeps that temporary
++    under ~30 MB while producing bit-identical rows (each output row is computed from exactly
++    the same dequantized values as the unchunked path).
++    """
++
++    _CHUNK_ELEMENTS = 1_500_000
+ 
+     def __init__(self, source: nn.Linear, kind: str = "int8") -> None:
+         super().__init__()
+@@ -54,6 +62,7 @@ class _PackedLinear(nn.Module):
+         self.kind = kind
+         group = _GROUP_SIZE if self.in_features % _GROUP_SIZE == 0 else self.in_features
+         self.group_size = group
++        self.chunk_rows = max(1, min(self.out_features, self._CHUNK_ELEMENTS // self.in_features))
+ 
+         weight = source.weight.detach().float()
+         groups = weight.reshape(self.out_features, -1, group)
+@@ -67,7 +76,14 @@ class _PackedLinear(nn.Module):
+             packed = (indices[:, 0::2] | (indices[:, 1::2] << 4)).contiguous()
+             self.register_buffer("packed", packed)
+             self.register_buffer("scales", scales.to(torch.float16))
+-            self.register_buffer("codebook", codebook)
++            # One row per byte: [codebook[low nibble], codebook[high nibble]].  Decoding a byte
++            # then costs a single 256-row embedding lookup instead of shifts plus an int64
++            # scatter into a full-size index tensor.
++            table = torch.empty((256, 2), device=weight.device, dtype=torch.float32)
++            codes = torch.arange(256, device=weight.device, dtype=torch.long)
++            table[:, 0] = codebook[codes & 0x0F]
++            table[:, 1] = codebook[codes >> 4]
++            self.register_buffer("byte_table", table)
+         else:
+             scales = groups.abs().amax(dim=-1).clamp_min(1e-8) / 127.0
+             values = (
+@@ -88,26 +104,31 @@ class _PackedLinear(nn.Module):
+             self.out_features if source.bias is not None else 0
+         )
+ 
+-    def _weight(self, dtype: torch.dtype) -> torch.Tensor:
++    def _dequant_into(self, out: torch.Tensor, start: int, stop: int) -> None:
++        rows = stop - start
+         if self.kind == "nf4":
+-            lo = (self.packed & 0x0F).to(torch.long)
+-            hi = (self.packed >> 4).to(torch.long)
+-            indices = torch.empty(
+-                (self.out_features, self.in_features), device=self.packed.device, dtype=torch.long
+-            )
+-            indices[:, 0::2] = lo
+-            indices[:, 1::2] = hi
+-            weight = self.codebook[indices]
+-            weight = weight.reshape(self.out_features, -1, self.group_size)
+-            weight = weight * self.scales.to(torch.float32).unsqueeze(-1)
++            codes = self.packed[start:stop].to(torch.int32)
++            weight = F.embedding(codes, self.byte_table).reshape(rows, self.in_features)
++            weight = weight.reshape(rows, -1, self.group_size)
++            weight = weight * self.scales[start:stop].to(torch.float32).unsqueeze(-1)
+         else:
+-            weight = self.weight_int8.to(torch.float32)
+-            weight = weight.reshape(self.out_features, -1, self.group_size)
+-            weight = weight * self.scales.to(torch.float32).unsqueeze(-1)
+-        return weight.reshape(self.out_features, self.in_features).to(dtype)
++            weight = self.weight_int8[start:stop].to(torch.float32)
++            weight = weight.reshape(rows, -1, self.group_size)
++            weight = weight * self.scales[start:stop].to(torch.float32).unsqueeze(-1)
++        out[start:stop].copy_(weight.reshape(rows, self.in_features))
+ 
+     def forward(self, x: torch.Tensor) -> torch.Tensor:
+-        return F.linear(x, self._weight(x.dtype), self.bias)
++        # Fill one weight buffer chunk by chunk, then run the same single GEMM the dense layer
++        # would run: identical values in, identical accumulation order out.  Under autocast the
++        # GEMM consumes bf16 anyway, so allocate the buffer in the autocast dtype; casting each
++        # fp32 dequantized value straight into it is the same rounding the op would apply.
++        dtype = x.dtype
++        if torch.is_autocast_enabled():
++            dtype = torch.get_autocast_dtype("cuda")
++        weight = torch.empty((self.out_features, self.in_features), dtype=dtype, device=x.device)
++        for start in range(0, self.out_features, self.chunk_rows):
++            self._dequant_into(weight, start, min(start + self.chunk_rows, self.out_features))
++        return F.linear(x, weight, self.bias)
+ 
+ 
+ class _CompactEmbedding(nn.Module):

@@ -74,6 +74,7 @@ studies/*/cycles/*/gpu-slots/
 # candidate.py, replay and evidence/history records are the evidence.
 studies/*/policies/*/step_*/workspace/
 studies/*/policies/*/step_*/logs/
+studies/*/policies/*/step_*/pkgs/
 
 # Required presentation clips, explicitly retained for the offline viewer.
 !/web/presentation/assets/droid-demonstration.mp4

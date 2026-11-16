@@ -1,0 +1,338 @@
+diff --git a/proposal.md b/proposal.md
+index f1c4f42..c06dcfd 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,41 +1,43 @@
+-# iter_001-b2-a0 — remove inference-dead weights and compact the prompt embedding
++# iter_001-b2-a1 — INT4 weight-only compression of the live Qwen/action backbone
+ 
+-## What changed relative to the parent (`root`)
++## What changed relative to the parent (`iter_001-b2-a0`)
+ 
+-The parent is the untouched B16 policy (identity `compress`).  This node changes
+-`solution.py` to make three in-place, inference-exact changes:
++The parent already removed the inference-dead payloads exactly:
+ 
+-1. **Remove the V-JEPA world model.** `policy.model.video_encoder`,
+-   `video_predictor` and `video_processor` are only used by `_world_model_loss`
+-   during training.  `predict_action_chunk` / `select_action` call
+-   `VLAJEPAModel.predict_action`, which uses only Qwen and the action head.
+-   This drops ~967 MB of bf16 weights (326M + 157M parameters).
+-2. **Remove the tied `lm_head`.** `_qwen_last_decoder_hidden` calls the inner
+-   `Qwen3VLModel` directly and never builds logits.  `lm_head.weight` aliases
+-   `embed_tokens.weight`, so replacing it with `nn.Identity()` is required before
+-   the embedding can shrink; it frees the full 151936×2048 table.
+-3. **Compact `embed_tokens`.** The frozen calibration provides the unique prompt
+-   token ids seen on the fixed LIBERO-Spatial tasks.  A lookup table maps those
+-   ids to a small embedding table; unseen ids would make `F.embedding` fail
+-   loudly instead of silently remapping.  This is exact for the fixed task suite
+-   and reduces the 622 MB embedding to a few MB.
++1. the V-JEPA world model (`video_encoder`, `video_predictor`, `video_processor`);
++2. the tied `lm_head`, which `_qwen_last_decoder_hidden` never calls;
++3. all but the 53 prompt-embedding rows seen in the frozen calibration.
+ 
+-All originals are freed in place, so the evaluator's held reference to the same
+-policy sees the smaller tensors.  A forward-hook trace of
+-`predict_action_chunk` confirmed that the only parameterized modules never
+-called are `lm_head`, the V-JEPA encoder/predictor, and
+-`action_model.future_tokens` (the latter is read directly as
+-`future_tokens.weight`, not through its `forward`, so it is retained).
++That leaves ~4.0 GB of genuinely live weights: the Qwen text decoder, the Qwen
++vision tower, and the DiT action head.  This node compresses those in place:
++
++- **INT4 weight-only quantization of every large Linear layer** in the text,
++  vision and action roots.  Weights are packed with PyTorch's Ampere-compatible
++  tinygemm layout (`torch._convert_weight_to_int4pack` /
++  `torch._weight_int4pack_mm`), with affine group size 128 (scales and zeros
++  stored in bf16).  Activations and biases stay bf16.  The original bf16
++  weights are replaced and released, not copied.
++- **Action-head position embedding compaction**: the head indexes only
++  positions `0..action_horizon-1` (7 rows), so the 1024-row table is replaced by
++  its first 7 rows.  This is exact.
++- **Small embedding lookup cleanup**: the compact embedding's lookup table is
++  int32 instead of int64, and the padding row is retained.
++
++The quantization is deliberately weight-only: no activation quantization, no
++layer/head removal, and no change to the inference graph.  The measured action
++error on the 80 held-out frames is 0.140625 maximum normalized difference, and
++the 10-episode smoke run keeps exactly the parent's success pattern (tasks 0 and
++8 fail, the other eight succeed).
+ 
+ ## Last check output
+ 
+-`python tools/check.py` (final run, solution.py unchanged):
++`python tools/check.py` (final solution.py):
+ 
+ ```
+ status: ok
+-memory removed: 28.4% (resident 4014329344 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0
+-latency ms: median 97.75, p95 172.27
++memory removed: 79.6% (resident 1142731264 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.140625
++latency ms: median 165.61, p95 259.28
+ ```
+ 
+ The evaluator's 10-episode smoke phase on the same workspace:
+@@ -43,23 +45,24 @@ The evaluator's 10-episode smoke phase on the same workspace:
+ ```
+ status: ok, phase: smoke
+ successes: 8 / 10
+-size_reduction: 0.28374208819202196
+-resident_bytes: 4014328320, baseline_resident_bytes: 5604584960
+-peak_cuda_bytes: 4014328320
++size_reduction: 0.7961079637197613
++resident_bytes: 1142730240, baseline_resident_bytes: 5604584960
++peak_cuda_bytes: 1142730240
++per-task: task 0 fail, tasks 1-7 pass, task 8 fail, task 9 pass
+ ```
+ 
+-The 8/10 smoke result matches the untouched policy exactly (tasks 0 and 8 fail,
+-all others succeed), and the action error on all 80 held-out frames is exactly
+-zero.
++This is the same per-task pattern as the untouched policy and as the parent,
++so the smoke gate remains at 8/10 with the same two pre-existing failures.
+ 
+ ## What I would try next
+ 
+-Because the smoke gate is exactly 8/10 (no margin), I deliberately stopped at
+-exact structural removal rather than adding a lossy step.  If a later node has
+-evidence of margin (e.g. the untouched policy scores 9–10/10 on the scoring
+-episodes), the next step would be calibration-aware int8 quantization of the
+-vision encoder and text decoder projections, keeping the action head in bf16,
+-with the 80-frame action error and a smoke run as the acceptance test.  A
+-smaller exact win still available is compacting the action head's
+-`position_embedding` from 1024 rows to the 7 positions actually used (~1.6 MB),
+-but it is negligible relative to the 28.4% already removed.
++The remaining resident bytes are almost entirely the 4-bit packed weights plus
++the ~72 MB inference activation peak; exact structural removal is exhausted.
++The next step would be a mixed-precision split: keep attention and the action
++head at INT4/INT8, and try 3-bit or 2-bit HQQ only on the text/vision MLP
++matrices, accepting the larger action error only if a smoke run still shows
++8/10.  A safer intermediate is group size 64 for the INT4 scales (slightly more
++memory, lower action error), followed by another smoke run.  I would not remove
++whole decoder blocks: the calibration block influences are small for many text
++layers, but the gate has no margin, so a lossy structural change is riskier than
++the measured 4-bit weight-only change.
+diff --git a/solution.py b/solution.py
+index 5934f42..6ca83cd 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,18 +1,25 @@
+ """Compression entry point for the VLA-JEPA B16 policy.
+ 
+-The deployed inference path only uses the Qwen text/vision backbone and the action
+-head.  The V-JEPA world-model encoder/predictor are training-only, the tied
+-``lm_head`` is bypassed by ``_qwen_last_decoder_hidden``, and only the prompt token
+-ids present in the frozen calibration vocabulary can ever reach ``embed_tokens``.
+-Removing those three payloads is exact for this fixed LIBERO-Spatial policy.
++The deployed inference path uses only the Qwen text/vision backbone and the action
++head.  This solution keeps the parent's exact structural removals (V-JEPA world
++model, tied ``lm_head``, unused prompt-embedding rows) and adds weight-only
++quantization of the large Linear layers, which is the only remaining large
++payload.  Quantized weights are stored packed in place; the original bf16
++storages are released.
+ """
+ 
+ from __future__ import annotations
+ 
++import math
++
+ import torch
+ import torch.nn.functional as F
+ from torch import nn
+ 
++# "int8" stores one signed byte per weight with per-group scales; "int4" uses
++# PyTorch's tinygemm 4-bit packing with affine group scales/zeros.
++MODE = "int4_all"
++
+ 
+ class CompactEmbedding(nn.Module):
+     """Embedding table restricted to token ids the frozen policy can actually receive."""
+@@ -26,10 +33,8 @@ class CompactEmbedding(nn.Module):
+                 torch.cat([ids, torch.tensor([source.padding_idx], device=device, dtype=torch.long)])
+             )
+         ids = ids.sort().values
+-        lookup = torch.full(
+-            (source.num_embeddings,), -1, device=device, dtype=torch.long
+-        )
+-        lookup[ids] = torch.arange(len(ids), device=device, dtype=torch.long)
++        lookup = torch.full((source.num_embeddings,), -1, device=device, dtype=torch.int32)
++        lookup[ids] = torch.arange(len(ids), device=device, dtype=torch.int32)
+         self.register_buffer("lookup", lookup)
+         self.weight = nn.Parameter(source.weight.detach()[ids].clone(), requires_grad=False)
+         self.num_embeddings, self.embedding_dim = self.weight.shape
+@@ -40,13 +45,154 @@ class CompactEmbedding(nn.Module):
+                 self.padding_idx = int(position[0])
+ 
+     def forward(self, ids: torch.Tensor) -> torch.Tensor:
+-        # The frozen LIBERO-Spatial prompt vocabulary is closed; an unseen id would be a
+-        # harness change, and the lookup's -1 would make F.embedding fail loudly then.
+-        return F.embedding(self.lookup[ids], self.weight, self.padding_idx)
++        return F.embedding(self.lookup[ids].long(), self.weight, self.padding_idx)
++
++
++class Int8Linear(nn.Module):
++    """Weight-only INT8 Linear with symmetric per-group scales; bf16 activations."""
++
++    def __init__(self, source: nn.Linear, group_size: int = 64) -> None:
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        weight = source.weight.detach().float()
++        out_features, in_features = weight.shape
++        if in_features % group_size:
++            groups = 1
++            reshaped = weight.reshape(out_features, 1, in_features)
++        else:
++            groups = in_features // group_size
++            reshaped = weight.reshape(out_features, groups, group_size)
++        scales = reshaped.abs().amax(-1, keepdim=True).clamp_min(1e-8) / 127
++        quantized = (reshaped / scales).round().clamp(-127, 127).to(torch.int8)
++        self.register_buffer("qweight", quantized.reshape(out_features, in_features))
++        self.register_buffer("scales", scales.squeeze(-1).to(torch.bfloat16))
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++
++    def forward(self, x: torch.Tensor) -> torch.Tensor:
++        weight = self.qweight.to(x.dtype)
++        if self.group_size and self.in_features % self.group_size == 0:
++            weight = weight.reshape(self.out_features, -1, self.group_size)
++            weight = weight * self.scales.to(x.dtype)[:, :, None]
++            weight = weight.reshape(self.out_features, self.in_features)
++        else:
++            weight = weight * self.scales.to(x.dtype)[:, None]
++        return F.linear(x, weight, self.bias)
++
++
++def affine_quantize(weight: torch.Tensor, group_size: int = 128):
++    groups = weight.float().reshape(weight.shape[0], -1, group_size)
++    low = torch.minimum(groups.amin(-1), torch.zeros_like(groups[..., 0]))
++    high = torch.maximum(groups.amax(-1), torch.zeros_like(groups[..., 0]))
++    scales = ((high - low) / 15).clamp_min(1e-8)
++    zeros = (-low / scales).round().clamp(0, 15)
++    quantized = (groups / scales[..., None] + zeros[..., None]).round().clamp(0, 15)
++    return quantized.reshape_as(weight).to(torch.uint8), scales, zeros
++
++
++class PackedInt4(nn.Module):
++    """Groupwise affine INT4 using PyTorch's Ampere-compatible tinygemm kernel."""
++
++    def __init__(self, source: nn.Linear, group_size: int = 128) -> None:
++        super().__init__()
++        self.in_features = source.in_features
++        self.out_features = source.out_features
++        self.group_size = group_size
++        values, scales, zeros = affine_quantize(source.weight.detach(), group_size)
++        k = math.ceil(self.in_features / 1024) * 1024
++        n = math.ceil(self.out_features / 8) * 8
++        self.padded_k, self.padded_n = k, n
++        packed_input = torch.full((n, k), 8, device=values.device, dtype=torch.uint8)
++        packed_input[: self.out_features, : self.in_features] = values.to(torch.uint8)
++        packed = (packed_input[:, ::2] << 4) | packed_input[:, 1::2]
++        self.register_buffer(
++            "packed_weight", torch._convert_weight_to_int4pack(packed.contiguous(), 8)
++        )
++        scale = torch.ones((n, k // group_size), device=values.device, dtype=torch.float32)
++        zero = torch.zeros_like(scale)
++        groups = self.in_features // group_size
++        scale[: self.out_features, :groups] = scales
++        zero[: self.out_features, :groups] = scales * (8 - zeros)
++        self.register_buffer(
++            "scales_zeros",
++            torch.stack((scale, zero), -1).transpose(0, 1).contiguous().to(torch.bfloat16),
++        )
++        self.bias = (
++            nn.Parameter(source.bias.detach().clone(), requires_grad=False)
++            if source.bias is not None
++            else None
++        )
++
++    def forward(self, x: torch.Tensor) -> torch.Tensor:
++        flat = x.reshape(-1, self.in_features).to(torch.bfloat16)
++        if self.padded_k != self.in_features:
++            flat = F.pad(flat, (0, self.padded_k - self.in_features))
++        output = torch._weight_int4pack_mm(
++            flat, self.packed_weight, self.group_size, self.scales_zeros
++        )
++        output = output[:, : self.out_features].reshape(*x.shape[:-1], self.out_features)
++        return output if self.bias is None else output + self.bias
++
++
++def _wants(name: str, mode: str) -> str | None:
++    """Return the requested storage for one Linear path, or None to keep bf16."""
++    if mode == "int8_tv":
++        return "int8" if not name.startswith("action.") else None
++    if mode == "int8_all":
++        return "int8"
++    if mode == "int4_tv":
++        return "int4" if not name.startswith("action.") else None
++    if mode == "int4_all":
++        return "int4"
++    if mode == "int4_mlp":
++        # 4-bit only for the MLP feed-forward matrices; attention stays INT8.
++        return "int4" if ".mlp." in name or ".ff." in name else "int8"
++    if mode == "int4_text_mlp":
++        return "int4" if name.startswith("text.") and ".mlp." in name else "int8"
++    raise ValueError(f"unknown compression mode {mode!r}")
++
++
++def quantize_module(module: nn.Module, prefix: str, mode: str) -> None:
++    for name, child in list(module.named_children()):
++        full = f"{prefix}.{name}" if prefix else name
++        if isinstance(child, nn.Linear):
++            requested = _wants(full, mode)
++            if requested is None:
++                continue
++            if requested == "int4":
++                if child.in_features % 128 or child.out_features % 8:
++                    # The tinygemm packing requires these alignments; the few tiny
++                    # interface layers that miss them stay bf16 (a few MB).
++                    continue
++                replacement = PackedInt4(child)
++            else:
++                if child.in_features < 64:
++                    continue
++                replacement = Int8Linear(child)
++            setattr(module, name, replacement)
++        else:
++            quantize_module(child, full, mode)
++
++
++def compact_action_positions(policy) -> None:
++    """The action head only ever indexes positions 0..action_horizon-1."""
++    action = policy.model.action_model
++    source = action.position_embedding
++    rows = action.action_horizon
++    if source.num_embeddings <= rows:
++        return
++    replacement = nn.Embedding(rows, source.embedding_dim, device=source.weight.device, dtype=source.weight.dtype)
++    replacement.weight = nn.Parameter(source.weight.detach()[:rows].clone(), requires_grad=False)
++    action.position_embedding = replacement
+ 
+ 
+ def compress(policy, calibration):
+-    """Drop training-only / bypassed weights in place and compact the embedding table."""
++    """Drop training-only / bypassed weights in place and quantize the large Linears."""
+     model = policy.model
+ 
+     # V-JEPA world model is only consumed by the training loss; predict_action never
+@@ -63,4 +209,14 @@ def compress(policy, calibration):
+     text = qwen.model.model.language_model
+     text.embed_tokens = CompactEmbedding(text.embed_tokens, calibration["token_ids"])
+ 
++    compact_action_positions(policy)
++
++    # Quantize the remaining large Linear payloads in place.  The original bf16
++    # storages are released as each module is replaced.
++    quantize_module(text, "text", MODE)
++    quantize_module(qwen.model.model.visual, "vision", MODE)
++    if MODE.endswith("_all") or MODE in {"int4_mlp"}:
++        quantize_module(model.action_model, "action", MODE)
++
++    torch.cuda.empty_cache()
+     return policy

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from rsi.agent_backends import BACKENDS, STUDY_DIR, AgentSpec, load_agent_spec
+from rsi.policy_dev import DEFAULT_POLICY_TIMEOUT_S
 
 Evaluator = Callable[[Path, str, Path], dict[str, Any]]
 EVALUATOR_HELP = (
@@ -77,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     dev.add_argument("--m", type=int, default=4)
     dev.add_argument("--max-parallelism", type=int, default=4)
     _add_agent_args(dev)
-    dev.add_argument("--timeout", type=float, default=240.0)
+    dev.add_argument("--timeout", type=float, default=DEFAULT_POLICY_TIMEOUT_S)
     dev.add_argument("--no-bwrap", action="store_true")
 
     loop = sub.add_parser("loop", help="Run full Dream-RSI outer loop (cycle + LLM policy dev)")
@@ -95,7 +96,7 @@ def main(argv: list[str] | None = None) -> int:
     loop.add_argument(
         "--eval-timeout", type=float, default=None, help="Seconds (default: protocol)"
     )
-    loop.add_argument("--policy-timeout", type=float, default=240.0)
+    loop.add_argument("--policy-timeout", type=float, default=DEFAULT_POLICY_TIMEOUT_S)
     loop.add_argument("--no-bwrap", action="store_true")
     loop.add_argument("--evaluator", default=None, help=EVALUATOR_HELP)
     loop.add_argument("--max-hours", type=float, default=None, help="Wall-clock budget per call")
@@ -203,6 +204,7 @@ def main(argv: list[str] | None = None) -> int:
             agent=_agent_spec(args, study_dir),
             timeout=args.timeout,
             use_bwrap=not args.no_bwrap,
+            record_root=study_dir,
         )
         print(json.dumps(payload, indent=2))
         return 0

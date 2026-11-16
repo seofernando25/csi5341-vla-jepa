@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 from dataclasses import asdict, dataclass, field
@@ -16,10 +17,13 @@ from typing import Any
 
 from rsi.agent_backends import (
     SANDBOX_EVIDENCE,
+    SANDBOX_PKGS,
+    SANDBOX_REPO,
     SANDBOX_WORK,
+    STUDY_DIR,
     AgentSpec,
     agent_record,
-    default_agent_spec,
+    load_agent_spec,
 )
 from rsi.api import GridPlanningContext
 from rsi.dream import leave_one_world_out
@@ -34,15 +38,19 @@ from rsi.policy_audit import (
 from rsi.replay_worker import load_tree_json, save_tree_json
 from rsi.sandbox import (
     REPO_ROOT,
+    SANDBOX_VENV,
     AgentRunResult,
     SandboxOutputError,
     SandboxTimeoutError,
     read_agent_output,
+    repo_source_binds,
     run_sandboxed_agent,
     run_sandboxed_python,
+    timed_out_result,
 )
 from rsi.synth import scenario_suite
 from rsi.tree import DiscoveryTree
+from rsi.workspace import MAX_WORKSPACE_BYTES
 
 __all__ = [
     "INCUMBENT_TEMPLATE",
@@ -65,6 +73,13 @@ RSI_LIB_FILES = (
     "policy_audit.py",
     "replay_worker.py",
 )
+# Repo source the policy agent may read, minus the held-out world generator: the held-out
+# worlds are reported next to V and must not be reproducible from inside the workspace.
+POLICY_DEV_SOURCE_EXCLUDE = ("rsi/synth.py",)
+PKG_DIR_NAME = "pkgs"
+REPLAY_SCRIPT_NAME = "replay.py"
+UV_BIN = "/tmp/bin/uv"
+DEFAULT_POLICY_TIMEOUT_S = 1200.0
 MAX_METHOD_BYTES = 200_000
 MAX_RESULT_BYTES = 4 * 1024 * 1024
 MAX_TRACE_BYTES = 32 * 1024 * 1024
@@ -74,6 +89,55 @@ REPAIR_SUFFIX = (
     "\n\n### Previous attempt validation failure\n{error}\n\n"
     "Fix every violation in `/tmp/work/method.py` cleanly."
 )
+NOT_BETTER_SUFFIX = (
+    "\n\n### Previous attempt did not improve V\n"
+    "Its mean V {mean_v:.6f} is not above the incumbent's {best:.6f} "
+    "(delta {delta:+.6f}).\n\n"
+    "Make one different, larger change in `/tmp/work/method.py`. Run "
+    "`python /tmp/work/replay.py` and keep the change only if mean V rises above {best:.6f}."
+)
+REPLAY_SCRIPT = '''"""Score a candidate policy on this step's recorded trees, exactly as the harness does.
+
+Usage: python replay.py [POLICY]   (default: method.py in this workspace)
+
+Prints V per world and the mean V the harness would record. The harness reruns the replay
+itself after you finish; only its result counts.
+"""
+
+import os
+import sys
+from pathlib import Path
+
+from rsi.replay_worker import run_worker
+
+MAX_PARALLELISM = __MAX_PARALLELISM__
+LAMBDA_PARALLEL = __LAMBDA_PARALLEL__
+
+
+def main() -> int:
+    evidence = Path(os.environ.get("RSI_EVIDENCE_DIR", "/tmp/evidence"))
+    workspace = Path(os.environ.get("RSI_WORKSPACE_DIR", "/tmp/work"))
+    worlds = sorted((evidence / "worlds").glob("*.json"))
+    policy = Path(sys.argv[1]) if len(sys.argv) > 1 else workspace / "method.py"
+    try:
+        result, _ = run_worker(
+            policy, worlds, max_parallelism=MAX_PARALLELISM, lambda_parallel=LAMBDA_PARALLEL
+        )
+    except Exception as exc:
+        print(f"replay failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 1
+    for world_id, world in result["worlds"].items():
+        print(
+            f"{world_id}: V={world['v']:.6f} hypervolume={world['hypervolume']:.6f} "
+            f"penalty={world['penalty']:.6f}"
+        )
+    print(f"mean V = {result['mean_v']:.6f} over {len(result['worlds'])} world(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+'''
 
 
 class PolicyReplayError(RuntimeError):
@@ -84,6 +148,12 @@ def _rsi_ro_binds() -> dict[Path, str]:
     return {RSI_DIR / name: f"{RSI_LIB_ROOT}/rsi/{name}" for name in RSI_LIB_FILES}
 
 
+def _replay_script(max_parallelism: int, lambda_parallel: float) -> str:
+    return REPLAY_SCRIPT.replace("__MAX_PARALLELISM__", str(int(max_parallelism))).replace(
+        "__LAMBDA_PARALLEL__", repr(float(lambda_parallel))
+    )
+
+
 def _build_policy_dev_prompt(
     *,
     cycle_id: str,
@@ -91,6 +161,7 @@ def _build_policy_dev_prompt(
     steps: int,
     max_parallelism: int,
     lambda_parallel: float,
+    minutes: float,
     prompt_path: Path,
 ) -> str:
     template = Path(prompt_path).read_text(encoding="utf-8")
@@ -100,7 +171,58 @@ def _build_policy_dev_prompt(
         cycle_id=cycle_id,
         lambda_parallel=lambda_parallel,
         max_parallelism=max_parallelism,
+        minutes=f"{minutes:.0f}",
     )
+
+
+def _agent_sandbox(step_dir: Path, study_dir: Path | None = None) -> dict[str, Any]:
+    """Extra mounts and env for the policy agent: repo source, GPU, and a writable package dir."""
+    pkgs = Path(step_dir) / PKG_DIR_NAME
+    pkgs.mkdir(parents=True, exist_ok=True)
+    binds: dict[Path, str] = {}
+    path = [f"{SANDBOX_VENV}/bin", "/usr/bin"]
+    uv = shutil.which("uv")
+    if uv:
+        # `uv` is a host tool, not a venv entry point; the agent needs it to install packages.
+        binds[Path(uv)] = UV_BIN
+        path.insert(0, str(Path(UV_BIN).parent))
+    return {
+        "source_ro": repo_source_binds(study_dir=study_dir, exclude=POLICY_DEV_SOURCE_EXCLUDE),
+        "writable_dirs": {pkgs: SANDBOX_PKGS},
+        "extra_ro_binds": binds,
+        "env_overrides": {
+            "PATH": ":".join(path),
+            "PYTHONPATH": f"{SANDBOX_PKGS}:{SANDBOX_REPO}",
+            "UV_CACHE_DIR": "/tmp/.cache/uv",
+            "UV_LINK_MODE": "copy",
+        },
+    }
+
+
+def _workspace_bytes(root: Path) -> int:
+    """Total size of the regular files in one workspace; symlinks are not followed."""
+    total = 0
+    for dirpath, _dirnames, filenames in os.walk(root, followlinks=False):
+        for name in filenames:
+            try:
+                info = os.lstat(os.path.join(dirpath, name))
+            except OSError:
+                continue
+            if stat.S_ISREG(info.st_mode):
+                total += info.st_size
+    return total
+
+
+def _recorded_path(path: Path | None, record_root: Path | None) -> str | None:
+    """A path as recorded in evidence: relative to `record_root` when it is under it."""
+    if path is None:
+        return None
+    if record_root is None:
+        return str(path)
+    try:
+        return Path(path).resolve().relative_to(Path(record_root).resolve()).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def _sha256(path: Path) -> str:
@@ -213,6 +335,7 @@ class _Run:
     timeout: float
     use_bwrap: bool
     plan_context: GridPlanningContext | None = None
+    study_dir: Path | None = None
     results: list[AgentRunResult] = field(default_factory=list)
 
     def replay(
@@ -276,20 +399,84 @@ def _check_text(
     return result, traces, plan
 
 
-def _run_agent_step(run: _Run, step: int, seed_text: str) -> dict[str, Any]:
-    """Let the agent rewrite the best policy so far; one repair attempt on validation failure."""
+def _reject(rec: dict[str, Any], error: str, status: str = "rejected") -> dict[str, Any]:
+    """Record a failed step; a measurement from an earlier attempt no longer applies."""
+    rec.update(
+        status=status,
+        error=error,
+        result=None,
+        traces=None,
+        plan=None,
+        path=None,
+        mean_v=None,
+        delta_vs_best=None,
+    )
+    return rec
+
+
+def _salvage_timeout(
+    run: _Run,
+    ws: Path,
+    step_dir: Path,
+    rec: dict[str, Any],
+    best_mean_v: float,
+    timeout_error: str,
+) -> dict[str, Any]:
+    """Score the file a timed-out step left behind, so the step is not wasted.
+
+    The step is anytime: the agent is told to keep a valid `method.py` from early on, and the
+    harness audits and replays whatever is there when the clock runs out. A scored file is
+    `timeout_salvaged` and competes like any other candidate; a missing or unusable file leaves the
+    step a plain `timeout`, with the reason recorded.
+    """
+    if _workspace_bytes(ws) > MAX_WORKSPACE_BYTES:
+        return _reject(rec, f"workspace exceeds {MAX_WORKSPACE_BYTES} bytes", status="timeout")
+    try:
+        text = read_agent_output(ws, "method.py", max_bytes=MAX_METHOD_BYTES)
+    except SandboxOutputError:
+        return _reject(rec, timeout_error, status="timeout")
+    rec["text"] = text
+    try:
+        result, traces, plan = _check_text(run, step_dir, text)
+    except (SandboxTimeoutError, SandboxOutputError) as exc:
+        return _reject(rec, f"{timeout_error}; salvage failed: {exc}", status="timeout")
+    except (PolicyAuditError, PolicyReplayError) as exc:
+        return _reject(rec, f"{timeout_error}; salvage failed: {exc}", status="timeout")
+    mean_v = float(result["mean_v"])
+    rec.update(
+        status="timeout_salvaged",
+        result=result,
+        traces=traces,
+        plan=plan,
+        path=step_dir / "candidate.py",
+        mean_v=mean_v,
+        delta_vs_best=mean_v - best_mean_v,
+        error=timeout_error,
+    )
+    return rec
+
+
+def _run_agent_step(run: _Run, step: int, seed_text: str, best_mean_v: float) -> dict[str, Any]:
+    """Rewrite the best policy so far; one repair attempt after any failed or flat step."""
     step_dir = run.out_root / f"step_{step:02d}"
     ws = step_dir / "workspace"
     ws.mkdir(parents=True, exist_ok=True)
     (ws / "method.py").write_text(seed_text, encoding="utf-8")
+    (ws / REPLAY_SCRIPT_NAME).write_text(
+        _replay_script(run.max_parallelism, run.lambda_parallel), encoding="utf-8"
+    )
     base_prompt = _build_policy_dev_prompt(
         cycle_id=run.cycle_id,
         step=step,
         steps=run.steps,
         max_parallelism=run.max_parallelism,
         lambda_parallel=run.lambda_parallel,
+        minutes=run.timeout / 60.0,
         prompt_path=run.prompt_path,
     )
+    # `run_sandboxed_agent` rewrites evidence/TASK.md on every call; keep the step's own copy.
+    (step_dir / "TASK.md").write_text(base_prompt, encoding="utf-8")
+    sandbox = _agent_sandbox(step_dir, run.study_dir) if run.use_bwrap else {}
     rec: dict[str, Any] = {
         "step": step,
         "slot": f"m{step}_llm",
@@ -301,48 +488,69 @@ def _run_agent_step(run: _Run, step: int, seed_text: str) -> dict[str, Any]:
         "traces": None,
         "plan": None,
         "path": None,
+        "mean_v": None,
+        "delta_vs_best": None,
     }
     prompt = base_prompt
     for attempt in (1, 2):
         rec["attempts"] = attempt
+        logs = step_dir / "logs" / f"attempt_{attempt}"
+        if attempt > 1:
+            (step_dir / f"TASK_attempt_{attempt:02d}.md").write_text(prompt, encoding="utf-8")
         try:
             agent = run_sandboxed_agent(
                 prompt_text=prompt,
                 workspace_dir=ws,
                 evidence_dir=run.evidence,
-                logs_dir=step_dir / "logs" / f"attempt_{attempt}",
+                logs_dir=logs,
                 agent_cmd=run.agent_cmd,
                 agent=run.agent,
                 timeout=run.timeout,
                 use_bwrap=run.use_bwrap,
-                extra_ro_binds=_rsi_ro_binds() if run.use_bwrap else None,
-                env_overrides={"PYTHONPATH": RSI_LIB_ROOT} if run.use_bwrap else None,
+                gpu=True,
+                **sandbox,
             )
         except SandboxTimeoutError as exc:
-            rec["error"] = str(exc)
-            return rec
+            # The killed run already spent money: keep its cost and turns for the budget guard.
+            spent = timed_out_result(logs, sandboxed=run.use_bwrap)
+            if spent is not None:
+                run.results.append(spent)
+            return _salvage_timeout(run, ws, step_dir, rec, best_mean_v, str(exc))
         run.results.append(agent)
         if agent.returncode != 0:
-            rec["error"] = f"Agent exited {agent.returncode}: {agent.stderr[-300:]}"
-            return rec
+            return _reject(rec, f"Agent exited {agent.returncode}: {agent.stderr[-300:]}")
+        if _workspace_bytes(ws) > MAX_WORKSPACE_BYTES:
+            return _reject(rec, f"workspace exceeds {MAX_WORKSPACE_BYTES} bytes")
         try:
             text = read_agent_output(ws, "method.py", max_bytes=MAX_METHOD_BYTES)
         except SandboxOutputError as exc:
-            rec["error"] = str(exc)
-            return rec
+            return _reject(rec, str(exc))
         rec["text"] = text
         try:
-            rec["result"], rec["traces"], rec["plan"] = _check_text(run, step_dir, text)
+            result, traces, plan = _check_text(run, step_dir, text)
         except (SandboxTimeoutError, SandboxOutputError) as exc:
-            rec["error"] = str(exc)
-            return rec
+            return _reject(rec, str(exc))
         except (PolicyAuditError, PolicyReplayError) as exc:
-            rec["error"] = str(exc)
+            _reject(rec, str(exc))
             prompt = base_prompt + REPAIR_SUFFIX.format(error=rec["error"])
             continue
-        rec["path"] = step_dir / "candidate.py"
+        mean_v = float(result["mean_v"])
+        rec.update(
+            result=result,
+            traces=traces,
+            plan=plan,
+            path=step_dir / "candidate.py",
+            mean_v=mean_v,
+            delta_vs_best=mean_v - best_mean_v,
+            error=None,
+        )
+        if mean_v <= best_mean_v and attempt == 1:
+            rec["status"] = "not_better"
+            prompt = base_prompt + NOT_BETTER_SUFFIX.format(
+                mean_v=mean_v, best=best_mean_v, delta=mean_v - best_mean_v
+            )
+            continue
         rec["status"] = "valid"
-        rec["error"] = None
         return rec
     return rec
 
@@ -379,7 +587,7 @@ def _verdict(rec: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _summary_variant(rec: dict[str, Any]) -> dict[str, Any]:
+def _summary_variant(rec: dict[str, Any], record_root: Path | None = None) -> dict[str, Any]:
     return {
         "slot": rec["slot"],
         "step": rec["step"],
@@ -389,7 +597,7 @@ def _summary_variant(rec: dict[str, Any]) -> dict[str, Any]:
         "error": rec["error"],
         "attempts": rec["attempts"],
         "grid_plan": rec.get("plan"),
-        "policy_path": str(rec["path"]) if rec["path"] is not None else None,
+        "policy_path": _recorded_path(rec["path"], record_root),
         "policy_sha256": _sha256(rec["path"]) if rec["path"] is not None else None,
     }
 
@@ -406,11 +614,16 @@ def develop_policies_llm(
     lambda_parallel: float = DEFAULT_LAMBDA_PARALLEL,
     agent_cmd: str | list[str] | None = None,
     agent: AgentSpec | None = None,
-    timeout: float = 240.0,
+    timeout: float = DEFAULT_POLICY_TIMEOUT_S,
     use_bwrap: bool = True,
     prompt_path: Path | None = None,
+    record_root: Path | None = None,
 ) -> dict[str, Any]:
-    """Develop m-1 sequential rewrites of the incumbent; select argmax mean V on history."""
+    """Develop m-1 sequential rewrites of the incumbent; select argmax mean V on history.
+
+    `record_root` is the directory recorded policy paths are made relative to (the study dir);
+    without it they stay absolute, as calibration output does.
+    """
     if not history:
         raise ValueError("Policy development requires at least 1 frozen DiscoveryTree in history")
     if m < 2:
@@ -431,7 +644,7 @@ def develop_policies_llm(
     for name in ("api.py", "tree.py", "objective.py"):
         shutil.copyfile(RSI_DIR / name, evidence / "reference" / name)
 
-    spec = agent or default_agent_spec()
+    spec = agent or load_agent_spec(record_root or STUDY_DIR)
     run = _Run(
         cycle_id=cycle_id,
         history=history,
@@ -447,6 +660,7 @@ def develop_policies_llm(
         timeout=timeout,
         use_bwrap=use_bwrap,
         plan_context=_plan_context(manifests, max_parallelism),
+        study_dir=Path(record_root) if record_root is not None else None,
     )
 
     inc_text = inc_src.read_text(encoding="utf-8")
@@ -477,17 +691,21 @@ def develop_policies_llm(
 
     for step in range(1, m):
         _write_best_evidence(evidence, best)
-        rec = _run_agent_step(run, step, best["text"])
+        rec = _run_agent_step(run, step, best["text"], best["mean_v"])
         if rec["status"] == "valid":
-            rec["mean_v"] = rec["result"]["mean_v"]
-            rec["delta_vs_best"] = rec["mean_v"] - best["mean_v"]
             rec["status"] = "accepted" if rec["mean_v"] > best["mean_v"] else "not_better"
             if rec["status"] == "accepted":
                 best = rec
+        elif rec["status"] == "timeout_salvaged" and rec["mean_v"] > best["mean_v"]:
+            best = rec
         _write_history(evidence, rec, _verdict(rec))
         records.append(rec)
 
-    valid = [r for r in records if r["status"] in ("incumbent", "accepted", "not_better")]
+    valid = [
+        r
+        for r in records
+        if r["status"] in ("incumbent", "accepted", "not_better", "timeout_salvaged")
+    ]
     world_ids = [t.world_id for t in history]
     mean_by_slot = {r["slot"]: r["mean_v"] for r in valid}
     selected = max(valid, key=lambda r: (r["mean_v"], -r["step"]))
@@ -532,7 +750,7 @@ def develop_policies_llm(
         "max_parallelism": max_parallelism,
         "lambda_parallel": lambda_parallel,
         "selected_slot": selected["slot"],
-        "selected_policy_path": str(winner_path),
+        "selected_policy_path": _recorded_path(winner_path, record_root),
         "incumbent_in_sample_V": round(float(mean_by_slot["m0_incumbent"]), 6),
         "selected_in_sample_V": round(float(selected["mean_v"]), 6),
         "in_sample_V_by_slot": {k: round(float(v), 6) for k, v in mean_by_slot.items()},
@@ -559,7 +777,7 @@ def develop_policies_llm(
             if lowo_report is not None
             else None
         ),
-        "variants": [_summary_variant(r) for r in records],
+        "variants": [_summary_variant(r, record_root) for r in records],
         "agent": agent_record(None if agent_cmd is not None else spec, run.results),
     }
     (out_root / "selection.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

@@ -200,7 +200,7 @@ function effects(state) {
   if (!tab) return;
   const kind = tab.kind;
   const view = tab.view;
-  if (kind === "node" && view === "transcript") {
+  if (view === "transcript") {
     ensureTranscript(tab.id);
     return;
   }

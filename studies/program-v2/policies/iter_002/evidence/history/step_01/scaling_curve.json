@@ -1,0 +1,122 @@
+{
+  "lambda_parallel": 0.05,
+  "max_parallelism": 2,
+  "mean_v": 0.5796952276942772,
+  "policy_sha256": "b1a0ba4541e33c3e82b3e2b684716e75ee50038ace1d66e4920191382c4f802a",
+  "worlds": {
+    "dream-iter_000": {
+      "degenerate": false,
+      "hypervolume": 0.8237729047902472,
+      "penalty": 0.4,
+      "points": [
+        {
+          "attainment": 0.9713187143707421,
+          "beta": 0.0,
+          "probes": 1,
+          "rounds": 1
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.25,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.5,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.75,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 1.0,
+          "beta": 1.0,
+          "probes": 3,
+          "rounds": 3
+        }
+      ],
+      "v": 0.8037729047902472
+    },
+    "dream-iter_001": {
+      "degenerate": false,
+      "hypervolume": 0.4521371895616837,
+      "penalty": 0.4,
+      "points": [
+        {
+          "attainment": 0.3564115686850512,
+          "beta": 0.0,
+          "probes": 1,
+          "rounds": 1
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.25,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.5,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.75,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 1.0,
+          "beta": 1.0,
+          "probes": 2,
+          "rounds": 2
+        }
+      ],
+      "v": 0.4321371895616837
+    },
+    "dream-iter_002": {
+      "degenerate": false,
+      "hypervolume": 0.5231755887309008,
+      "penalty": 0.4,
+      "points": [
+        {
+          "attainment": 0.6589762075590807,
+          "beta": 0.0,
+          "probes": 1,
+          "rounds": 1
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.25,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.5,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.0,
+          "beta": 0.75,
+          "probes": 0,
+          "rounds": 0
+        },
+        {
+          "attainment": 0.9105505586336214,
+          "beta": 1.0,
+          "probes": 2,
+          "rounds": 2
+        }
+      ],
+      "v": 0.5031755887309007
+    }
+  }
+}

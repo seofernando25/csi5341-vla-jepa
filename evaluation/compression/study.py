@@ -216,6 +216,12 @@ def main():
         help="Run the reserved (final) phase. Required for --phase final.",
     )
     solution_parser.add_argument("--out", type=Path, required=True)
+    solution_parser.add_argument(
+        "--protocol",
+        type=Path,
+        default=None,
+        help="Study protocol.json; default $VLA_PROTOCOL, then studies/program-v1/protocol.json",
+    )
     args = parser.parse_args()
     if args.command == "calibrate":
         calib.calibrate()
@@ -225,7 +231,11 @@ def main():
         if args.phase == "final" and not args.allow_reserved:
             parser.error("--phase final requires --allow-reserved")
         result = run_solution(
-            args.workspace, args.phase, args.out, allow_reserved=args.allow_reserved
+            args.workspace,
+            args.phase,
+            args.out,
+            allow_reserved=args.allow_reserved,
+            protocol=args.protocol,
         )
         print(json.dumps({"status": result["status"], "phase": args.phase}))
     else:

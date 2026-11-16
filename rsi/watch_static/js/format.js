@@ -159,6 +159,8 @@ export function nodeStatusLabel(value) {
 export const VERDICT = {
   accepted: "accepted",
   not_better: "not better",
+  timeout: "timeout",
+  timeout_salvaged: "timeout, scored",
   rejected: "rejected",
   running: "running",
   pending: "pending",

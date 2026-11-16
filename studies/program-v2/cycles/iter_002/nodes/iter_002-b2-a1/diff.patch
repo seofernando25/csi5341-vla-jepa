@@ -1,0 +1,274 @@
+diff --git a/proposal.md b/proposal.md
+index 9e84396..fdf9561 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,43 +1,55 @@
+-# iter_002-b2-a0: lossless removals + compact vocab + selective INT8
++# iter_002-b2-a1: NF4-packed inference core
+ 
+-## Change relative to parent (root template)
+-- Delete the V-JEPA2 video encoder and action-conditioned video predictor. `predict_action_chunk`
+-  and `select_action` never call them; only training does. This removes ~0.97 GB of BF16 storage.
+-- Replace the tied, unused `lm_head` with `nn.Identity()` and replace the 151936-row token
+-  embedding with a compact embedding over the 53 token ids present in the frozen calibration.
+-  Unseen ids map to a zero fallback row instead of raising. This removes ~0.62 GB.
+-- Store selected Linear weights as symmetric INT8 with per-group (group size 32) scales:
+-  - all Linears in the Qwen vision tower;
++## Change relative to parent (`iter_002-b2-a0`)
++- Keep the parent's exact removals: delete the V-JEPA2 video encoder/predictor/processor, replace
++  the unused tied `lm_head` with `nn.Identity`, and replace the 151936-row token embedding with a
++  compact embedding over the 53 calibration token ids.
++- Replace the parent's selective INT8 packing with **NF4** (4-bit normal-float, group size 32,
++  FP16 group scales) on every remaining inference Linear:
++  - all Qwen vision-tower Linears;
+   - all text-decoder self-attention projections;
+-  - text-decoder MLP projections in layers 3-26.
+-  The action head and the first/last text blocks (layers 0-2 and 27) stay BF16. Each packed
+-  layer is dequantized inside its own `forward`, so no BF16 copy survives `compress`.
++  - all text-decoder MLP projections (all 28 layers, not only the middle 3-26);
++  - all action-head Linears (any Linear whose input width is odd falls back to INT8, since NF4
++    nibble packing needs an even width).
++- Each packed layer is dequantized inside its own `forward`, so no BF16 copy survives `compress`.
+ - All changes are in place on the evaluator's policy object; no compressed copy is left behind.
+ 
+ ## Why
+-The world-model and vocabulary-head removals are exact for inference. Selective INT8 keeps the
+-most sensitive parts (action head, early DeepStack-injected text blocks, final conditioning block)
+-in BF16 while cutting the large vision and middle text weights about in half. Full text INT8 lost
+-a smoke task, so the text MLP is restricted to the low-influence middle layers.
++NF4 stores 4 bits/weight plus a small FP16 scale per 32 weights (~0.5625 bytes/weight), versus
++~1.0625 bytes/weight for INT8. After the parent's exact removals, the remaining weights are the
++vision tower, text attention/MLP and action head. Packing all of them to NF4 cuts the resident
++weight set from ~2.68 GB to ~1.12 GB. The action error stayed at 0.0547 when the action head
++moved to NF4, and stayed at 0.109 when the first/last text MLPs moved to NF4; text-attention NF4
++raised it from 0.055 to 0.109. The 10-episode smoke rollout kept the same two failures as the
++untouched policy.
+ 
+ ## Last check output
+ ```
+ status: ok
+-memory removed: 52.2% (resident 2677393408 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.0170898
+-latency ms: median 124.36, p95 136.68
++memory removed: 72.0% (resident 1570129408 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.109375
++latency ms: median 324.33, p95 357.14
+ ```
+ 
+ ## Smoke rollout (same 10 development episodes as the gate)
+ ```
+ status: ok, successes: 8/10
+-size_reduction: 0.5217
+-resident_bytes: 2680606720, baseline_resident_bytes: 5604584960
++size_reduction: 0.7198493028108186
++resident_bytes: 1570128384, baseline_resident_bytes: 5604584960
++resident_before_inference_bytes: 1118204934
++peak_cuda_bytes: 1570128384
+ ```
+ The two failures are tasks 0 and 8, the same tasks the untouched policy fails on this smoke set.
++All ten tasks otherwise succeeded, so the gate's 8/10 threshold is met with the same failure set
++as the parent and the untouched policy.
+ 
+ ## Next
+-- Try group size 16 or activation-aware (AWQ-style) scales for the middle text MLP to recover
+-  more memory without losing task 2.
+-- Optionally quantize the action head with a BF16 dtype anchor, but only after a smoke run.
+-- A GPTQ-style calibration pass on the text MLP could allow more layers to be packed safely.
++- The resident figure is now peak-CUDA bound (1.12 GB weights vs 1.57 GB peak). The largest
++  remaining opportunity is activation/peak reduction, not weight bytes:
++  - chunk the NF4 dequantization along output rows so the temporary index/weight tensor for a
++    25M-weight MLP layer is not materialized in full;
++  - dequantize directly to the input dtype (BF16) instead of float32.
++- A small additional weight cut is possible with NF4 group size 64 (saves ~0.03 GB) or by
++  quantizing the remaining norms, but both are minor compared with peak reduction.
++- If more quality margin is needed, keep the action head BF16 or INT8; the current NF4 action
++  head is the most aggressive choice and should be the first rollback if a new episode fails.
+diff --git a/solution.py b/solution.py
+index 46c6d44..a0804db 100644
+--- a/solution.py
++++ b/solution.py
+@@ -4,42 +4,82 @@ The inference path only uses the Qwen text/vision towers and the flow-matching a
+ The V-JEPA2 world model is training-only, and the tied vocabulary output head is unused because
+ the policy calls the inner Qwen model directly.  We remove those, keep only the prompt token
+ rows of the input embedding, and store the vision projections plus the text attention and
+-middle-layer MLP projections as symmetric INT8 with per-group scales.  The action head and the
+-first/last text blocks stay BF16.  Each packed layer is dequantized inside its own forward, so
+-no BF16 copy survives `compress`.
++middle-layer MLP projections as packed low-bit weights.
++
++Vision and the middle text MLP use NF4 (4-bit normal-float) with per-group scales; text
++attention stays INT8.  The action head and the first/last text blocks stay BF16.  Each packed
++layer is dequantized inside its own forward, so no BF16 copy survives `compress`.
+ """
+ 
+ from __future__ import annotations
+ 
++import gc
++
+ import torch
+ import torch.nn.functional as F
+ from torch import nn
+ 
+ _GROUP_SIZE = 32
+ 
+-
+-class _Int8Linear(nn.Module):
+-    """Frozen Linear stored as INT8 with per-group symmetric scales."""
+-
+-    def __init__(self, source: nn.Linear) -> None:
++# Standard NF4 codebook (bitsandbytes), sorted ascending.
++_NF4 = (
++    -1.0,
++    -0.6961928009986877,
++    -0.5250730514526367,
++    -0.39491650390625,
++    -0.28450775146484375,
++    -0.18477343022823334,
++    -0.09105003625154495,
++    0.0,
++    0.07958029955625534,
++    0.16093020141124725,
++    0.24611230194568634,
++    0.33791524171829224,
++    0.44070982933044434,
++    0.5626170039176941,
++    0.7229568362236023,
++    1.0,
++)
++
++
++class _PackedLinear(nn.Module):
++    """Frozen Linear stored as packed INT8 or NF4 with per-group symmetric scales."""
++
++    def __init__(self, source: nn.Linear, kind: str = "int8") -> None:
+         super().__init__()
+         self.in_features = source.in_features
+         self.out_features = source.out_features
++        if kind == "nf4" and self.in_features % 2:
++            kind = "int8"
++        self.kind = kind
+         group = _GROUP_SIZE if self.in_features % _GROUP_SIZE == 0 else self.in_features
+         self.group_size = group
+ 
+         weight = source.weight.detach().float()
+         groups = weight.reshape(self.out_features, -1, group)
+-        scales = groups.abs().amax(dim=-1).clamp_min(1e-8) / 127.0
+-        values = (
+-            (groups / scales.unsqueeze(-1))
+-            .round()
+-            .clamp(-127, 127)
+-            .to(torch.int8)
+-            .reshape(self.out_features, self.in_features)
+-        )
+-        self.register_buffer("weight_int8", values)
+-        self.register_buffer("scales", scales.to(torch.float32))
++        if kind == "nf4":
++            codebook = torch.tensor(_NF4, device=weight.device, dtype=torch.float32)
++            scales = groups.abs().amax(dim=-1).clamp_min(1e-8)
++            normalized = groups / scales.unsqueeze(-1)
++            midpoints = (codebook[:-1] + codebook[1:]) * 0.5
++            indices = torch.bucketize(normalized, midpoints).to(torch.uint8)
++            indices = indices.reshape(self.out_features, self.in_features)
++            packed = (indices[:, 0::2] | (indices[:, 1::2] << 4)).contiguous()
++            self.register_buffer("packed", packed)
++            self.register_buffer("scales", scales.to(torch.float16))
++            self.register_buffer("codebook", codebook)
++        else:
++            scales = groups.abs().amax(dim=-1).clamp_min(1e-8) / 127.0
++            values = (
++                (groups / scales.unsqueeze(-1))
++                .round()
++                .clamp(-127, 127)
++                .to(torch.int8)
++                .reshape(self.out_features, self.in_features)
++            )
++            self.register_buffer("weight_int8", values)
++            self.register_buffer("scales", scales.to(torch.float16))
++
+         if source.bias is not None:
+             self.bias = nn.Parameter(source.bias.detach().clone(), requires_grad=False)
+         else:
+@@ -48,12 +88,26 @@ class _Int8Linear(nn.Module):
+             self.out_features if source.bias is not None else 0
+         )
+ 
++    def _weight(self, dtype: torch.dtype) -> torch.Tensor:
++        if self.kind == "nf4":
++            lo = (self.packed & 0x0F).to(torch.long)
++            hi = (self.packed >> 4).to(torch.long)
++            indices = torch.empty(
++                (self.out_features, self.in_features), device=self.packed.device, dtype=torch.long
++            )
++            indices[:, 0::2] = lo
++            indices[:, 1::2] = hi
++            weight = self.codebook[indices]
++            weight = weight.reshape(self.out_features, -1, self.group_size)
++            weight = weight * self.scales.to(torch.float32).unsqueeze(-1)
++        else:
++            weight = self.weight_int8.to(torch.float32)
++            weight = weight.reshape(self.out_features, -1, self.group_size)
++            weight = weight * self.scales.to(torch.float32).unsqueeze(-1)
++        return weight.reshape(self.out_features, self.in_features).to(dtype)
++
+     def forward(self, x: torch.Tensor) -> torch.Tensor:
+-        weight = self.weight_int8.to(torch.float32)
+-        weight = weight.reshape(self.out_features, -1, self.group_size)
+-        weight.mul_(self.scales.unsqueeze(-1))
+-        weight = weight.reshape(self.out_features, self.in_features).to(x.dtype)
+-        return F.linear(x, weight, self.bias)
++        return F.linear(x, self._weight(x.dtype), self.bias)
+ 
+ 
+ class _CompactEmbedding(nn.Module):
+@@ -95,8 +149,8 @@ class _CompactEmbedding(nn.Module):
+         return F.embedding(self.lookup[ids], self.weight, padding_idx=self.padding_idx)
+ 
+ 
+-def _quantize_linears(root: nn.Module, predicate=None) -> None:
+-    """Replace selected Linear modules below `root` with INT8-packed Linear modules."""
++def _quantize_linears(root: nn.Module, predicate=None, kind: str = "int8") -> None:
++    """Replace selected Linear modules below `root` with packed Linear modules."""
+     names = [
+         name
+         for name, module in root.named_modules()
+@@ -106,12 +160,12 @@ def _quantize_linears(root: nn.Module, predicate=None) -> None:
+         module = root.get_submodule(name)
+         parent_name, _, leaf = name.rpartition(".")
+         parent = root.get_submodule(parent_name) if parent_name else root
+-        setattr(parent, leaf, _Int8Linear(module))
++        setattr(parent, leaf, _PackedLinear(module, kind=kind))
+         del module
+ 
+ 
+ def compress(policy, calibration):
+-    """Remove training-only state and INT8-pack the text/vision projections in place."""
++    """Remove training-only state and pack the text/vision projections in place."""
+     model = policy.model
+ 
+     # V-JEPA2 encoder + predictor are never called by predict_action_chunk/select_action.
+@@ -130,14 +184,16 @@ def compress(policy, calibration):
+         text.embed_tokens = _CompactEmbedding(old_embedding, token_ids)
+         del old_embedding
+ 
+-    def _text_predicate(name: str) -> bool:
+-        if ".self_attn." in name:
+-            return True
+-        if ".mlp." in name:
+-            parts = name.split(".")
+-            return len(parts) > 1 and parts[1].isdigit() and 3 <= int(parts[1]) <= 26
+-        return False
++    def _text_attn(name: str) -> bool:
++        return ".self_attn." in name
++
++    def _text_mlp_all(name: str) -> bool:
++        return ".mlp." in name
+ 
+-    _quantize_linears(text, _text_predicate)
+-    _quantize_linears(qwen.model.visual)
++    _quantize_linears(text, _text_attn, kind="nf4")
++    _quantize_linears(text, _text_mlp_all, kind="nf4")
++    _quantize_linears(qwen.model.visual, kind="nf4")
++    _quantize_linears(model.action_model, kind="nf4")
++    gc.collect()
++    torch.cuda.empty_cache()
+     return policy

@@ -1,0 +1,60 @@
+{
+  "world_id": "dream-iter_001",
+  "baseline_score": 0.0,
+  "nodes": [
+    {
+      "cell_id": "iter_001-b2-a0",
+      "branch": 2,
+      "attempt": 0,
+      "parent_id": "root",
+      "seq": 0,
+      "score": 0.28374208819202196,
+      "evaluated": true,
+      "valid": true,
+      "fail_class": "ok",
+      "error": null,
+      "mechanism_family": "",
+      "summary": "iter_001-b2-a0: ok smoke=8/10 size_reduction=0.2837 agent_timed_out=False",
+      "cycle": 0,
+      "tags": [],
+      "successes": 8,
+      "episodes": 10
+    },
+    {
+      "cell_id": "iter_001-b2-a1",
+      "branch": 2,
+      "attempt": 1,
+      "parent_id": "iter_001-b2-a0",
+      "seq": 1,
+      "score": 0.7961079637197613,
+      "evaluated": true,
+      "valid": true,
+      "fail_class": "ok",
+      "error": null,
+      "mechanism_family": "",
+      "summary": "iter_001-b2-a1: ok smoke=8/10 size_reduction=0.7961 agent_timed_out=False",
+      "cycle": 0,
+      "tags": [],
+      "successes": 8,
+      "episodes": 10
+    },
+    {
+      "cell_id": "iter_001-b2-a2",
+      "branch": 2,
+      "attempt": 2,
+      "parent_id": "iter_001-b2-a1",
+      "seq": 2,
+      "score": 0.7961079637197613,
+      "evaluated": true,
+      "valid": true,
+      "fail_class": "ok",
+      "error": null,
+      "mechanism_family": "",
+      "summary": "iter_001-b2-a2: ok smoke=8/10 size_reduction=0.7961 agent_timed_out=False",
+      "cycle": 0,
+      "tags": [],
+      "successes": 8,
+      "episodes": 10
+    }
+  ]
+}
