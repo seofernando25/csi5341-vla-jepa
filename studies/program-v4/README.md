@@ -12,7 +12,8 @@ as successful as the reference?
 
 ## Score
 
-    speedup = reference median observation-to-action latency / candidate median
+    speedup = geometric mean over every task of the suite of (reference median
+              observation-to-action latency / candidate median on that task)
     score   = the lower bound of the 95 % interval of the speedup, if the smoke gate passes,
               the candidate's peak CUDA bytes are not above the reference's, and no guard fails
     score   = 0 otherwise
@@ -23,20 +24,29 @@ is 1.0 and the score is the lower bound of the interval around it. Peak CUDA is 
 1 % measurement allowance, because the reference and candidate peaks are separate runs.
 
 `evaluation/compression/latency.py` measures it, with the instruments in
-`latency_timing.py` and the failing conditions in `latency_guards.py`. The evaluator runs
-reference episodes, keeps the observation batches, and times the untouched policy on them. After
-`compress` it times the candidate on the same batches.
+`latency_timing.py`, the frame plan and the stratified bootstrap in `latency_plan.py`, and the
+failing conditions in `latency_guards.py`. The evaluator runs reference episodes, keeps the
+observation batches, and times the untouched policy on them. After `compress` it times the
+candidate on the same batches.
 
-Timing is block-based. Each side is timed in `blocks` blocks of `timed_calls / blocks` calls: six
-blocks of ten calls in the smoke, development and reserved phases, six of four in the check phase.
-Every timed call is a full `select_action` with `torch.cuda.synchronize()` before and after, after
-20 warm-up calls (4 in the check phase), on frames that were never timed before. When a second
-copy of the reference fits beside the candidate, the blocks alternate reference, candidate,
-reference, candidate, and the order inside a pair alternates too, so neither a co-tenant burst nor
-a clock ramp at the start of a block favours one side. When it does not fit, the reference is timed
-in six blocks before `compress` and six after the candidate episodes and the two pools are
-combined (sandwich); the node fails if the two pools differ by more than 10 %, because a moving
-reference cannot be pooled.
+Every count is per task, and all ten tasks get the same count in every role. The evaluator
+collects frames from one reference episode per task (stride 2, at most 36 frames each) and uses
+each task's frames for 3 equivalence frames, 8 arm-check frames, 6 warm-up calls and 18 timed calls
+(2 and 12 in the check phase, which also covers all ten tasks). The speedup is the median
+reference time over the median candidate time on each task's calls, aggregated as the geometric
+mean, so a gain on one task moves the score by a tenth of its log and no task carries the median.
+The equivalence, arm-action and perturbation guards are judged on each task and the worst task
+decides, so degrading one task cannot be averaged away.
+
+Timing is block-based. Each side is timed in six blocks; each block holds the same number of calls
+from every task (three each, two in the check phase), in alternation. Every timed call is a full
+`select_action` with `torch.cuda.synchronize()` before and after, after warm-up, on frames that
+were never timed before. When a second copy of the reference fits beside the candidate, the blocks
+alternate reference, candidate, reference, candidate, and the order inside a pair alternates too,
+so neither a co-tenant burst nor a clock ramp at the start of a block favours one side. When it
+does not fit, the reference is timed in six blocks before `compress` and six after the candidate
+episodes and the two pools are combined (sandwich); the node fails if the two pools differ by more
+than 10 %, because a moving reference cannot be pooled.
 
 The speedup is reported with a 95 % percentile cluster bootstrap over blocks (10 000 resamples,
 seed 20261116). In the interleaved design a resample draws block indices and takes both sides of
@@ -86,20 +96,24 @@ original and the perturbed frame, so its changes are zero.
 
 ## Harness checks (not evidence)
 
-Run on the shared RTX 3090 on 2026-11-16 with the check phase, six blocks of four calls.
+Run on the shared RTX 3090 on 2026-11-16 with the check phase, six blocks of two calls per task.
 
-- Identity, 16 runs: 14 accepted, every score at or below 1.0 (0.944 to 0.995); two were zeroed by
-  the 25 % GPU level before it was raised. Point estimates 0.990 to 1.053, mean 1.017; 12 of the
-  14 within ±5 %, two at +5.3 % during co-tenant activity. The level is 50 % because the
-  alternating blocks already absorb moderate co-tenancy: at 25 % the guard lost nodes without
-  improving the estimate.
+- Identity under the revised score: score 0.987, point 0.998, 95 % interval [0.987, 1.003],
+  per-task speedups 0.988 to 1.004. The identity is below 1.0 by construction.
+- Identity under the earlier three-task score, 16 runs: 14 accepted, scores 0.944 to 0.995; two
+  were zeroed by the 25 % GPU level before it was raised. Point estimates 0.990 to 1.053, mean
+  1.017. The level is 50 % because the alternating blocks already absorb moderate co-tenancy: at
+  25 % the guard lost nodes without improving the estimate.
 - `precision-action-nf4` as a solution: arm error 2.3e-6, perturbation correlation 0.989, no
-  violation, score 0.879 (point 0.973).
+  violation, score 0.879 (point 0.973) under the three-task score.
 - A nearest-neighbour cache of B16 actions on the visible bank, keyed on `observation.state`: it
   passes the equivalence check and measures a 412x point speedup, and fails with arm error 0.178
   and perturbation correlation 0.000.
 - Forced sandwich, three runs: point estimates 1.203, 1.247 and 0.929; the reference moved 20 %,
   39 % and 3 % between the before and after pools. The drift guard fails the first two.
+- The stopped first cycle is the specification-gaming check: its task-0 node scored 3.40 under the
+  three-task score and is archived in [stopped/](stopped/README.md). Under the revised score it
+  would keep only its share of the ten tasks.
 
 ## Open holes
 
@@ -118,9 +132,9 @@ Run on the shared RTX 3090 on 2026-11-16 with the check phase, six blocks of fou
    interpolate them to pass the perturbation correlation and the observation-sensitivity check.
    Not observed.
 7. The interval is a cluster bootstrap over six blocks. With six clusters the percentile interval
-   is coarse, and the lower bound is conservative: the identity scores 0.94 to 1.00, so a real win
-   must exceed roughly 10 % to score above 1.0. The check phase uses four calls per block and is
-   noisier than the 60-call protocol.
+   is coarse, and the lower bound is conservative: the identity scores 0.987 under the revised
+   score, so a real win must exceed roughly 2 % to score above 1.0. The check phase uses two calls
+   per task per block and is noisier than the 18-call protocol.
 8. The interleave needs a second B16 (5.66 GB) beside the candidate (at most 5.71 GB). On the
    shared 24 GB card with a 12 GB co-tenant it fits only while the other search is idle. The
    sandwich fallback needs the candidate freed and the reference stable to within 10 %; when
@@ -133,6 +147,10 @@ Run on the shared RTX 3090 on 2026-11-16 with the check phase, six blocks of fou
     changes under the perturbation returns a different stored action; the correlation is then
     near zero only if the stored actions are unrelated to the perturbation response. A cache of
     neighbouring frames could in principle correlate; it would still have to pass the arm check.
+11. Specialising to the timed tasks is bounded, not impossible: a candidate that speeds up one
+    task and leaves nine stock gains one tenth of its log in the geometric mean, and the per-task
+    guards limit how far its actions may move on that task. A candidate that handles all ten tasks
+    is a real deployment win; a candidate that handles one is a one-task win and scores like one.
 
 ## Reproduction
 
@@ -145,15 +163,18 @@ Re-running the same command resumes from `loop_state.json`. `vla-rsi status`, `v
 `vla-rsi watch --port 8788` take the same `--study-dir`. `--max-parallelism 1` is the fallback
 when the GPU is shared: one discovery agent and one evaluation at a time.
 
-`python tools/check.py` inside a node workspace runs the check phase: one reference episode, 40
-frames, 24 timed calls in six blocks, and one candidate episode, about 3 minutes on a free GPU. It
-prints the score, the point estimate and its interval, the arm error, the perturbation correlation,
-the co-tenant GPU use and any guard violation; the evaluator's smoke run decides the node.
+`python tools/check.py` inside a node workspace runs the check phase: ten reference episodes, one
+per task, 28 frames per task, 12 timed calls per task in six blocks, and one candidate episode,
+about 3 minutes on a free GPU. It prints the score, the point estimate and its interval, the
+per-task speedups, the arm error, the perturbation correlation, the co-tenant GPU use and any
+guard violation; the evaluator's smoke run decides the node.
 
 The reserved phase runs outside the search loop with a longer evaluator timeout than the
 protocol's 1800 s, as in program-v2; the search never reads reserved states.
 
 ## Status
 
-No node has been evaluated and no reserved trial exists. The smoke gate is 8/10 and the
-development gate 77/100, both unchanged from program-v2.
+The first cycle was stopped and archived in [stopped/](stopped/README.md): its score rewarded the
+timed tasks, not the suite. The run restarted under the revised score with every task timed. No
+reserved trial exists. The smoke gate is 8/10 and the development gate 77/100, both unchanged from
+program-v2.

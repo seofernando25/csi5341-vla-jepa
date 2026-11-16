@@ -1,0 +1,24 @@
+{
+  "requested": {
+    "max_branches": 4,
+    "max_attempts_per_branch": 3,
+    "max_parallelism": 2,
+    "rounds_cap": 6,
+    "rationale": "Pre-registered fallback grid and the caps on the policy's plan_grid. The live plan_grid chooses the applied grid within these caps."
+  },
+  "applied": {
+    "max_branches": 4,
+    "max_attempts_per_branch": 3,
+    "max_parallelism": 1,
+    "rounds_cap": 6,
+    "rationale": "Pre-registered fallback grid and the caps on the policy's plan_grid. The live plan_grid chooses the applied grid within these caps."
+  },
+  "caps": {
+    "max_branches": 8,
+    "max_attempts_per_branch": 4,
+    "max_parallelism": 1,
+    "rounds_cap": 6
+  },
+  "source": "policy",
+  "fallback_reason": null
+}

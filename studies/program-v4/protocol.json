@@ -42,31 +42,31 @@
     "kind": "latency_speedup",
     "baseline": 1.0,
     "reference": "uncompressed B16, four flow steps, stock execution path",
-    "formula": "lower bound of the 95% interval of reference_median_observation_to_action_ms / candidate_median_observation_to_action_ms; both sides are timed in alternating blocks of the same evaluation, and the interval is a percentile cluster bootstrap over blocks",
+    "formula": "lower bound of the 95% interval of the geometric mean over every task of the suite of the per-task speedup (reference median observation-to-action ms / candidate median); every task contributes the same number of timed calls to every block, both sides are timed in alternating blocks of the same evaluation, and the interval is a percentile cluster bootstrap over blocks",
     "zero_unless": [
       "the smoke gate passes: successes >= gates.smoke_min_successes",
       "the candidate's peak CUDA bytes are not above the reference's",
-      "no guard is violated"
+      "no guard is violated; the equivalence, arm-action and perturbation guards are judged on each task and the worst task decides"
     ],
     "timing": {
-      "warmup_calls": 20,
-      "timed_calls": 60,
+      "warmup_calls_per_task": 6,
+      "timed_calls_per_task": 18,
       "blocks": 6,
       "bootstrap_resamples": 10000,
       "bootstrap_seed": 20261116,
-      "max_frames": 108,
+      "max_frames_per_task": 36,
       "reference_trials": 1,
-      "reference_tasks": [0, 1, 2],
-      "frame_stride": 4,
+      "reference_tasks": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "frame_stride": 2,
       "check": {
-        "warmup_calls": 4,
-        "timed_calls": 24,
+        "warmup_calls_per_task": 2,
+        "timed_calls_per_task": 12,
         "blocks": 6,
         "bootstrap_resamples": 2000,
-        "max_frames": 40,
+        "max_frames_per_task": 28,
         "reference_trials": 1,
-        "reference_tasks": [0],
-        "frame_stride": 1
+        "reference_tasks": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "frame_stride": 2
       }
     },
     "guards": {
@@ -83,12 +83,12 @@
       "gpu_over_wall_ms": 5.0,
       "action_atol": 0.001,
       "min_action_spread": 0.0001,
-      "equivalence_frames": 8,
+      "equivalence_frames_per_task": 3,
       "max_new_threads": 0,
       "peak_tolerance": 0.01,
       "arm_action_mse_max": 0.01,
-      "arm_check_frames": 32,
-      "perturbation_frames": 8,
+      "arm_check_frames_per_task": 8,
+      "perturbation_frames_per_task": 4,
       "perturbation_levels": 8,
       "perturbation_min_correlation": 0.5,
       "other_gpu_utilisation_max_pct": 50.0,
@@ -134,7 +134,15 @@
       "rule": "Live. The selected policy's plan_grid decides the next cycle's grid from the last three manifests and beta sweeps; the protocol grid values (max_parallelism, rounds_cap) and the run arguments (probe budget, GPU slots) are caps, and the protocol grid is the pre-registered fallback. A candidate whose plan_grid fails validation is rejected."
     }
   ],
-  "revisions": [],
+  "revisions": [
+    {
+      "at": "2026-11-16",
+      "field": "score.timing.reference_tasks",
+      "from": "[0, 1, 2]",
+      "to": "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",
+      "reason": "The stopped first cycle showed the hole: the parent node captured CUDA graphs for tasks 0 and 1 only and scored 2.65x while every other task stayed stock, and the next node reduced work on task 0, the one task the reference already fails. Timing only three tasks made the timed set the target. Every task is now timed, the score is the geometric mean over all ten, and the per-task guards make degrading any task fail. The stopped cycle is archived under stopped/ and no score from it is selected."
+    }
+  ],
   "dream_rsi": {
     "grid_plan": {
       "max_branches": 4,
