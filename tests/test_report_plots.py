@@ -58,7 +58,9 @@ def test_missing_study_directory_is_not_fatal(empty):
     assert collected["status"] == "missing"
     assert collected["what"] == "clean-room measurements"
     assert data.plan()["status"] == "missing"
-    assert data.divergence().empty
+    record = divergence.divergence_record(empty)
+    assert record["counts"]["included"] == 0
+    assert record["phases"]["smoke"]["spearman"]["rho"] is None
     cycles = dream_rsi_cycles(empty)
     assert cycles["status"] == "missing"
     assert cycles["count"] == 0
@@ -123,11 +125,63 @@ def test_no_measurements_writes_no_numbers_file(synthetic):
     assert not (synthetic.parent / "data" / "numbers.json").exists()
 
 
-def test_divergence_reads_screen_and_smoke_cells(synthetic):
-    frame = data.divergence()
-    assert len(frame) == 13
-    assert set(frame.component) == {"language", "vision", "action", "joint", "other"}
-    assert frame.arm_mse.max() > 1e-3
+def test_divergence_pairs_screen_error_with_both_phases(synthetic):
+    record = divergence.divergence_record(synthetic)
+    assert record["action_error_field"] == "mean_physical_arm_change_mse"
+    assert record["action_error_frames"] == 80
+    assert record["counts"]["included"] == 26  # 13 recipes, smoke and development each
+    assert record["phases"]["smoke"]["gate_min_successes"] == 8
+    assert record["phases"]["development"]["gate_min_successes"] == 77
+    cell = next(
+        c
+        for c in record["cells"]
+        if c["cell_id"] == "precision-lang-nf4" and c["phase"] == "development"
+    )
+    assert cell["action_error"] == pytest.approx(2e-6)
+    assert (cell["successes"], cell["trials"], cell["gate_passed"]) == (79, 100, True)
+    assert cell["sources"] == [
+        "measurements/precision-lang-nf4/screen/run.json",
+        "measurements/precision-lang-nf4/development/run.json",
+    ]
+
+
+def test_divergence_ranks_but_withholds_saturated_intervals(synthetic):
+    record = divergence.divergence_record(synthetic)
+    smoke = record["phases"]["smoke"]
+    assert smoke["spearman"]["rho"] == pytest.approx(-0.463, abs=1e-3)
+    assert smoke["spearman"]["ci95"] is None  # most resamples are constant at 8/10
+    assert smoke["gate_passing"]["rho"] is None
+    assert smoke["gate_passing"]["n_cells"] == 12
+    development = record["phases"]["development"]
+    assert development["spearman"]["rho"] == pytest.approx(-0.587, abs=1e-3)
+    low, high = development["spearman"]["ci95"]
+    assert -1 <= low < development["spearman"]["rho"] < high <= 1
+    assert development["gate_passing"]["n_cells"] == 12
+
+
+def test_divergence_excludes_nodes_that_record_no_action_error(empty):
+    write(
+        empty / "cycles" / "iter_0" / "nodes" / "a" / "score.json",
+        {"cell_id": "a", "successes": 8, "episodes": 10},
+    )
+    record = divergence.divergence_record(empty)
+    node = next(cell for cell in record["cells"] if cell["cell_id"] == "a")
+    assert node["action_error"] is None
+    assert node["included"] is False
+    assert "action error" in node["reason"]
+    assert record["counts"]["excluded"] == 1
+    assert record["phases"]["smoke"]["n_cells"] == 0
+
+
+def test_build_writes_divergence_json_from_the_same_record(synthetic):
+    numbers = build(synthetic)
+    written = json.loads((synthetic / "divergence.json").read_text())
+    assert written["study"] == synthetic.name
+    assert written["phases"] == numbers["divergence"]["phases"]
+    assert written["counts"] == numbers["divergence"]["counts"]
+    assert not any(
+        cell["sources"] and cell["sources"][0].startswith("/") for cell in written["cells"]
+    )
 
 
 def test_reserved_pair_needs_both_arms(empty):
