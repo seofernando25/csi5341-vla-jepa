@@ -7,7 +7,7 @@ import hashlib
 import json
 import platform
 import subprocess
-from dataclasses import asdict, replace
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +22,7 @@ from rsi.expansion import (
     redact_host_paths,
     sandboxed_evaluator,
 )
+from rsi.grid_plan import grid_caps, protocol_plan, request_plan
 from rsi.online_evidence import agent_totals, recorded_utc
 from rsi.online_question import OnlineDiscoveryQuestion
 from rsi.policy_dev import INCUMBENT_TEMPLATE, load_policy_class, save_tree_json
@@ -156,30 +157,6 @@ def _recent_beta_sweeps(study_dir: Path) -> tuple[dict[str, Any], ...]:
     return tuple(out)
 
 
-def _grid_plan(cfg_grid: dict[str, Any], policy: Any, context: GridPlanningContext) -> GridPlan:
-    if cfg_grid:
-        return GridPlan(
-            max_branches=int(cfg_grid["max_branches"]),
-            max_attempts_per_branch=int(cfg_grid["max_attempts_per_branch"]),
-            max_parallelism=int(cfg_grid["max_parallelism"]),
-            rounds_cap=int(cfg_grid["rounds_cap"]),
-            rationale=str(cfg_grid.get("rationale", "pre-registered static grid plan")),
-        )
-    return policy.plan_grid(context)
-
-
-def _clamp_plan(
-    plan: GridPlan, hard_max_branches: int, hard_max_depth: int, max_parallelism: int
-) -> GridPlan:
-    return GridPlan(
-        max_branches=max(1, min(hard_max_branches, int(plan.max_branches))),
-        max_attempts_per_branch=max(0, min(hard_max_depth, int(plan.max_attempts_per_branch))),
-        max_parallelism=max(1, min(max_parallelism, int(plan.max_parallelism))),
-        rounds_cap=max(1, int(plan.rounds_cap)),
-        rationale=plan.rationale,
-    )
-
-
 def _promote(
     ctx: NodeContext, cycle_dir: Path, passing: list[dict[str, Any]], top_k: int
 ) -> list[dict[str, Any]]:
@@ -214,6 +191,7 @@ def run_online_cycle(
 
     `provenance_block` is the loop's start-of-run provenance. Without it the block is computed
     here, before this cycle writes any study evidence, so `code_revision` is the commit at start.
+    `grid_plan` is a harness override of the policy's `plan_grid`; the protocol values clamp it.
     """
     study_root = Path(study_dir)
     prov = provenance_block if provenance_block is not None else provenance(study_root)
@@ -223,22 +201,38 @@ def run_online_cycle(
     check_phase_lock("smoke", study_root)
 
     pol_path = Path(policy_path) if policy_path is not None else INCUMBENT_TEMPLATE
-    policy = load_policy_class(pol_path, cycle_id)({})
+    policy = load_policy_class(pol_path, cycle_id)(
+        {"grid_plan": dict(cfg.grid_plan)} if cfg.grid_plan else {}
+    )
     baked_beta = getattr(policy, "beta", None)
 
     manifests = _recent_manifests(study_root)
+    caps = grid_caps(
+        cfg.grid_plan,
+        gpu_slots=cfg.gpu_slots,
+        probe_budget=probe_budget,
+        max_parallelism=max_parallelism,
+        hard_max_branches=hard_max_branches,
+        hard_max_depth=hard_max_depth,
+    )
     context = GridPlanningContext(
         iteration=iteration,
         max_parallelism=max_parallelism,
+        fallback_plan=protocol_plan(cfg.grid_plan, caps),
         recent_live_manifests=manifests[-3:],
         recent_beta_sweeps=_recent_beta_sweeps(study_root)[-3:],
-        default_budget=probe_budget,
     )
-    plan = grid_plan or _grid_plan(cfg.grid_plan, policy, context)
-    eff_plan = _clamp_plan(plan, hard_max_branches, hard_max_depth, max_parallelism)
-    (cycle_dir / "grid_plan.json").write_text(
-        json.dumps(asdict(eff_plan), indent=2) + "\n", encoding="utf-8"
+    # The selected policy decides the next grid; the protocol values only clamp it. The record is
+    # written before the tree runs, so a resumed cycle reuses the plan it started with.
+    plan = request_plan(
+        pol_path,
+        context,
+        caps,
+        cycle_dir=cycle_dir,
+        use_bwrap=use_bwrap,
+        override=grid_plan,
     )
+    eff_plan = GridPlan(**plan["applied"])
 
     spec = agent or load_agent_spec(study_root)
     discovery_spec = replace(spec, tools=cfg.discovery_tools)
@@ -294,7 +288,7 @@ def run_online_cycle(
         "policy_path": relative_path(pol_path, study_root),
         "policy_sha256": _sha256(pol_path),
         "baked_in_beta": baked_beta,
-        "grid_plan": asdict(eff_plan),
+        "grid_plan": plan,
         "rounds_cap": question.rounds_cap,
         "probes_used": question.budget_spent,
         "decision_rounds": question.decision_rounds,
