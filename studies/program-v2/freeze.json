@@ -1,0 +1,59 @@
+{
+  "protocol": "program-v2",
+  "kind": "selection-freeze",
+  "frozen_at": "2026-11-16T08:17:57Z",
+  "code_commit": "e6fa3c1",
+  "commit_note": "code_commit is HEAD when the selection was computed; this file is committed in the next commit, before any reserved episode runs. `git log -- studies/program-v2/freeze.json` names the freeze commit.",
+  "memory_rules": {
+    "agent_solution": "max(tensor walk, every tensor/array/buffer payload the solution kept alive anywhere in the process, live CUDA bytes, peak CUDA bytes during the episodes), measured after compress and again after inference; the untouched baseline is sized the same way with one forward pass. Same rule and evaluator commit as program-v1's re-scored winners (49507417b3252530e7f67ccf7fa0fb665c26510a, merged in f2dba2e), so the two programs are comparable."
+  },
+  "rule": {
+    "selection_data": "development phase only; no reserved episode existed when this record was written",
+    "development_gate": 77,
+    "steps": [
+      "The uncompressed reference B16 is the paired control. Its reserved result from program-v1 is reused: same suite, same 50 reserved states per task, same seeds (1000, final offset 10000).",
+      "A node is selected when it has a complete development record, passes the gate (>= 77/100) and has no memory-rule violation. Both qualifying nodes are selected; neither dominates the other (83/100 at 79.1 % removed versus 82/100 at 79.6 % removed).",
+      "iter_000-b2-a2 (83.4 % removed) is not selected: its development run hit the 1800 s evaluator limit at 59/100 episodes, so it has no gate result. It is reported as a timeout, not as a candidate.",
+      "No candidate is added by taste. Cells outside this record are not selected however well they scored in development."
+    ],
+    "statistics": "Wilson 95 % per arm; task-stratified paired bootstrap (10000 resamples, seed 42) against B16 on identical task/state/seed keys. Development and reserved stay separate."
+  },
+  "cells": [
+    {
+      "cell": "iter_002-b2-a2",
+      "runner": "solution",
+      "phase": "final",
+      "role": "dream-rsi candidate",
+      "cycle": "iter_002",
+      "commit": "9151e3e3e43a4fc450ffe1b0294447077f030b5f",
+      "workspace_sha256": "44095b3937d0bbb679ffee3d3ebf57f51fd6b385d437d7927b6d224c827cdf32",
+      "development": {
+        "successes": 83,
+        "episodes": 100
+      },
+      "memory": {
+        "size_reduction": 0.7905648906426783,
+        "resident_bytes": 1173796864,
+        "baseline_bytes": 5604584960
+      }
+    },
+    {
+      "cell": "iter_001-b2-a1",
+      "runner": "solution",
+      "phase": "final",
+      "role": "dream-rsi candidate",
+      "cycle": "iter_001",
+      "commit": "331bf238879083eb2ceea836ebb9df16b3d78f98",
+      "workspace_sha256": "617768de7645a7490e7127b4e0f3c7ad5d7b1c8f88724d5a01b58695b58084ea",
+      "development": {
+        "successes": 82,
+        "episodes": 100
+      },
+      "memory": {
+        "size_reduction": 0.7961079637197613,
+        "resident_bytes": 1142730240,
+        "baseline_bytes": 5604584960
+      }
+    }
+  ]
+}
