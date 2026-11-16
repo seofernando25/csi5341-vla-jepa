@@ -2545,5 +2545,65 @@
       73.33264161369925,
       88.29977450105363
     ]
+  },
+  "policy_dev_v1": {
+    "status": "ok",
+    "source": "studies/program-v1/policies",
+    "cycles": [
+      {
+        "cycle": "iter_000",
+        "incumbent_in_sample_V": 0.467,
+        "selected_in_sample_V": 0.808372,
+        "heldout_delta_vs_incumbent": 0.008067,
+        "heldout_incumbent_V": 0.524548,
+        "heldout_selected_V": 0.532615
+      },
+      {
+        "cycle": "iter_001",
+        "incumbent_in_sample_V": 0.659587,
+        "selected_in_sample_V": 0.800191,
+        "heldout_delta_vs_incumbent": -0.078834,
+        "heldout_incumbent_V": 0.532615,
+        "heldout_selected_V": 0.453781
+      },
+      {
+        "cycle": "iter_002",
+        "incumbent_in_sample_V": 0.790257,
+        "selected_in_sample_V": 0.813531,
+        "heldout_delta_vs_incumbent": 0.017577,
+        "heldout_incumbent_V": 0.453781,
+        "heldout_selected_V": 0.471358
+      }
+    ]
+  },
+  "policy_dev_v2": {
+    "status": "ok",
+    "source": "studies/program-v2/policies",
+    "cycles": [
+      {
+        "cycle": "iter_000",
+        "incumbent_in_sample_V": 0.702729,
+        "selected_in_sample_V": 0.803773,
+        "heldout_delta_vs_incumbent": -0.142166,
+        "heldout_incumbent_V": 0.524548,
+        "heldout_selected_V": 0.382382
+      },
+      {
+        "cycle": "iter_001",
+        "incumbent_in_sample_V": 0.51069,
+        "selected_in_sample_V": 0.617955,
+        "heldout_delta_vs_incumbent": 0.0,
+        "heldout_incumbent_V": 0.382382,
+        "heldout_selected_V": 0.382382
+      },
+      {
+        "cycle": "iter_002",
+        "incumbent_in_sample_V": 0.551743,
+        "selected_in_sample_V": 0.579695,
+        "heldout_delta_vs_incumbent": 0.0,
+        "heldout_incumbent_V": 0.382382,
+        "heldout_selected_V": 0.382382
+      }
+    ]
   }
 }

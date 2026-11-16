@@ -41,7 +41,7 @@ BIT_TICKS = (2, 3, 4, 8, 16)
 OFFSETS = {"language": -0.16, "vision": 0.0, "action": 0.16}  # category units, so bars clear
 JOINT = ("precision-joint-va-hqq2", "vision + action")
 JOINT_OFFSET = 0.30
-LABEL_DY = {"language": 16.0, "vision": 3.0, "action": -10.0}  # points; the lines meet at 16 bits
+LABEL_DY = {"language": 18.0, "vision": 6.0, "action": -12.0}  # points; the lines meet at 16 bits
 
 
 def nominal_bits(candidate: str, recipe: dict, module: str) -> int:
@@ -145,9 +145,9 @@ def fig_precision(n: dict) -> dict | None:
         ax.annotate(
             module,
             (x[-1], y[-1]),
-            xytext=(5.0, LABEL_DY[module]),
+            xytext=(-4.0, LABEL_DY[module]),
             textcoords="offset points",
-            ha="left",
+            ha="right",
             va="center",
             fontsize=7.5,
             color=COLORS[module],

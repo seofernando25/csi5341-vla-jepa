@@ -792,7 +792,7 @@ def test_the_v4_prompt_states_the_score_and_guards_without_methods():
     assert "reference median latency / your median latency" in flat
     assert "lower bound of the 95 % interval" in flat
     assert "device synchronize" in flat
-    assert "geometric mean over tasks" in flat
+    assert "geometric mean over every task of the suite" in flat
     assert "the worst task decides" in flat
     for guard in (
         "Returning a stored answer",

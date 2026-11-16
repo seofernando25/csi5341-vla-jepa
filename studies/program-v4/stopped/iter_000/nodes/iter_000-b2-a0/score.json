@@ -1,0 +1,23 @@
+{
+  "cell_id": "iter_000-b2-a0",
+  "parent_id": "root",
+  "parent_commit": "a3debeb6ad1ede9f53bd2df5a1665c904ae0dedd",
+  "commit": "50f8506ff07b6be192d0281567d62febd45f5c30",
+  "fail_class": "implementation_failure",
+  "evaluated": false,
+  "score": 0.0,
+  "successes": null,
+  "episodes": null,
+  "sizes": {},
+  "digest": "a7d751f2e9b7d22d63251e5426ef7984abd81207",
+  "workspace_sha256": "df6769403d6f0702932837f78a2170906672836658153371237eb6f4839cbae6",
+  "status": "solution_error",
+  "error": "Traceback (most recent call last):\n  File \"<tmp>/repo/evaluation/compression/solution.py\", line 364, in evaluate\n    self.candidate(policy, calibration)\n  File \"<tmp>/repo/evaluation/compression/solution.py\", line 418, in candidate\n    sized = measure(returned, roots, self.baseline_payloads)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<tmp>/repo/evaluation/compression/solution.py\", line 144, in measure\n    resident = max(resident, live_cuda_bytes())\n                             ^^^^^^^^^^^^^^^^^\n  File \"<tmp>/repo/evaluation/compression/inventory.py\", line 321, in live_cuda_bytes\n    storages[(obj.device.index, storage.data_ptr())] = storage.nbytes()\n                                ^^^^^^^^^^^^^^^^^^\nRuntimeError: Cannot access data pointer of Tensor (e.g. FakeTensor, FunctionalTensor). If you're using torch.compile/export/fx, it is likely that we are erroneously tracing into a custom kernel. To fix this, please wrap the custom kernel into an opaque custom op. Please see the following for details: https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html\n",
+  "eval_seconds": 566.401,
+  "agent_output_invalid": false,
+  "agent_timed_out": true,
+  "agent_seconds": null,
+  "agent_cost_usd": 0.123779,
+  "agent_turns": 58,
+  "per_task": {}
+}

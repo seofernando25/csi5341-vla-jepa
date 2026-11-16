@@ -1,0 +1,99 @@
+{
+  "phase": "smoke",
+  "time_limit_s": 900.0,
+  "stage_seconds": {
+    "hash": 0.00106140598654747,
+    "load": 11.445335409982363,
+    "baseline": 42.39834916999098,
+    "import": 0.003076874010730535,
+    "compress": 499.21462783700554,
+    "measure": 3.293821146013215
+  },
+  "status": "solution_error",
+  "environment": {
+    "recorded_at": "2026-11-16T15:00:27.306993+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": null,
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25348210688,
+    "cuda_compute_verified": true,
+    "driver": "615.78.08"
+  },
+  "workspace_sha256": "df6769403d6f0702932837f78a2170906672836658153371237eb6f4839cbae6",
+  "workspace_large_files": [],
+  "model": {
+    "variant": "B16",
+    "status": "published_trained_policy",
+    "logical_parameters": 2766137991,
+    "quantized_modules": [],
+    "parameter_dtypes": {
+      "torch.bfloat16": 1612
+    },
+    "chunk_size": 7,
+    "n_action_steps": 7,
+    "num_inference_timesteps": 4,
+    "world_model_loaded": true,
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "checkpoint_compatibility": {
+      "missing_keys": [],
+      "ignored_keys": [
+        "model.qwen.model.model.language_model.embed_tokens.weight",
+        "model.video_predictor.extrinsics_encoder.bias",
+        "model.video_predictor.extrinsics_encoder.weight",
+        "model.video_predictor.state_encoder.bias",
+        "model.video_predictor.state_encoder.weight"
+      ],
+      "tied_embedding_equality_verified": true,
+      "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+    },
+    "Q8_internal_activation_cast": null
+  },
+  "baseline_resident_bytes": 5798650880,
+  "baseline_walk_bytes": 5532276502,
+  "baseline_peak_cuda_bytes": 5798650880,
+  "seed": 1000,
+  "error": "Traceback (most recent call last):\n  File \"/tmp/repo/evaluation/compression/solution.py\", line 364, in evaluate\n    self.candidate(policy, calibration)\n  File \"/tmp/repo/evaluation/compression/solution.py\", line 418, in candidate\n    sized = measure(returned, roots, self.baseline_payloads)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/repo/evaluation/compression/solution.py\", line 144, in measure\n    resident = max(resident, live_cuda_bytes())\n                             ^^^^^^^^^^^^^^^^^\n  File \"/tmp/repo/evaluation/compression/inventory.py\", line 321, in live_cuda_bytes\n    storages[(obj.device.index, storage.data_ptr())] = storage.nbytes()\n                                ^^^^^^^^^^^^^^^^^^\nRuntimeError: Cannot access data pointer of Tensor (e.g. FakeTensor, FunctionalTensor). If you're using torch.compile/export/fx, it is likely that we are erroneously tracing into a custom kernel. To fix this, please wrap the custom kernel into an opaque custom op. Please see the following for details: https://pytorch.org/tutorials/advanced/custom_ops_landing_page.html\n",
+  "wall_seconds": 556.551927219989
+}

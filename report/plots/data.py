@@ -380,6 +380,31 @@ def component_of(candidate: str, family: str | None) -> str:
     return "other"
 
 
+def policy_dev(study: Path) -> dict:
+    """In-sample and held-out replay value of each cycle's policy rewrite."""
+    cells = []
+    for path in sorted((study / "policies").glob("*/selection.json")):
+        record = optional_json(path) or {}
+        heldout = record.get("heldout") or {}
+        means = heldout.get("mean_V_by_slot") or {}
+        slot = record.get("selected_slot")
+        cells.append(
+            {
+                "cycle": record.get("cycle_id"),
+                "incumbent_in_sample_V": record.get("incumbent_in_sample_V"),
+                "selected_in_sample_V": record.get("selected_in_sample_V"),
+                "heldout_delta_vs_incumbent": record.get("heldout_delta_vs_incumbent"),
+                "heldout_incumbent_V": means.get("m0_incumbent"),
+                "heldout_selected_V": means.get(slot) if slot else None,
+            }
+        )
+    return {
+        "status": "ok" if cells else "empty",
+        "source": rel(study / "policies"),
+        "cycles": cells,
+    }
+
+
 def recovery_dev() -> dict:
     """SmolVLM four-layer RGB recovery vs B16 on 100 development trials."""
     path = ROOT / "studies" / "recovery" / "diagnostics" / "expanded_development_pair.json"

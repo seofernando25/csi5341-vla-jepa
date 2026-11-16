@@ -18,8 +18,11 @@ program-v1's, and no v1 node is used as its starting point. Result: no node beat
 both selected nodes matched the reference on the reserved 500.
 
 [program-v4/](program-v4/README.md) asks a different question: make the policy fast, not small. Its
-score is the speedup over the untouched policy's median observation-to-action latency, zero unless
-the smoke gate passes and peak CUDA memory is not above the reference's. Result: pending.
+score is the geometric mean of the per-task speedup over the untouched policy, zero unless the
+smoke gate passes, peak CUDA memory is not above the reference's and no per-task guard fails. The
+first cycle was stopped because its score rewarded the timed tasks; the stopped cycle is archived
+in [program-v4/stopped/](program-v4/stopped/README.md) and the run restarted with every task timed.
+Result: pending.
 
 ## Closed studies kept outside the reset
 

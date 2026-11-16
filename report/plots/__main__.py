@@ -17,6 +17,7 @@ from report.plots.data import (
     memory_ceiling,
     parameter_census,
     plan,
+    policy_dev,
     recovery_dev,
     reserved_summary,
     solution_reserved,
@@ -78,6 +79,8 @@ def main() -> None:
         n["reserved_figure"] = reserved
     n["figures"]["reserved"] = "skipped: evidence absent" if reserved is None else "ok"
     n["recovery_dev"] = recovery_dev()
+    n["policy_dev_v1"] = policy_dev(STUDY)
+    n["policy_dev_v2"] = policy_dev(STUDY.parent / "program-v2")
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")
     print(f"Wrote {len(list(OUT.glob('*.pdf')))} figures and {DATA / 'numbers.json'}")
 

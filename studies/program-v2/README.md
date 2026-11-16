@@ -40,7 +40,7 @@ Unchanged from program-v1: checkpoint and revision, suite and task ids, seeds, p
 (screen 80, smoke 10, development 100, reserved 500), gates (smoke 8/10, development 77/100,
 final non-inferiority 5 pp), statistics (Wilson 95 %, task-stratified paired bootstrap 10,000
 resamples), agent (pi on `mistral/deepseek-v4-1-flash-1017`, max thinking), agent and evaluation
-timeouts (1800 s), policy timeout (1200 s), GPU slots (2), `beta_grid`, `lambda_parallel`,
+timeouts (1800 s), policy timeout (1200 s), GPU slots (1), `beta_grid`, `lambda_parallel`,
 `gate_retry` and `sequential_gate` off, reserved lock on.
 
 ## Reproduction
