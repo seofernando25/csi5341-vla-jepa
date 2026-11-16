@@ -14,13 +14,12 @@ from report.plots.data import (
     DATA,
     STUDY,
     collect,
-    divergence,
     memory_ceiling,
     parameter_census,
     plan,
     recovery_dev,
 )
-from report.plots.divergence import fig_divergence
+from report.plots.divergence import divergence_record, fig_divergence
 from report.plots.precision import fig_format, fig_precision
 from report.plots.results import fig_ladder
 from report.plots.style import OUT
@@ -53,8 +52,15 @@ def main() -> None:
         "precision": build("precision", fig_precision, n),
         "format": build("format", fig_format, n),
         "ladder": build("ladder", fig_ladder, n),
-        "divergence": build("divergence", fig_divergence, divergence(), n["rows"]),
     }
+    record = divergence_record(STUDY)
+    (STUDY / "divergence.json").write_text(json.dumps(record, indent=2, default=float) + "\n")
+    n["divergence"] = {
+        "study": record["study"],
+        "counts": record["counts"],
+        "phases": record["phases"],
+    }
+    n["figures"]["divergence"] = build("divergence", fig_divergence, record)
     n["dream_rsi"] = dream_rsi_cycles()
     n["recovery_dev"] = recovery_dev()
     (DATA / "numbers.json").write_text(json.dumps(n, indent=2, default=float) + "\n")

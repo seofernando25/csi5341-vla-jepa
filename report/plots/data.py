@@ -263,28 +263,6 @@ def component_of(candidate: str, family: str | None) -> str:
     return "other"
 
 
-def divergence() -> pd.DataFrame:
-    """Per-recipe offline arm change against closed-loop smoke success, from measured cells."""
-    columns = ["candidate", "arm_mse", "gripper", "smoke", "component"]
-    families = {name: recipe.get("family") for name, recipe in recipes().items()}
-    rows = []
-    for candidate, phases in cells().items():
-        screen = phases.get("screen", {}).get("summary", {})
-        smoke = phases.get("smoke", {}).get("summary")
-        if not screen or not smoke:
-            continue
-        rows.append(
-            {
-                "candidate": candidate,
-                "arm_mse": screen["mean_physical_arm_change_mse"],
-                "gripper": screen["mean_gripper_disagreement"],
-                "smoke": int(smoke["successes"]),
-                "component": component_of(candidate, families.get(candidate)),
-            }
-        )
-    return pd.DataFrame(rows, columns=columns)
-
-
 def recovery_dev() -> dict:
     """SmolVLM four-layer RGB recovery vs B16 on 100 development trials."""
     path = ROOT / "studies" / "recovery" / "diagnostics" / "expanded_development_pair.json"

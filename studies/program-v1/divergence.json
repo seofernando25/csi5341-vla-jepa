@@ -1,0 +1,1293 @@
+{
+  "study": "studies/program-v1",
+  "action_error_field": "mean_physical_arm_change_mse",
+  "action_error_frames": 80,
+  "phases": {
+    "smoke": {
+      "gate_min_successes": 8,
+      "n_cells": 17,
+      "spearman": {
+        "n": 17,
+        "rho": -0.4870881870470524,
+        "ci95": [
+          -0.7662834187721486,
+          -0.10256608591633991
+        ],
+        "p_value": 0.04736350273280664,
+        "bootstrap_resamples": 1933,
+        "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42"
+      },
+      "gate_passing": {
+        "n": 14,
+        "rho": null,
+        "ci95": null,
+        "p_value": null,
+        "note": "constant error or success; no ranking is possible",
+        "n_cells": 14
+      }
+    },
+    "development": {
+      "gate_min_successes": 77,
+      "n_cells": 17,
+      "spearman": {
+        "n": 17,
+        "rho": 0.2057670143591245,
+        "ci95": [
+          -0.37600581986317533,
+          0.7874311505473266
+        ],
+        "p_value": 0.428179417292149,
+        "bootstrap_resamples": 2000,
+        "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42"
+      },
+      "gate_passing": {
+        "n": 16,
+        "rho": 0.452051840072924,
+        "ci95": [
+          -0.1500920576258832,
+          0.8394443332824884
+        ],
+        "p_value": 0.0787584220348021,
+        "bootstrap_resamples": 2000,
+        "method": "Spearman rank correlation; percentile bootstrap over cells, 2000 resamples, seed 42",
+        "n_cells": 16
+      }
+    }
+  },
+  "counts": {
+    "included": 34,
+    "excluded": 27,
+    "by_phase": {
+      "smoke": {
+        "included": 17,
+        "excluded": 24
+      },
+      "development": {
+        "included": 17,
+        "excluded": 3
+      }
+    }
+  },
+  "cells": [
+    {
+      "cell_id": "B16",
+      "phase": "smoke",
+      "action_error": 0.0,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "B16",
+      "included": true,
+      "sources": [
+        "measurements/B16/screen/run.json",
+        "measurements/B16/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "B16",
+      "phase": "development",
+      "action_error": 0.0,
+      "successes": 82,
+      "trials": 100,
+      "success_pct": 82.0,
+      "wilson_pct": [
+        73.33264161369925,
+        88.29977450105363
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "B16",
+      "included": true,
+      "sources": [
+        "measurements/B16/screen/run.json",
+        "measurements/B16/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-awq",
+      "phase": "smoke",
+      "action_error": 0.00014242911238397936,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-awq/screen/run.json",
+        "measurements/format-lang-awq/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-awq",
+      "phase": "development",
+      "action_error": 0.00014242911238397936,
+      "successes": 80,
+      "trials": 100,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-awq/screen/run.json",
+        "measurements/format-lang-awq/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-gptq",
+      "phase": "smoke",
+      "action_error": 0.00021007736845604085,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-gptq/screen/run.json",
+        "measurements/format-lang-gptq/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-gptq",
+      "phase": "development",
+      "action_error": 0.00021007736845604085,
+      "successes": 81,
+      "trials": 100,
+      "success_pct": 81.0,
+      "wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-gptq/screen/run.json",
+        "measurements/format-lang-gptq/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-hqq4",
+      "phase": "smoke",
+      "action_error": 0.00012357377604530484,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-hqq4/screen/run.json",
+        "measurements/format-lang-hqq4/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "format-lang-hqq4",
+      "phase": "development",
+      "action_error": 0.00012357377604530484,
+      "successes": 83,
+      "trials": 100,
+      "success_pct": 83.0,
+      "wilson_pct": [
+        74.45199523239887,
+        89.10643388594006
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/format-lang-hqq4/screen/run.json",
+        "measurements/format-lang-hqq4/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-hqq2",
+      "phase": "smoke",
+      "action_error": 2.5536939631365385e-05,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-hqq2/screen/run.json",
+        "measurements/precision-action-hqq2/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-hqq2",
+      "phase": "development",
+      "action_error": 2.5536939631365385e-05,
+      "successes": 81,
+      "trials": 100,
+      "success_pct": 81.0,
+      "wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-hqq2/screen/run.json",
+        "measurements/precision-action-hqq2/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-hqq3",
+      "phase": "smoke",
+      "action_error": 1.740101701130925e-06,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-hqq3/screen/run.json",
+        "measurements/precision-action-hqq3/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-hqq3",
+      "phase": "development",
+      "action_error": 1.740101701130925e-06,
+      "successes": 80,
+      "trials": 100,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-hqq3/screen/run.json",
+        "measurements/precision-action-hqq3/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-int8",
+      "phase": "smoke",
+      "action_error": 6.644105980058157e-07,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-int8/screen/run.json",
+        "measurements/precision-action-int8/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-int8",
+      "phase": "development",
+      "action_error": 6.644105980058157e-07,
+      "successes": 81,
+      "trials": 100,
+      "success_pct": 81.0,
+      "wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-int8/screen/run.json",
+        "measurements/precision-action-int8/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-nf4",
+      "phase": "smoke",
+      "action_error": 2.9090507396745126e-06,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-nf4/screen/run.json",
+        "measurements/precision-action-nf4/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-action-nf4",
+      "phase": "development",
+      "action_error": 2.9090507396745126e-06,
+      "successes": 79,
+      "trials": 100,
+      "success_pct": 79.0,
+      "wilson_pct": [
+        70.02003116591014,
+        85.8343459380847
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "action",
+      "included": true,
+      "sources": [
+        "measurements/precision-action-nf4/screen/run.json",
+        "measurements/precision-action-nf4/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-joint-va-hqq2",
+      "phase": "smoke",
+      "action_error": 0.0029375481091847176,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "joint",
+      "included": true,
+      "sources": [
+        "measurements/precision-joint-va-hqq2/screen/run.json",
+        "measurements/precision-joint-va-hqq2/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-joint-va-hqq2",
+      "phase": "development",
+      "action_error": 0.0029375481091847176,
+      "successes": 86,
+      "trials": 100,
+      "success_pct": 86.0,
+      "wilson_pct": [
+        77.86281178903616,
+        91.47365634006086
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "joint",
+      "included": true,
+      "sources": [
+        "measurements/precision-joint-va-hqq2/screen/run.json",
+        "measurements/precision-joint-va-hqq2/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-hqq2",
+      "phase": "smoke",
+      "action_error": 0.035730699345003815,
+      "successes": 1,
+      "trials": 10,
+      "success_pct": 10.0,
+      "wilson_pct": [
+        1.7876213095072897,
+        40.41500267952385
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": false,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-hqq2/screen/run.json",
+        "measurements/precision-lang-hqq2/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-hqq2",
+      "phase": "development",
+      "action_error": 0.035730699345003815,
+      "successes": 20,
+      "trials": 100,
+      "success_pct": 20.0,
+      "wilson_pct": [
+        13.33669333310325,
+        28.88291655931589
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": false,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-hqq2/screen/run.json",
+        "measurements/precision-lang-hqq2/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-hqq3",
+      "phase": "smoke",
+      "action_error": 0.0007835585180146154,
+      "successes": 7,
+      "trials": 10,
+      "success_pct": 70.0,
+      "wilson_pct": [
+        39.677814746114535,
+        89.2208732593699
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": false,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-hqq3/screen/run.json",
+        "measurements/precision-lang-hqq3/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-hqq3",
+      "phase": "development",
+      "action_error": 0.0007835585180146154,
+      "successes": 80,
+      "trials": 100,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-hqq3/screen/run.json",
+        "measurements/precision-lang-hqq3/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-int8",
+      "phase": "smoke",
+      "action_error": 1.668459703410008e-05,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-int8/screen/run.json",
+        "measurements/precision-lang-int8/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-int8",
+      "phase": "development",
+      "action_error": 1.668459703410008e-05,
+      "successes": 81,
+      "trials": 100,
+      "success_pct": 81.0,
+      "wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-int8/screen/run.json",
+        "measurements/precision-lang-int8/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-nf4",
+      "phase": "smoke",
+      "action_error": 0.00020033387309013052,
+      "successes": 7,
+      "trials": 10,
+      "success_pct": 70.0,
+      "wilson_pct": [
+        39.677814746114535,
+        89.2208732593699
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": false,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-nf4/screen/run.json",
+        "measurements/precision-lang-nf4/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-lang-nf4",
+      "phase": "development",
+      "action_error": 0.00020033387309013052,
+      "successes": 81,
+      "trials": 100,
+      "success_pct": 81.0,
+      "wilson_pct": [
+        72.22115462093562,
+        87.48524849023126
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "language",
+      "included": true,
+      "sources": [
+        "measurements/precision-lang-nf4/screen/run.json",
+        "measurements/precision-lang-nf4/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-hqq2",
+      "phase": "smoke",
+      "action_error": 0.003143649527191883,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-hqq2/screen/run.json",
+        "measurements/precision-vision-hqq2/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-hqq2",
+      "phase": "development",
+      "action_error": 0.003143649527191883,
+      "successes": 86,
+      "trials": 100,
+      "success_pct": 86.0,
+      "wilson_pct": [
+        77.86281178903616,
+        91.47365634006086
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-hqq2/screen/run.json",
+        "measurements/precision-vision-hqq2/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-hqq3",
+      "phase": "smoke",
+      "action_error": 0.0004407459643516631,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-hqq3/screen/run.json",
+        "measurements/precision-vision-hqq3/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-hqq3",
+      "phase": "development",
+      "action_error": 0.0004407459643516631,
+      "successes": 83,
+      "trials": 100,
+      "success_pct": 83.0,
+      "wilson_pct": [
+        74.45199523239887,
+        89.10643388594006
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-hqq3/screen/run.json",
+        "measurements/precision-vision-hqq3/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-int8",
+      "phase": "smoke",
+      "action_error": 7.922666755177943e-06,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-int8/screen/run.json",
+        "measurements/precision-vision-int8/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-int8",
+      "phase": "development",
+      "action_error": 7.922666755177943e-06,
+      "successes": 79,
+      "trials": 100,
+      "success_pct": 79.0,
+      "wilson_pct": [
+        70.02003116591014,
+        85.8343459380847
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-int8/screen/run.json",
+        "measurements/precision-vision-int8/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-nf4",
+      "phase": "smoke",
+      "action_error": 7.605706846334215e-05,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-nf4/screen/run.json",
+        "measurements/precision-vision-nf4/smoke/run.json"
+      ]
+    },
+    {
+      "cell_id": "precision-vision-nf4",
+      "phase": "development",
+      "action_error": 7.605706846334215e-05,
+      "successes": 82,
+      "trials": 100,
+      "success_pct": 82.0,
+      "wilson_pct": [
+        73.33264161369925,
+        88.29977450105363
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "vision",
+      "included": true,
+      "sources": [
+        "measurements/precision-vision-nf4/screen/run.json",
+        "measurements/precision-vision-nf4/development/run.json"
+      ]
+    },
+    {
+      "cell_id": "iter_000-b0-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b0-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b0-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b0-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b0-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b0-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b0-a3",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b0-a3/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b0-a3",
+      "phase": "development",
+      "action_error": null,
+      "successes": 80,
+      "trials": 100,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        71.11708344068411,
+        86.66330666689676
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b0-a3/development.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b1-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b1-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b2-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b2-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b2-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b2-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_000-b2-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_000/nodes/iter_000-b2-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b0-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b0-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b1-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b1-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b1-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b1-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b1-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b1-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b1-a3",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b1-a3/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b1-a3",
+      "phase": "development",
+      "action_error": null,
+      "successes": 84,
+      "trials": 100,
+      "success_pct": 84.0,
+      "wilson_pct": [
+        75.57973061072975,
+        89.90471151119522
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b1-a3/development.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b2-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b2-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b2-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b2-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_001-b2-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_001/nodes/iter_001-b2-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b0-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b0-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b1-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b1-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b1-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b1-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b1-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b1-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b1-a3",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b1-a3/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b2-a0",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b2-a0/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b2-a1",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b2-a1/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b2-a1",
+      "phase": "development",
+      "action_error": null,
+      "successes": 82,
+      "trials": 100,
+      "success_pct": 82.0,
+      "wilson_pct": [
+        73.33264161369925,
+        88.29977450105363
+      ],
+      "gate_min_successes": 77,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b2-a1/development.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    },
+    {
+      "cell_id": "iter_002-b2-a2",
+      "phase": "smoke",
+      "action_error": null,
+      "successes": 8,
+      "trials": 10,
+      "success_pct": 80.0,
+      "wilson_pct": [
+        49.01624715366418,
+        94.33178485456247
+      ],
+      "gate_min_successes": 8,
+      "gate_passed": true,
+      "component": "other",
+      "included": false,
+      "sources": [
+        "cycles/iter_002/nodes/iter_002-b2-a2/score.json"
+      ],
+      "reason": "no action error recorded: the evaluator's rollout phases run no screen"
+    }
+  ]
+}
