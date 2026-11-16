@@ -6,13 +6,14 @@ The hour-by-hour log of 2026-11-15 is in Git history (this file at `64206a6`).
 
 ## State at 11:15 EST, 2026-11-16
 
-The report is four pages and committed. `main` is pushed to `origin/main` at `d0ca908`.
+The report is four pages and committed; the independent review's blockers and major findings are
+fixed. `main` is pushed to `origin/main` at `8792c14`.
 
 | Run | State |
 |---|---|
 | Reserved-500, v1 selection (6 cells) | complete: reference 95.0 %, cycle-1 winner 95.6 %, cycle-2 winner 93.4 %, lang int8 94.8 %, lang nf4 96.0 %, packed NF4 ladder 97.8 % |
 | `program-v2` search | stopped; did not beat v1; reserved 96.2 % and 95.0 % |
-| `program-v4` latency search | first cycle stopped because the score was gamed; fixed; rerun started 16:05 UTC, unit active, 3 cycles, 8 probes, 1 GPU slot, 8 h / $20 |
+| `program-v4` latency search | first cycle stopped because the score was gamed; fixed; rerun live since 16:05 UTC; first node `iter_000-b0-a0` scores 2.706 (point 2.741, all ten tasks 2.70-2.79, smoke 8/10, no violations), a general CUDA-graph executor; second node running |
 | `program-v3` debiased size search | paused; worktree `t3/b413d091`, tag `program-v3-debiased`, `STOP` in its study; not resumed |
 
 The v4 fix is in `d0ca908`: every task is timed (18 calls per task, six blocks of three), the
@@ -24,14 +25,14 @@ under the revised score: 0.987 (point 0.998).
 ## Next, in order
 
 1. When v4 stops: select on development only, run the reserved 500, add the result to the report.
-2. Read `report/main.pdf` once for voice and accuracy; the independent review and visual critique
-   are in `/tmp/opencode/s2/review.md` when they land.
+2. The independent review is done; its blockers and major findings are fixed in `8792c14`. Read
+   `report/main.pdf` once more for voice.
 3. Push the v4 branch and merge it to `main` when the run and the report are done.
 4. Optional: the presentation (`web/presentation/`) still shows the pre-cleanroom story.
 
 ## Branches
 
-`main` is at `d0ca908` and pushed. Two worktrees exist: the paused `program-v3` run
+`main` is at `8792c14` and pushed. Two worktrees exist: the paused `program-v3` run
 (`t3/b413d091`, tag `program-v3-debiased`) and the live `program-v4` run
 (`t3/run-program-v4`, at `0970b90`). Neither is merged. The v3 run is not mine; do not restart it
 without a decision from Fernando.
