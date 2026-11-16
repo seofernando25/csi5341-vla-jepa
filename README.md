@@ -30,8 +30,10 @@ pooled or cited, and the report quotes none of it.
 
 The new evidence base is [studies/program-v1/](studies/program-v1/README.md): a frozen protocol, a
 pre-registered precision surface of 13 arms with its development measurements, and the Dream-RSI
-search cycles. Reserved trials and the report text are in progress. The program — decided arms, gates, stop rules and open work — is
-[docs/COMPRESSION_PROGRAM.md](docs/COMPRESSION_PROGRAM.md).
+search cycles. The reserved 500-trial runs of the v1 selection are complete. Later Dream-RSI
+searches (size under open protocol, size without hints, latency) are in
+[studies/README.md](studies/README.md). The program (decided arms, gates, stop rules) is
+[docs/COMPRESSION_PROGRAM.md](docs/COMPRESSION_PROGRAM.md); run state is in `HANDOFF.md`.
 
 ## Layout
 
@@ -42,7 +44,7 @@ search cycles. Reserved trials and the report text are in progress. The program 
 | `evaluation/` | Rollouts, timing, analysis; compression recipes and transforms in `evaluation/compression/` |
 | `rsi/` | Dream-RSI search over compression solutions: discovery agents, fixed evaluator, replay, policy development |
 | `docs/COMMANDS.md` | One canonical command per task |
-| `web/presentation/` | Paper presentation (October milestone) |
+| `web/presentation/` | Paper presentation (October milestone; not yet updated to the final results) |
 | `tests/` | Unit tests for statistics, compression transforms and the search |
 
 ## Setup

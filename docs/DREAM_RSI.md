@@ -105,3 +105,51 @@ rerun, label each choice:
 
 A component is evidence only after its choice is pre-registered and its run is recorded under
 `studies/program-v1/`.
+
+## 5. Protocol choices by study
+
+Each is a pre-registered choice of one study namespace, not a paper claim. A study's
+`protocol.json` is the record.
+
+### program-v3: the size search without two hints
+
+v1 and v2 wrote biased nodes: the discovery agent could read our compression code and was handed the
+53 prompt token ids in the calibration, and many nodes used one or both. v3 removes them and keeps
+everything else from v2.
+
+| Choice | Value |
+|---|---|
+| Not mounted into the agent sandbox | `evaluation/compression`, `evaluation/nf4.py`, `evaluation/fastpath.py`, `outputs/compression/vendor` |
+| Calibration handed to `compress` | `linear_inputs`, `block_influence`, `bank_indices`; no `token_ids`, no per-prompt information |
+| Agent's `tools/check.py` | self-contained: the evaluator's resident walk and payload sweep copied in, plus the frozen reference actions |
+| Evaluator | unchanged and still decides the score; it keeps its own sandbox with the full source |
+
+A v3 node is compared with a v2 node at the same phase, not pooled with it. The comparison is not a
+clean ablation of one hint: the mount and the check tool changed together.
+
+### program-v4: the latency score
+
+The question is speed, not size ([studies/program-v4/README.md](../studies/program-v4/README.md)).
+The node score is the lower bound of a 95 % interval, so noise can only lower it:
+
+- **Timing.** The reference (untouched B16, four flow steps) and the candidate are timed in six
+  alternating blocks of one evaluation (`evaluation/compression/latency.py`), the order inside a
+  pair alternating, so a co-tenant burst lands on both sides. When a second reference does not fit
+  beside the candidate, the reference is timed before and after and the node fails if the two pools
+  differ by more than 10 %.
+- **Interval.** Percentile cluster bootstrap over blocks, 10 000 resamples, seed 20261116
+  (`latency_plan.py`); the score is the 2.5th percentile.
+- **Every task timed equally.** Each block holds the same number of calls from all ten tasks. The
+  speedup is the geometric mean over tasks of the per-task median ratio, so a one-task win scores a
+  tenth of its log. The first launch scored three tasks and was stopped for it.
+- **Zero unless:** smoke gate passes (8/10); peak CUDA bytes within 1 % of the reference's; no
+  guard fails.
+- **Per-task guards, worst task decides:** arm-action error at most 0.01 and perturbation
+  correlation at least 0.5 against the reference, plus the equivalence check.
+- **Other guards:** another GPU process above 50 % utilisation during timing, captured clock,
+  novel-frame cost, reset cost, episode overhead, CPU and child CPU (`latency_guards.py`,
+  `latency_timing.py`).
+
+Replay $V$ is unchanged; the identity baseline of a latency study is 1.0, not 0
+([rsi/online_question.py](../rsi/online_question.py)).
+

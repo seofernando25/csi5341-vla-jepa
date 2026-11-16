@@ -20,7 +20,7 @@ What the report has to show. Each requirement names its source.
 | R7 | Plain "we" voice, few numbers in prose, no AI tell-tale phrasing | Owners | Draft passes one review; recheck after new sections |
 | R8 | Reserved episodes never guide selection; phases never pooled | `CLAUDE.md` | Holds; keep for v3 and v4 |
 | R9 | Credit for each author's work, including Noah's Dream-RSI integration | Owners | Acknowledgment restored; Noah to confirm wording |
-| R10 | A search on latency, the owners' "second step": fuse and speed up the policy while it keeps working | Owners, 2026-11-16 | Prepared, not run |
+| R10 | A search on latency, the owners' "second step": fuse and speed up the policy while it keeps working | Owners, 2026-11-16 | Running (v4); first nodes about 2.7x |
 
 ## 2. Design
 
@@ -61,9 +61,9 @@ use a range around zero; a success rate starts at 0).
 
 Score is the lower bound of the 95 % interval of the speedup over the reference, if the smoke gate
 passes, peak memory does not exceed the reference's, and actions stay close to B16 on unseen and
-perturbed frames. Timing alternates reference and candidate blocks in one evaluation. Guards cover
-clock tampering, cached answers, background work and work moved off the GPU. Remaining holes are
-listed in `studies/program-v4/README.md` on its branch.
+perturbed frames. Timing alternates reference and candidate blocks in one evaluation, and every task
+is timed equally. Guards cover clock tampering, cached answers, background work and work moved off
+the GPU. Remaining holes are listed in `studies/program-v4/README.md`.
 
 ## 3. Tasks
 
@@ -174,16 +174,17 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 
 ### 3.4 Codebase and docs cleanup
 
-- **T21. Branches.** Merge each worktree branch when its run ends; remove the worktree and delete
-  the branch the same day.
+- **T21. Branches.** Open: the v3 and v4 runs are still live. Merge each worktree branch when its
+  run ends; remove the worktree and delete the branch the same day.
 - **T22. Handoff.** Done: the swapped v1 winner results are corrected.
-- **T23. Format figure.** Retire `fig_format`; the report no longer uses `figures/format.pdf`.
-- **T24. Study READMEs.** v3 and v4 each get question, result, evidence and reproduction command,
-  indexed in `studies/README.md`.
-- **T25. `docs/DREAM_RSI.md`.** Record the v3 exclusions and the v4 score as protocol choices.
-- **T26. Presentation.** `web/presentation/` still tells the pre-clean-room story; rebuild it from
-  the final figures before 2026-12-04.
-- **T27. Push and board record** only after Fernando says so.
+- **T23. Format figure.** Done: `fig_format` is retired and the report does not use it.
+- **T24. Study READMEs.** Done: `studies/program-v3/README.md` and `studies/program-v4/README.md`
+  give question, result so far, evidence and reproduction command, and are indexed in
+  `studies/README.md`. Refresh the results when each run ends.
+- **T25. `docs/DREAM_RSI.md`.** Done: section 5 records the v3 exclusions and the v4 score.
+- **T26. Presentation.** Open: `web/presentation/` still tells the pre-clean-room story; it waits
+  for the final figures, then is rebuilt before 2026-12-04.
+- **T27. Push and board record.** Open: only after Fernando says so.
 
 ## 4. Order and timing
 
@@ -206,3 +207,13 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 - **v3 may find less.** Without our code and the prompt tokens it may not reach 83 %. That is a
   result: report it as the cost of the hints.
 - **Page limit.** Seven figures in five pages is tight; merge timelines before cutting text.
+- **Invalid v1 nodes.** v1 cycle-3 nodes `iter_002-b1-a3`, `iter_002-b2-a1` and `iter_002-b2-a2`
+  are the memory exploit; never report or plot them. The stopped v4 first launch is the second
+  exploit and is never selected.
+- **Weak gates.** Smoke is 10 episodes and the untouched policy scores 8/10, exactly the gate. v1
+  policy selection is in-sample only and overfit.
+- **Calibration tie.** The embedding shrink some nodes use ties the policy to the calibration
+  prompts; say so in the report.
+- **Untested paths.** The open policy agent passed one synthetic step before launch, not a live
+  cycle; the anytime-salvage path has CPU tests only.
+

@@ -12,7 +12,7 @@ cd report && latexmk -pdf main.tex  # build main.pdf (not committed)
 | Path | Role |
 |---|---|
 | `main.tex`, `refs.bib` | Report source and bibliography |
-| `plots/` | Figure builders for Figures 1-5; each builder skips itself when its evidence is absent |
+| `plots/` | Figure builders; each builder skips itself when its evidence is absent |
 | `figures/` | Generated figure PDFs |
 | `data/numbers.json` | Every quoted number, with its source path |
 | `data/parameter_census.json` | Parameter counts from the checkpoint header |

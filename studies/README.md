@@ -17,12 +17,16 @@ memory rule. It starts from the baseline policy with no history. Its nodes are n
 program-v1's, and no v1 node is used as its starting point. Result: no node beat v1's compression;
 both selected nodes matched the reference on the reserved 500.
 
+[program-v3/](program-v3/README.md) repeats v2 without the project's compression code and the
+prompt token ids, which v1 and v2 agents could use. Paused after one scored node; its evidence is
+not committed yet.
+
 [program-v4/](program-v4/README.md) asks a different question: make the policy fast, not small. Its
-score is the geometric mean of the per-task speedup over the untouched policy, zero unless the
-smoke gate passes, peak CUDA memory is not above the reference's and no per-task guard fails. The
-first cycle was stopped because its score rewarded the timed tasks; the stopped cycle is archived
-in [program-v4/stopped/](program-v4/stopped/README.md) and the run restarted with every task timed.
-Result: pending.
+score is the lower bound of the 95 % interval of the geometric mean of the per-task speedup over
+the untouched policy, zero unless the smoke gate passes, peak CUDA memory is not above the
+reference's and no per-task guard fails. The first launch was stopped because its score rewarded
+the timed tasks; it is archived in [program-v4/stopped/](program-v4/stopped/README.md) and the run
+restarted with every task timed. Running; no cycle is complete.
 
 ## Closed studies kept outside the reset
 
@@ -58,4 +62,4 @@ points:
 - Write new results to a new path; do not overwrite another participant's records.
 - Keep weights, datasets, raw logs and runtime state outside Git (`outputs/`).
 - Export compact results with provenance before deleting runtime artifacts.
-- A number quoted in the report must trace to a committed record under `studies/program-v1/`.
+- A number quoted in the report must trace to a committed record under `studies/`.

@@ -38,11 +38,11 @@ Primary comparisons, pre-registered:
 - H3: action 2-bit is non-inferior within 5 pp.
 - H4: joint vision+action 2-bit is non-inferior within 5 pp; the interaction is not superadditive.
 
-### Format curve
+### Format comparison
 
-Decoder-only, same scope, 100 development trials for NF4, INT8, HQQ4, HQQ3, HQQ2, GPTQ and the
-AWQ-style diagonal adaptation. Plot success against peak memory and effective bits. This curve
-separates a bit-width effect from a format effect: group size, axis and calibration.
+Decoder-only, same scope, 100 development trials for NF4, INT8, HQQ4, GPTQ and the AWQ-style
+diagonal adaptation. It separates a bit-width effect from a format effect: group size, axis and
+calibration. It is reported in the report text, not as a figure.
 
 ### Execution ladder
 
@@ -77,37 +77,22 @@ closed-loop trials. Report the threshold used and the correlation per action-MSE
 - A recipe that fails smoke at 6/10 or worse stops; do not promote.
 - A format with screen action MSE above \(10^{-3}\) and smoke below 8/10 stops.
 - If replay value improves but development success does not, report the negative result.
-- If GPU time slips, drop the format figure to a table before dropping the precision curve.
 
 ## Open
 
-- **Runs.** No smoke or development trial has been launched. The precision surface is
-  pre-registered in [precision_surface_plan.json](../studies/program-v1/precision_surface_plan.json)
-  with 13 recipe arms under `recipes/`.
 - **Measurement queue.** `evaluation/compression/queue.py` runs the pre-registered surface on one
-  GPU slot (`vla-compress-queue`); `vla-compress run` measures one arm and phase.
-- **Dream-RSI clean loop.** Discovery agents write `proposal.md` and `solution.py`; the fixed
-  evaluator scores them; replay selects the exploration policy. Evidence: `studies/program-v1/cycles/`. Fidelity and
-  deviations: [DREAM_RSI.md](DREAM_RSI.md).
-- **Reserved confirmation.** Freeze one full-vocabulary recipe before running 500 reserved trials.
-  Report the paired difference and Wilson interval; claim non-inferiority only if the interval stays
-  above −5 pp. Do not re-select after seeing reserved outcomes.
+  GPU slot (`vla-compress-queue`); `vla-compress run` measures one arm and phase. The surface is
+  pre-registered in [precision_surface_plan.json](../studies/program-v1/precision_surface_plan.json)
+  with its recipes under `studies/program-v1/recipes/`; records are under
+  `studies/program-v1/measurements/`.
+- **Dream-RSI.** Discovery agents write `proposal.md` and `solution.py`; the fixed evaluator scores
+  them; replay selects the exploration policy. Evidence: `studies/program-v1/cycles/` and the later
+  namespaces in [studies/README.md](../studies/README.md). Fidelity and deviations:
+  [DREAM_RSI.md](DREAM_RSI.md).
 - **Parallel rollouts.** `evaluation/parallel_rollout.py` is not wired to arbitrary compression
   recipes. Before using it for evidence: serial-versus-parallel equivalence at the same seeds and
   states, mode-consistent comparisons, reserved confirmation on the serial path.
 - **Report.** `report/plots` skips figures whose evidence is absent.
-
-## Milestones
-
-| Date | Deliverable |
-|---|---|
-| Nov 17-20 | Smoke screens, then 100-trial development for language, vision, action and the joint 2-bit cell |
-| Nov 23-24 | Format curve |
-| Nov 25-29 | One Dream-RSI clean cycle on the precision axes; analysis with Wilson intervals and the paired bootstrap |
-| Nov 30 | Freeze claims; at most two reserved arms |
-| Dec 1-2 | Rebuild `report/plots`, `report/figures`, `report/data/numbers.json`; enforce the 5-page limit |
-| Dec 3-4 | Presentation |
-| Dec 9 | Report due |
 
 ## Out of scope
 

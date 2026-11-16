@@ -172,9 +172,22 @@ guard violation; the evaluator's smoke run decides the node.
 The reserved phase runs outside the search loop with a longer evaluator timeout than the
 protocol's 1800 s, as in program-v2; the search never reads reserved states.
 
-## Status
+## Result so far
 
-The first cycle was stopped and archived in [stopped/](stopped/README.md): its score rewarded the
-timed tasks, not the suite. The run restarted under the revised score with every task timed. No
-reserved trial exists. The smoke gate is 8/10 and the development gate 77/100, both unchanged from
-program-v2.
+Partial; the run is live and no cycle is complete. The first launch was stopped because its score
+rewarded the timed tasks (node `iter_000-b1-a1` cut work on task 0 only; archived in
+[stopped/](stopped/README.md), never selected). The run restarted with every task timed. The nodes
+recorded so far are in [nodes.json](nodes.json) (a snapshot taken while the run was live): the best
+scores 2.79 (a CUDA-graph executor with no change to the model), one node fails the smoke gate at
+7/10 and none violates a guard. No development or reserved trial exists. The smoke gate is 8/10 and
+the development gate 77/100, both unchanged from program-v2.
+
+## Evidence
+
+- [nodes.json](nodes.json): per-node score, speedup interval, guard, smoke and title, written by
+  `vla-export-nodes` from the live run.
+- [protocol.json](protocol.json), [calibration.json](calibration.json), [discovery.md](discovery.md):
+  frozen rules, calibration and prompt.
+- [stopped/](stopped/README.md): the stopped first launch.
+- Full node records (`cycles/`, `policies/`, `loop_state.json`) stay in the run's worktree until the
+  run ends.
