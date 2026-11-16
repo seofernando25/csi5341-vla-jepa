@@ -5,6 +5,20 @@ recipe written by another agent. A node's score is the fraction of model size it
 passed its quality gate, else 0. The policy only decides which nodes to expand next and when to
 stop. You do not design recipes.
 
+## What you may do
+
+You have a shell, Python, network and a GPU. Read the project source under `/tmp/repo`
+(read-only), run experiments, and install packages with
+`uv pip install --target /tmp/pkgs <package>`; `/tmp/pkgs` is on `PYTHONPATH`. Write only under
+`/tmp/work` and `/tmp/pkgs`.
+
+`/tmp/work/replay.py` scores a policy exactly as the harness will: it audits the file, replays it
+on the recorded trees and prints V per world and mean V.
+
+    python /tmp/work/replay.py /tmp/work/method.py
+
+Iterate until mean V stops rising, then leave the best file in `/tmp/work/method.py`.
+
 ## Files
 
 - `/tmp/work/method.py`: the policy. The only file you may change. It starts as the best policy
@@ -14,9 +28,10 @@ stop. You do not design recipes.
   per-round decisions of the policy in `method.py` as it stands now.
 - `/tmp/evidence/history/step_NN/`: every earlier step of this cycle, with its `method.py`,
   `scaling_curve.json` (probes, attainment and rounds per world and beta, and V) and
-  `verdict.json` (accepted or rejected, and why).
+  `verdict.json` (accepted, not better, timeout or rejected, and why).
 - `/tmp/evidence/live_cycle_manifests.json`: summaries of past live cycles.
 - `/tmp/evidence/reference/`: read-only copies of `api.py`, `tree.py`, `objective.py`.
+- `/tmp/repo`: the project source, read-only.
 
 ## Objective
 
@@ -60,7 +75,16 @@ policy replaces the current one only if its mean V over all worlds is strictly h
 - No string literal may equal a recorded cell id or world id, and no float literal may equal a
   recorded node score with three or more decimals (0.0, 0.5 and 1.0 are exempt). Integers are
   fine.
-- Each step has 240 s of wall clock; a step that runs over is lost.
+- Each step has {minutes} minutes of wall clock. A step that runs over is lost (status `timeout`).
+
+## Closed lines (a step that breaks one fails)
+
+- `/tmp/evidence` and `/tmp/repo` are read-only. Recorded trees and evidence are never modified.
+- The held-out worlds are not mounted and their generator is not in `/tmp/repo`. Do not try to
+  reconstruct them: they are reported next to V and never used for selection.
+- The harness runs the final replay, the AST audit, the world-literal check and the selection.
+  Numbers from your own runs are yours alone; a `result.json` you write is ignored.
+- No writes outside `/tmp/work` and `/tmp/pkgs`. The workspace is capped at 256 MiB.
 
 ## How to work
 
@@ -71,9 +95,9 @@ policy replaces the current one only if its mean V over all worlds is strictly h
    seen, for example "children of a root that failed at runtime rarely pass". Check it against
    every recorded world, not only the one that suggested it.
 3. Make the smallest change to `_schedule` or `solve` that implements the rule.
-4. Read `history/`. Do not repeat a change that lowered V or was rejected.
-5. You cannot run code. The harness replays your file after you finish; its result is shown to
-   the next step. The policy is also replayed on hidden trees of other shapes, and that result is
-   reported next to V.
+4. Run `python /tmp/work/replay.py`. Keep the change only if mean V rises; revert it otherwise.
+5. Read `history/`. Do not repeat a change that lowered V or was rejected.
+6. The harness replays your file again after you finish, under two hash seeds. The policy is also
+   replayed on hidden trees of other shapes; that result is reported next to V.
 
-End with three lines: the hypothesis, the change, the expected effect on V.
+End with three lines: the hypothesis, the change, the mean V you measured.

@@ -14,6 +14,7 @@ from rsi.agent_backends import AgentSpec, load_agent_spec
 from rsi.expansion import Evaluator
 from rsi.online_cycle import DREAM_DIR, _recent_manifests, provenance, run_online_cycle
 from rsi.policy_dev import (
+    DEFAULT_POLICY_TIMEOUT_S,
     INCUMBENT_TEMPLATE,
     develop_policies_llm,
     load_tree_json,
@@ -38,7 +39,14 @@ def _sha256(path: Path) -> str:
 
 
 def _policy_ref(path: Path) -> dict[str, str]:
-    return {"path": str(path), "sha256": _sha256(path)}
+    resolved = Path(path).resolve()
+    return {"path": str(resolved), "sha256": _sha256(resolved)}
+
+
+def recorded_policy_path(study_root: Path, value: str) -> Path:
+    """Resolve a recorded policy path: absolute as written before 2026-11-15, else study-relative."""
+    path = Path(value)
+    return path if path.is_absolute() else Path(study_root) / path
 
 
 def _verified(ref: dict[str, str]) -> Path:
@@ -170,7 +178,9 @@ def _run_policy_dev(
     selection = study_root / "policies" / cid / "selection.json"
     if selection.is_file():
         res = json.loads(selection.read_text(encoding="utf-8"))
-        _mark_dev_done(rec, Path(res["selected_policy_path"]), _cost(res), "done")
+        _mark_dev_done(
+            rec, recorded_policy_path(study_root, res["selected_policy_path"]), _cost(res), "done"
+        )
         return
     if not _load_trees(study_root):
         _mark_dev_done(rec, _verified(rec["policy_in"]), 0.0, "skipped")
@@ -182,9 +192,12 @@ def _run_policy_dev(
         incumbent_path=_verified(rec["policy_in"]),
         output_dir=study_root / "policies" / cid,
         live_manifests=list(_recent_manifests(study_root)),
+        record_root=study_root,
         **kw,
     )
-    _mark_dev_done(rec, Path(res["selected_policy_path"]), _cost(res), "done")
+    _mark_dev_done(
+        rec, recorded_policy_path(study_root, res["selected_policy_path"]), _cost(res), "done"
+    )
 
 
 def _cost(payload: dict[str, Any]) -> float | None:
@@ -228,7 +241,7 @@ def run_dream_rsi_loop(
     agent: AgentSpec | None = None,
     agent_timeout: float | None = None,
     eval_timeout: float | None = None,
-    policy_timeout: float = 240.0,
+    policy_timeout: float = DEFAULT_POLICY_TIMEOUT_S,
     use_bwrap: bool = True,
     evaluator: Evaluator | None = None,
     max_hours: float | None = None,

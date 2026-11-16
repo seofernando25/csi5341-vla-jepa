@@ -3,7 +3,13 @@ import { el, clear } from "../dom.js";
 import * as sel from "../selectors.js";
 import * as fmt from "../format.js";
 
-const VERDICT_TONE = { accepted: "ok", not_better: "warn", rejected: "err", running: "live" };
+const VERDICT_TONE = {
+  accepted: "ok",
+  not_better: "warn",
+  timeout: "warn",
+  rejected: "err",
+  running: "live",
+};
 const DEV_TONE = { done: "ok", running: "live", skipped: "warn" };
 
 export function mount(root, ctx) {

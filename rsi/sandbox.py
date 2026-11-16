@@ -159,12 +159,28 @@ def _python_homes(venv_python: Path) -> list[Path]:
     return list(homes)
 
 
-def repo_source_binds(repo_root: Path = REPO_ROOT) -> dict[Path, str]:
-    """Read-only repo source and evaluator inputs, each at its path under /tmp/repo, if present."""
+def repo_source_binds(
+    repo_root: Path = REPO_ROOT, *, exclude: tuple[str, ...] = ()
+) -> dict[Path, str]:
+    """Read-only repo source and evaluator inputs, each at its path under /tmp/repo, if present.
+
+    A repo-relative path in `exclude` is left out. When it names a file inside a listed
+    directory, that directory is bound child by child instead, so the file cannot be reached.
+    """
     repo = Path(repo_root).resolve()
-    return {
-        repo / rel: f"{SANDBOX_REPO}/{rel}" for rel in REPO_SOURCE_PATHS if (repo / rel).exists()
-    }
+    binds: dict[Path, str] = {}
+    for rel in REPO_SOURCE_PATHS:
+        src = repo / rel
+        if not src.exists():
+            continue
+        if not any(item == rel or item.startswith(f"{rel}/") for item in exclude):
+            binds[src] = f"{SANDBOX_REPO}/{rel}"
+            continue
+        for child in sorted(src.iterdir()):
+            child_rel = f"{rel}/{child.name}"
+            if child_rel not in exclude:
+                binds[child] = f"{SANDBOX_REPO}/{child_rel}"
+    return binds
 
 
 def build_bwrap_argv(
@@ -175,6 +191,7 @@ def build_bwrap_argv(
     repo_root: Path = REPO_ROOT,
     mount_venv: bool = True,
     extra_ro_binds: dict[Path, str] | None = None,
+    writable_dirs: dict[Path, str] | None = None,
     network: bool = False,
     env_overrides: dict[str, str] | None = None,
     gpu: bool = False,
@@ -208,6 +225,12 @@ def build_bwrap_argv(
     cmd.extend([workspace_mode, str(workspace), SANDBOX_WORK, "--chdir", SANDBOX_WORK])
     if out_dir is not None:
         cmd.extend(["--bind", str(Path(out_dir).resolve()), SANDBOX_OUT])
+    # Writable scratch outside the workspace (e.g. a package dir). Bound before the read-only
+    # mounts so a later read-only bind wins if the two ever name the same path.
+    for src, dst in (writable_dirs or {}).items():
+        target = Path(src).resolve()
+        target.mkdir(parents=True, exist_ok=True)
+        cmd.extend(["--bind", str(target), dst])
     if evidence_dir is not None:
         cmd.extend(["--ro-bind", str(Path(evidence_dir).resolve()), SANDBOX_EVIDENCE])
     for src, dst in (extra_ro_binds or {}).items():
@@ -626,6 +649,7 @@ def run_sandboxed_agent(
     use_bwrap: bool = True,
     repo_root: Path = REPO_ROOT,
     extra_ro_binds: dict[Path, str] | None = None,
+    writable_dirs: dict[Path, str] | None = None,
     env_overrides: dict[str, str] | None = None,
     network: bool = False,
     gpu: bool = False,
@@ -669,6 +693,7 @@ def run_sandboxed_agent(
             repo_root=repo_root,
             mount_venv=True,
             extra_ro_binds={**backend_binds, **(extra_ro_binds or {})},
+            writable_dirs=writable_dirs,
             network=network or not custom,
             env_overrides={**backend_env, **(env_overrides or {})},
             gpu=gpu,

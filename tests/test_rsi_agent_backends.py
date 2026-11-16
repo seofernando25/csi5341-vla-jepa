@@ -442,7 +442,9 @@ def test_parse_pi_is_text_only() -> None:
 
 def test_load_agent_spec_reads_protocol() -> None:
     spec = load_agent_spec(STUDY)
-    assert spec == AgentSpec("pi", "mistral/deepseek-v4-1-flash-1017", "max", "read,write,edit")
+    assert spec == AgentSpec(
+        "pi", "mistral/deepseek-v4-1-flash-1017", "max", "read,write,edit,bash"
+    )
 
 
 def test_load_agent_spec_backend_override_drops_protocol_model(tmp_path: Path) -> None:

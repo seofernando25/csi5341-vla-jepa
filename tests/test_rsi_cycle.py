@@ -68,7 +68,7 @@ def _study(root: Path, *, gpu_slots: int = 2) -> Path:
             },
             "agent": {"backend": "claude", "model": "haiku", "effort": "low"},
             "discovery_tools": "read,write,edit,bash",
-            "policy_dev_tools": "read,write,edit",
+            "policy_dev_tools": "read,write,edit,bash",
             "agent_timeout_s": 30,
             "eval_timeout_s": 30,
             "gpu_slots": gpu_slots,
@@ -413,7 +413,7 @@ def test_cycle_config_reads_protocol_constants(tmp_path: Path) -> None:
     cfg = load_cycle_config(_study(tmp_path, gpu_slots=3))
     assert cfg.gpu_slots == 3
     assert cfg.discovery_tools == "read,write,edit,bash"
-    assert cfg.policy_dev_tools == "read,write,edit"
+    assert cfg.policy_dev_tools == "read,write,edit,bash"
     assert cfg.smoke_gate == 8 and cfg.dev_gate == 77
 
 

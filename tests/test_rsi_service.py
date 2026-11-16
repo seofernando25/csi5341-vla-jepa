@@ -135,6 +135,48 @@ def test_repeating_finished_loop_calls_nothing(study: Path) -> None:
     assert summary["status"] == "done"
 
 
+def test_resume_reads_a_study_relative_selected_policy_path(study: Path) -> None:
+    """selection.json now records `policies/<cycle>/...`; a resumed loop must still find it."""
+
+    def crashing_dev(trees: list[object], **kw: Any) -> dict[str, Any]:
+        out = kw["output_dir"]
+        policy = out / "selected.py"
+        policy.parent.mkdir(parents=True, exist_ok=True)
+        policy.write_text("# selected\n", encoding="utf-8")
+        write_json_atomic(
+            out / "selection.json",
+            {
+                "selected_policy_path": "policies/iter_000/selected.py",
+                "agent": {"cost_usd": 0.02},
+            },
+        )
+        raise RuntimeError("crash after writing selection.json")
+
+    with pytest.raises(RuntimeError, match="crash after writing selection.json"):
+        run_dream_rsi_loop(
+            study_dir=study,
+            cycles=1,
+            agent=AGENT,
+            cycle_fn=fake_cycle(study, Calls()),
+            policy_dev_fn=crashing_dev,
+        )
+    summary = run_dream_rsi_loop(
+        study_dir=study,
+        cycles=1,
+        agent=AGENT,
+        cycle_fn=fake_cycle(study, Calls()),
+        policy_dev_fn=crashing_dev,
+    )
+    assert summary["status"] == "done"
+    state = load_loop_state(study)
+    assert state is not None
+    dev = state["iterations"][0]["policy_dev"]
+    assert dev["status"] == "done"
+    assert Path(dev["selected_policy_path"]).is_absolute()
+    assert Path(dev["selected_policy_path"]).is_file()
+    assert dev["agent_cost_usd"] == 0.02
+
+
 def test_policy_sha_mismatch_stops_naming_the_file(study: Path) -> None:
     calls = Calls()
     with pytest.raises(RuntimeError):

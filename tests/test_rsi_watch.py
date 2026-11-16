@@ -444,6 +444,27 @@ def test_artifacts_policy_step(study: Path) -> None:
     assert read_artifact(study, step, "curve") is None
 
 
+def test_policy_step_timeout_is_not_shown_as_rejected(tmp_path: Path) -> None:
+    root = tmp_path / "policies" / "iter_000"
+    _json(root / "selection.json", {"selected_slot": "m0_incumbent"})
+    _json(
+        root / "evidence" / "history" / "step_01" / "verdict.json",
+        {
+            "step": 1,
+            "slot": "m1_llm",
+            "status": "timeout",
+            "mean_v": None,
+            "delta_vs_best": None,
+            "error": "Sandboxed process timed out after 1200.0s",
+            "attempts": 1,
+        },
+    )
+    (root / "step_01").mkdir(parents=True, exist_ok=True)
+    dev = watch._policy_dev(tmp_path, root, {"status": "done"})
+    assert [step["status"] for step in dev["steps"]] == ["timeout"]
+    assert dev["steps"][0]["reason"].startswith("Sandboxed process timed out")
+
+
 @pytest.fixture
 def server(study: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     index = tmp_path / "index.html"

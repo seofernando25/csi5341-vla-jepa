@@ -383,7 +383,11 @@ def _policy_dev(study: Path, root: Path, raw: dict[str, Any]) -> dict[str, Any]:
                 status, mean_v, delta, reason = "running", None, None, None
             else:
                 status = str(verdict.get("status"))
-                status = status if status in ("accepted", "not_better", "rejected") else "rejected"
+                status = (
+                    status
+                    if status in ("accepted", "not_better", "timeout", "rejected")
+                    else "rejected"
+                )
                 mean_v, delta = _num(verdict.get("mean_v")), _num(verdict.get("delta_vs_best"))
                 reason = _str(verdict.get("error"))
                 if (

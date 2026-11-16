@@ -58,6 +58,13 @@
       "from": "240 (CLI default, tuned for Haiku)",
       "to": "1200",
       "reason": "Calibration cleanroom-v1 on synthetic worlds: all three DeepSeek max-thinking policy-development steps timed out at 300 s. Passed as --policy-timeout. No evidence run had been launched."
+    },
+    {
+      "at": "2026-11-15",
+      "field": "dream_rsi.policy_dev_tools + policy_dev environment/prompt",
+      "from": "read,write,edit; no shell, no GPU, five rsi/ files at /tmp/rsi_lib; 240 s CLI default",
+      "to": "read,write,edit,bash; repo source read-only at /tmp/repo without rsi/synth.py, GPU visible, network, writable /tmp/pkgs on PYTHONPATH, runnable replay.py in the workspace; 1200 s default; one repair attempt also after a not-better step; a timed-out step is recorded as timeout",
+      "reason": "Owner decision 2026-11-15: the policy-development agent is trusted like a discovery agent and must be able to run and measure its own replay before answering. The paper fixes the agent's inputs and output, not its tools. The harness still replays, audits and selects; the agent's own numbers are never used. Cycles iter_000..iter_002 ran under the old read/write/edit rule, so their policy steps had no shell, GPU or replay."
     }
   ],
   "dream_rsi": {
@@ -80,7 +87,7 @@
       "effort": "max"
     },
     "discovery_tools": "read,write,edit,bash",
-    "policy_dev_tools": "read,write,edit",
+    "policy_dev_tools": "read,write,edit,bash",
     "agent_timeout_s": 1800,
     "eval_timeout_s": 1800,
     "policy_timeout_s": 1200,
