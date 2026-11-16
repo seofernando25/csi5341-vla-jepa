@@ -10,7 +10,8 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from evaluation.compression import latency, solution
+from evaluation.compression import latency, latency_timing, solution
+from evaluation.compression.latency_timing import CPU_CLOCK
 from rsi import expansion
 from rsi.online_evidence import DISCOVERY_PROMPT, build_discovery_prompt, discovery_prompt_path
 
@@ -87,15 +88,15 @@ class SlowReset(FakePolicy):
 
 
 def test_clock_rebinds_are_detected(monkeypatch):
-    assert latency.rebinds(latency.CPU_CLOCK) == []
+    assert latency.rebinds(CPU_CLOCK) == []
     monkeypatch.setattr(time, "perf_counter_ns", lambda: 0)
-    assert "time.perf_counter_ns was replaced during compress" in latency.rebinds(latency.CPU_CLOCK)
+    assert "time.perf_counter_ns was replaced during compress" in latency.rebinds(CPU_CLOCK)
 
 
 def test_a_patched_clock_does_not_change_the_measurement(monkeypatch):
     policy = FakePolicy(cost_s=0.002)
     monkeypatch.setattr(time, "perf_counter_ns", lambda: 0)
-    timing = latency.time_calls(policy, frames(30), LIMITS, 0, latency.CPU_CLOCK)
+    timing = latency_timing.time_calls(policy, frames(30), LIMITS, 0, CPU_CLOCK)
     assert timing["median_ms"] > 0.5
 
 
@@ -104,8 +105,8 @@ def test_a_patched_clock_does_not_change_the_measurement(monkeypatch):
 
 def test_timed_calls_use_frames_never_seen_in_warmup():
     policy = FakePolicy()
-    timing = latency.time_calls(
-        policy, frames(40), LIMITS, 0, latency.CPU_CLOCK, first=LIMITS.equivalence_frames
+    timing = latency_timing.time_calls(
+        policy, frames(40), LIMITS, 0, CPU_CLOCK, first=LIMITS.equivalence_frames
     )
     assert timing["warmup"] == LIMITS.warmup_calls
     assert timing["calls"] == LIMITS.timed_calls
@@ -120,7 +121,7 @@ def test_a_cache_of_warmup_frames_gains_nothing_on_new_frames():
     data = frames(40)
     warm = {float(item["x"].mean()): torch.zeros(1, 7) for item in data[: LIMITS.warmup_calls]}
     policy = FakePolicy(hits=warm, miss_cost_s=0.004)
-    timing = latency.time_calls(policy, data, LIMITS, 0, latency.CPU_CLOCK)
+    timing = latency_timing.time_calls(policy, data, LIMITS, 0, CPU_CLOCK)
     assert timing["median_ms"] >= 3.0
 
 
@@ -129,7 +130,7 @@ def test_a_cached_solution_is_caught():
     hits = {float(item["x"].mean()): torch.zeros(1, 7) for item in data}
     policy = FakePolicy(hits=hits, miss_cost_s=0.05)
     novel = latency.novel_frame_cost(
-        policy, data, median_ms=0.1, limits=LIMITS, seed=0, clock=latency.CPU_CLOCK
+        policy, data, median_ms=0.1, limits=LIMITS, seed=0, clock=CPU_CLOCK
     )
     assert novel["violation"]
     assert novel["median_ms"] > novel["limit_ms"]
@@ -139,22 +140,20 @@ def test_a_cached_solution_is_caught():
 
 
 def test_an_honest_policy_passes_the_equivalence_check():
-    result = latency.equivalence(FakePolicy(), frames(20), LIMITS, 0, latency.CPU_CLOCK)
+    result = latency.equivalence(FakePolicy(), frames(20), LIMITS, 0, CPU_CLOCK)
     assert result["violations"] == []
     assert result["action_spread"] > 0
     assert result["path_equivalent"]
 
 
 def test_a_constant_answer_fails_the_equivalence_check():
-    result = latency.equivalence(
-        FakePolicy(constant=True), frames(20), LIMITS, 0, latency.CPU_CLOCK
-    )
+    result = latency.equivalence(FakePolicy(constant=True), frames(20), LIMITS, 0, CPU_CLOCK)
     assert "actions do not depend on the observation" in result["violations"]
 
 
 def test_a_special_cased_select_action_fails_path_equivalence():
     policy = FakePolicy(path_mismatch=True)
-    result = latency.equivalence(policy, frames(20), LIMITS, 0, latency.CPU_CLOCK)
+    result = latency.equivalence(policy, frames(20), LIMITS, 0, CPU_CLOCK)
     assert (
         "select_action disagrees with predict_action_chunk on the same frame"
         in result["violations"]
@@ -162,12 +161,12 @@ def test_a_special_cased_select_action_fails_path_equivalence():
 
 
 def test_a_stale_answer_fails_order_invariance():
-    result = latency.equivalence(FakePolicy(lag=True), frames(20), LIMITS, 0, latency.CPU_CLOCK)
+    result = latency.equivalence(FakePolicy(lag=True), frames(20), LIMITS, 0, CPU_CLOCK)
     assert "a call on another frame changed the answer for the first frame" in result["violations"]
 
 
 def test_work_moved_into_reset_is_charged():
-    assert latency.reset_cost(SlowReset(), frames(8), latency.CPU_CLOCK) >= 15.0
+    assert latency.reset_cost(SlowReset(), frames(8), CPU_CLOCK) >= 15.0
 
 
 # -- numeric guards --
@@ -246,7 +245,7 @@ class FakeWatch:
 def test_the_frame_plan_has_disjoint_blocks_and_warmup():
     warm, blocks = latency.frame_plan(48, LIMITS, LIMITS.equivalence_frames)
     assert len(blocks) == LIMITS.blocks
-    assert all(len(block) == latency.calls_per_block(LIMITS) for block in blocks)
+    assert all(len(block) == latency_timing.calls_per_block(LIMITS) for block in blocks)
     timed = [index for block in blocks for index in block]
     assert len(set(timed)) == len(timed)
     assert not set(warm) & set(timed)
@@ -294,7 +293,7 @@ def test_interleaved_blocks_alternate_reference_and_candidate():
         data,
         blocks,
         0,
-        latency.CPU_CLOCK,
+        CPU_CLOCK,
         watch,
     )
     assert len(reference_blocks) == len(candidate_blocks) == LIMITS.blocks
@@ -368,43 +367,33 @@ def _probe(scale: float = 0.1, spread: float = 0.01):
 
 def test_the_identity_passes_the_arm_check():
     fresh = _fresh()
-    reference = latency.arm_actions(
-        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
-    )
-    candidate = latency.arm_actions(
-        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
-    )
+    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
+    candidate = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
     assert latency.arm_error(reference, candidate) == 0.0
 
 
 def test_a_nearest_neighbour_cache_fails_the_arm_check():
     cache = NearestCache(frames(40))
     fresh = _fresh()
-    reference = latency.arm_actions(
-        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
-    )
-    candidate = latency.arm_actions(cache, fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK)
+    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
+    candidate = latency.arm_actions(cache, fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
     assert latency.arm_error(reference, candidate) > LIMITS.arm_action_mse_max
 
 
 def test_a_quantized_policy_passes_the_arm_check():
     fresh = _fresh()
-    reference = latency.arm_actions(
-        FakePolicy(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
-    )
-    candidate = latency.arm_actions(
-        Quantized(), fresh, len(fresh), 0, IdentityPost(), latency.CPU_CLOCK
-    )
+    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
+    candidate = latency.arm_actions(Quantized(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
     assert latency.arm_error(reference, candidate) < LIMITS.arm_action_mse_max
 
 
 def test_the_identity_passes_the_perturbation_check():
     originals, perturbed = _probe()
     reference = latency.perturbation_deltas(
-        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     candidate = latency.perturbation_deltas(
-        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     assert latency.perturbation_correlation(reference, candidate) == pytest.approx(1.0)
 
@@ -412,10 +401,10 @@ def test_the_identity_passes_the_perturbation_check():
 def test_a_quantized_policy_passes_the_perturbation_check():
     originals, perturbed = _probe()
     reference = latency.perturbation_deltas(
-        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     candidate = latency.perturbation_deltas(
-        Quantized(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        Quantized(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     assert (
         latency.perturbation_correlation(reference, candidate)
@@ -427,10 +416,10 @@ def test_a_lookup_table_fails_the_perturbation_check():
     cache = NearestCache(frames(40))
     originals, perturbed = _probe()
     reference = latency.perturbation_deltas(
-        FakePolicy(), originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     candidate = latency.perturbation_deltas(
-        cache, originals, perturbed, 0, IdentityPost(), latency.CPU_CLOCK
+        cache, originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     assert latency.perturbation_correlation(reference, candidate) == 0.0
 
@@ -440,9 +429,9 @@ def test_a_lookup_table_fails_the_perturbation_check():
 
 def test_the_gpu_watch_counts_only_other_processes():
     text = f"# gpu pid type sm mem\n    0 {os.getpid()} C 99 10\n    0 4242 C 30 10\n"
-    assert latency._pmon_other(text, {os.getpid()}) == pytest.approx(30.0)
+    assert latency_timing._pmon_other(text, {os.getpid()}) == pytest.approx(30.0)
     apps = f"{os.getpid()}, 5000\n4242, 12000\n"
-    assert latency._apps_other(apps, {os.getpid()}) == pytest.approx(12000.0)
+    assert latency_timing._apps_other(apps, {os.getpid()}) == pytest.approx(12000.0)
 
 
 def test_another_process_above_the_level_fails_the_node(monkeypatch):
@@ -451,8 +440,8 @@ def test_another_process_above_the_level_fails_the_node(monkeypatch):
             return SimpleNamespace(stdout="# gpu pid type sm mem\n 0 4242 C 40 10\n")
         return SimpleNamespace(stdout="4242, 12000\n")
 
-    monkeypatch.setattr(latency.subprocess, "run", fake_run)
-    watch = latency.GpuWatch(25.0)
+    monkeypatch.setattr(latency_timing.subprocess, "run", fake_run)
+    watch = latency_timing.GpuWatch(25.0)
     watch.sample()
     assert watch.violation() is not None
     assert watch.summary()["other_utilisation_max_pct"] == pytest.approx(40.0)
@@ -464,8 +453,8 @@ def test_a_quiet_gpu_passes_the_watch(monkeypatch):
             return SimpleNamespace(stdout="# gpu pid type sm mem\n 0 4242 C 0 10\n")
         return SimpleNamespace(stdout="4242, 0\n")
 
-    monkeypatch.setattr(latency.subprocess, "run", fake_run)
-    watch = latency.GpuWatch(25.0)
+    monkeypatch.setattr(latency_timing.subprocess, "run", fake_run)
+    watch = latency_timing.GpuWatch(25.0)
     watch.sample()
     assert watch.violation() is None
 
@@ -514,7 +503,7 @@ def test_the_sandwich_adds_the_after_blocks(monkeypatch):
     )
     monkeypatch.setattr(latency, "warm_up", lambda *args, **kwargs: None)
     finished = latency.finish_sandwich(
-        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), latency.CPU_CLOCK
+        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), CPU_CLOCK
     )
     assert finished["candidate"]["reference_blocks_after"] == LIMITS.blocks
     assert finished["candidate"]["speedup"]["blocks"] == 2 * LIMITS.blocks
@@ -524,7 +513,7 @@ def test_the_sandwich_adds_the_after_blocks(monkeypatch):
 def test_the_sandwich_without_a_second_reference_fails_the_node():
     reference = _sandwich_reference()
     finished = latency.finish_sandwich(
-        _sandwich_report(reference), reference, PROTOCOL, None, latency.CPU_CLOCK
+        _sandwich_report(reference), reference, PROTOCOL, None, CPU_CLOCK
     )
     assert finished["candidate"]["reference_blocks_after"] == 0
     assert finished["score"] == 0.0
@@ -540,7 +529,7 @@ def test_the_sandwich_fails_when_the_reference_drifts(monkeypatch):
     monkeypatch.setattr(latency, "time_block", drifting)
     monkeypatch.setattr(latency, "warm_up", lambda *args, **kwargs: None)
     finished = latency.finish_sandwich(
-        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), latency.CPU_CLOCK
+        _sandwich_report(reference), reference, PROTOCOL, lambda: object(), CPU_CLOCK
     )
     assert finished["candidate"]["sandwich_drift"] == pytest.approx(1.0)
     assert finished["score"] == 0.0
@@ -552,7 +541,7 @@ def test_the_interleaved_path_has_no_after_blocks():
     report = _sandwich_report(reference)
     report["candidate"]["mode"] = "interleaved"
     report["candidate"]["sandwich_pending"] = False
-    assert latency.finish_sandwich(report, reference, PROTOCOL, None, latency.CPU_CLOCK) is report
+    assert latency.finish_sandwich(report, reference, PROTOCOL, None, CPU_CLOCK) is report
 
 
 # -- protocol and harness wiring --

@@ -160,6 +160,20 @@ def _forget_workspace_modules(workspace: Path) -> None:
             del sys.modules[name]
 
 
+def _free_candidate(roots: tuple) -> None:
+    """Drop the candidate's module namespaces and its device memory.
+
+    The sandwich's after blocks need the candidate's memory back before the reference is loaded
+    again, so every reference to the returned object goes: the module namespaces here, the
+    caller's locals there.
+    """
+    for module_vars in roots:
+        module_vars.clear()
+    gc.collect()
+    if REQUIRED_DEVICE == "cuda":
+        torch.cuda.empty_cache()
+
+
 def _open_targets() -> set[tuple[str, str]]:
     result = set()
     for fd in os.listdir("/proc/self/fd"):
@@ -436,17 +450,10 @@ class _Run:
         if new:
             raise _Verdict("size_violation", "; ".join(sorted(new.elements())[:20]))
         if self.score_kind == latency_score.SCORE_KIND and self.reference is not None:
-            # The sandwich's after blocks need the candidate's device memory back. Drop every
-            # reference to the returned object before the reference is loaded again.
+            # The sandwich's after blocks need the candidate's memory back.
             _forget_workspace_modules(self.workspace)
-            for module_vars in roots:
-                module_vars.clear()
-            returned = None
-            roots = None
-            module = None
-            gc.collect()
-            if REQUIRED_DEVICE == "cuda":
-                torch.cuda.empty_cache()
+            _free_candidate(roots)
+            returned = roots = module = None
             self.latency_finish()
         record["status"] = "ok"
 

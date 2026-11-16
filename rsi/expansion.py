@@ -228,7 +228,6 @@ def classify(raw: dict[str, Any], gate: int) -> Verdict:
             "resident_bytes": measured.get("resident_bytes"),
             "baseline_resident_bytes": measured.get("baseline_resident_bytes"),
             "size_reduction": reduction,
-            "score": score,
         }
         fail_class = gate_fail_class(succ, gate)
         if fail_class == OK:

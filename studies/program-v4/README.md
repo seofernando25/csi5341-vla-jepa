@@ -22,9 +22,10 @@ same process on the same frames. The identity scores below 1.0 by construction: 
 is 1.0 and the score is the lower bound of the interval around it. Peak CUDA is compared with a
 1 % measurement allowance, because the reference and candidate peaks are separate runs.
 
-`evaluation/compression/latency.py` measures it. The evaluator runs reference episodes, keeps the
-observation batches, and times the untouched policy on them. After `compress` it times the
-candidate on the same batches.
+`evaluation/compression/latency.py` measures it, with the instruments in
+`latency_timing.py` and the failing conditions in `latency_guards.py`. The evaluator runs
+reference episodes, keeps the observation batches, and times the untouched policy on them. After
+`compress` it times the candidate on the same batches.
 
 Timing is block-based. Each side is timed in `blocks` blocks of `timed_calls / blocks` calls: six
 blocks of ten calls in the smoke, development and reserved phases, six of four in the check phase.

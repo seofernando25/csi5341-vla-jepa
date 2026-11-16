@@ -81,9 +81,11 @@ Every item below is a failing condition, whatever the measured speedup:
 
 - `compress` has a wall-clock limit of 900 s.
 - Top-level imports in `solution.py` are not watched. Inside `compress`, opening or mapping a file
-  outside `/tmp/work`, the installed environment, `/dev`, `/proc` and `/sys` is a violation, so a
-  function-level import of `/tmp/repo` code fails the node. Creating or changing a file in
-  `/tmp/work`, the output directory or the temp directory during `compress` is also a violation.
+  outside `/tmp/work`, the installed environment, the temp directory, `/dev`, `/proc` and `/sys`
+  is a violation, so a function-level import of `/tmp/repo` code fails the node. Creating or
+  changing a file in `/tmp/work` or the output directory during `compress` is also a violation.
+  The temp directory is not watched: a compiler or autotune cache there is allowed, because the
+  score is speed, not size.
 - Do not edit `tools/`.
 - A workspace identical to an existing node is rejected: the same files with the same contents,
   top-level `proposal.md` aside, as any node already in this cycle, the starting template included.

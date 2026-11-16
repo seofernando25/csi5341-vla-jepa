@@ -26,6 +26,23 @@ EPISODE_FIELDS = [
 ]
 
 
+def _step(policy, pipeline, inputs, trace):
+    """One observation-to-action step.
+
+    The trace wants the policy's own time, so the post-processor stays out of it.
+    """
+    with torch.inference_mode(), inference_autocast():
+        started = time.perf_counter()
+        predicted = policy.select_action(inputs)
+        if trace is not None:
+            torch.cuda.synchronize()
+            seconds = time.perf_counter() - started
+        action = pipeline.post(predicted)
+    if trace is not None:
+        trace(inputs, seconds)
+    return action
+
+
 def run_episode(policy, pipeline, env, task, seed, trace=None):
     from lerobot.utils.random_utils import set_seed
 
@@ -36,18 +53,7 @@ def run_episode(policy, pipeline, env, task, seed, trace=None):
     success = False
     for step in range(env._max_episode_steps):
         inputs = pipeline.prepare(batch_raw(raw), task["instruction"])
-        if trace is None:
-            with torch.inference_mode(), inference_autocast():
-                action = pipeline.post(policy.select_action(inputs))
-        else:
-            # The trace wants the policy's own time; the post-processor syncs, so it stays out.
-            with torch.inference_mode(), inference_autocast():
-                started = time.perf_counter()
-                predicted = policy.select_action(inputs)
-                torch.cuda.synchronize()
-                seconds = time.perf_counter() - started
-                action = pipeline.post(predicted)
-            trace(inputs, seconds)
+        action = _step(policy, pipeline, inputs, trace)
         raw, _, terminated, truncated, info = env.step(action[0].float().cpu().numpy())
         success = bool(info.get("is_success", False))
         if terminated or truncated or success:
