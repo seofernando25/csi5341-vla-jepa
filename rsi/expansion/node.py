@@ -16,7 +16,7 @@ from rsi.expansion.outputs import agent_output_reason, redact_node_paths
 from rsi.expansion.states import EvalStatus, FailClass
 from rsi.expansion.verdict import classify, per_task_counts
 from rsi.online_evidence import build_discovery_prompt, discovery_prompt_path
-from rsi.sandbox import SandboxTimeoutError, repo_source_binds
+from rsi.sandbox import SandboxTimeoutError, discovery_visibility, repo_source_binds
 from rsi.workspace import (
     STORE_NAME,
     WorkspaceError,
@@ -55,6 +55,7 @@ def _run_agent(
     ctx: NodeContext, job: NodeJob, work: Path, evidence: Path, prompt: str
 ) -> tuple[AgentRunResult | None, bool]:
     """Run the discovery agent once; return (result or None, timed_out)."""
+    visibility = discovery_visibility(ctx.study_dir)
     try:
         res = run_sandboxed_agent(
             prompt_text=prompt,
@@ -66,7 +67,7 @@ def _run_agent(
             timeout=ctx.agent_timeout,
             use_bwrap=ctx.use_bwrap,
             gpu=True,
-            source_ro=repo_source_binds(study_dir=ctx.study_dir),
+            source_ro=repo_source_binds(study_dir=ctx.study_dir, exclude=visibility.repo_exclude),
             gpu_slots_dir=ctx.gpu_slots_dir,
             study_dir=ctx.study_dir,
             env_overrides={"RSI_GPU_SLOTS": str(ctx.gpu_slots)},

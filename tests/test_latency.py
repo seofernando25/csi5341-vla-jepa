@@ -890,7 +890,7 @@ def _fake_candidate(out_dir: Path, violations: list[str]) -> dict:
 def cpu_evaluator(monkeypatch, tmp_path):
     monkeypatch.setattr(solution, "REQUIRED_DEVICE", "cpu")
     monkeypatch.setattr(solution.calib, "setup", lambda: None)
-    monkeypatch.setattr(solution.calib, "load", lambda: {"bank_indices": []})
+    monkeypatch.setattr(solution.calib, "for_protocol", lambda *a, **k: {"bank_indices": []})
     monkeypatch.setattr(
         solution, "load_policy", lambda variant: (FakePolicy(), {"variant": variant})
     )

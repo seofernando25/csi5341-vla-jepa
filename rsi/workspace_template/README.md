@@ -8,19 +8,20 @@ change. Both files are required and checked before a node is scored.
 ## Where things are
 - `/tmp/work`: this workspace, writable. Your files, packages and tools.
 - `/tmp/repo`: project source, read-only. `evaluation/models.py` loads the policy;
-  `evaluation/compression/` holds existing code you may import or copy.
+  `evaluation/pipeline.py` builds its inputs from an observation.
 - `/tmp/evidence`: read-only. `TASK.md`, `tree.json`, and for each earlier node
   `nodes/<cell_id>/proposal.md`, `score.json`, `error.txt`.
 - `/tmp/out`: evaluator output directory for the agent run.
 
-## Calibration (`calibration` argument, loaded from `outputs/compression/calibration.pt`)
+## Calibration (`calibration` argument)
 - `linear_inputs`: dict of `"<root>.<module path>"` to float32 tensor of shape `(in_features,)`,
-  the mean of the squared input per channel over the calibration tokens of selected Linear layers.
+  the mean of the squared input per channel over the calibration observations of selected
+  Linear layers.
 - `block_influence`: dict of `"<root>.<index>"` to float, mean residual influence of that block.
-- `token_ids`: 1-D integer tensor of the unique prompt token ids seen during calibration.
 - `bank_indices`: list of 20 ints, two observations per task.
 
-Roots are `text`, `vision` and `action`. The calibration holds no robot outcomes.
+Roots are `text`, `vision` and `action`. The calibration holds no robot outcomes and no
+per-prompt information.
 
 ## Model parts
 - text decoder: `policy.model.qwen.model.model.language_model` (blocks in `.layers`)
@@ -31,6 +32,8 @@ Roots are `text`, `vision` and `action`. The calibration holds no robot outcomes
 `python tools/check.py` runs the evaluator's offline check on this workspace (GPU slot held) and
 prints the score, the figures behind it, any guard violation, or the error. Exit code 0 only if
 status is `ok`. Results go to `.check/<timestamp>/`.
+Where a study hides the compression code, the check measures with the evaluator's own resident walk
+and payload sweep in this workspace's process instead; the evaluator is still the judge.
 
 ## Scoring
 The score is a single number defined by the study's `protocol.json`; `tools/check.py` prints it

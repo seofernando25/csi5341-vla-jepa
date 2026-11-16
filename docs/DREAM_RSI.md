@@ -92,9 +92,9 @@ rerun, label each choice:
 | Discovery agent tools `read,write,edit,bash`; policy-dev tools `read,write,edit,bash` | `dream_rsi.discovery_tools`, `policy_dev_tools` | **Pre-registered**; the policy agent also gets repo source without `rsi/synth.py`, a GPU, network and a writable `/tmp/pkgs` |
 | Discovery agent: pi, `mistral/deepseek-v4-1-flash-1017`, max thinking | `dream_rsi.agent` | **Repo choice**, pre-registered |
 | Node score = `size_reduction` if smoke successes >= gate, else 0 | `rsi/expansion/verdict.py` (`classify`); gate from `gates.smoke_min_successes` | **Repo choice**, pre-registered |
-| Size walk: bytes of tensors reachable from the returned object and solution/workspace module globals, each storage once; reduction = 1 - resident/baseline | `evaluation/compression/solution.py`, `inventory.ResidentWalk` | **Repo choice**; off-device, meta and memory-mapped tensors are violations |
+| Size walk: bytes of tensors reachable from the returned object and solution/workspace module globals, each storage once; reduction = 1 - resident/baseline | `evaluation/compression/solution.py`, `resident.ResidentWalk` | **Repo choice**; off-device, meta and memory-mapped tensors are violations |
 | Per-node time limits (agent, evaluator) | `dream_rsi.agent_timeout_s`, `eval_timeout_s` (1800 s each) | **Pre-registered** |
-| Offline check tool `tools/check.py` (agent-facing; not scored) | `rsi/workspace_template/tools/check.py` | **Repo choice** |
+| Offline check tool `tools/check.py` (agent-facing; not scored) | `rsi/workspace_template/tools/check.py` (evaluator-backed) or `tools/check_selfcontained.py` (the evaluator's walk copied into the workspace), chosen by `discovery_visibility.workspace_check` | **Repo choice** |
 | Duplicate-digest rejection | `rsi/expansion/context.py` (`DigestRegistry`) | **Repo choice**, per cycle |
 | GPU sandbox and flock slot lock | `rsi/sandbox/`, `rsi/gpu.py`; `dream_rsi.gpu_slots` | **Repo choice**; cooperative lock |
 | Environment round cap `rounds_cap` | `dream_rsi.grid_plan` | **Pre-registered** |

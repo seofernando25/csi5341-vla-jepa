@@ -45,8 +45,8 @@ from evaluation.common import environment, read_json, recorded_run
 from evaluation.compression import calibration as calib
 from evaluation.compression import latency as latency_score
 from evaluation.compression import study
-from evaluation.compression.inventory import ResidentWalk, live_cuda_bytes
 from evaluation.compression.memory import live_payloads, new_payloads
+from evaluation.compression.resident import ResidentWalk, live_cuda_bytes
 from evaluation.models import load_policy
 from evaluation.pipeline import Pipeline, inference_autocast, observation_bank
 from evaluation.rollout import rollout
@@ -338,7 +338,7 @@ class _Run:
             record.update(workspace_sha256=digest, workspace_large_files=large)
             calib.setup()
             with self.stage("load"):
-                calibration = calib.load()
+                calibration = calib.for_protocol(self.protocol)
                 policy, record["model"] = load_policy("B16")
             with self.stage("baseline"):
                 baseline = measure(policy, ())

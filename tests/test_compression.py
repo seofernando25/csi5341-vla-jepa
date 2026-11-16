@@ -363,7 +363,7 @@ def test_storage_inventory_records_per_module_storage_for_effective_bits():
 def test_live_cuda_bytes_skips_fake_tensors():
     from torch._subclasses.fake_tensor import FakeTensorMode
 
-    from evaluation.compression.inventory import live_cuda_bytes
+    from evaluation.compression.resident import live_cuda_bytes
 
     before = live_cuda_bytes()
     try:

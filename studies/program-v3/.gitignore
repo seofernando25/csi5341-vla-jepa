@@ -1,0 +1,16 @@
+# Runtime artifacts of the search. The compact records the report reads are committed:
+# tree.json, grid plans, per-node proposal/score/development/diff, episode CSVs,
+# policy selection and the policy files the agent wrote.
+cycles/*/snapshots.git/
+cycles/*/gpu-slots/
+cycles/*/nodes/*/logs/
+cycles/*/nodes/*/evidence/worlds/
+policies/*/heldout/
+policies/*/step_*/replay/
+policies/*/step_*/logs/
+policies/*/evidence/worlds/
+policies/*/evidence/reference/
+policies/*/__pycache__/
+__pycache__/
+*.pyc
+loop_state.json
