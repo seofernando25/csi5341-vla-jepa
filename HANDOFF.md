@@ -28,6 +28,16 @@ run worktree until they stop. Nothing is pushed; no board record.
 - Briefs, status files and reports of this session's agents: `/tmp/opencode/s2/` (lost on reboot).
 - Fernando rejected a vector / LLM-judge score for now: the scalar score stays.
 
+### Watch page, 23:35 EST
+
+`rsi watch` on port 8899 was still serving `/tmp/opencode/dream-rsi-harness`, a harness test from
+09:14 that was stopped at 09:33 (its `STOP` file). That is why the page read "stopped" with 17
+nodes. It now serves the live study:
+`rsi watch --study-dir <worktree>/studies/program-v2 --port 8899` (log `outputs/session-s2/watch-v2.log`).
+Two dead user units were disabled: `csi5341-rsi-dashboard.service` and `csi5341-rsi-disk-guard.timer`
+both exec `/home/fer/Documents/Projects/csi5341-vla-jepa`, a path that does not exist, so they
+failed every 5 s. Their scripts were deleted in `8dd6fb7`.
+
 ### Orchestrator state of mind, 22:00 EST (added so a fresh or compacted session can resume)
 
 **Goal.** Fernando wants every experiment for the report finished by the morning of 2026-11-16,
