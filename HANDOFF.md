@@ -4,20 +4,27 @@ Run state, live branches and unmerged work. Everything else is in `AGENTS.md`, `
 READMEs. Rewrite this file when the state changes; delete it when both runs are merged and reported.
 The hour-by-hour log of 2026-11-15 is in Git history (this file at `64206a6`).
 
-## State at 01:20 EST, 2026-11-16
+## State at 03:00 EST, 2026-11-16
 
-Two runs are live on the one RTX 3090. Do not edit code in the main checkout (the reserved run
-imports it) or touch the v2 worktree until they stop. Documents and tests are safe to edit.
+`program-v2` stopped cleanly at 02:45 after three cycles: 12 nodes, 5.4 h, $2.32. It did not beat
+program-v1. Its best node with a complete development record removed 79.1 % at 83/100, against
+v1's 83.0 % at 80/100. Its highest-compression node (83.4 %) timed out in development at 59/100
+and is not selectable. The result is written in `studies/program-v2/README.md`.
 
-| Run | Where | Unit | Expected end |
-|---|---|---|---|
-| Reserved-500, 6 frozen cells: B16, `iter_001-b1-a3`, `iter_000-b0-a3`, lang INT8, lang NF4, NF4 graph 1-step packed | main checkout; log `/tmp/opencode/s2/reserved.log`; records in `studies/program-v1/reserved/` and `studies/program-v1/measurements/*/final/` (uncommitted) | `vla-reserved` | 04:30 to 05:30 |
-| Dream-RSI `program-v2` (open policy agent, anytime steps, live `plan_grid`, fixed memory rule, one GPU slot) | worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-32b33602-0c4d638784cb7753`, tag `program-v2-open`; evidence in its `studies/program-v2/` | `rsi-…-studies-program-v2` | 04:00 to 05:00 (8 h cap) |
+Reserved-500 for the v1 selection is on its last cell (packed NF4 ladder), expected ~03:35. Five
+cells are complete: reference 95.0 %, cycle-1 winner 95.6 %, cycle-2 winner 93.4 %, int8 94.8 %,
+nf4 96.0 %.
 
-The first three reserved cells are done; the int8 anchor is running. v2 finished cycles 0 and 1 and
-is in policy development before its last cycle. Watch page for v2: port 8899.
+| Run | Where | State |
+|---|---|---|
+| Reserved-500 v1, 6 cells | main checkout; log `/tmp/opencode/s2/reserved.log`; records in `studies/program-v1/reserved/` and `studies/program-v1/measurements/*/final/` (uncommitted) | last cell running, ends ~03:35 |
+| `program-v2` search | worktree `~/.t3/worktrees/csi5341-vla-jepa/t3-32b33602-0c4d638784cb7753`; evidence committed on its branch | stopped, merge pending |
+| Reserved-500 v2, 2 cells | not started; workspaces exported to `/tmp/opencode/s2/v2-ws/` | after the merge, ~80 min each |
 
-## Project explainer video (done, merged to main)
+Do not edit `evaluation/` in the main checkout until the last v1 cell stops; it imports that code.
+Documents and tests are safe. Watch page for v2: port 8899.
+
+## Project explainer video (merged to main; work in flight)
 
 `web/project-explainer/` is the tracked deliverable: 240 s, 1280×720 @ 30 fps,
 `dist/project-explainer-720p30.mp4`, h264 High/yuv420p + AAC stereo, ~35 MB.
@@ -25,6 +32,15 @@ Direct Skia render pipeline (`src/render.mjs` — no browser, no screenshots, fr
 into ffmpeg; ~5 ms/frame). Scenes fade in over 0.24 s so the whip never shows a washed-out
 scene. `web/dream-rsi-explainer/` is superseded and deleted; the watch page is unchanged and
 points at `studies/program-v2`.
+
+Uncommitted, in flight: (1) borderless de-card redesign of four painters in `src/scenes.js`
+(phases, audit, honest, search) — done by a delegated child, looks clean in probes, awaiting
+integration; (2) 3D workbench world in `src/world3d/` (arm + bowl + plate + bench, alpha PNG
+windows for the arm / policy / success / episode scenes) — a partial skeleton was left by an
+interrupted run and must be verified, fixed and finished, including its capture driver
+`tools/render3d.mjs`; integration, a re-render and a commit follow once it lands; (3) an
+`src/scenes.js` `drawPolicy` dash-position fix; (4) `dist/…720p30.mp4` was rebuilt in place
+by the de-card child and needs one final re-render before commit.
 
 ## Branches
 
@@ -41,13 +57,17 @@ files are archived in `outputs/worktree-archive/`.
 
 ## Next, in order
 
-1. Reserved queue finishes: int8, nf4, packed ladder. Gate the table (development and reserved in
-   separate columns), then commit records and the study README table.
-2. v2 runs its last cycle and stops. Audit each promoted node for memory tricks, pick winners on
-   development data only, write a v2 freeze record, then run Reserved-500 on them (about 1.5 h
-   each). The reference's reserved result is reused: same states.
-3. Merge the two branches above.
-4. `vla-report-plots`, check the `report/data/numbers.json` diff, write the report: mechanism
+1. When the ladder cell stops (~03:35): merge `t3/implement-brief-k` (clean) and
+   `t3/brief-e-implementation` (two conflicts, in `evaluation/compression/solution.py` and
+   `study.py`; keep both sides: main's reserved-phase gate and the branch's `--protocol` override).
+   Run the checks. Remove both worktrees and their branches.
+2. Write `studies/program-v2/freeze.json` (draft in `/tmp/opencode/s2/freeze-v2.json`) and commit
+   it before any v2 reserved episode.
+3. Run `/tmp/opencode/s2/run_reserved_v2.sh`: `iter_002-b2-a2`, then `iter_001-b2-a1`, from the
+   exported workspaces. The reference's reserved result is reused: same states and seeds.
+4. Gate the reserved table (development and reserved in separate columns), then commit the records
+   and the study README table.
+5. `vla-report-plots`, check the `report/data/numbers.json` diff, write the report: mechanism
    curves, Dream-RSI discoveries, the gaming subsection (already in `report/main.tex`), execution.
 
 ## Decisions Fernando made (2026-11-15)
@@ -70,9 +90,8 @@ record; a half-finished cell is resumed or reported, never restarted on differen
 
 ## If the machine rebooted
 
-- v2: from its worktree, `uv run --no-sync vla-rsi start --study-dir studies/program-v2 -- --cycles 3
-  --probe-budget 8 --max-parallelism 2 --promote-top-k 1 --max-hours 8 --max-agent-usd 20
-  --policy-timeout 1200`. It resumes from `loop_state.json`.
+- v2: it stopped; the evidence is committed on `t3/brief-e-implementation` and merged to `main`.
+  Do not restart it. Its reserved cells are `/tmp/opencode/s2/run_reserved_v2.sh`.
 - Reserved: `outputs/session-s2/run_reserved.sh` and `outputs/session-s2/G.md`.
 - Briefs and status files of the 2026-11-15 agents: `outputs/session-s2/` (the live copies in
   `/tmp/opencode/s2/` are lost on reboot).
