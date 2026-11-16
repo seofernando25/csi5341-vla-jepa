@@ -117,6 +117,7 @@ export function mount(root, ctx) {
     chart.update(chartBox, chartData(state, cycle, node.cell_id));
 
     const facts = el("dl", { class: "insp-facts" });
+    fact(facts, "memory", memoryValue(node), { wrap: true });
     fact(facts, "parent", parentValue(state, tab, node, go));
     fact(facts, "branch", node.branch == null ? "—" : String(node.branch));
     fact(facts, "attempt", node.attempt == null ? "—" : String(node.attempt));
@@ -180,6 +181,8 @@ function signature(tab, node, step, cycle, live) {
         node.agent_seconds,
         node.elapsed_s,
         node.agent_cost_usd,
+        node.resident_mb,
+        node.baseline_mb,
         node.commit,
         node.headline,
         node.parent_id,
@@ -253,6 +256,14 @@ function fact(list, label, value, opts = {}) {
   if (value instanceof Node) dd.append(value);
   else dd.textContent = value == null ? "—" : String(value);
   list.append(el("div", { class: "insp-fact" }, [el("dt", { class: "insp-fact-label" }, label), dd]));
+}
+
+function memoryValue(node) {
+  if (node?.resident_mb == null) return null;
+  const resident = fmt.mb(node.resident_mb);
+  if (node.baseline_mb == null) return resident;
+  const removed = node.size_reduction == null ? "" : ` · ${fmt.pct(node.size_reduction)} removed`;
+  return `${resident} of ${fmt.mb(node.baseline_mb)}${removed}`;
 }
 
 function subtitle(cycle, node) {

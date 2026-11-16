@@ -107,7 +107,11 @@ export function mount(root, ctx) {
             smokeTone,
           ),
           heroStat("size", fmt.pct(node.size_reduction)),
-          heroStat("resident", fmt.mb(node.resident_mb)),
+          heroStat(
+            "resident",
+            fmt.mb(node.resident_mb),
+            node.baseline_mb == null ? null : `of ${fmt.mb(node.baseline_mb)}`,
+          ),
         ]),
       ]),
     );
