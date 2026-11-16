@@ -248,15 +248,28 @@ def _node_file(root: Path, cell: str, name: str) -> dict:
     return {}
 
 
+def _reserved_trials(root: Path) -> int:
+    """Reserved episodes a complete cell must record, from the study protocol."""
+    protocol = optional_json(root / "protocol.json") or {}
+    phases = protocol.get("phases") or {}
+    return int((phases.get("reserved") or {}).get("trials", 500))
+
+
 def solution_reserved(study: Path | None = None) -> dict:
     """Reserved-500 for Dream-RSI solution cells: success, paired difference, memory, development."""
     root = Path(study) if study is not None else STUDY
     base_path = root / "measurements" / "B16" / "final" / "episodes.csv"
     audit = audit_record(root)
+    expected = _reserved_trials(root)
     cells = []
     for path in sorted((root / "reserved").glob("*/final/episodes.csv")):
         cell = path.parent.parent.name
+        result = optional_json(path.parent / "result.json") or {}
+        if result.get("status") != "ok":
+            continue
         rows = pd.read_csv(path)
+        if expected and len(rows) < expected:
+            continue
         successes, episodes = int(rows.success.sum()), len(rows)
         entry = {
             "cell": cell,

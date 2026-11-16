@@ -37,9 +37,11 @@ def node_record(node_dir: Path, audit: dict[str, dict] | None = None) -> dict:
         "proposal_bytes": proposal_bytes,
     }
     development = optional_json(node_dir / "development.json") or {}
-    if development.get("successes") is not None:
-        record["development_successes"] = int(development["successes"])
-        record["development_episodes"] = int(development.get("episodes") or 0)
+    if development:
+        record["development_status"] = development.get("status")
+        if development.get("successes") is not None:
+            record["development_successes"] = int(development["successes"])
+            record["development_episodes"] = int(development.get("episodes") or 0)
     entry = (audit or {}).get(record["cell_id"])
     if entry:
         fixed = (entry.get("new") or {}).get("score")
@@ -97,7 +99,7 @@ def dream_rsi_cycles(study: Path | None = None) -> dict:
                 max(passing)
                 if passing
                 else None
-                if any(n.get("development_successes") is not None for n in nodes)
+                if any(n.get("development_status") is not None for n in nodes)
                 else max(valid)
                 if valid
                 else manifest.get("best_score")
