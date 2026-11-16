@@ -24,23 +24,16 @@ nf4 96.0 %.
 Do not edit `evaluation/` in the main checkout until the last v1 cell stops; it imports that code.
 Documents and tests are safe. Watch page for v2: port 8899.
 
-## Project explainer video (merged to main; work in flight)
+## Project explainer video (done, committed to main)
 
 `web/project-explainer/` is the tracked deliverable: 240 s, 1280×720 @ 30 fps,
 `dist/project-explainer-720p30.mp4`, h264 High/yuv420p + AAC stereo, ~35 MB.
-Direct Skia render pipeline (`src/render.mjs` — no browser, no screenshots, frames stream raw
-into ffmpeg; ~5 ms/frame). Scenes fade in over 0.24 s so the whip never shows a washed-out
-scene. `web/dream-rsi-explainer/` is superseded and deleted; the watch page is unchanged and
-points at `studies/program-v2`.
-
-Uncommitted, in flight: (1) borderless de-card redesign of four painters in `src/scenes.js`
-(phases, audit, honest, search) — done by a delegated child, looks clean in probes, awaiting
-integration; (2) 3D workbench world in `src/world3d/` (arm + bowl + plate + bench, alpha PNG
-windows for the arm / policy / success / episode scenes) — a partial skeleton was left by an
-interrupted run and must be verified, fixed and finished, including its capture driver
-`tools/render3d.mjs`; integration, a re-render and a commit follow once it lands; (3) an
-`src/scenes.js` `drawPolicy` dash-position fix; (4) `dist/…720p30.mp4` was rebuilt in place
-by the de-card child and needs one final re-render before commit.
+Direct Skia render pipeline (`src/render.mjs`, frames stream raw into ffmpeg; ~50 s/render).
+Four cinematic 3D scenes (Three.js world in `src/world3d/`, alpha PNG windows at 30 fps,
+deterministic pick-and-place of the bowl onto the plate, composited with 2D overlays):
+`arm` 10.6–21.7 s, `policy` 22.3–33.7 s, `success` 34.3–43.4 s, `episode` 44.0–61.4 s.
+Flat scenes are borderless (no cards). `build/3d/` is gitignored; re-render with
+`bun tools/render3d.mjs && bun src/render.mjs`.
 
 ## Branches
 

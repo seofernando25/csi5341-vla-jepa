@@ -4,6 +4,7 @@ import {
   CARD, mono, card, chip, checkMark, crossMark, hairline, appear, outBack, smooth, lerp,
 } from "./lib.js";
 import { clamp, outCubic } from "./ease.js";
+import { get3dFrame } from "./world3d_images.js";
 
 const ENTER = 0.24;
 
@@ -58,6 +59,52 @@ function drawWhy(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
+  const arm3d = get3dFrame("arm", t);
+  if (arm3d) {
+    ctx.drawImage(arm3d, 0, 0);
+    // Benchtop workstation, upper-left corner clear of the arm's reach; arrow into it.
+    ctx.strokeStyle = INK_SOFT;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.roundRect(58, 76, 148, 100, 11);
+    ctx.stroke();
+    chip(ctx, 132, 122, 42, { lit: 1 });
+    ctx.beginPath();
+    ctx.moveTo(132, 176);
+    ctx.lineTo(132, 190);
+    ctx.moveTo(92, 196);
+    ctx.lineTo(172, 196);
+    ctx.stroke();
+    mono(ctx, "W O R K S T A T I O N", 132, 218, { size: 10, color: MUTED, align: "center" });
+    const ak = appear(t, s0 + 0.3, 0.55);
+    const ax0 = 220, ay0 = 122, ax1 = 360, ay1 = 150;
+    ctx.strokeStyle = BROWN;
+    ctx.lineWidth = 4.5;
+    ctx.beginPath();
+    ctx.moveTo(ax0, ay0);
+    ctx.lineTo(lerp(ax0, ax1, ak), lerp(ay0, ay1, ak));
+    ctx.stroke();
+    if (ak > 0.9) {
+      ctx.save();
+      ctx.translate(ax1, ay1);
+      ctx.rotate(Math.atan2(ay1 - ay0, ax1 - ax0));
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-22, -12);
+      ctx.lineTo(-22, 12);
+      ctx.closePath();
+      ctx.fillStyle = BROWN;
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.font = `800 54px Inter, sans-serif`;
+    ctx.fillStyle = BROWN;
+    ctx.textAlign = "center";
+    ctx.fillText("6×", 292, 84);
+    ctx.restore();
+    return;
+  }
   // workstation: monitor with chip
   ctx.strokeStyle = INK_SOFT;
   ctx.lineWidth = 3;
@@ -143,45 +190,51 @@ function drawPolicy(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
-  // camera frame
-  card(ctx, 96, 152, 560, 348, 16);
-  ctx.fillStyle = BROWN;
-  ctx.beginPath();
-  ctx.arc(130, 186, 7, 0, Math.PI * 2);
-  ctx.fill();
-  mono(ctx, "L I B E R O", 148, 186, { size: 13, weight: 700, color: MUTED });
-  // table line + bowl (on counter, left) + plate (right)
-  hairline(ctx, 150, 430, 610, INK_SOFT, 2.5);
-  ctx.strokeStyle = INK_SOFT;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.ellipse(235, 430, 46, 7.5, 0, Math.PI, 0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.ellipse(455, 430, 52, 9, 0, Math.PI, 0);
-  ctx.stroke();
-  const drop = outBack(clamp(appear(t, s0 + 0.1, 0.6)), 1.8);
-  const yBowl = 424 - 44 * (1 - drop);
-  ctx.beginPath();
-  ctx.arc(235, yBowl, 24, Math.PI, 0);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.ellipse(235, yBowl, 24, 7, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  mono(ctx, "p i c k   u p   t h e   b l a c k   b o w l", 376, 474, { size: 12, color: MUTED, align: "center" });
-  // right column: VISION / LANGUAGE / ACTION
-  const items = ["VISION", "LANGUAGE", "ACTION"];
+  const img3d = get3dFrame("policy", t);
+  if (img3d) {
+    ctx.drawImage(img3d, 0, 0);
+  } else {
+    // camera frame
+    card(ctx, 96, 152, 560, 348, 16);
+    ctx.fillStyle = BROWN;
+    ctx.beginPath();
+    ctx.arc(130, 186, 7, 0, Math.PI * 2);
+    ctx.fill();
+    mono(ctx, "L I B E R O", 148, 186, { size: 13, weight: 700, color: MUTED });
+    // table line + bowl (on counter, left) + plate (right)
+    hairline(ctx, 150, 430, 610, INK_SOFT, 2.5);
+    ctx.strokeStyle = INK_SOFT;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(235, 430, 46, 7.5, 0, Math.PI, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(455, 430, 52, 9, 0, Math.PI, 0);
+    ctx.stroke();
+    const drop = outBack(clamp(appear(t, s0 + 0.1, 0.6)), 1.8);
+    const yBowl = 424 - 44 * (1 - drop);
+    ctx.beginPath();
+    ctx.arc(235, yBowl, 24, Math.PI, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(235, yBowl, 24, 7, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    mono(ctx, "p i c k   u p   t h e   b l a c k   b o w l", 376, 474, { size: 12, color: MUTED, align: "center" });
+  }
+  // low-left ink whisper over the empty bench: VISION / LANGUAGE / ACTION
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  const items = ["V I S I O N", "L A N G U A G E", "A C T I O N"];
   items.forEach((s, i) => {
-    const y = 232 + i * 92;
+    const y = 305 + i * 72;
     const k = appear(t, s0 + 0.25 + i * 0.18, 0.4);
     ctx.globalAlpha = a * outCubic(clamp(k));
-    hairline(ctx, 752, y + 24, 790, BROWN, 3);
-    ctx.font = `800 40px Inter, sans-serif`;
+    hairline(ctx, 88, y, 128, BROWN, 3);
+    ctx.font = `800 34px Inter, sans-serif`;
     ctx.fillStyle = INK;
-    ctx.fillText(s, 806, y + 8);
+    ctx.fillText(s, 144, y);
     ctx.globalAlpha = a;
   });
-  mono(ctx, "V L A - J E P A", 752, 520, { size: 16, weight: 700, color: BROWN });
   ctx.restore();
 }
 
@@ -192,6 +245,24 @@ function drawSuccess(ctx, t, s0, cues, W, H) {
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
   const pop = appear(t, s0 + 0.4, 0.5);
+  const img3d = get3dFrame("success", t);
+  if (img3d) {
+    ctx.drawImage(img3d, 0, 0);
+    const k = outBack(clamp(pop), 2.0);
+    ctx.save();
+    ctx.translate(330, 196);
+    ctx.globalAlpha = a * clamp(pop);
+    ctx.scale(k, k);
+    checkMark(ctx, 0, 0, 40, BROWN);
+    ctx.restore();
+    ctx.globalAlpha = a * 0.85;
+    crossMark(ctx, 950, 200, 34, TERRA);
+    ctx.globalAlpha = a;
+    mono(ctx, "O N   T H E   P L A T E", 330, 262, { size: 12, weight: 700, color: BROWN, align: "center" });
+    mono(ctx, "B E S I D E   I T", 950, 262, { size: 12, weight: 700, color: MUTED, align: "center" });
+    ctx.restore();
+    return;
+  }
   const cw = 390, ch = 300, gap = 90, x0 = (W - (2 * cw + gap)) / 2, y = 185;
   for (let i = 0; i < 2; i++) {
     const x = x0 + i * (cw + gap);
@@ -240,6 +311,12 @@ function drawEpisode(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
+  const img3d = get3dFrame("episode", t);
+  if (img3d) {
+    ctx.drawImage(img3d, 0, 0);
+    ctx.restore();
+    return;
+  }
   const y = 380;
   hairline(ctx, 130, y, 1160, HAIRLINE, 2);
   const stations = [
@@ -277,7 +354,6 @@ function drawEpisode(ctx, t, s0, cues, W, H) {
   ctx.lineWidth = 2;
   ctx.stroke();
   ctx.globalAlpha = a;
-  // example state/seed (data, not decoration)
   mono(ctx, "s t a t e  4 e 3 e a f 7 a …   ·   s e e d  1 1 0 0 0", W / 2, 168, { size: 12, color: FAINT, align: "center" });
   ctx.restore();
 }
@@ -353,36 +429,46 @@ function drawPhases(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
-  const cards = [
+  const cols = [
     { title: "SMOKE", n: "10", sub: "T R I A L S", tag: "G A T E   8 / 1 0", lock: false },
     { title: "DEVELOPMENT", n: "100", sub: "T R I A L S", tag: "S E L E C T I O N", lock: false },
     { title: "RESERVED", n: "500", sub: "T R I A L S", tag: "R E A D   O N C E", lock: true },
   ];
-  const cw = 330, gap = 50, x0 = (W - (3 * cw + 2 * gap)) / 2;
-  cards.forEach((c, i) => {
+  const cw = 320, gap = 60, x0 = (W - (3 * cw + 2 * gap)) / 2;
+  // open columns: vertical hairlines broken at the chevrons' height
+  ctx.strokeStyle = HAIRLINE;
+  ctx.lineWidth = 1;
+  for (const dx of [x0 + cw + gap / 2, x0 + 2 * cw + gap + gap / 2]) {
+    ctx.beginPath();
+    ctx.moveTo(dx, 190);
+    ctx.lineTo(dx, 350);
+    ctx.moveTo(dx, 412);
+    ctx.lineTo(dx, 560);
+    ctx.stroke();
+  }
+  cols.forEach((c, i) => {
     const x = x0 + i * (cw + gap);
+    const cx = x + cw / 2;
     const k = appear(t, s0 + 0.15 + i * 0.22, 0.5);
     ctx.globalAlpha = a * outCubic(clamp(k));
-    card(ctx, x, 205, cw, 330, 14);
-    if (c.lock) {
-      ctx.strokeStyle = BROWN;
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.roundRect(x + 6, 205 + 6, cw - 12, 330 - 12, 10);
-      ctx.stroke();
-    }
-    mono(ctx, c.title.split("").join(" "), x + 34, 258, { size: 15, weight: 700, color: BROWN });
+    mono(ctx, c.title.split("").join(" "), cx, 224, { size: 15, weight: 700, color: BROWN, align: "center" });
     ctx.font = `800 120px Inter, sans-serif`;
     ctx.fillStyle = INK;
+    ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(c.n, x + 34, 385);
-    mono(ctx, c.sub, x + 34, 452, { size: 12, color: MUTED });
-    hairline(ctx, x + 34, 482, x + cw - 34, HAIRLINE, 1);
-    mono(ctx, c.tag, x + 34, 505, { size: 11, weight: 700, color: c.lock ? BROWN : MUTED });
+    ctx.fillText(c.n, cx, 372);
+    mono(ctx, c.sub, cx, 452, { size: 12, color: MUTED, align: "center" });
+    if (c.lock) {
+      hairline(ctx, cx - 95, 478, cx + 95, BROWN, 2);
+      hairline(ctx, cx - 95, 485, cx + 95, BROWN, 1);
+    } else {
+      hairline(ctx, cx - 95, 482, cx + 95, HAIRLINE, 1);
+    }
+    mono(ctx, c.tag, cx, 514, { size: 11, weight: 700, color: c.lock ? BROWN : MUTED, align: "center" });
     if (c.lock) {
       const lk = outBack(clamp(appear(t, s0 + 0.7, 0.45)), 2.2);
       ctx.save();
-      ctx.translate(x + cw - 60, 240);
+      ctx.translate(x + cw - 34, 224);
       ctx.scale(lk, lk);
       ctx.strokeStyle = BROWN;
       ctx.lineWidth = 3.2;
@@ -397,7 +483,7 @@ function drawPhases(ctx, t, s0, cues, W, H) {
     }
     ctx.globalAlpha = a;
   });
-  // chevrons in the gaps between cards
+  // chevrons in the gaps between columns
   ctx.strokeStyle = FAINT;
   ctx.lineWidth = 3;
   for (const cx of [x0 + cw + gap / 2, x0 + 2 * cw + gap + gap / 2]) {
@@ -482,9 +568,9 @@ function drawAudit(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
-  const x = 300, y = 140, w = 640, h = 330;
-  card(ctx, x, y, w, h, 12);
-  mono(ctx, "s o l u t i o n . p y", x + 30, y + 40, { size: 13, color: MUTED });
+  const x = 330, lineX = 330, glyphX = 920, maxBar = 560;
+  mono(ctx, "s o l u t i o n . p y", x, 186, { size: 13, color: MUTED });
+  hairline(ctx, x, 210, 950, HAIRLINE, 1.5);
   // fake diff lines
   const lines = [
     { w: 0.86, flag: false },
@@ -495,32 +581,32 @@ function drawAudit(ctx, t, s0, cues, W, H) {
     { w: 0.4, flag: false },
   ];
   lines.forEach((l, i) => {
-    const ly = y + 84 + i * 40;
+    const ly = 262 + i * 46;
     if (l.flag) {
       ctx.fillStyle = "rgba(124,63,42,0.10)";
-      ctx.fillRect(x + 24, ly - 13, w - 48, 26);
+      ctx.fillRect(306, ly - 15, 668, 30);
     }
     ctx.fillStyle = l.flag ? TERRA : "#c9c3b2";
     ctx.beginPath();
-    ctx.roundRect(x + 30, ly - 6, (w - 130) * l.w, 12, 6);
+    ctx.roundRect(lineX, ly - 6, maxBar * l.w, 12, 6);
     ctx.fill();
     if (l.flag) {
-      crossMark(ctx, x + w - 40, ly, 9, TERRA);
+      crossMark(ctx, glyphX, ly, 10, TERRA);
     } else {
-      checkMark(ctx, x + w - 40, ly, 7, BROWN);
+      checkMark(ctx, glyphX, ly, 8, BROWN);
     }
   });
-  // magnifier
+  // magnifier over the flagged line
   const k = appear(t, s0 + 0.3, 0.6);
-  const magn = 1;
+  const flagY = 262 + 3 * 46 - (1 - k) * 30;
   ctx.strokeStyle = INK;
   ctx.lineWidth = 5;
   ctx.beginPath();
-  ctx.arc(x + w - 64, y + h - 44 - (1 - k) * 30, 34, 0, Math.PI * 2);
+  ctx.arc(560, flagY, 34, 0, Math.PI * 2);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(x + w - 42, y + h - 21 - (1 - k) * 30);
-  ctx.lineTo(x + w + 12, y + h + 36);
+  ctx.moveTo(560 + 24, flagY + 24);
+  ctx.lineTo(560 + 68, flagY + 68);
   ctx.lineWidth = 8;
   ctx.stroke();
   ctx.restore();
@@ -559,19 +645,18 @@ function drawSearch(ctx, t, s0, cues, W, H) {
   ctx.save();
   ctx.translate(0, dy);
   ctx.globalAlpha = a;
-  // replay card feeding the tree
-  card(ctx, 150, 138, 250, 84, 10);
-  mono(ctx, "H I S T O R Y", 275, 168, { size: 13, weight: 700, color: MUTED, align: "center" });
-  mono(ctx, "R E P L A Y", 275, 194, { size: 13, weight: 700, color: MUTED, align: "center" });
+  // replay row: mono label over a hairline, arrow dropping a π into the root
+  mono(ctx, "H I S T O R Y   R E P L A Y", 275, 162, { size: 13, weight: 700, color: MUTED, align: "center" });
+  hairline(ctx, 170, 182, 380, HAIRLINE, 1.5);
   const arrowK = appear(t, s0 + 0.3, 0.5);
   ctx.strokeStyle = BROWN;
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(275, 222);
-  ctx.lineTo(275, lerp(222, 262, arrowK));
+  ctx.moveTo(275, 200);
+  ctx.lineTo(275, lerp(200, 262, arrowK));
   ctx.stroke();
   if (arrowK > 0.85) {
-    mono(ctx, "π", 300, 246, { size: 20, weight: 700, color: BROWN });
+    mono(ctx, "π", 300, 232, { size: 20, weight: 700, color: BROWN });
   }
   // tree
   const root = { x: 275, y: 300 };
@@ -603,7 +688,7 @@ function drawSearch(ctx, t, s0, cues, W, H) {
   nodes.forEach((n, i) => {
     const k = appear(t, s0 + 0.45 + i * 0.13, 0.35);
     const e = outBack(clamp(k), 2.0);
-    ctx.fillStyle = i === 5 ? BROWN : CARD;
+    ctx.fillStyle = i === 5 ? BROWN : PAPER;
     ctx.beginPath();
     ctx.arc(n.x, n.y, 11 * e, 0, Math.PI * 2);
     ctx.fill();
@@ -615,26 +700,26 @@ function drawSearch(ctx, t, s0, cues, W, H) {
   ctx.arc(root.x, root.y, 13, 0, Math.PI * 2);
   ctx.fillStyle = BROWN;
   ctx.fill();
-  // right column: propose -> score
+  // right column: propose -> score, borderless typographic rows
   const rx = 640;
-  card(ctx, rx, 150, 440, 120, 12);
-  mono(ctx, "A G E N T", rx + 40, 190, { size: 14, weight: 700, color: BROWN });
-  mono(ctx, "P R O P O S E S   A   S O L U T I O N", rx + 40, 224, { size: 12, color: MUTED });
+  mono(ctx, "A G E N T", rx, 205, { size: 14, weight: 700, color: BROWN });
+  mono(ctx, "P R O P O S E S   A   S O L U T I O N", rx, 239, { size: 12, color: MUTED });
+  hairline(ctx, rx, 263, rx + 440, HAIRLINE, 1.5);
   ctx.strokeStyle = BROWN;
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(rx + 220, 282);
-  ctx.lineTo(rx + 220, 314);
+  ctx.moveTo(rx + 220, 285);
+  ctx.lineTo(rx + 220, 321);
   ctx.stroke();
   ctx.beginPath();
-  ctx.moveTo(rx + 220, 322);
-  ctx.lineTo(rx + 220 - 11, 322 - 17);
-  ctx.moveTo(rx + 220, 322);
-  ctx.lineTo(rx + 220 + 11, 322 - 17);
+  ctx.moveTo(rx + 220, 329);
+  ctx.lineTo(rx + 220 - 11, 329 - 17);
+  ctx.moveTo(rx + 220, 329);
+  ctx.lineTo(rx + 220 + 11, 329 - 17);
   ctx.stroke();
-  card(ctx, rx, 330, 440, 120, 12);
-  mono(ctx, "E V A L U A T O R", rx + 40, 370, { size: 14, weight: 700, color: BROWN });
-  mono(ctx, "S C O R E S   I T   O N   T H E   G A T E", rx + 40, 404, { size: 12, color: MUTED });
+  mono(ctx, "E V A L U A T O R", rx, 363, { size: 14, weight: 700, color: BROWN });
+  mono(ctx, "S C O R E S   I T   O N   T H E   G A T E", rx, 397, { size: 12, color: MUTED });
+  hairline(ctx, rx, 421, rx + 440, HAIRLINE, 1.5);
   ctx.restore();
 }
 
@@ -781,18 +866,25 @@ function drawHonest(ctx, t, s0, cues, W, H) {
     { label: "E R R O R", sub: "D O E S N ' T   R A N K   W I N N E R S" },
     { label: "S M O K E", sub: "I S   N O T   S K I L L" },
   ];
-  const cw = 330, gap = 50, x0 = (W - (3 * cw + 2 * gap)) / 2;
+  const cw = 320, gap = 60, x0 = (W - (3 * cw + 2 * gap)) / 2;
+  // open columns separated by thin vertical hairlines
+  ctx.strokeStyle = HAIRLINE;
+  ctx.lineWidth = 1;
+  for (const dx of [x0 + cw + gap / 2, x0 + 2 * cw + gap + gap / 2]) {
+    ctx.beginPath();
+    ctx.moveTo(dx, 225);
+    ctx.lineTo(dx, 448);
+    ctx.stroke();
+  }
   items.forEach((item, i) => {
     const x = x0 + i * (cw + gap);
+    const cx = x + cw / 2;
     const k = appear(t, s0 + 0.18 + i * 0.2, 0.4);
-    ctx.globalAlpha = a * outCubic(clamp(k));
-    card(ctx, x, 210, cw, 230, 14);
-    ctx.globalAlpha = a * outCubic(clamp(k)) * 0.9;
-    crossMark(ctx, x + cw - 72, 258, 24, TERRA);
-    ctx.globalAlpha = a * outCubic(clamp(k));
-    mono(ctx, item.label, x + cw / 2, 330, { size: 30, weight: 700, color: INK, align: "center", spacing: 4 });
-    const sub = item.sub;
-    mono(ctx, sub, x + cw / 2, 382, { size: 10, color: MUTED, align: "center", spacing: 1.2 });
+    const e = outCubic(clamp(k));
+    ctx.globalAlpha = a * e;
+    crossMark(ctx, cx, 252, 26, TERRA);
+    mono(ctx, item.label, cx, 352, { size: 30, weight: 700, color: INK, align: "center", spacing: 4 });
+    mono(ctx, item.sub, cx, 414, { size: 10, color: MUTED, align: "center", spacing: 1.2 });
     ctx.globalAlpha = a;
   });
   ctx.restore();

@@ -24,6 +24,9 @@ import { eyebrow, mono, HAIRLINE, BROWN, MUTED } from "./lib.js";
 import { fillNoise, createBackground } from "./background.js";
 import { buildPages, drawCaptions, drawWipe } from "./captions.js";
 import { DRAW } from "./scenes.js";
+import { preload3d } from "./world3d_images.js";
+
+await preload3d();
 
 const W = 1280, H = 720, FPS = 30;
 const tl = JSON.parse(readFileSync("build/timeline.json", "utf8"));

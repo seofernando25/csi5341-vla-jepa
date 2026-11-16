@@ -7,7 +7,8 @@
       "dependencies": {
         "@fontsource/inter": "5.2.8",
         "@fontsource/jetbrains-mono": "5.2.8",
-        "skia-canvas": "^4.0.1",
+        "skia-canvas": "4.0.1",
+        "three": "0.170.0",
       },
     },
   },
@@ -47,5 +48,7 @@
     "proxy-agent-negotiate": ["proxy-agent-negotiate@1.1.0", "", { "peerDependencies": { "kerberos": "^2.0.0" }, "optionalPeers": ["kerberos"] }, "sha512-N8IBcM3UgCVzz2L2Lqv8DVntDnnC8/hiV4nEDUPkqq72TPUgYWjQc+bdZlBPZK9LzPAvOY//gAt0S0DApoOXWQ=="],
 
     "skia-canvas": ["skia-canvas@4.0.1", "", { "dependencies": { "detect-libc": "^2.1.2", "follow-redirects": "^1.16.1", "https-proxy-agent": "^9.1.0" }, "optionalDependencies": { "@skia-canvas/darwin-arm64": "4.0.1", "@skia-canvas/darwin-x64": "4.0.1", "@skia-canvas/linux-arm64-glibc": "4.0.1", "@skia-canvas/linux-arm64-musl": "4.0.1", "@skia-canvas/linux-x64-glibc": "4.0.1", "@skia-canvas/linux-x64-musl": "4.0.1", "@skia-canvas/win32-arm64": "4.0.1", "@skia-canvas/win32-x64": "4.0.1" } }, "sha512-EdHk0VDe/qe/FfwfW2C8y8/Rl0a28z1ZGQMkgPnoIehP6Gikv4cHiHCen6MWnY1e8zvliDnxGu70zaA9e7Mc7w=="],
+
+    "three": ["three@0.170.0", "", {}, "sha512-FQK+LEpYc0fBD+J8g6oSEyyNzjp+Q7Ks1C568WWaoMRLW+TkNNWmenWeGgJjV105Gd+p/2ql1ZcjYvNiPZBhuQ=="],
   }
 }

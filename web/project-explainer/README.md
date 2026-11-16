@@ -36,6 +36,12 @@ has not happened. The narration says so.
 - `src/render.mjs` — direct Skia renderer (no browser, no screenshots): draws every
   frame with the same scene painters and captions, streams raw RGBA into ffmpeg,
   and muxes the audio master into `dist/project-explainer-720p30.mp4`.
+- `src/world3d/` + `tools/render3d.mjs` — the cinematic 3D scenes (bench, bowl, plate,
+  6-axis arm, warm workshop): a deterministic Three.js world rendered to RGBA PNG
+  frames at 30 fps (1280×720) in the scene windows (`arm` 10.6–21.7 s, `policy`
+  22.3–33.7 s, `success` 34.3–43.4 s, `episode` 44.0–61.4 s). The driver relaunches
+  chromium every 128 frames; captions and 2D overlays are composited on top by
+  `src/render.mjs`. `build/3d/` is not committed.
 
 ## Build
 

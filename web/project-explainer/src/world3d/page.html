@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>world3d capture</title>
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; width: 1280px; height: 720px; }
+  canvas { display: block; width: 1280px; height: 720px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="c" width="1280" height="720"></canvas>
+<script type="module" src="/src/world3d/page.js"></script>
+</body>
+</html>
