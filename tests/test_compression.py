@@ -358,3 +358,18 @@ def test_storage_inventory_records_per_module_storage_for_effective_bits():
     assert inventory["modules"]["vision"]["logical_parameter_elements"] == 8
     assert inventory["modules"]["action"]["logical_parameter_elements"] == 2
     assert inventory["inference_core_logical_parameter_elements"] == 42
+
+
+def test_live_cuda_bytes_skips_fake_tensors():
+    from torch._subclasses.fake_tensor import FakeTensorMode
+
+    from evaluation.compression.inventory import live_cuda_bytes
+
+    before = live_cuda_bytes()
+    try:
+        with FakeTensorMode():
+            fake = torch.empty(1024, device="cuda")
+    except (RuntimeError, AssertionError):
+        pytest.skip("no fake CUDA tensors without CUDA")
+    assert fake.is_cuda
+    assert live_cuda_bytes() == before

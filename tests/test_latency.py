@@ -10,7 +10,13 @@ from types import SimpleNamespace
 import pytest
 import torch
 
-from evaluation.compression import latency, latency_timing, solution
+from evaluation.compression import (
+    latency,
+    latency_guards,
+    latency_plan,
+    latency_timing,
+    solution,
+)
 from evaluation.compression.latency_timing import CPU_CLOCK
 from rsi import expansion
 from rsi.online_evidence import DISCOVERY_PROMPT, build_discovery_prompt, discovery_prompt_path
@@ -30,6 +36,19 @@ def frames(count: int = 40) -> list[dict]:
     return [{"x": torch.full((1, 4), float(index))} for index in range(count)]
 
 
+TASKS = LIMITS.reference_tasks
+
+
+def task_frames(per_task: int = 30, tasks: tuple[int, ...] = TASKS) -> tuple[list[dict], list[int]]:
+    """Distinct frames, `per_task` of each task in episode order, with their task labels."""
+    data, labels = [], []
+    for task in tasks:
+        for step in range(per_task):
+            data.append({"x": torch.full((1, 4), float(100 * task + step)), "task": task})
+            labels.append(task)
+    return data, labels
+
+
 class FakePolicy:
     """A policy whose action is a function of the frame, with optional defects."""
 
@@ -41,10 +60,12 @@ class FakePolicy:
         constant: bool = False,
         path_mismatch: bool = False,
         lag: bool = False,
+        degrade: dict[int, float] | None = None,
     ) -> None:
         self.cost_s, self.miss_cost_s = cost_s, miss_cost_s
         self.hits = dict(hits or {})
         self.constant, self.path_mismatch, self.lag = constant, path_mismatch, lag
+        self.degrade = dict(degrade or {})
         self.last: torch.Tensor | None = None
         self.seen: list[float] = []
 
@@ -54,7 +75,8 @@ class FakePolicy:
     def _action(self, batch: dict) -> torch.Tensor:
         if self.constant:
             return torch.zeros(1, 7)
-        return torch.full((1, 7), float(batch["x"].mean()))
+        shift = self.degrade.get(batch.get("task"), 0.0)
+        return torch.full((1, 7), float(batch["x"].mean()) + shift)
 
     def select_action(self, batch: dict) -> torch.Tensor:
         self.seen.append(float(batch["x"].mean()))
@@ -96,32 +118,42 @@ def test_clock_rebinds_are_detected(monkeypatch):
 def test_a_patched_clock_does_not_change_the_measurement(monkeypatch):
     policy = FakePolicy(cost_s=0.002)
     monkeypatch.setattr(time, "perf_counter_ns", lambda: 0)
-    timing = latency_timing.time_calls(policy, frames(30), LIMITS, 0, CPU_CLOCK)
-    assert timing["median_ms"] > 0.5
+    timing = latency_timing.time_block(policy, frames(30), [0, 1, 2, 3], 0, CPU_CLOCK)
+    assert min(timing["wall"]) > 0.5
 
 
 # -- timing and caching --
 
 
+def _time_plan(policy, data, labels):
+    plan = latency.frame_plan(labels, LIMITS)
+    latency_timing.warm_up(policy, data, plan.warm, 0, CPU_CLOCK)
+    results = [
+        latency_timing.time_block(policy, data, block, 0, CPU_CLOCK) for block in plan.blocks
+    ]
+    return plan, latency_timing.timing_summary(results, len(plan.warm))
+
+
 def test_timed_calls_use_frames_never_seen_in_warmup():
+    data, labels = task_frames()
     policy = FakePolicy()
-    timing = latency_timing.time_calls(
-        policy, frames(40), LIMITS, 0, CPU_CLOCK, first=LIMITS.equivalence_frames
-    )
-    assert timing["warmup"] == LIMITS.warmup_calls
-    assert timing["calls"] == LIMITS.timed_calls
-    warm = policy.seen[: LIMITS.warmup_calls]
-    timed = policy.seen[LIMITS.warmup_calls :]
+    plan, timing = _time_plan(policy, data, labels)
+    assert timing["warmup"] == LIMITS.warmup_per_task * len(TASKS)
+    assert timing["calls"] == LIMITS.timed_per_task * len(TASKS)
+    warm = policy.seen[: timing["warmup"]]
+    timed = policy.seen[timing["warmup"] :]
     assert not set(warm) & set(timed)
-    assert not set(policy.seen) & set(range(LIMITS.equivalence_frames))
-    assert max(warm) > min(timed)
+    reserved = {float(data[i]["x"].mean()) for i in plan.arm_indices}
+    reserved |= {float(data[i]["x"].mean()) for ids in plan.equivalence.values() for i in ids}
+    assert not reserved & set(policy.seen)
 
 
 def test_a_cache_of_warmup_frames_gains_nothing_on_new_frames():
-    data = frames(40)
-    warm = {float(item["x"].mean()): torch.zeros(1, 7) for item in data[: LIMITS.warmup_calls]}
+    data, labels = task_frames()
+    plan = latency.frame_plan(labels, LIMITS)
+    warm = {float(data[i]["x"].mean()): torch.zeros(1, 7) for i in plan.warm}
     policy = FakePolicy(hits=warm, miss_cost_s=0.004)
-    timing = latency_timing.time_calls(policy, data, LIMITS, 0, CPU_CLOCK)
+    _, timing = _time_plan(policy, data, labels)
     assert timing["median_ms"] >= 3.0
 
 
@@ -242,15 +274,33 @@ class FakeWatch:
         self.samples += 1
 
 
-def test_the_frame_plan_has_disjoint_blocks_and_warmup():
-    warm, blocks = latency.frame_plan(48, LIMITS, LIMITS.equivalence_frames)
-    assert len(blocks) == LIMITS.blocks
-    assert all(len(block) == latency_timing.calls_per_block(LIMITS) for block in blocks)
-    timed = [index for block in blocks for index in block]
+def test_the_frame_plan_gives_every_task_the_same_frames_in_every_role():
+    _, labels = task_frames(per_task=40)
+    plan = latency.frame_plan(labels, LIMITS)
+    assert len(plan.blocks) == LIMITS.blocks
+    timed = [index for block in plan.blocks for index in block]
     assert len(set(timed)) == len(timed)
-    assert not set(warm) & set(timed)
-    assert min(timed) >= LIMITS.equivalence_frames
-    assert len(warm) == LIMITS.warmup_calls
+    roles = [timed, plan.warm, plan.arm_indices]
+    roles += [indices for indices in plan.equivalence.values()]
+    flat = [index for role in roles for index in role]
+    assert len(set(flat)) == len(flat)
+    for task in TASKS:
+        counts = [sum(labels[i] == task for i in role) for role in roles[:3]]
+        assert counts == [
+            LIMITS.timed_per_task,
+            LIMITS.warmup_per_task,
+            LIMITS.arm_per_task,
+        ]
+        assert len(plan.equivalence[task]) == LIMITS.equivalence_per_task
+    per_block = LIMITS.timed_per_task // LIMITS.blocks
+    for block in plan.block_labels:
+        assert sorted(block) == sorted(task for task in TASKS for _ in range(per_block))
+
+
+def test_a_task_with_too_few_frames_fails_the_plan():
+    _, labels = task_frames(per_task=10)
+    with pytest.raises(RuntimeError, match="task 0"):
+        latency.frame_plan(labels, LIMITS)
 
 
 def test_the_interval_lower_bound_is_below_the_point_estimate():
@@ -284,8 +334,8 @@ def test_a_burst_in_one_block_of_both_sides_does_not_create_a_win():
 
 
 def test_interleaved_blocks_alternate_reference_and_candidate():
-    data = frames(48)
-    _, blocks = latency.frame_plan(len(data), LIMITS, 0)
+    data, labels = task_frames()
+    blocks = latency.frame_plan(labels, LIMITS).blocks
     watch = FakeWatch()
     reference_blocks, candidate_blocks, results = latency._interleaved(
         FakePolicy(cost_s=0.002),
@@ -367,24 +417,36 @@ def _probe(scale: float = 0.1, spread: float = 0.01):
 
 def test_the_identity_passes_the_arm_check():
     fresh = _fresh()
-    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    candidate = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    assert latency.arm_error(reference, candidate) == 0.0
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    candidate = latency.arm_actions(
+        FakePolicy(), fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    assert latency_guards.arm_error(reference, candidate) == 0.0
 
 
 def test_a_nearest_neighbour_cache_fails_the_arm_check():
     cache = NearestCache(frames(40))
     fresh = _fresh()
-    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    candidate = latency.arm_actions(cache, fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    assert latency.arm_error(reference, candidate) > LIMITS.arm_action_mse_max
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    candidate = latency.arm_actions(
+        cache, fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    assert latency_guards.arm_error(reference, candidate) > LIMITS.arm_action_mse_max
 
 
 def test_a_quantized_policy_passes_the_arm_check():
     fresh = _fresh()
-    reference = latency.arm_actions(FakePolicy(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    candidate = latency.arm_actions(Quantized(), fresh, len(fresh), 0, IdentityPost(), CPU_CLOCK)
-    assert latency.arm_error(reference, candidate) < LIMITS.arm_action_mse_max
+    reference = latency.arm_actions(
+        FakePolicy(), fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    candidate = latency.arm_actions(
+        Quantized(), fresh, list(range(len(fresh))), 0, IdentityPost(), CPU_CLOCK
+    )
+    assert latency_guards.arm_error(reference, candidate) < LIMITS.arm_action_mse_max
 
 
 def test_the_identity_passes_the_perturbation_check():
@@ -395,7 +457,7 @@ def test_the_identity_passes_the_perturbation_check():
     candidate = latency.perturbation_deltas(
         FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
-    assert latency.perturbation_correlation(reference, candidate) == pytest.approx(1.0)
+    assert latency_guards.perturbation_correlation(reference, candidate) == pytest.approx(1.0)
 
 
 def test_a_quantized_policy_passes_the_perturbation_check():
@@ -407,7 +469,7 @@ def test_a_quantized_policy_passes_the_perturbation_check():
         Quantized(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
     assert (
-        latency.perturbation_correlation(reference, candidate)
+        latency_guards.perturbation_correlation(reference, candidate)
         >= LIMITS.perturbation_min_correlation
     )
 
@@ -421,7 +483,109 @@ def test_a_lookup_table_fails_the_perturbation_check():
     candidate = latency.perturbation_deltas(
         cache, originals, perturbed, 0, IdentityPost(), CPU_CLOCK
     )
-    assert latency.perturbation_correlation(reference, candidate) == 0.0
+    assert latency_guards.perturbation_correlation(reference, candidate) == 0.0
+
+
+# -- per-task scoring: degrading one task must not pay --
+
+
+def _task_reference(per_task: int = 40) -> latency.Reference:
+    """A reference over three tasks with the honest policy's arm actions and probe deltas."""
+    data, labels = task_frames(per_task)
+    plan = latency.frame_plan(labels, LIMITS)
+    originals = [
+        {"x": torch.full((1, 4), float(100 * task + index)), "task": task}
+        for task in TASKS
+        for index in range(4)
+    ]
+    perturbed = [
+        {**item, "x": item["x"] + 0.1 + 0.01 * index} for index, item in enumerate(originals)
+    ]
+    return latency.Reference(
+        limits=LIMITS,
+        frames=data,
+        timing={"median_ms": 100.0, "cpu_ms_per_call": 10.0},
+        episode_wall_seconds=1.0,
+        overhead_per_step_ms=10.0,
+        peak_cuda_bytes=1000,
+        steps=10,
+        successes=1,
+        episodes=1,
+        plan=plan,
+        arm=latency.arm_actions(FakePolicy(), data, plan.arm_indices, 0, IdentityPost(), CPU_CLOCK),
+        probe={
+            "originals": originals,
+            "perturbed": perturbed,
+            "reference_deltas": latency.perturbation_deltas(
+                FakePolicy(), originals, perturbed, 0, IdentityPost(), CPU_CLOCK
+            ),
+        },
+        probe_labels=[item["task"] for item in originals],
+        pipeline=IdentityPost(),
+    )
+
+
+def test_the_identity_passes_the_per_task_guards():
+    behaviour = latency._behaviour(FakePolicy(), _task_reference(), 0, CPU_CLOCK)
+    assert behaviour["violations"] == []
+    assert behaviour["arm_action_error"] == 0.0
+
+
+def test_a_candidate_that_degrades_one_task_fails_the_per_task_guards():
+    # Fewer flow steps for one instruction, in miniature: the answer for task 0 moves by 0.14.
+    reference = _task_reference()
+    policy = FakePolicy(degrade={0: 0.14})
+    behaviour = latency._behaviour(policy, reference, 0, CPU_CLOCK)
+    arm = latency.arm_actions(
+        policy, reference.frames, reference.plan.arm_indices, 0, IdentityPost(), CPU_CLOCK
+    )
+    pooled = latency_guards.arm_error(reference.arm, arm)
+    assert pooled < LIMITS.arm_action_mse_max
+    assert behaviour["arm_action_error_by_task"]["0"] > LIMITS.arm_action_mse_max
+    assert behaviour["arm_action_error_by_task"]["1"] == 0.0
+    assert behaviour["arm_action_error"] > LIMITS.arm_action_mse_max
+    assert any("task 0: arm action error" in item for item in behaviour["violations"])
+    assert all(item.startswith("task 0") for item in behaviour["violations"])
+
+
+def test_a_response_lost_on_one_task_fails_the_perturbation_guard():
+    reference = _task_reference()
+    flat = [
+        torch.zeros_like(delta) if task == 1 else delta
+        for task, delta in zip(reference.probe_labels, reference.probe["reference_deltas"])
+    ]
+    by_task = latency_guards.perturbation_by_task(
+        reference.probe["reference_deltas"], flat, reference.probe_labels
+    )
+    assert by_task[1] == 0.0 and by_task[0] == pytest.approx(1.0)
+    assert min(by_task.values()) < LIMITS.perturbation_min_correlation
+
+
+def test_a_gain_on_one_task_moves_the_score_by_its_share():
+    reference = [[100.0] * 9 for _ in range(LIMITS.blocks)]
+    candidate = [[25.0, 100.0, 100.0] * 3 for _ in range(LIMITS.blocks)]
+    labels = [[0, 1, 2] * 3 for _ in range(LIMITS.blocks)]
+    interval = latency.bootstrap_speedup(reference, candidate, LIMITS, labels=labels)
+    assert interval["per_task"] == {"0": pytest.approx(4.0), "1": 1.0, "2": 1.0}
+    assert interval["point"] == pytest.approx(4.0 ** (1 / 3))
+    assert interval["worst_task"] == pytest.approx(1.0)
+    assert interval["low"] <= interval["point"] < 1.6
+    pooled = latency.bootstrap_speedup(reference, candidate, LIMITS)
+    assert pooled["point"] == pytest.approx(1.0)
+
+
+def test_every_task_counts_the_same_in_the_aggregate():
+    ratios = [4.0, 1.0, 1.0]
+    assert latency_plan.aggregate(ratios) == pytest.approx(latency_plan.aggregate(ratios[::-1]))
+    assert latency_plan.aggregate([2.0, 2.0, 2.0]) == pytest.approx(2.0)
+
+
+def test_the_perturbation_probe_takes_the_same_count_from_every_task():
+    bank = [{"task_id": task} for task in range(10) for _ in range(10)]
+    chosen = latency.bank_indices(bank, LIMITS.perturbation_per_task, TASKS)
+    assert [bank[i]["task_id"] for i in chosen].count(0) == LIMITS.perturbation_per_task
+    assert sorted({bank[i]["task_id"] for i in chosen}) == list(TASKS)
+    assert len(chosen) == LIMITS.perturbation_per_task * len(TASKS)
 
 
 # -- shared GPU --
@@ -483,8 +647,13 @@ def _sandwich_report(reference: latency.Reference) -> dict:
 def _sandwich_reference() -> latency.Reference:
     reference = _fake_reference()
     reference.blocks = [[100.0] * 4 for _ in range(LIMITS.blocks)]
-    reference.block_frames = [[index] for index in range(LIMITS.blocks)]
-    reference.warm = []
+    reference.plan = latency_plan.Plan(
+        labels=[0] * 24,
+        equivalence={},
+        arm={},
+        warm=[],
+        blocks=[list(range(4 * block, 4 * block + 4)) for block in range(LIMITS.blocks)],
+    )
     reference.watch = None
     return reference
 
@@ -560,10 +729,11 @@ def test_the_v4_protocol_scores_latency_and_keeps_the_v2_constants():
 def test_the_v4_protocol_carries_the_block_timing_and_the_new_guards():
     timing = PROTOCOL["score"]["timing"]
     assert timing["blocks"] >= 6
-    assert timing["timed_calls"] % timing["blocks"] == 0
+    assert timing["timed_calls_per_task"] % timing["blocks"] == 0
     assert timing["bootstrap_resamples"] >= 1000
     assert timing["check"]["blocks"] >= 6
-    assert timing["check"]["timed_calls"] % timing["check"]["blocks"] == 0
+    assert timing["check"]["timed_calls_per_task"] % timing["check"]["blocks"] == 0
+    assert timing["check"]["reference_tasks"] == timing["reference_tasks"]
     guards = PROTOCOL["score"]["guards"]
     assert guards["arm_action_mse_max"] == pytest.approx(0.01)
     assert guards["perturbation_min_correlation"] > 0
@@ -575,9 +745,8 @@ def test_the_v4_protocol_carries_the_block_timing_and_the_new_guards():
 def test_limits_read_the_check_block_for_the_check_phase():
     check = latency.Limits.from_protocol(PROTOCOL, "check")
     full = latency.Limits.from_protocol(PROTOCOL, "smoke")
-    assert check.timed_calls < full.timed_calls
-    assert check.reference_tasks == (0,)
-    assert full.reference_tasks == (0, 1, 2)
+    assert check.timed_per_task < full.timed_per_task
+    assert check.reference_tasks == full.reference_tasks == tuple(PROTOCOL["task_ids"])
 
 
 def test_classify_reads_the_latency_score():
@@ -623,6 +792,8 @@ def test_the_v4_prompt_states_the_score_and_guards_without_methods():
     assert "reference median latency / your median latency" in flat
     assert "lower bound of the 95 % interval" in flat
     assert "device synchronize" in flat
+    assert "geometric mean over tasks" in flat
+    assert "the worst task decides" in flat
     for guard in (
         "Returning a stored answer",
         "Not being the policy",
@@ -669,8 +840,8 @@ def test_the_check_tool_prints_the_latency_score():
     assert any("score: 1.7500" in line for line in lines)
     assert any("reference median 100.00" in line for line in lines)
     assert any("95% [1.7500, 1.9000]" in line for line in lines)
-    assert any("arm action error: 0.0004" in line for line in lines)
-    assert any("perturbation correlation: 0.980" in line for line in lines)
+    assert any("arm action error (worst task): 0.0004" in line for line in lines)
+    assert any("perturbation correlation (worst task): 0.980" in line for line in lines)
     assert any("other GPU use: max 4.0 %" in line for line in lines)
     assert any("guard: a guard" in line for line in lines)
 
