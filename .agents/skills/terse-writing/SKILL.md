@@ -19,6 +19,19 @@ Every sentence must carry a fact, a decision or an instruction. Delete the rest.
 7. Use one term per concept. "Peak allocated memory" is not "VRAM" in the next sentence.
 8. Units: GB means 10^9 bytes, GiB means 2^30. Never mix them in one table.
 
+## Voice (owner directive, 2026-11-15)
+
+Reader-facing prose (report, READMEs, slides) must sound like the two authors, not a machine log.
+
+- Write as "we". Open with the claim: "We investigate…", not "In this repository, we…".
+- Use the simpler sentence when one exists. Read each sentence aloud; if nobody would say it, rewrite it.
+- No number dumps. Keep the few numbers the reader needs and put the rest in a table or figure.
+  Rule 3 still holds for the numbers that stay.
+- No internal jargon: "evidence", "phase 1/phase 2", node ids and run tags belong in the repo, not
+  in a sentence the reader has to parse.
+- Keep figure titles short. Explanation goes in the caption or the text.
+- Draft short, then cut again before showing it.
+
 ## Cut on sight
 
 - Hype: crucial, robust, comprehensive, powerful, seamless, novel, state-of-the-art, deep dive.
