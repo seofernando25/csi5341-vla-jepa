@@ -7,6 +7,7 @@ import pytest
 
 from evaluation.common import ROOT, write_json
 from evaluation.compression import queue as q
+from evaluation.fsm import IllegalTransition, UnknownState
 
 QUEUE = ROOT / "studies/program-v1/queue.json"
 RESERVED = ROOT / "studies/program-v1/queue-reserved.json"
@@ -144,3 +145,27 @@ def test_duplicate_cells_and_unknown_phases_are_rejected(tmp_path):
     unknown.write_text(json.dumps({"cells": [{"recipe": "B16", "phase": "reserved"}]}))
     with pytest.raises(q.QueueError, match="unknown phase"):
         q.load(unknown)
+
+
+def test_cell_machine_and_decision_table():
+    record = {}
+    for cell_state in ("pending", "failed", "pending", "done"):
+        q.CELL.advance(record, cell_state)
+    with pytest.raises(IllegalTransition):
+        q.CELL.check("done", "failed")
+    rejection = {"error_type": "ValueError", "error": "Nonfinite actions in chunk"}
+    assert q.next_action("done") is q.CellAction.SKIP
+    assert q.next_action("pending") is q.CellAction.RUN
+    assert q.next_action("failed", rejection) is q.CellAction.REJECTED
+    assert q.next_action("failed", {"error_type": "OSError"}) is q.CellAction.STOP
+    with pytest.raises(UnknownState):
+        q.next_action("withheld")
+
+
+def test_recorded_measurement_cells_load():
+    root = ROOT / "studies/program-v1/measurements"
+    cells = [path.parent for path in root.glob("*/*/run.json")]
+    assert cells
+    for cell in cells:
+        cell_state = q.state(cell.parent.name, cell.name, root)
+        assert q.CELL.parse(cell_state) in (q.CellState.DONE, q.CellState.FAILED)

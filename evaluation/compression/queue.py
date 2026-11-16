@@ -6,6 +6,11 @@ A cell is one recipe measured in one phase; the file order is the run order.
 Resumable: a cell whose run.json says `completed` is skipped. The queue stops on the first
 failure that is not a measured outcome, so a crash cannot silently consume the GPU budget.
 The reserved phase (`final`) runs only when the queue is invoked with `--allow-reserved`.
+
+A cell is `pending` (never attempted), `done` (run.json `completed`) or `failed` (attempted,
+not completed). Running a pending cell makes it done or failed; a failed cell stays failed
+until its directory is removed by hand, which makes it pending again. `next_action` is the
+whole decision table of the run loop.
 """
 
 from __future__ import annotations
@@ -14,10 +19,12 @@ import argparse
 import json
 import subprocess
 import sys
+from enum import StrEnum
 from pathlib import Path
 
 from evaluation.common import ROOT, read_json
 from evaluation.compression.recipes import validate
+from evaluation.fsm import StateMachine
 
 STUDY = ROOT / "studies/program-v1"
 QUEUE = STUDY / "queue.json"
@@ -29,6 +36,35 @@ PHASE_MINUTES = {"screen": 4, "smoke": 4, "development": 15, "final": 65, "bench
 
 class QueueError(RuntimeError):
     """The queue file cannot be run as written."""
+
+
+class CellState(StrEnum):
+    """Where one (recipe, phase) cell stands, read from its run.json."""
+
+    PENDING = "pending"
+    FAILED = "failed"
+    DONE = "done"
+
+
+class CellAction(StrEnum):
+    """What the run loop does with one cell."""
+
+    SKIP = "skip"
+    RUN = "run"
+    REJECTED = "rejected"
+    STOP = "stop"
+
+
+CELL = StateMachine(
+    "queue cell",
+    CellState,
+    {
+        CellState.PENDING: {CellState.DONE, CellState.FAILED},
+        CellState.FAILED: {CellState.PENDING},
+    },
+    initial={CellState.PENDING},
+)
+COMPLETED = "completed"  # run.json `status` of a finished measurement
 
 
 def load(path):
@@ -80,8 +116,8 @@ def state(recipe, phase, measurements_root=None):
     """`done`, `failed` (attempted, not completed) or `pending` (never attempted)."""
     path = result_path(recipe, phase, measurements_root)
     if not path.exists():
-        return "failed" if path.parent.exists() else "pending"
-    return "done" if read_json(path).get("status") == "completed" else "failed"
+        return CellState.FAILED if path.parent.exists() else CellState.PENDING
+    return CellState.DONE if read_json(path).get("status") == COMPLETED else CellState.FAILED
 
 
 def measured_outcome(attempt):
@@ -91,6 +127,16 @@ def measured_outcome(attempt):
         and attempt.get("error_type") == "ValueError"
         and str(attempt.get("error", "")).startswith("Nonfinite actions")
     )
+
+
+def next_action(cell_state, attempt=None):
+    """The run loop's decision for one cell; `attempt` is its run.json when it failed."""
+    cell_state = CELL.parse(cell_state)
+    if cell_state is CellState.DONE:
+        return CellAction.SKIP
+    if cell_state is CellState.PENDING:
+        return CellAction.RUN
+    return CellAction.REJECTED if measured_outcome(attempt) else CellAction.STOP
 
 
 def split_reserved(queue, allow_reserved):
@@ -136,7 +182,7 @@ def plan(queue, allow_reserved=False, measurements_root=None):
         "cells": rows,
         "withheld_reserved": withheld,
         "total_minutes": sum(row["minutes"] for row in rows),
-        "minutes": sum(row["minutes"] for row in rows if row["state"] != "done"),
+        "minutes": sum(row["minutes"] for row in rows if row["state"] != CellState.DONE),
     }
 
 
@@ -168,23 +214,26 @@ def run_queue(
     ran = skipped = rejected = 0
     for index, row in enumerate(steps["cells"], 1):
         label = f"{index}/{len(steps['cells'])} {row['recipe']}/{row['phase']}"
-        if row["state"] == "done":
+        previous = None
+        if row["state"] == CellState.FAILED:
+            previous = record(row["recipe"], row["phase"], measurements_root)
+        action = next_action(row["state"], previous)
+        if action is CellAction.SKIP:
             skipped += 1
             out(f"skip {label}: compact result exists")
             continue
-        if row["state"] == "failed":
-            previous = record(row["recipe"], row["phase"], measurements_root)
-            if measured_outcome(previous):
-                rejected += 1
-                out(f"stop arm {label}: measured rejection ({previous['error']})")
-                continue
+        if action is CellAction.REJECTED:
+            rejected += 1
+            out(f"stop arm {label}: measured rejection ({previous['error']})")
+            continue
+        if action is CellAction.STOP:
             out(f"stop queue {label}: previous attempt failed, not a measured outcome")
             return 1
         out(f"run  {label}")
         completed = invoke(command(row["recipe"], row["phase"], measurements_root), cwd=ROOT)
         if completed.returncode != 0:
             failure = record(row["recipe"], row["phase"], measurements_root)
-            if measured_outcome(failure):
+            if next_action(CellState.FAILED, failure) is CellAction.REJECTED:
                 rejected += 1
                 out(f"stop arm {label}: measured rejection ({failure['error']})")
                 continue
