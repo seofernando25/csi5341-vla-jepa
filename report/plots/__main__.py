@@ -18,6 +18,7 @@ from report.plots.data import (
     parameter_census,
     plan,
     recovery_dev,
+    reserved_summary,
     solution_reserved,
 )
 from report.plots.divergence import divergence_record, fig_divergence
@@ -64,6 +65,7 @@ def main() -> None:
     n["figures"]["divergence"] = build("divergence", fig_divergence, record)
     n["dream_rsi"] = dream_rsi_cycles()
     n["dream_rsi_v2"] = dream_rsi_cycles(STUDY.parent / "program-v2")
+    n["reserved_summary"] = reserved_summary()
     n["dream_rsi_reserved"] = solution_reserved()
     n["dream_rsi_v2_reserved"] = solution_reserved(STUDY.parent / "program-v2")
     n["recovery_dev"] = recovery_dev()

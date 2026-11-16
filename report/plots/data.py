@@ -306,6 +306,35 @@ def solution_reserved(study: Path | None = None) -> dict:
     }
 
 
+def reserved_summary(study: Path | None = None) -> dict:
+    """The frozen selection's reserved summary: per-cell success, memory and paired difference."""
+    root = Path(study) if study is not None else STUDY
+    path = root / "reserved" / "summary.json"
+    record = optional_json(path)
+    if record is None:
+        return missing(path, "reserved summary")
+    cells = []
+    for cell in record.get("cells", []):
+        memory = cell.get("memory") or {}
+        cells.append(
+            {
+                "cell": cell.get("cell"),
+                "kind": cell.get("kind"),
+                "development": cell.get("development"),
+                "reserved": cell.get("reserved"),
+                "memory_removed": memory.get("removed"),
+                "memory_rule": memory.get("rule"),
+                "paired_vs_B16": cell.get("paired_vs_B16"),
+            }
+        )
+    return {
+        "status": "ok",
+        "source": rel(path),
+        "complete": record.get("complete"),
+        "cells": cells,
+    }
+
+
 def collect() -> dict:
     """Compact rows for every measured recipe, plus the B16 failure diagnostics."""
     root = STUDY / "measurements"
