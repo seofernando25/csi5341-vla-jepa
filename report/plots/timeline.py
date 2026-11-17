@@ -11,7 +11,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from report.plots.data import ROOT, optional_json
-from report.plots.style import COL, COLORS, GRID, INK_2, MUTED, OUT, style_axes, text_ink
+from report.plots.style import COL, COLORS, GRID, INK, INK_2, MUTED, OUT, style_axes, text_ink
 
 RED = "#DC2626"
 LABELS = {  # node id -> what changed, for the jumps that matter
@@ -169,7 +169,7 @@ SIZE_OFFSETS = {
     },
     "program-v3": {
         "iter_000-b2-a0": (6, -12),
-        "iter_000-b2-a2": (8, 10),
+        "iter_000-b2-a2": (6, 11),
         "iter_002-b2-a2": (-8, -14),
     },
 }
@@ -223,11 +223,11 @@ def fig_size_timeline(n: dict) -> dict | None:
     fig, axes = plt.subplots(
         rows,
         1,
-        figsize=(COL, 3.1 if rows == 2 else 4.2),
+        figsize=(COL, 2.8 if rows == 2 else 3.8),
         gridspec_kw={"height_ratios": [1.3, 1, 1][:rows]},
     )
     fig.subplots_adjust(
-        left=0.115, right=0.985, top=0.96, bottom=0.09 if rows > 2 else 0.115, hspace=0.55
+        left=0.105, right=0.985, top=0.965, bottom=0.085 if rows > 2 else 0.115, hspace=0.62
     )
     colors = {"program-v1": COLORS["Q4"], "program-v2": COLORS["C1"], "program-v3": COLORS["Q8"]}
     names = {
@@ -240,11 +240,11 @@ def fig_size_timeline(n: dict) -> dict | None:
         draw_timeline(ax, points, colors[name], 100.0)
         _label_jumps(ax, points, LABELS[name], 100.0, colors[name], SIZE_OFFSETS[name])
         _remeasured(ax, points)
-        ax.set(xlim=(-0.7, len(points) - 0.3), ylim=(0, 105))
+        ax.set(xlim=(-0.7, len(points) - 0.3), ylim=(0, 114))
         ax.set_xticks(range(3, len(points), 4))
         ax.set_xticklabels([str(i + 1) for i in range(3, len(points), 4)])
-        style_axes(ax, ylabel="Memory removed (%)", yticks=[0, 50, 100])
-        ax.set_title(names[name], loc="left", fontsize=7, color=INK_2, pad=2)
+        style_axes(ax, yticks=[0, 50, 100])
+        ax.set_title(names[name], loc="left", fontsize=7, fontweight="medium", color=INK, pad=4)
         best = running_best(points)
         ledger[name] = {
             "probes": len(points),
@@ -264,6 +264,7 @@ def fig_size_timeline(n: dict) -> dict | None:
             ],
         }
     axes[-1].set_xlabel("Probe, in search order")
+    fig.supylabel("Memory removed (%)", fontsize=7.5, color=INK_2, x=0.01)
     fig.savefig(OUT / "size-timeline.pdf")
     plt.close(fig)
     return ledger

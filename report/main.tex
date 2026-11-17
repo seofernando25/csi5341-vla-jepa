@@ -296,7 +296,7 @@ them as cheating. The valid winners lose two to four points of memory removed an
 as before.
 
 \subsection{Action error does not rank success}
-\begin{figure}[t]
+\begin{figure}[!b]
 \centering
 \includegraphics[width=\columnwidth]{figures/divergence.pdf}
 \caption{\textbf{Offline action error flags broken policies but cannot rank good ones.} Development
@@ -310,23 +310,6 @@ that it does not order the good cells. The rank correlation is 0.21 over all 17 
 $-0.38$ to 0.79) and 0.45 over the 16 that pass the gate ($-0.15$ to 0.84). On 10-episode smoke runs
 it is even negative ($-0.49$), because 14 of 17 cells sit at 8 of 10 and leave no spread to
 correlate.
-
-\section{What to Use}
-\label{sec:advice}
-\begin{takeaway}{}
-\begin{enumerate}[leftmargin=1.2em]
-\item \textbf{Under a memory limit, start with NF4 on the language decoder.} It saves over a third
-  of peak memory at no cost we can measure.
-\item \textbf{For speed, fix the execution path first.} A CUDA graph helps more than any weight
-  format.
-\item \textbf{Spend bits on the language decoder.} Vision and action showed no drop at 2 bits in
-  100 episodes, though the 5-point margin is not established.
-\item \textbf{To get near 1\,GB, remove parts.} The policy never uses the world model or the output
-  head, and the embedding can shrink to a fixed prompt set when the task allows it.
-\item \textbf{Screen offline, decide with rollouts.} Action error rejects broken recipes. Only
-  hundreds of paired episodes separate good ones.
-\end{enumerate}
-\end{takeaway}
 
 \section{Limitations and Conclusion}
 \label{sec:conclusion}
@@ -343,10 +326,8 @@ weights. An agent search found both kinds of saving, including without our code.
 flaw in the score that judged it, so we now review the score as carefully as the model.
 
 \section*{AI Usage Declaration}
-We used Claude Code to prepare figures, verify and debug code, and fix grammar and \LaTeX{}
-formatting. The Dream-RSI agents are part of the method: DeepSeek V4.1 Flash wrote the compressions
-and search rules in Section~\ref{sec:search}, and our fixed evaluator scored them. We designed the
-study, checked every number against its records and take responsibility for the report.
+Artificial intelligence was used to polish the writing, to generate graphs and illustrations, and
+for the initial calibration of the Dream-RSI goal.
 
 \section*{Acknowledgment}
 Noah Sprenger brought Dream-RSI into the project, built its first engine and ran the early searches.
