@@ -7,8 +7,7 @@ Live run state only. Everything else is in `CLAUDE.md`, `docs/`, the study READM
 
 No run is live. The report is complete at five pages on `main`: three searches for memory, one for
 speed, each winner run on the reserved 500. Open: Noah's acknowledgment (T19), the final read by
-both authors (T20), the presentation (T26, due 2026-12-04) and the bib entries for QuantVLA and
-EcoVLA, which lack authors.
+both authors (T20), the presentation (T26, due 2026-12-04).
 
 ## Decisions Fernando made (2026-11-15)
 
