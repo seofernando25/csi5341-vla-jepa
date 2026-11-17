@@ -1,6 +1,7 @@
 """Latency score and anti-gaming guards (program-v4): CPU only, no simulator, no GPU."""
 
 import csv
+import dataclasses
 import json
 import os
 import time
@@ -355,14 +356,16 @@ def test_interleaved_blocks_alternate_reference_and_candidate():
 def test_a_second_reference_is_not_loaded_when_it_does_not_fit(monkeypatch):
     monkeypatch.setattr(latency.torch.cuda, "mem_get_info", lambda: (1000, 10**9))
     loaded = []
-    assert latency._load_second(lambda: loaded.append(True), 5000, latency.CLOCK) is None
+    clock = dataclasses.replace(CPU_CLOCK, cuda=True)
+    assert latency._load_second(lambda: loaded.append(True), 5000, clock) is None
     assert loaded == []
 
 
 def test_a_second_reference_is_loaded_when_it_fits(monkeypatch):
     monkeypatch.setattr(latency.torch.cuda, "mem_get_info", lambda: (10**9, 10**9))
     sentinel = object()
-    assert latency._load_second(lambda: sentinel, 5000, latency.CLOCK) is sentinel
+    clock = dataclasses.replace(CPU_CLOCK, cuda=True)
+    assert latency._load_second(lambda: sentinel, 5000, clock) is sentinel
 
 
 # -- answer caching: the candidate must be the policy --

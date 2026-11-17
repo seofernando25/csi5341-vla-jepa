@@ -44,8 +44,14 @@ def _walk(machine: StateMachine, path: list) -> None:
         assert record["status"] == state and type(record["status"]) is str
 
 
+# Run state that .gitignore keeps out of a clean checkout (CI); check it only where a run left it.
+RUNTIME_ONLY = {"loop_state.json", "service.json"}
+
+
 def _json_files(pattern: str) -> list[dict]:
     files = sorted(STUDIES.rglob(pattern))
+    if not files and pattern in RUNTIME_ONLY:
+        pytest.skip(f"no {pattern} under studies/: runtime state, not committed")
     assert files, f"no {pattern} under studies/"
     return [json.loads(path.read_text(encoding="utf-8")) for path in files]
 
