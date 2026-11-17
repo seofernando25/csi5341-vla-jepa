@@ -27,7 +27,9 @@ LABELS = {  # node id -> what changed, for the jumps that matter
 }
 LATENCY_LABELS = {
     "iter_000-b0-a0": "CUDA graph",
-    "iter_000-b0-a1": "drop a redundant per-call reset",
+    "iter_000-b0-a3": "compiled, 4 steps",
+    "iter_001-b0-a1": "2 flow steps",
+    "iter_001-b0-a3": "1 flow step",
 }
 
 
@@ -261,12 +263,13 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
     table = optional_json(nodes_path)
     if not table or not table.get("nodes"):
         return None
-    rows = n["rows"]
-    graph = rows.get("ladder-b16-graph-4step", {}).get("benchmark_median_ms")
-    stock = rows.get("B16", {}).get("benchmark_median_ms")
-    if not graph or not stock:
+    # The hand-built graph is re-timed with the same per-task, block-interleaved protocol as the
+    # search winners, so its line and the dots share one ruler.
+    timing = optional_json(nodes_path.parent / "timing.json") or {}
+    graph = (timing.get("entries") or {}).get("ladder-b16-graph-4step", {})
+    reference = graph.get("speedup")
+    if not reference:
         return None
-    reference = stock / graph
     points = latency_points(table)
     fig, ax = plt.subplots(figsize=(COL, 2.1))
     fig.subplots_adjust(left=0.115, right=0.985, top=0.97, bottom=0.17)
@@ -276,39 +279,35 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
         ax.axhline(value, color=MUTED, lw=0.8, ls=(0, (3, 2)), zorder=1)
         ax.annotate(
             f"{text}, {value:.1f}x",
-            (-0.4, value),
+            (len(points) - 0.6, value),
             xytext=(0, 3),
             textcoords="offset points",
-            ha="left",
+            ha="right",
             fontsize=6.5,
             color=MUTED,
             annotation_clip=False,
         )
-    for i, p in enumerate(points):
-        if not p.get("valid", True):
-            ax.annotate(
-                "failed 10-episode check",
-                (i, p["plot"]),
-                xytext=(6, 0),
-                textcoords="offset points",
-                va="center",
-                fontsize=6.5,
-                color=color,
-                annotation_clip=False,
-            )
     _label_jumps(
         ax,
         points,
         LATENCY_LABELS,
         1.0,
         color,
-        {"iter_000-b0-a1": (-6, -14), "iter_000-b0-a0": (6, -14)},
+        {
+            "iter_000-b0-a0": (4, -12),
+            "iter_000-b0-a3": (-5, 8),
+            "iter_001-b0-a1": (5, -11),
+            "iter_001-b0-a3": (4, 9),
+        },
     )
-    ax.set(xlim=(-0.5, len(points) - 0.5), ylim=(-0.1, 4.2))
+    ax.set(xlim=(-0.5, len(points) - 0.5), ylim=(-0.1, 5.4))
     ax.set_xticks(range(len(points)))
     ax.set_xticklabels([str(i + 1) for i in range(len(points))])
     style_axes(
-        ax, ylabel="Speedup, lower bound", xlabel="Probe, in search order", yticks=[0, 1, 2, 3, 4]
+        ax,
+        ylabel="Speedup, lower bound",
+        xlabel="Probe, in search order",
+        yticks=[0, 1, 2, 3, 4, 5],
     )
     fig.savefig(OUT / "latency-timeline.pdf")
     plt.close(fig)
@@ -321,5 +320,5 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
         "best_lower_bound": round(best[-1], 3),
         "best_node": points[jumps(points)[-1]]["cell_id"],
         "hand_built_speedup": round(reference, 3),
-        "source": "studies/program-v4/nodes.json",
+        "source": "studies/program-v4/nodes.json, studies/program-v4/timing.json",
     }

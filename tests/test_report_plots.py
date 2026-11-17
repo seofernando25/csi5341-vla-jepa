@@ -303,10 +303,8 @@ def test_latency_timeline_reads_the_node_table(synthetic, tmp_path):
         ],
     }
     write(tmp_path / "nodes.json", table)
-    rows = {
-        "B16": {"benchmark_median_ms": 70.0},
-        "ladder-b16-graph-4step": {"benchmark_median_ms": 20.0},
-    }
+    write(tmp_path / "timing.json", {"entries": {"ladder-b16-graph-4step": {"speedup": 3.5}}})
+    rows = {}
     ledger = timeline.fig_latency_timeline({"rows": rows}, tmp_path / "nodes.json")
     assert ledger["nodes"] == 3
     assert timeline.latency_points(table)[1] == {"cell_id": "n1", "cycle": 0, "score": 0.0}
