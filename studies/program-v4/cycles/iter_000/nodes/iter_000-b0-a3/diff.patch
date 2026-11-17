@@ -1,0 +1,464 @@
+diff --git a/dev_compile.py b/dev_compile.py
+index 28cf02b..eda9d02 100644
+--- a/dev_compile.py
++++ b/dev_compile.py
+@@ -27,6 +27,8 @@ def main():
+         use_compile=MODE == "compile",
+         emulate=EMULATE,
+         compile_flow=MODE == "flowcompile",
++        compile_vision=MODE in ("vision", "both"),
++        compile_decoder=MODE in ("decoder", "both"),
+     )
+     # Drop the training-only world model exactly as the submitted solution does.
+     for name in ("video_encoder", "video_predictor", "video_processor"):
+diff --git a/graphed.py b/graphed.py
+index b31d537..27da5da 100644
+--- a/graphed.py
++++ b/graphed.py
+@@ -5,6 +5,9 @@ without host synchronisation and replays one captured graph per prompt length.
+ input buffers and the vision position table are shared by every graph, and the text
+ embeddings and rotary tables are computed inside the graph from per-instruction token ids,
+ so ten instructions cost one set of buffers and one graph per distinct prompt length.
++
++The vision tower and the Qwen decoder can be compiled with `torch.compile` and captured in
++the same graph; the flow head stays eager and reuses its precomputed timestep constants.
+ """
+ 
+ from __future__ import annotations
+@@ -13,6 +16,7 @@ import types
+ from dataclasses import dataclass
+ 
+ import torch
++import torch.nn.functional as F
+ from transformers.image_utils import SizeDict
+ 
+ 
+@@ -95,6 +99,40 @@ def _sinusoid(self, timesteps):
+     return torch.cat([torch.sin(freqs), torch.cos(freqs)], dim=-1).view(batch_size, seq_len, -1)
+ 
+ 
++def _adaln_forward(self, x, temb):
++    """`AdaLayerNorm` with the timestep-conditioned scale/shift precomputed per flow step."""
++    scale, shift = self._cached_scale_shift
++    return self.norm(x) * (1 + scale[:, None]) + shift[:, None]
++
++
++def _dit_forward(self, hidden_states, encoder_hidden_states, timestep):
++    """`DiT.forward` with the timestep embedding and output modulation precomputed."""
++    x = hidden_states
++    temb = self._cached_temb
++    for block in self.transformer_blocks:
++        x = block(x, encoder_hidden_states=encoder_hidden_states, temb=temb)
++    shift, scale = self._cached_out_scale_shift
++    x = self.norm_out(x) * (1 + scale[:, None]) + shift[:, None]
++    return self.proj_out_2(x)
++
++
++def _action_encoder_forward(self, actions, timesteps):
++    """`ActionEncoder.forward` with the (constant per step) time embedding precomputed."""
++    action_emb = self.layer1(actions)
++    time_emb = self._cached_time_emb
++    return self.layer3(F.silu(self.layer2(torch.cat([action_emb, time_emb], dim=-1))))
++
++
++def _build_inputs(self, actions, state, timesteps):
++    """`_build_inputs` with the constant query/position tokens and state projection reused."""
++    action_features = self.action_encoder(actions, timesteps)
++    action_features = action_features + self._cached_pos_emb
++    seq = [self._cached_future_tokens, action_features]
++    if state is not None and self.state_encoder is not None:
++        seq.insert(0, self._cached_state)
++    return torch.cat(seq, dim=1)
++
++
+ class _CachedCrossAttention:
+     """`AttnProcessor2_0` for cross-attention with the K/V projections cached across flow steps.
+ 
+@@ -132,12 +170,17 @@ class _CachedCrossAttention:
+ class GraphedPolicy:
+     """Drop-in `predict_action_chunk` for a loaded B16 `VLAJEPAPolicy`, one graph per length."""
+ 
+-    def __init__(self, policy, use_compile=False, emulate=False, compile_flow=False, cache_kv=False):
++    def __init__(
++        self, policy, use_compile=False, emulate=False, compile_flow=False, cache_kv=False,
++        compile_vision=False, compile_decoder=False,
++    ):
+         self.policy = policy
+         self.use_compile = use_compile
+         self.emulate = emulate
+         self.compile_flow = compile_flow
+         self.cache_kv = cache_kv
++        self.compile_vision = compile_vision
++        self.compile_decoder = compile_decoder
+         self.model = policy.model
+         qwen = self.model.qwen.model.model
+         self.vision, self.decoder, self.head = (
+@@ -163,6 +206,11 @@ class GraphedPolicy:
+                 module.log_base = torch.log(torch.tensor(10000.0, device=device))
+                 module.forward = types.MethodType(_sinusoid, module)
+         self._flow_impl = torch.compile(self._flow) if compile_flow else self._flow
++        self._vision_impl = torch.compile(self._vision_body) if compile_vision else self._vision_body
++        self._decoder_impl = (
++            torch.compile(self._decoder_body) if compile_decoder else self._decoder_body
++        )
++        self._install_flow_constants()
+         self.cross_attentions = [
+             block.attn1
+             for block in self.head.model.transformer_blocks
+@@ -177,6 +225,52 @@ class GraphedPolicy:
+             attn.static_lengths = None
+             attn.forward = types.MethodType(_vision_attention, attn)
+ 
++    def _install_flow_constants(self):
++        """Precompute everything the flow head derives only from the timestep value.
++
++        The four flow steps use four fixed timestep buckets.  Their sinusoidal embedding, the
++        DiT timestep embedding, every `AdaLayerNorm` scale/shift pair, the output modulation and
++        the action encoder's time embedding are therefore constants.  Computing them once (with
++        the same modules and dtype as the stock path) is bit-exact and removes those kernels
++        from every replay.
++        """
++        head = self.head
++        model = head.model
++        device = next(self.policy.parameters()).device
++        steps = head.num_inference_timesteps
++        self._temb = []
++        self._adaln = []
++        self._time_emb = []
++        self._out_scale_shift = []
++        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++            for step in range(steps):
++                value = int(step / steps * head.config.action_num_timestep_buckets)
++                timesteps = torch.full((1,), value, device=device, dtype=torch.long)
++                temb = model.timestep_encoder(timesteps)
++                self._temb.append(temb)
++                self._adaln.append(
++                    [
++                        block.norm1.linear(block.norm1.silu(temb)).chunk(2, dim=-1)
++                        for block in model.transformer_blocks
++                    ]
++                )
++                self._time_emb.append(
++                    head.action_encoder.pos_encoding(
++                        timesteps.unsqueeze(1).expand(-1, head.action_horizon)
++                    ).to(dtype=torch.bfloat16)
++                )
++                shift, scale = model.proj_out_1(F.silu(temb)).chunk(2, dim=-1)
++                self._out_scale_shift.append((shift, scale))
++        head._cached_future_tokens = head.future_tokens.weight.unsqueeze(0)
++        head._cached_pos_emb = head.position_embedding(
++            torch.arange(head.action_horizon, device=device)
++        )[None]
++        for block in model.transformer_blocks:
++            block.norm1.forward = types.MethodType(_adaln_forward, block.norm1)
++        model.forward = types.MethodType(_dit_forward, model)
++        head.action_encoder.forward = types.MethodType(_action_encoder_forward, head.action_encoder)
++        head._build_inputs = types.MethodType(_build_inputs, head)
++
+     # -- plan construction (once per instruction, eager) --
+ 
+     @torch.inference_mode()
+@@ -285,38 +379,46 @@ class GraphedPolicy:
+             n * (height // patch) * (width // patch), -1
+         )
+ 
+-    def _body(self, plan):
+-        vision, decoder = self.vision, self.decoder
+-        shared = plan.shared
+-        pixels = self._pixels(plan).to(vision.dtype)
+-        hidden = vision.patch_embed(pixels) + shared.vision_position
++    def _vision_body(self, pixels, position, rope):
++        vision = self.vision
++        hidden = vision.patch_embed(pixels) + position
+         deep = []
+         for number, block in enumerate(vision.blocks):
+-            hidden = block(hidden, cu_seqlens=None, position_embeddings=shared.vision_rope)
++            hidden = block(hidden, cu_seqlens=None, position_embeddings=rope)
+             if number in vision.deepstack_visual_indexes:
+-                position = vision.deepstack_visual_indexes.index(number)
+-                deep.append(vision.deepstack_merger_list[position](hidden))
+-        image_embeds = vision.merger(hidden)
+-        hidden = decoder.embed_tokens(plan.input_ids)
+-        hidden[0, plan.visual_index] = image_embeds.to(hidden.dtype)
+-        position_embeddings = plan.rope
++                position_index = vision.deepstack_visual_indexes.index(number)
++                deep.append(vision.deepstack_merger_list[position_index](hidden))
++        return (vision.merger(hidden), *deep)
++
++    def _decoder_body(self, hidden, deep, rope, visual_index):
++        decoder = self.decoder
+         for number, layer in enumerate(decoder.layers):
+             hidden = layer(
+                 hidden,
+                 attention_mask=None,
+                 position_ids=None,
+-                position_embeddings=position_embeddings,
++                position_embeddings=rope,
+             )
+             if number < len(deep):
+-                hidden = hidden.clone()
+-                hidden[0, plan.visual_index] = hidden[0, plan.visual_index] + deep[number].to(
+-                    hidden.dtype
+-                )
++                hidden[0, visual_index] = hidden[0, visual_index] + deep[number].to(hidden.dtype)
++        return hidden
++
++    def _body(self, plan):
++        vision, decoder = self.vision, self.decoder
++        shared = plan.shared
++        pixels = self._pixels(plan).to(vision.dtype)
++        image_embeds, *deep = self._vision_impl(
++            pixels, shared.vision_position, shared.vision_rope
++        )
++        hidden = decoder.embed_tokens(plan.input_ids)
++        hidden[0, plan.visual_index] = image_embeds.to(hidden.dtype)
++        hidden = self._decoder_impl(hidden, tuple(deep), plan.rope, plan.visual_index)
+         tokens = hidden[:, plan.action_index].float()
+         return self._flow_impl(tokens, plan.shared)
+ 
+     def _flow(self, tokens, shared):
+         head = self.head
++        model = head.model
+         if self.cache_kv:
+             for attn in self.cross_attentions:
+                 key = attn.to_k(tokens)
+@@ -326,15 +428,18 @@ class GraphedPolicy:
+                     key.view(1, -1, attn.heads, head_dim).transpose(1, 2),
+                     value.view(1, -1, attn.heads, head_dim).transpose(1, 2),
+                 )
++        if head.state_encoder is not None:
++            head._cached_state = head.state_encoder(shared.state.float())
+         actions = shared.noise
+         steps = head.num_inference_timesteps
+         for step in range(steps):
+-            value = int(step / steps * head.config.action_num_timestep_buckets)
+-            timesteps = torch.full((1,), value, device=tokens.device, dtype=torch.long)
+-            hidden = head._build_inputs(actions, shared.state.float(), timesteps)
+-            pred = head.model(
+-                hidden_states=hidden, encoder_hidden_states=tokens, timestep=timesteps
+-            )
++            head.action_encoder._cached_time_emb = self._time_emb[step]
++            model._cached_temb = self._temb[step]
++            model._cached_out_scale_shift = self._out_scale_shift[step]
++            for block, scale_shift in zip(model.transformer_blocks, self._adaln[step]):
++                block.norm1._cached_scale_shift = scale_shift
++            hidden = head._build_inputs(actions, shared.state.float(), None)
++            pred = head.model(hidden_states=hidden, encoder_hidden_states=tokens, timestep=None)
+             actions = actions + (1.0 / steps) * head.action_decoder(pred[:, -head.action_horizon :])
+         shared.output.copy_(actions)
+         return shared.output
+diff --git a/proposal.md b/proposal.md
+index cab5ba3..f4a0d7d 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,99 +1,100 @@
+-# Proposal: bit-exact CUDA graph with cross-attention K/V reuse in the flow head
++# Proposal: compiled vision + decoder inside the CUDA graph, with a bit-exact flow head
+ 
+ ## Change relative to the parent
+ 
+-The parent (`iter_000-b0-a1`, score 2.787) routes `predict_action_chunk` through the
+-bit-exact CUDA-graph executor in `graphed.py`, drops the training-only V-JEPA branch and
+-removes the per-call `self.eval()` tree walk from `select_action`. This node keeps that
+-executor and its exact numerics, and adds one bit-exact optimisation:
+-
+-- **The flow head's cross-attention K/V projections are computed once per call instead of
+-  once per flow step.** The DiT cross-attends to the 32 embodied action tokens produced by
+-  the decoder. Those tokens are constant across the four flow steps, so `to_k(tokens)` and
+-  `to_v(tokens)` are identical in every step. `GraphedPolicy` now installs a
+-  `_CachedCrossAttention` processor on the eight cross-attention blocks; `_flow` computes
+-  the two projections once and the processor reuses them. This removes 48 small GEMMs per
+-  call (8 blocks x 2 projections x 3 extra steps) and changes no value: the projections
+-  are deterministic and the cached tensors are the same values the stock processor would
+-  recompute. `solution.py` enables it with `attach(policy, cache_kv=True)`.
+-
+-The rest of the executor is unchanged: the same vision tower, Qwen decoder, DeepStack
+-injections and four-step flow head; the same static image/state/noise/output buffers; the
+-same stock noise draw (`torch.randn` with the same shape, dtype and device before replay);
+-the same lean `select_action` queue semantics; one graph per prompt length, captured for
+-the ten suite instructions in `compress`, before the evaluator's warm-up and timed blocks.
+-
+-`GraphedPolicy` also accepts `use_compile`, `emulate` and `compile_flow` options and keeps
+-the `_CachedCrossAttention` implementation in the file. They are off in the submitted
+-path; the development probes (`dev_compile.py`, `dev_profile.py`, `dev_kernels.py`,
+-`dev_verify.py`) are not imported by `solution.py`.
+-
+-## Why it should be faster and why it is safe
+-
+-The flow head is the most launch-bound stage of the graph: its 16 DiT blocks run four
+-times with 40-token sequences, and the kernel profile showed about 490 small cutlass GEMMs
+-(~7.9 ms of a ~31 ms replay on the shared GPU). The cross-attention K/V projections are a
+-pure function of the conditioning tokens, which do not change between steps, so hoisting
+-them out of the step loop is bit-exact and removes 48 GEMM launches per call.
+-
+-The 8/10 gate has no margin (the reference itself fails tasks 0 and 8), so a numeric change
+-is not acceptable. The cached path was verified against the untouched policy on four bank
+-frames: maximum absolute action difference 0.0. The evaluator's check reports arm action
+-error 0 on the worst task and perturbation correlation 1.000, and the ten-episode smoke
+-phase reproduces the reference's exact success pattern (tasks 0 and 8 fail, all others
+-pass).
++The parent (`iter_000-b0-a2`, score 2.813) routes `predict_action_chunk` through a
++bit-exact CUDA-graph executor (`graphed.py`), drops the training-only V-JEPA branch,
++removes the per-call `self.eval()` walk and caches the flow head's cross-attention K/V.
++This node keeps that executor and its exact flow-head numerics, and makes three changes:
++
++1. **The vision tower and the Qwen decoder are compiled with `torch.compile` and captured
++   inside the same CUDA graph.** The compiled bodies are `_vision_body` (patch embed,
++   the 24 vision blocks, the three DeepStack mergers and the merger) and `_decoder_body`
++   (the 28 Qwen layers plus the DeepStack injections). They are traced during `compress`
++   and their kernels are captured by the existing graph, so no compilation and no graph
++   capture happens in a timed call. The flow head stays eager: the parent's sibling
++   `iter_000-b2-a0` compiled the whole body and failed the smoke gate at 7/10 (task 2),
++   so the flow head is deliberately left out of the compiled region.
++2. **The flow head's timestep-dependent constants are precomputed once.** The four flow
++   steps use four fixed timestep buckets, so the sinusoidal embedding, the DiT timestep
++   embedding, every `AdaLayerNorm` scale/shift pair, the output modulation and the action
++   encoder's time embedding are constants. They are computed once with the same modules
++   and dtype as the stock path and reused; the state projection is computed once per call
++   instead of once per flow step. This is bit-exact (the cached tensors are the same
++   values the stock path recomputes) and removes those kernels from every replay.
++3. **The DeepStack injection writes in place** instead of cloning the decoder state. The
++   layer output is a fresh tensor, so the clone was redundant; the values are unchanged.
++
++The graph path still draws the stock flow noise (`torch.randn` with the same shape, dtype
++and device before replay), keeps the stock `select_action` queue semantics, and captures
++one graph per prompt length for the ten suite instructions in `compress`.
++
++The compiled region changes bf16 rounding, so this is not bit-exact. The check measures
++the result against the untouched policy: worst-task physical arm-action MSE **3.9e-6**
++(limit 0.01) and worst-task perturbation correlation **0.921** (min 0.5). The evaluator's
++ten-episode smoke phase reproduces the untouched policy's exact success pattern (tasks 0
++and 8 fail, all others pass), so the compiled path adds no new episode failure.
++
++## Why it should be faster
++
++The stock graph replay is launch-bound: about 4600 kernels and 25.9 ms on this GPU, with
++the vision tower and decoder contributing most of the elementwise and copy kernels.
++`torch.compile` fuses the RMSNorm/residual/SiLU/GELU chains and the vision block
++elementwise chains, cutting both the kernel count and the intermediate memory traffic.
++The flow head is left eager because its tiny GEMMs are faster through cuBLAS, and the
++bit-exact constant caching removes its repeated timestep/state work without changing any
++value. Candidate median latency falls from 26.2 ms (parent) to **20.1 ms**.
+ 
+ ## Last check output
+ 
+-`PYTHONPATH=/tmp/repo /tmp/venv/bin/python tools/check.py`:
++`PYTHONPATH=/tmp/repo /tmp/venv/bin/python tools/check.py` on this workspace:
+ 
+ ```
+ status: ok
+-memory removed: 15.4% (resident 5216743424 of baseline 6169967616 bytes)
+-score: 2.9864 (latency_speedup)
+-speedup: point 3.0125, 95% [2.9864, 3.0408], 6+6 blocks, interleaved
+-speedup per task: 0 2.990, 1 3.032, 2 3.036, 3 3.016, 4 3.004, 5 2.972, 6 3.018, 7 3.042, 8 3.007, 9 3.009
+-latency ms: reference median 79.76, candidate median 26.17, p95 29.34
+-arm action error (worst task): 0 (limit 0.01)
+-perturbation correlation (worst task): 1.000 (min 0.5)
++memory removed: 15.4% (resident 5217013760 of baseline 6169967616 bytes)
++score: 3.7438 (latency_speedup)
++speedup: point 3.8065, 95% [3.7438, 3.8440], 6+6 blocks, interleaved
++speedup per task: 0 3.888, 1 3.837, 2 3.763, 3 3.763, 4 3.836, 5 3.801, 6 3.797, 7 3.782, 8 3.830, 9 3.771
++latency ms: reference median 76.60, candidate median 20.10, p95 20.70
++arm action error (worst task): 3.91356e-06 (limit 0.01)
++perturbation correlation (worst task): 0.921 (min 0.5)
+ other GPU use: max 0.0 %, 12 samples
+ ```
+ 
+ The evaluator's ten-episode smoke phase (`--phase smoke`, the same development states and
+-seeds the node is scored on) also completed:
++seeds the node is scored on) also completed on this workspace:
+ 
+ ```
+-status ok, score 3.0596, successes 8/10, violations []
++status ok, score 3.6048, successes 8/10, violations []
+ per task: 0 fail, 1-7 pass, 8 fail, 9 pass
+-candidate median 26.57 ms, p95 27.90 ms
+-arm action error 0.0, perturbation correlation 1.000
++candidate median 20.37 ms, p95 21.19 ms
++arm action error 3.94e-06, perturbation correlation 0.921
+ peak CUDA 5.343 GB against reference 6.296 GB
+ ```
+ 
+-The failure pattern is exactly the untouched policy's, so the bit-exact path adds no new
+-episode failure. The parent's check on the same harness was 2.8312 with a candidate median
+-of 26.52 ms; the new check is 2.9864 with 26.17 ms, and the smoke phase scores 3.0596.
++The failure pattern is exactly the untouched policy's (tasks 0 and 8), so the compiled
++path reproduces the reference's 8/10 gate with no new episode failure. The parent's check
++on the same harness was 2.9864 with a candidate median of 26.17 ms.
+ 
+-## What I tried that did not work
++## What I tried and what was rejected
+ 
+-- Full-body `torch.compile` inside the graph: 141 s to compile, maximum normalized action
+-  difference 0.0156, worst physical arm MSE 7.85e-6. `emulate_precision_casts=True` did
+-  not reduce the drift, so the compiled path is not bit-exact. Node `iter_000-b2-a0` took
+-  this path and failed the smoke gate at 7/10 (task 2), so it was rejected here.
+-- Flow-only `torch.compile`: 33 s to compile, arm MSE 7.35e-6, and the candidate median was
+-  slower than the bit-exact graph (~31 ms against ~26.5 ms) because the tiny flow GEMMs are
+-  faster through cuBLAS than through the compiled kernels. This rules out the flow-only
+-  compile as a safe win.
+-- The first cached-K/V implementation divided the already-reshaped key by the head count
+-  in the processor; the shape error was found by `dev_verify.py` and fixed by taking the
+-  head dimension from the query projection. The final path is bit-exact on the bank.
++- Full-body `torch.compile` inside the graph (the parent's sibling `iter_000-b2-a0`):
++  faster (20.5 ms) but failed the smoke gate at 7/10 because the compiled flow head's
++  bf16 drift flipped task 2. This node therefore compiles only the vision tower and the
++  decoder and leaves the flow head eager.
++- Compiling only the decoder: 23.3 ms median and it passed the smoke gate 8/10 with the
++  reference failure pattern. Compiling only the vision tower measured 24.0 ms but was not
++  separately gated; compiling both together is faster still (20.1 ms) and passed the
++  smoke gate 8/10, so both are compiled in the submitted path.
++- Flow-only `torch.compile` (the parent's measurement): the tiny flow GEMMs are faster
++  through cuBLAS than through the compiled kernels, so it was not used.
+ 
+ ## What I would try next
+ 
+-- Cache the state-encoder output across the four flow steps (the state is constant within
+-  a call); it removes six more small GEMMs and is bit-exact.
+-- Compile only the vision tower (the largest launch-bound stage) and validate the full
+-  ten-episode smoke gate in the evaluator's own phase before submitting; a vision-only
+-  drift may be small enough for the no-margin gate, unlike the full-body compile.
+-- If the flow head is to be compiled, use a fixed kernel selection and require a
+-  ten-episode gate pass in the evaluator's smoke phase, not just a local run.
++- Compile the flow head as well only if the evaluator's ten-episode smoke phase passes
++  8/10 on that exact variant; the previous full-body compile failed task 2, so it is not
++  safe without a fresh gate validation.
++- Move the eager 256→224 area resize into the graph (bit-exact) to remove the remaining
++  input-preparation work.
++- Reduce the remaining vision-attention copies (the `rotate_half` concatenations and the
++  per-image output reshapes) with a bit-exact fused rotary kernel.
+diff --git a/solution.py b/solution.py
+index 1f0b3a3..fa2af2c 100644
+--- a/solution.py
++++ b/solution.py
+@@ -8,10 +8,11 @@ the ten LIBERO-Spatial instructions share five graphs and one set of static buff
+ text embeddings and rotary tables are computed inside the graph from per-instruction token
+ ids, so the graphs do not need a copy of the language prompt per task.
+ 
+-The graphs are captured in `compress`, before the evaluator's warm-up and timed blocks, so
+-no capture cost lands in a timed call.  The graph path is bit-exact with the untouched
+-policy on the observation bank (checked during development), and the fallback for an
+-instruction that was not precomputed is the same lazy graph capture.
++The vision tower and the Qwen decoder are compiled with `torch.compile` and captured in
++the same graph; the flow head stays eager and uses precomputed timestep constants.  The
++graphs are captured in `compress`, before the evaluator's warm-up and timed blocks, so no
++compilation or capture cost lands in a timed call.  The fallback for an instruction that
++was not precomputed is the same lazy capture.
+ """
+ 
+ from __future__ import annotations
+@@ -66,12 +67,12 @@ def _dummy_batch(policy, instruction):
+ 
+ 
+ def compress(policy, calibration):
+-    """Return the policy with `predict_action_chunk` routed through captured CUDA graphs."""
++    """Return the policy with `predict_action_chunk` routed through compiled CUDA graphs."""
+     # The V-JEPA world model is a training-only branch; inference never calls it.  Dropping
+     # it frees its weights and gives the graph pool a wide peak-memory margin.
+     for name in ("video_encoder", "video_predictor", "video_processor"):
+         setattr(policy.model, name, None)
+-    graphed = attach(policy, cache_kv=True)
++    graphed = attach(policy, cache_kv=True, compile_decoder=True, compile_vision=True)
+     for instruction in INSTRUCTIONS:
+         batch = _dummy_batch(policy, instruction)
+         graphed.predict_action_chunk(batch)

@@ -1,0 +1,580 @@
+diff --git a/fastpath.py b/fastpath.py
+index df93219..d68ac09 100644
+--- a/fastpath.py
++++ b/fastpath.py
+@@ -102,6 +102,7 @@ class GraphedPolicy:
+         keeps only the packed weights and dequantizes each linear just before its GEMM."""
+         self.policy = policy
+         self.use_compile = use_compile
++        self.compile_kwargs = {}
+         self.dense = dense
+         self.model = policy.model
+         qwen = self.model.qwen.model.model
+@@ -272,7 +273,7 @@ class GraphedPolicy:
+         with torch.autocast("cuda", dtype=torch.bfloat16):
+             warmup = torch.cuda.Stream()
+             warmup.wait_stream(torch.cuda.current_stream())
+-            body = torch.compile(self._body) if self.use_compile else self._body
++            body = torch.compile(self._body, **self.compile_kwargs) if self.use_compile else self._body
+             with torch.cuda.stream(warmup):
+                 for _ in range(3):
+                     body(plan)
+diff --git a/probe.py b/probe.py
+new file mode 100644
+index 0000000..4969c9b
+--- /dev/null
++++ b/probe.py
+@@ -0,0 +1,106 @@
++"""Offline probe: action change of pruned/quantized variants against the frozen references."""
++
++import sys
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++
++
++def physical(pipeline, chunk):
++    return pipeline.post(chunk.float().clone()).float()[..., :6]
++
++
++def run_variant(policy, pipeline, bank, refs, indices):
++    """Per-task mean physical arm MSE and max normalized diff over `indices`."""
++    import collections
++
++    errs = collections.defaultdict(list)
++    maxdiff = 0.0
++    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++        for index in indices:
++            policy.reset()
++            torch.manual_seed(1000 + index)
++            out = policy.predict_action_chunk(pipeline.sample(bank[index])).float()
++            ref = refs[index : index + 1].to("cuda")
++            errs[bank[index]["task_id"]].append(
++                float((physical(pipeline, out) - physical(pipeline, ref)).square().mean())
++            )
++            maxdiff = max(maxdiff, float((out - ref).abs().max()))
++    per_task = {task: sum(v) / len(v) for task, v in sorted(errs.items())}
++    return per_task, maxdiff
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    refs = torch.load(calib.REFERENCES, weights_only=True)
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    # 3 frames per task, skipping the calibration indices (first two of each task).
++    indices = []
++    seen = {}
++    for i, sample in enumerate(bank):
++        task = sample["task_id"]
++        seen[task] = seen.get(task, 0) + 1
++        if seen[task] > 2 and seen[task] <= 5:
++            indices.append(i)
++    print("indices", len(indices), flush=True)
++
++    from evaluation.compression.topology import SkipBlock, blocks
++
++    def reset_model():
++        # reload is too slow; keep a pristine copy of the block lists by restoring saved blocks
++        pass
++
++    # Save originals so variants can be undone.
++    text_blocks = blocks(policy, "text")
++    vision_blocks = blocks(policy, "vision")
++    originals_text = list(text_blocks)
++    originals_vision = list(vision_blocks)
++
++    def restore():
++        for i, b in enumerate(originals_text):
++            text_blocks[i] = b
++        for i, b in enumerate(originals_vision):
++            vision_blocks[i] = b
++        policy.model.action_model.num_inference_timesteps = 4
++
++    def skip(which, indices_to_skip):
++        target = text_blocks if which == "text" else vision_blocks
++        for i in indices_to_skip:
++            target[i] = SkipBlock()
++
++    variants = []
++    variants.append(("stock", lambda: None))
++    variants.append(("flow3", lambda: setattr(policy.model.action_model, "num_inference_timesteps", 3)))
++    variants.append(("flow2", lambda: setattr(policy.model.action_model, "num_inference_timesteps", 2)))
++    variants.append(("text_skip_3_26", lambda: skip("text", range(3, 27))))
++    variants.append(("text_skip_3_20", lambda: skip("text", range(3, 21))))
++    variants.append(("text_skip_3_14", lambda: skip("text", range(3, 15))))
++    variants.append(("text_skip_3_8", lambda: skip("text", range(3, 9))))
++    variants.append(("vision_skip_12_22", lambda: skip("vision", range(12, 23))))
++    variants.append(("vision_skip_16_22", lambda: skip("vision", range(16, 23))))
++    variants.append(("text_skip_3_20+vision_skip_16_22", lambda: (skip("text", range(3, 21)), skip("vision", range(16, 23)))))
++
++    for name, apply in variants:
++        restore()
++        apply()
++        started = time.perf_counter()
++        per_task, maxdiff = run_variant(policy, pipeline, bank, refs, indices)
++        worst = max(per_task.values())
++        print(
++            f"{name:42s} worst {worst:.6f} mean {sum(per_task.values())/len(per_task):.6f} "
++            f"maxdiff {maxdiff:.4f} secs {time.perf_counter()-started:.1f}",
++            flush=True,
++        )
++        print("   ", " ".join(f"{t}:{v:.4f}" for t, v in per_task.items()), flush=True)
++    restore()
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe2.py b/probe2.py
+new file mode 100644
+index 0000000..469a5e7
+--- /dev/null
++++ b/probe2.py
+@@ -0,0 +1,131 @@
++"""Timing and accuracy of graph + pruning/quantization variants."""
++
++import collections
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.compression.topology import SkipBlock, blocks, replace, selected_linears
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from evaluation.fastpath import GraphedPolicy
++
++
++def physical(pipeline, chunk):
++    return pipeline.post(chunk.float().clone()).float()[..., :6]
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    refs = torch.load(calib.REFERENCES, weights_only=True)
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    indices = []
++    seen = collections.Counter()
++    for i, sample in enumerate(bank):
++        task = sample["task_id"]
++        seen[task] += 1
++        if 2 < seen[task] <= 5:
++            indices.append(i)
++
++    text_blocks = blocks(policy, "text")
++    vision_blocks = blocks(policy, "vision")
++    originals_text = list(text_blocks)
++    originals_vision = list(vision_blocks)
++    text_linears = selected_linears(policy, "text")
++    saved_linears = {k: (root, name, module) for k, (root, name, module) in text_linears.items()}
++
++    def restore():
++        for i, b in enumerate(originals_text):
++            text_blocks[i] = b
++        for i, b in enumerate(originals_vision):
++            vision_blocks[i] = b
++        for key, (root, name, module) in saved_linears.items():
++            replace(root, name, module)
++        policy.model.action_model.num_inference_timesteps = 4
++        policy.graphed = None
++        torch.cuda.empty_cache()
++
++    def skip(which, indices_to_skip):
++        target = text_blocks if which == "text" else vision_blocks
++        for i in indices_to_skip:
++            target[i] = SkipBlock()
++
++    def int4_text(group=128):
++        from evaluation.compression.quantization import PackedInt4, affine_quantize
++
++        for key, (root, name, linear) in selected_linears(policy, "text").items():
++            values, scales, zeros, _ = affine_quantize(linear.weight.detach(), group)
++            replace(root, name, PackedInt4(linear, values, scales, zeros, group))
++
++    def evaluate(name, use_compile=False):
++        started = time.perf_counter()
++        graphed = GraphedPolicy(policy, use_compile=use_compile, dense=True)
++        policy.predict_action_chunk = graphed.predict_action_chunk
++        # accuracy on bank frames
++        errs = collections.defaultdict(list)
++        maxdiff = 0.0
++        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++            for index in indices:
++                policy.reset()
++                torch.manual_seed(1000 + index)
++                out = policy.predict_action_chunk(pipeline.sample(bank[index])).float()
++                ref = refs[index : index + 1].to("cuda")
++                errs[bank[index]["task_id"]].append(
++                    float((physical(pipeline, out) - physical(pipeline, ref)).square().mean())
++                )
++                maxdiff = max(maxdiff, float((out - ref).abs().max()))
++        # timing on the first instruction
++        instruction = bank[indices[0]]["instruction"]
++        plan = graphed.plans[instruction]
++        warm = bank[indices[0]]
++        batch = pipeline.sample(warm)
++        for _ in range(10):
++            policy.reset()
++            torch.manual_seed(1234)
++            policy.select_action(batch)
++        torch.cuda.synchronize()
++        start = torch.cuda.Event(enable_timing=True)
++        end = torch.cuda.Event(enable_timing=True)
++        start.record()
++        for _ in range(50):
++            policy.reset()
++            torch.manual_seed(1234)
++            policy.select_action(batch)
++        end.record()
++        torch.cuda.synchronize()
++        ms = start.elapsed_time(end) / 50
++        worst = max(sum(v) / len(v) for v in errs.values())
++        print(
++            f"{name:34s} ms {ms:7.2f} worst {worst:.6f} maxdiff {maxdiff:.4f} "
++            f"total {time.perf_counter()-started:.1f}s",
++            flush=True,
++        )
++        print("   ", " ".join(f"{t}:{sum(v)/len(v):.4f}" for t, v in sorted(errs.items())), flush=True)
++        return ms
++
++    variants = []
++    variants.append(("stock", lambda: None, False))
++    variants.append(("flow2", lambda: setattr(policy.model.action_model, "num_inference_timesteps", 2), False))
++    variants.append(("vision_skip_16_22", lambda: skip("vision", range(16, 23)), False))
++    variants.append(("int4_text", lambda: int4_text(), False))
++    variants.append(("int4_text_flow2_vision", lambda: (int4_text(), setattr(policy.model.action_model, "num_inference_timesteps", 2), skip("vision", range(16, 23))), False))
++    variants.append(("stock_compile", lambda: None, True))
++    variants.append(("int4_text_compile", lambda: int4_text(), True))
++
++    for name, apply, compiled in variants:
++        restore()
++        apply()
++        try:
++            evaluate(name, compiled)
++        except Exception as error:
++            print(f"{name}: FAILED {type(error).__name__}: {error}", flush=True)
++        finally:
++            restore()
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe3.py b/probe3.py
+new file mode 100644
+index 0000000..18c40c2
+--- /dev/null
++++ b/probe3.py
+@@ -0,0 +1,116 @@
++"""Combination timing: compile + flow2 + vision skip, and compile modes."""
++
++import collections
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.compression.topology import SkipBlock, blocks
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from evaluation.fastpath import GraphedPolicy
++
++
++def physical(pipeline, chunk):
++    return pipeline.post(chunk.float().clone()).float()[..., :6]
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    refs = torch.load(calib.REFERENCES, weights_only=True)
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    indices = []
++    seen = collections.Counter()
++    for i, sample in enumerate(bank):
++        task = sample["task_id"]
++        seen[task] += 1
++        if 2 < seen[task] <= 5:
++            indices.append(i)
++
++    text_blocks = blocks(policy, "text")
++    vision_blocks = blocks(policy, "vision")
++    originals_text = list(text_blocks)
++    originals_vision = list(vision_blocks)
++
++    def restore():
++        for i, b in enumerate(originals_text):
++            text_blocks[i] = b
++        for i, b in enumerate(originals_vision):
++            vision_blocks[i] = b
++        policy.model.action_model.num_inference_timesteps = 4
++        policy.graphed = None
++        torch.cuda.empty_cache()
++
++    def skip(which, indices_to_skip):
++        target = text_blocks if which == "text" else vision_blocks
++        for i in indices_to_skip:
++            target[i] = SkipBlock()
++
++    def evaluate(name, use_compile=True, compile_kwargs=None, accuracy=True):
++        started = time.perf_counter()
++        graphed = GraphedPolicy(policy, use_compile=use_compile, dense=True)
++        if compile_kwargs is not None:
++            graphed.compile_kwargs = compile_kwargs
++        policy.predict_action_chunk = graphed.predict_action_chunk
++        maxdiff = 0.0
++        errs = collections.defaultdict(list)
++        if accuracy:
++            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++                for index in indices:
++                    policy.reset()
++                    torch.manual_seed(1000 + index)
++                    out = policy.predict_action_chunk(pipeline.sample(bank[index])).float()
++                    ref = refs[index : index + 1].to("cuda")
++                    errs[bank[index]["task_id"]].append(
++                        float((physical(pipeline, out) - physical(pipeline, ref)).square().mean())
++                    )
++                    maxdiff = max(maxdiff, float((out - ref).abs().max()))
++        instruction = bank[indices[0]]["instruction"]
++        batch = pipeline.sample(bank[indices[0]])
++        for _ in range(10):
++            policy.reset()
++            torch.manual_seed(1234)
++            policy.select_action(batch)
++        torch.cuda.synchronize()
++        start = torch.cuda.Event(enable_timing=True)
++        end = torch.cuda.Event(enable_timing=True)
++        start.record()
++        for _ in range(50):
++            policy.reset()
++            torch.manual_seed(1234)
++            policy.select_action(batch)
++        end.record()
++        torch.cuda.synchronize()
++        ms = start.elapsed_time(end) / 50
++        worst = max(sum(v) / len(v) for v in errs.values()) if errs else float("nan")
++        print(
++            f"{name:40s} ms {ms:7.2f} worst {worst:.6f} maxdiff {maxdiff:.4f} "
++            f"total {time.perf_counter()-started:.1f}s",
++            flush=True,
++        )
++        return ms
++
++    variants = [
++        ("compile+flow2+vision", lambda: (skip("vision", range(16, 23)), setattr(policy.model.action_model, "num_inference_timesteps", 2)), True, None),
++        ("compile+flow2+vision+text3", lambda: (skip("vision", range(16, 23)), skip("text", [3]), setattr(policy.model.action_model, "num_inference_timesteps", 2)), True, None),
++        ("compile+flow2+vision+text345", lambda: (skip("vision", range(16, 23)), skip("text", [3, 4, 5]), setattr(policy.model.action_model, "num_inference_timesteps", 2)), True, None),
++        ("compile_flow2_vision_maxautotune", lambda: (skip("vision", range(16, 23)), setattr(policy.model.action_model, "num_inference_timesteps", 2)), True, {"mode": "max-autotune-no-cudagraphs"}),
++    ]
++
++    for name, apply, compiled, kwargs in variants:
++        restore()
++        apply()
++        try:
++            evaluate(name, compiled, kwargs)
++        except Exception as error:
++            print(f"{name}: FAILED {type(error).__name__}: {error}", flush=True)
++        finally:
++            restore()
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/proposal.md b/proposal.md
+index 956f4de..b06a8eb 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,54 +1,56 @@
+-# Proposal: CUDA-graph execution of the stock VLA-JEPA forward
++# Proposal: compiled CUDA graphs with two flow steps
+ 
+-## Change relative to the parent (`root`)
++## Change relative to the parent (`iter_001-b0-a0`)
+ 
+-The parent was the untouched B16 policy. `solution.py` now:
++The parent captured one CUDA graph per instruction and replayed the stock arithmetic exactly
++(`use_compile=False`), scoring 2.578460. This node keeps that graph machinery and adds two changes
++inside the graph:
+ 
+-1. drops the inference-dead V-JEPA world model (`video_encoder`, `video_predictor`,
+-   `video_processor`) and the unused tied vocabulary output head (`lm_head`), which the policy
+-   never calls because it invokes the inner `Qwen3VLModel`;
+-2. constructs `fastpath.GraphedPolicy` (copied from `evaluation/fastpath.py` into the workspace,
+-   with its NF4 helper copied too) with `use_compile=False, dense=True`, and routes
+-   `policy.predict_action_chunk` through it. `select_action` already delegates to
+-   `predict_action_chunk` when its action queue is empty, and the evaluator calls `reset()` before
+-   every timed call, so every timed call is one graph replay.
++1. `fastpath.GraphedPolicy` is constructed with `use_compile=True`, so `torch.compile` fuses the
++   elementwise kernels (RMSNorm, RoPE, SiLU, residual adds) and the small GEMMs of the vision
++   tower, decoder and action head. The compiled body is still captured into one CUDA graph per
++   instruction, so the timed call is one graph replay. `fastpath.py` gains a `compile_kwargs`
++   attribute for this.
++2. The flow-matching head runs two steps instead of four (`num_inference_timesteps = 2`).
+ 
+-The graphed path:
++The parent's memory changes stay: the inference-dead V-JEPA world model and the tied vocabulary
++output head are dropped, so peak CUDA stays below the reference's.
+ 
+-- precomputes the instruction-dependent constants (text embeddings, position ids, rotary tables,
+-  visual/action index tables, patch grid) once per instruction;
+-- runs the vision tower, decoder, DeepStack injection and the four flow-matching steps without the
+-  host synchronizations in the stock mask/attention code;
+-- copies the current images, state and freshly drawn flow noise into static buffers and replays one
+-  captured CUDA graph per instruction.
++## Why it passes the guards
+ 
+-No weights are changed, no work is moved to `reset`, the CPU or another process, no files are
+-opened during `compress`, and no answers are stored: each replay consumes the current observation
+-and a fresh noise draw.
++Offline probe on 30 bank frames covering all ten tasks (same seed and `Pipeline.sample` batches
++as the frozen references), worst task over the ten:
+ 
+-## Why it should pass the guards
++| variant | median ms | worst physical arm MSE | max normalized diff |
++|---|---|---|---|
++| parent graph (`use_compile=False`) | 26.37 | 0.000000 | 0.000 |
++| compile only | 19.39 | 0.000009 | 0.016 |
++| **compile + 2 flow steps (this node)** | **18.45** | **0.000042** | **0.027** |
++| compile + 2 steps + vision 16-22 + text 3-5 | 14.86 | 0.002781 | 0.258 |
+ 
+-`use_compile=False` keeps the graph's arithmetic identical to the stock eager path. On 18 bank
+-frames covering all ten tasks (local probe, same seed and `Pipeline.sample` batches) the maximum
+-absolute action difference against the stock policy was exactly `0`. The smoke run confirms this:
+-worst-task arm-action error `0`, perturbation correlation `1.000`, and the same 8/10 episode
+-successes as the reference (tasks 0 and 8 fail for the reference too). Dropping the world model and
+-`lm_head` cannot change actions because neither is on the inference path; it only lowers peak CUDA
+-memory, which the reference still pays for.
++The more aggressive block removal was rejected: its evaluator check scored 4.6785 but failed the
++guards (arm error 0.0127 on fresh task-0 frames against 0.01, and perturbation correlations as low
++as 0.082 against 0.5). The approximation error was comparable to the small pixel-perturbation
++signal. The two-step head changes actions by two orders of magnitude less, so the perturbation
++response stays with the reference's (0.928). `torch.compile` changes only bf16 rounding.
++
++The equivalence checks are internal to the candidate and hold because `select_action` delegates to
++the same graphed `predict_action_chunk`. No answers are stored and each replay consumes the
++current observation and a fresh noise draw.
+ 
+ ## Last check output
+ 
+-`python tools/check.py` (phase `check`, task 0 episode, all ten tasks timed):
++`/tmp/venv/bin/python tools/check.py` (phase `check`, task 0 episode, all ten tasks timed):
+ 
+ ```
+ status: ok
+ memory removed: 14.2% (resident 5296030720 of baseline 6169967616 bytes)
+-score: 2.6244 (latency_speedup)
+-speedup: point 2.6453, 95% [2.6244, 2.6717], 6+6 blocks, interleaved
+-speedup per task: 0 2.688, 1 2.646, 2 2.662, 3 2.598, 4 2.680, 5 2.640, 6 2.617, 7 2.662, 8 2.619, 9 2.643
+-latency ms: reference median 73.92, candidate median 28.15, p95 29.92
+-arm action error (worst task): 0 (limit 0.01)
+-perturbation correlation (worst task): 1.000 (min 0.5)
++score: 4.0736 (latency_speedup)
++speedup: point 4.0964, 95% [4.0736, 4.1188], 6+6 blocks, interleaved
++speedup per task: 0 4.107, 1 4.110, 2 4.098, 3 4.100, 4 4.105, 5 4.129, 6 4.064, 7 4.068, 8 4.098, 9 4.083
++latency ms: reference median 74.42, candidate median 18.45, p95 19.23
++arm action error (worst task): 4.24779e-05 (limit 0.01)
++perturbation correlation (worst task): 0.928 (min 0.5)
+ other GPU use: max 0.0 %, 12 samples
+ ```
+ 
+@@ -56,19 +58,22 @@ Full ten-episode smoke phase (`--phase smoke`, one episode per task):
+ 
+ ```
+ status: ok, successes 8/10, violations []
+-score: 2.6010 (latency_speedup)
+-speedup: point 2.6318, 95% [2.6010, 2.6591], 6+6 blocks, interleaved
+-per-task speedup: 2.606 .. 2.659
+-latency ms: reference median 73.92, candidate median 28.15
++score: 4.0195 (latency_speedup)
++speedup: point 4.0517, 95% [4.0195, 4.0947], 6+6 blocks, interleaved
++per-task speedup: 4.027 .. 4.075
++latency ms: reference median 74.42, candidate median 18.88, p95 19.55
+ peak CUDA: candidate 5421900800 B, reference 6295837696 B
+-arm action error 0, perturbation correlation 1.000
++arm action error 4.25e-05, perturbation correlation 0.928
++per-task successes: tasks 0 and 8 fail, exactly as the untouched reference
+ ```
+ 
+ ## What I would try next
+ 
+-- Measure `use_compile=True` (kernel fusion) and keep it only if the arm-error, perturbation and
+-  success guards still pass; the current bit-exact path is the safe fallback.
+-- Fuse the remaining host-side input preparation (`to_pixel_values`, image stack, state reshape)
+-  into the graph's static buffers.
+-- Try three flow steps only if the arm-action error and the ten-episode gate stay comfortably
+-  inside their limits; otherwise keep the bit-exact four-step graph.
++- Fuse the host-side input preparation (`to_pixel_values`, image stack, state reshape) into the
++  graph's static buffers; it is now a visible fraction of the 18.9 ms call.
++- Revisit block removal only with a correction that preserves the perturbation response: prune
++  blocks whose contribution is nearly constant across the perturbation, or fine-tune the remaining
++  weights against the reference's action and perturbation deltas. The 14.86 ms aggressive variant
++  shows the headroom (about 4.7x) if the perturbation guard can be kept.
++- Try compile modes (`max-autotune`) once the cache is warm; the first probe showed no gain over
++  the default mode.
+diff --git a/solution.py b/solution.py
+index b780065..418c5ac 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,15 +1,21 @@
+ """Entry point for a policy change to the VLA-JEPA B16 policy.
+ 
+-The stock inference path launches thousands of small kernels and synchronizes with the host
+-inside the vision tower and decoder mask code, so one observation-to-action call is launch bound.
+-`fastpath.GraphedPolicy` precomputes the instruction-dependent constants, composes the same
+-sub-modules without host synchronization and replays one captured CUDA graph per instruction.
+-With `use_compile=False` the graph reproduces the stock forward exactly (verified bit for bit on
+-bank frames from every task), so the equivalence, arm-action, perturbation and episode-success
+-guards see the untouched policy; only the launch overhead is removed.
+-
+-The V-JEPA world model and the tied vocabulary output head are never called by inference. They
+-are dropped so the candidate's peak CUDA stays below the reference's, which includes them.
++The stock path is launch bound: thousands of small kernels and host synchronizations per
++observation-to-action call. `fastpath.GraphedPolicy` precomputes the instruction-dependent
++constants, composes the same sub-modules without host synchronization and replays one captured
++CUDA graph per instruction. On top of that, this solution
++
++1. drops the inference-dead V-JEPA world model and the tied vocabulary output head, which the
++   policy never calls (it invokes the inner `Qwen3VLModel`), lowering peak CUDA memory;
++2. compiles the graphed body with `torch.compile`, so the elementwise and small GEMM kernels of
++   the vision tower, decoder and action head are fused instead of dispatched one by one; and
++3. runs two flow-matching steps instead of four.
++
++The approximation is deliberately small: on 30 bank frames covering all ten tasks the worst-task
++mean squared physical arm-action difference against the untouched policy is 4.2e-5 (guard limit
++0.01) and the maximum normalized action difference is 0.027. More aggressive block removal was
++measured (worst arm MSE 0.0028) but it decorrelated the small pixel-perturbation response from the
++reference's, so it is not used.
+ """
+ 
+ from __future__ import annotations
+@@ -20,7 +26,7 @@ from fastpath import GraphedPolicy
+ 
+ 
+ def compress(policy, calibration):
+-    """Drop inference-dead modules, then route prediction through captured CUDA graphs."""
++    """Drop inference-dead modules, halve the flow steps, then replay compiled CUDA graphs."""
+     model = policy.model
+     model.video_encoder = None
+     model.video_predictor = None
+@@ -28,7 +34,10 @@ def compress(policy, calibration):
+     # The policy calls the inner Qwen3VLModel, never the conditional-generation wrapper, so the
+     # vocabulary output head is dead at inference. Identity keeps the attribute well formed.
+     policy.model.qwen.model.lm_head = torch.nn.Identity()
+-    graphed = GraphedPolicy(policy, use_compile=False, dense=True)
++
++    model.action_model.num_inference_timesteps = 2
++
++    graphed = GraphedPolicy(policy, use_compile=True, dense=True)
+     policy.predict_action_chunk = graphed.predict_action_chunk
+     policy.graphed = graphed
+     return policy

@@ -2624,12 +2624,12 @@
     }
   },
   "latency_timeline": {
-    "snapshot_utc": "2026-11-16T17:08Z",
-    "nodes": 4,
-    "cycles_complete": 0,
+    "snapshot_utc": "2026-11-17T00:05Z",
+    "nodes": 18,
+    "cycles_complete": 3,
     "cycles_target": 3,
-    "best_lower_bound": 2.787,
-    "best_node": "iter_000-b0-a1",
+    "best_lower_bound": 4.703,
+    "best_node": "iter_001-b1-a0",
     "hand_built_speedup": 3.373,
     "source": "studies/program-v4/nodes.json"
   },

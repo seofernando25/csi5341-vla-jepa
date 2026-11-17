@@ -4,7 +4,7 @@
   "frozen_at": "2026-11-17T00:10Z",
   "source": "studies/program-v4/nodes.json (final node table of the 3-cycle latency run, exported after the loop ended)",
   "rule": "one candidate per flow-step count: the highest-scoring node at 4, 2 and 1 flow steps, with a nonzero score and no non-honest class other than fewer-flow-steps or smaller-or-skipped-model. Candidates are fixed before any development result; reserved trials never guide selection.",
-  "flow_steps_source": "watch logs /tmp/opencode/s2/W5..W9-STATUS.md plus each node's proposal.md (num_inference_timesteps); cross-checked against the node title and the latency speedup point.",
+  "flow_steps_source": "the run watch logs plus each node's proposal.md (num_inference_timesteps); cross-checked against the node title and the latency speedup point.",
   "candidates": [
     {
       "cell_id": "iter_000-b0-a3",

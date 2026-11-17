@@ -1,0 +1,68 @@
+{
+  "cell_id": "iter_001-b0-a3",
+  "parent_id": "iter_001-b0-a2",
+  "parent_commit": "9ddc64224280da266a56dc431abca4feb4444b48",
+  "commit": "6bdac146991c908450161bd955c5714bf1a30ce7",
+  "fail_class": "ok",
+  "evaluated": true,
+  "score": 4.6789529099031775,
+  "successes": 8,
+  "episodes": 10,
+  "sizes": {
+    "resident_bytes": 5421900800,
+    "baseline_resident_bytes": 6295837696,
+    "size_reduction": 0.13881185287785414
+  },
+  "digest": "492e696333de708cda748434e3420d0623e72ded",
+  "workspace_sha256": "fb9baf86956d52d4438ce85de87b02d4699cf8a47acb807e59452ac5914e4c0c",
+  "status": "ok",
+  "error": null,
+  "eval_seconds": 311.457,
+  "agent_output_invalid": false,
+  "agent_timed_out": false,
+  "agent_seconds": 710.654,
+  "agent_cost_usd": 0.104843,
+  "agent_turns": 44,
+  "per_task": {
+    "0": {
+      "successes": 0,
+      "episodes": 1
+    },
+    "1": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "2": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "3": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "4": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "5": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "6": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "7": {
+      "successes": 1,
+      "episodes": 1
+    },
+    "8": {
+      "successes": 0,
+      "episodes": 1
+    },
+    "9": {
+      "successes": 1,
+      "episodes": 1
+    }
+  }
+}

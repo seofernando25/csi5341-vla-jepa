@@ -1,0 +1,205 @@
+diff --git a/graphed.py b/graphed.py
+index d662dfc..909229f 100644
+--- a/graphed.py
++++ b/graphed.py
+@@ -38,6 +38,7 @@ class GraphPlan:
+     action_index: torch.Tensor
+     lengths: list
+     shared: Shared
++    rope: tuple
+     graph: torch.cuda.CUDAGraph | None = None
+ 
+ 
+@@ -184,6 +185,10 @@ class GraphedPolicy:
+         key = int(ids.shape[1])
+         graph_plan = self.graph_plans.get(key)
+         if graph_plan is None:
++            # The decoder rotary table depends only on the prompt's position ids and the
++            # hidden dtype, so it is constant per prompt length.  Computing it once here
++            # keeps the same values (bit-exact) and removes it from every replay.
++            rope = self.decoder.rotary_emb(self.decoder.embed_tokens(ids), position_ids)
+             graph_plan = GraphPlan(
+                 input_ids=source.input_ids.clone(),
+                 position_ids=source.position_ids.clone(),
+@@ -191,6 +196,7 @@ class GraphedPolicy:
+                 action_index=source.action_index.clone(),
+                 lengths=lengths,
+                 shared=self.shared,
++                rope=rope,
+             )
+             self.graph_plans[key] = graph_plan
+             self._capture(graph_plan)
+@@ -245,7 +251,7 @@ class GraphedPolicy:
+         image_embeds = vision.merger(hidden)
+         hidden = decoder.embed_tokens(plan.input_ids)
+         hidden[0, plan.visual_index] = image_embeds.to(hidden.dtype)
+-        position_embeddings = decoder.rotary_emb(hidden, plan.position_ids)
++        position_embeddings = plan.rope
+         for number, layer in enumerate(decoder.layers):
+             hidden = layer(
+                 hidden,
+@@ -307,7 +313,8 @@ class GraphedPolicy:
+         graph_plan.visual_index.copy_(plan.visual_index)
+         graph_plan.action_index.copy_(plan.action_index)
+         shared = graph_plan.shared
+-        shared.images.copy_(torch.stack(images))
++        for view, image in enumerate(images):
++            shared.images[view].copy_(image)
+         shared.state.copy_(state)
+         shared.noise.copy_(
+             torch.randn(
+@@ -321,10 +328,29 @@ class GraphedPolicy:
+         graph_plan.graph.replay()
+         return shared.output.clone()
+ 
++    @torch.inference_mode()
++    def select_action(self, batch, noise=None):
++        """The stock queue semantics without the per-call `eval()` tree walk.
++
++        `VLAJEPAPolicy.select_action` calls `self.eval()` on every call, which walks every
++        module of the 2B backbone and costs about 1.5 ms of CPU before the graph can be
++        launched.  The evaluator loads the policy in eval mode and never trains it, so the
++        walk is redundant.  `populate_queues` only fills the observation queues, which are
++        unused with `n_obs_steps == 1`; `_prepare_model_inputs` reads the batch directly.
++        The action queue is kept exactly as the stock method keeps it, so the sequence of
++        actions over an episode is unchanged.
++        """
++        queue = self.policy._queues["action"]
++        if not queue:
++            actions = self.predict_action_chunk(batch)
++            queue.extend(actions.transpose(0, 1)[: self.policy.config.n_action_steps])
++        return queue.popleft()
++
+ 
+ def attach(policy):
+     """Route `policy.predict_action_chunk` (and so `select_action`) through graphed execution."""
+     graphed = GraphedPolicy(policy)
+     policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.select_action = graphed.select_action
+     policy.graphed = graphed
+     return graphed
+diff --git a/proposal.md b/proposal.md
+index 34bec05..53d1d3f 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,38 +1,43 @@
+-# Proposal: CUDA-graph execution of the VLA-JEPA action chunk
++# Proposal: bit-exact CUDA-graph execution without the per-call eval walk
+ 
+ ## Change relative to the parent
+ 
+-The parent is the identity policy (`compress` returns the loaded B16 policy).  This node
+-routes `policy.predict_action_chunk` (and therefore `select_action`) through a CUDA-graph
+-executor adapted from the project's `evaluation/fastpath.py`:
++The parent (`iter_000-b0-a0`, score 2.706) routes `predict_action_chunk` through a
++bit-exact CUDA-graph executor (`graphed.py`) and drops the training-only V-JEPA branch.
++This node keeps that executor and makes three further changes, all of them bit-exact on
++every observation-bank frame:
+ 
+-- The same vision tower, Qwen decoder, DeepStack injections and four-step flow head are
+-  composed without the stock path's host synchronizations (vision `.tolist()` and the
+-  decoder mask code).
+-- One graph is captured per distinct prompt length.  The ten LIBERO-Spatial instructions
+-  have five distinct token lengths, so five graphs share one graph pool.
+-- All graphs share the static image, state, noise and output buffers and the vision
+-  position/rotary tables.  Text embeddings and the decoder rotary table are computed
+-  inside the graph from per-instruction token ids, so no per-task language prompt copy is
+-  stored.
+-- `compress` also drops the V-JEPA video encoder, predictor and processor.  They are a
+-  training-only branch and inference never calls them; dropping them frees their weights
+-  and gives the graph pool a wide peak-memory margin.
+-- `compress` captures the graphs for the ten suite instructions before the evaluator's
+-  warm-up and timed blocks.  An unseen instruction falls back to the same lazy graph
+-  capture, so the policy still works.
++1. **A lean `select_action`.** The stock `VLAJEPAPolicy.select_action` calls `self.eval()`
++   before every prediction. `nn.Module.eval()` walks every module of the 2B backbone and
++   measured **1.48 ms** per call on this GPU; the evaluator loads the policy in eval mode
++   and never trains it, so the walk is pure overhead. `populate_queues` only fills the
++   observation queues, which are unused with `n_obs_steps == 1` because
++   `_prepare_model_inputs` reads the batch directly. The replacement keeps the action
++   queue exactly as the stock method keeps it (extend with
++   `actions.transpose(0, 1)[:n_action_steps]`, then `popleft`), so the sequence of actions
++   over an episode is unchanged. This is the whole gain: `select_action` fell from
++   27.96 ms to 26.42 ms in the development profile, while the graph replay itself is
++   25.8 ms.
++2. **The decoder rotary table is precomputed per prompt length** instead of being
++   recomputed inside every replay. It depends only on the prompt's position ids and the
++   hidden dtype, so the values are identical; it is stored in the graph plan.
++3. **Images are copied into the static buffer view by view** instead of allocating a
++   stacked copy first. Same values, one less 1.2 MB allocation and copy per call.
+ 
+-The graph path was compared against the untouched policy on the observation bank for all
+-ten tasks: maximum absolute action difference was 0.0 and `torch.allclose` passed.  The
+-graph path preserves the stock noise draw (`torch.randn` with the same shape, dtype and
+-device before replay), so `select_action`/`predict_action_chunk` agreement,
+-reproducibility and perturbation response are unchanged.
++The graph path is still bit-exact with the untouched policy: the check reports arm action
++error 0 on the worst task and perturbation correlation 1.000, and the action spread /
++reproducibility / `select_action`-vs-`predict_action_chunk` guards pass. The graph is
++captured in `compress` for the ten suite instructions, so no capture cost lands in a
++timed call.
+ 
+ ## Why it should be faster
+ 
+-The stock path is launch-bound: each prediction launches thousands of small kernels and
+-synchronizes with the host inside the vision tower and decoder.  Replaying one captured
+-graph removes launch overhead and host synchronization.
++The profile of the parent's timed path was: graph replay 25.8 ms, `select_action` 28.0 ms.
++The 2.2 ms difference was almost entirely the redundant `self.eval()` tree walk and the
++input copies. Removing the walk and the extra stack copy moves the candidate median from
++28.7 ms to 26.5 ms with no numeric change, so the speedup rises from about 2.7x to about
++2.85x. Because the change is bit-exact, the 8/10 episode gate is reproduced exactly (the
++reference fails tasks 0 and 8; the candidate fails the same task 0 episode in the check).
+ 
+ ## Last check output
+ 
+@@ -40,29 +45,31 @@ graph removes launch overhead and host synchronization.
+ 
+ ```
+ status: ok
+-memory removed: 15.5% (resident 5216197120 of baseline 6169967616 bytes)
+-score: 2.6718 (latency_speedup)
+-speedup: point 2.6935, 95% [2.6718, 2.7233], 6+6 blocks, interleaved
+-speedup per task: 0 2.729, 1 2.732, 2 2.671, 3 2.711, 4 2.674, 5 2.671, 6 2.707, 7 2.668, 8 2.703, 9 2.669
+-latency ms: reference median 77.32, candidate median 28.79, p95 29.96
++memory removed: 15.5% (resident 5215956992 of baseline 6169967616 bytes)
++score: 2.8312 (latency_speedup)
++speedup: point 2.8517, 95% [2.8312, 2.9207], 6+6 blocks, interleaved
++speedup per task: 0 2.845, 1 2.849, 2 2.880, 3 2.894, 4 2.867, 5 2.837, 6 2.834, 7 2.826, 8 2.853, 9 2.834
++latency ms: reference median 74.81, candidate median 26.52, p95 30.16
+ arm action error (worst task): 0 (limit 0.01)
+ perturbation correlation (worst task): 1.000 (min 0.5)
+ other GPU use: max 0.0 %, 12 samples
+ ```
+ 
+-The check's `result.json` recorded a candidate peak CUDA of 5.216 GB against a reference
+-peak of 6.170 GB, so the peak-memory gate has a wide margin.  The candidate episode on
+-task 0 failed exactly as the reference episode on task 0 did; all other reference episodes
+-succeeded.
++The parent's check on the same harness was 2.6718 (candidate median 28.79 ms), so this is
++a ~6 % latency gain with identical actions. The check's task-0 episode fails exactly as
++the reference's task-0 episode does; the reference also fails task 8, and the bit-exact
++path therefore reproduces the reference's 8/10 development gate.
+ 
+ ## What I would try next
+ 
+-- If the final evaluator's peak figure is unexpectedly high, reduce the number of captured
+-  graphs further (for example keep only the most common prompt lengths and let the others
+-  use the stock path) or shrink the shared vision buffers.
+-- If an episode failure appears, compare the graphed and stock rollouts on the failing
+-  task and seed; the graph path is bit-exact on bank frames, so a failure would point to
+-  an episode-specific input shape or processor state.
+-- If more speed is needed, the remaining overhead is the stock `_prepare_model_inputs`
+-  image resize and the per-call input copies; moving the resize into the graph would need
+-  a matching resampling kernel to stay bit-exact and was not attempted here.
++- Cache the flow head's cross-attention K/V projections (the conditioning tokens are
++  constant across the four flow steps) and the state-encoder output; both are bit-exact
++  and should remove ~50 small GEMMs per call.
++- Move the eager 256→224 area resize into the graph so the static buffer holds the raw
++  observation; it is bit-exact and saves the remaining ~0.1 ms of input preparation.
++- The graph replay is still 25.8 ms with ~4600 kernels, so kernel-count reduction is the
++  remaining lever. `torch.compile` cut it to 20.5 ms in node `iter_000-b2-a0` but that
++  node failed the smoke gate (7/10) from the resulting bf16 drift, so a compiled variant
++  would need a full ten-episode gate validation (and a deterministic kernel selection)
++  before it is safe to submit. Compiling only the flow head or only the vision tower
++  would produce a smaller drift and is the next thing to test.

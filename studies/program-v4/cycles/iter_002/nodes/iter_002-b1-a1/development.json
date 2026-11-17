@@ -1,0 +1,61 @@
+{
+  "cell_id": "iter_002-b1-a1",
+  "commit": "b5837059d46b533d641874d4ce20db8888ce491f",
+  "digest": "3557c3a010761f46b40217a0a781258c8c7670b0",
+  "fail_class": "ok",
+  "evaluated": true,
+  "score": 3.192286827593913,
+  "successes": 81,
+  "episodes": 100,
+  "sizes": {
+    "resident_bytes": 5257503926,
+    "baseline_resident_bytes": 6295837696,
+    "size_reduction": 0.16492384653748227
+  },
+  "per_task": {
+    "0": {
+      "successes": 4,
+      "episodes": 10
+    },
+    "1": {
+      "successes": 10,
+      "episodes": 10
+    },
+    "2": {
+      "successes": 10,
+      "episodes": 10
+    },
+    "3": {
+      "successes": 10,
+      "episodes": 10
+    },
+    "4": {
+      "successes": 10,
+      "episodes": 10
+    },
+    "5": {
+      "successes": 4,
+      "episodes": 10
+    },
+    "6": {
+      "successes": 10,
+      "episodes": 10
+    },
+    "7": {
+      "successes": 9,
+      "episodes": 10
+    },
+    "8": {
+      "successes": 4,
+      "episodes": 10
+    },
+    "9": {
+      "successes": 10,
+      "episodes": 10
+    }
+  },
+  "workspace_sha256": "f8cf84f1670ed12fc7dc16564e4d54f73b07e39babce5267a6e3064fd8089190",
+  "status": "ok",
+  "error": null,
+  "eval_seconds": 561.448
+}

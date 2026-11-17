@@ -1,0 +1,769 @@
+diff --git a/probe_final_time.py b/probe_final_time.py
+new file mode 100644
+index 0000000..868c4eb
+--- /dev/null
++++ b/probe_final_time.py
+@@ -0,0 +1,101 @@
++"""Time the final candidate: flow1 + one-step action prompt + fast select."""
++
++from __future__ import annotations
++
++import statistics
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from fastpath import GraphedPolicy
++from lerobot.utils.constants import ACTION
++
++
++def timed(fn, count=40, warm=8):
++    for _ in range(warm):
++        fn()
++    torch.cuda.synchronize()
++    wall = []
++    gpu = []
++    for _ in range(count):
++        start = torch.cuda.Event(enable_timing=True)
++        end = torch.cuda.Event(enable_timing=True)
++        torch.cuda.synchronize()
++        start.record()
++        t0 = time.perf_counter_ns()
++        fn()
++        torch.cuda.synchronize()
++        wall.append((time.perf_counter_ns() - t0) / 1e6)
++        end.record()
++        torch.cuda.synchronize()
++        gpu.append(start.elapsed_time(end))
++    return round(statistics.median(wall), 3), round(statistics.median(gpu), 3)
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    batch = pipeline.sample(bank[3])
++
++    model = policy.model
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++    policy.model.qwen.model.lm_head = torch.nn.Identity()
++    model.action_model.num_inference_timesteps = 1
++    model.replace_prompt = "".join(t * 8 for t in model.action_tokens[:1])
++
++    graphed = GraphedPolicy(policy, use_compile=True, dense=True)
++    policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.graphed = graphed
++
++    def fast_select():
++        queue = policy._queues[ACTION]
++        if len(queue) == 0:
++            actions = policy.predict_action_chunk(batch)
++            queue.extend(actions.transpose(0, 1)[: policy.config.n_action_steps])
++        return queue.popleft()
++
++    def stock_select():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.select_action(batch)
++
++    def fast_full():
++        policy.reset()
++        torch.manual_seed(1000)
++        return fast_select()
++
++    def chunk():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.predict_action_chunk(batch)
++
++    chunk()
++    print("stock select (flow1+prompt1) wall/gpu", timed(stock_select))
++    print("fast select  (flow1+prompt1) wall/gpu", timed(fast_full))
++    print("predict_chunk                wall/gpu", timed(chunk))
++
++    # Also compare flow2 + prompt1 + action skip 3-11.
++    from evaluation.compression.topology import SkipBlock, blocks
++
++    action_blocks = blocks(policy, "action")
++    originals = list(action_blocks)
++    for i in range(3, 12):
++        action_blocks[i] = SkipBlock()
++    model.action_model.num_inference_timesteps = 2
++    graphed.plans.clear()
++    chunk()
++    print("flow2+prompt1+askip fast     wall/gpu", timed(fast_full))
++    for i, block in enumerate(originals):
++        action_blocks[i] = block
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe_skip.py b/probe_skip.py
+new file mode 100644
+index 0000000..2e2bf75
+--- /dev/null
++++ b/probe_skip.py
+@@ -0,0 +1,175 @@
++"""Measure per-task arm MSE and perturbation correlation for block-skip variants.
++
++Mirrors the evaluator's guard frames: arm frames are 8 bank frames per task; perturbation
++pairs are the exact `bank_indices`/`perturbation_pairs` frames with the protocol seed.
++"""
++
++from __future__ import annotations
++
++import collections
++import sys
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.compression.latency_guards import bank_indices, perturbation_pairs
++from evaluation.compression.topology import SkipBlock, blocks
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++
++
++def physical(pipeline, chunk):
++    return pipeline.post(chunk.float().clone()).float()[..., :6]
++
++
++def chunk_for(policy, pipeline, sample, seed):
++    policy.reset()
++    torch.manual_seed(seed)
++    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++        return policy.predict_action_chunk(pipeline.sample(sample))
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    refs = torch.load(calib.REFERENCES, weights_only=True)
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    tasks = list(range(10))
++    seed = 1000
++
++    # Arm frames: 8 per task, skipping the two calibration frames.
++    arm_indices = []
++    seen = collections.Counter()
++    for i, sample in enumerate(bank):
++        task = sample["task_id"]
++        seen[task] += 1
++        if 2 <= seen[task] <= 9:
++            arm_indices.append(i)
++    print("arm frames", len(arm_indices), flush=True)
++
++    # Perturbation pairs exactly as the evaluator builds them.
++    p_indices = bank_indices(bank, 4, tuple(tasks))
++    pairs = perturbation_pairs(bank, p_indices, 8, seed + 7000)
++    p_labels = [int(bank[i]["task_id"]) for i in p_indices]
++    print("perturbation frames", len(pairs), flush=True)
++
++    original_replace = policy.model.replace_prompt
++    original_embodied = policy.model.embodied_replace_prompt
++    text_blocks = blocks(policy, "text")
++    vision_blocks = blocks(policy, "vision")
++    action_blocks = blocks(policy, "action")
++    originals = {
++        "text": list(text_blocks),
++        "vision": list(vision_blocks),
++        "action": list(action_blocks),
++    }
++
++    def restore():
++        for name, target in (("text", text_blocks), ("vision", vision_blocks), ("action", action_blocks)):
++            for i, b in enumerate(originals[name]):
++                target[i] = b
++        policy.model.action_model.num_inference_timesteps = 4
++        policy.model.replace_prompt = original_replace
++        policy.model.embodied_replace_prompt = original_embodied
++
++    def skip(which, indices_to_skip):
++        target = {"text": text_blocks, "vision": vision_blocks, "action": action_blocks}[which]
++        for i in indices_to_skip:
++            target[i] = SkipBlock()
++
++    # Reference perturbation deltas from the untouched policy.
++    started = time.perf_counter()
++    reference_deltas = []
++    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++        for index, (original, changed) in enumerate(pairs):
++            before = physical(pipeline, chunk_for(policy, pipeline, original, seed + 900 + index))
++            after = physical(pipeline, chunk_for(policy, pipeline, changed, seed + 900 + index))
++            reference_deltas.append((after - before).flatten())
++    print(f"reference deltas {time.perf_counter()-started:.1f}s", flush=True)
++
++    def correlation(left, right):
++        left = torch.cat(left).double()
++        right = torch.cat(right).double()
++        left = left - left.mean()
++        right = right - right.mean()
++        denom = float(left.norm() * right.norm())
++        return float((left * right).sum() / denom) if denom else 0.0
++
++    def evaluate(name):
++        started = time.perf_counter()
++        errs = collections.defaultdict(list)
++        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++            for index in arm_indices:
++                out = chunk_for(policy, pipeline, bank[index], seed + index)
++                ref = refs[index : index + 1].to("cuda")
++                errs[bank[index]["task_id"]].append(
++                    float((physical(pipeline, out) - physical(pipeline, ref)).square().mean())
++                )
++            deltas = []
++            for index, (original, changed) in enumerate(pairs):
++                before = physical(pipeline, chunk_for(policy, pipeline, original, seed + 900 + index))
++                after = physical(pipeline, chunk_for(policy, pipeline, changed, seed + 900 + index))
++                deltas.append((after - before).flatten())
++        per_task = {task: sum(v) / len(v) for task, v in sorted(errs.items())}
++        by_task = {}
++        for task in tasks:
++            own = [d for d, label in zip(deltas, p_labels) if label == task]
++            ref_own = [d for d, label in zip(reference_deltas, p_labels) if label == task]
++            by_task[task] = correlation(ref_own, own)
++        print(
++            f"{name:44s} arm {max(per_task.values()):.6f} corr {min(by_task.values()):.3f} "
++            f"secs {time.perf_counter()-started:.1f}",
++            flush=True,
++        )
++        print("    arm ", " ".join(f"{t}:{v:.4f}" for t, v in per_task.items()), flush=True)
++        print("    corr", " ".join(f"{t}:{v:.3f}" for t, v in by_task.items()), flush=True)
++
++    variants = [
++        ("stock", lambda: None),
++        ("flow2", lambda: setattr(policy.model.action_model, "num_inference_timesteps", 2)),
++        ("flow1", lambda: setattr(policy.model.action_model, "num_inference_timesteps", 1)),
++        ("text_skip_3_5", lambda: skip("text", range(3, 6))),
++        ("text_skip_3_8", lambda: skip("text", range(3, 9))),
++        ("text_skip_3_14", lambda: skip("text", range(3, 15))),
++        ("text_skip_3_20", lambda: skip("text", range(3, 21))),
++        ("text_skip_3_26", lambda: skip("text", range(3, 27))),
++        ("vision_skip_16_22", lambda: skip("vision", range(16, 23))),
++        ("vision_skip_12_22", lambda: skip("vision", range(12, 23))),
++        ("action_skip_3_11", lambda: skip("action", range(3, 12))),
++        ("text3_20_vision16_22", lambda: (skip("text", range(3, 21)), skip("vision", range(16, 23)))),
++        ("text3_26_vision16_22", lambda: (skip("text", range(3, 27)), skip("vision", range(16, 23)))),
++        ("text3_26_vision12_22", lambda: (skip("text", range(3, 27)), skip("vision", range(12, 23)))),
++        ("text3_26_vision16_22_flow2", lambda: (skip("text", range(3, 27)), skip("vision", range(16, 23)), setattr(policy.model.action_model, "num_inference_timesteps", 2))),
++        ("action_skip_3_11", lambda: skip("action", range(3, 12))),
++        ("action_skip_3_15", lambda: skip("action", range(3, 16))),
++        ("no_action_prompt", lambda: setattr(policy.model, "replace_prompt", "")),
++        ("action_prompt_1step", lambda: setattr(policy.model, "replace_prompt", "".join(t * 8 for t in policy.model.action_tokens[:1]))),
++        ("flow1_action_skip_3_11", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), skip("action", range(3, 12)))),
++        ("flow1_no_action_prompt", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), setattr(policy.model, "replace_prompt", ""))),
++        ("flow1_embodied_16", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), setattr(policy.model, "embodied_replace_prompt", policy.model.config.embodied_action_token * 16))),
++        ("flow1_prompt1", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), setattr(policy.model, "replace_prompt", "".join(t * 8 for t in policy.model.action_tokens[:1])))),
++        ("flow1_prompt1_actionskip", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), setattr(policy.model, "replace_prompt", "".join(t * 8 for t in policy.model.action_tokens[:1])), skip("action", range(3, 12)))),
++        ("flow2_prompt1_actionskip", lambda: (setattr(policy.model, "replace_prompt", "".join(t * 8 for t in policy.model.action_tokens[:1])), skip("action", range(3, 12)))),
++        ("flow1_prompt0", lambda: (setattr(policy.model.action_model, "num_inference_timesteps", 1), setattr(policy.model, "replace_prompt", ""))),
++        ("embodied_16", lambda: setattr(policy.model, "embodied_replace_prompt", policy.model.config.embodied_action_token * 16)),
++    ]
++
++    only = sys.argv[1:] if len(sys.argv) > 1 else None
++    for name, apply in variants:
++        if only and name not in only:
++            continue
++        restore()
++        apply()
++        try:
++            evaluate(name)
++        except Exception as error:
++            print(f"{name}: FAILED {type(error).__name__}: {error}", flush=True)
++        finally:
++            restore()
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe_time.py b/probe_time.py
+new file mode 100644
+index 0000000..146f6d6
+--- /dev/null
++++ b/probe_time.py
+@@ -0,0 +1,124 @@
++"""Timing breakdown of the graphed policy: host prep, copies, graph replay, queue."""
++
++from __future__ import annotations
++
++import statistics
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from fastpath import GraphedPolicy
++
++
++def timed(fn, count=30, warm=5):
++    for _ in range(warm):
++        fn()
++    torch.cuda.synchronize()
++    wall = []
++    gpu = []
++    for _ in range(count):
++        start = torch.cuda.Event(enable_timing=True)
++        end = torch.cuda.Event(enable_timing=True)
++        torch.cuda.synchronize()
++        start.record()
++        t0 = time.perf_counter_ns()
++        fn()
++        torch.cuda.synchronize()
++        wall.append((time.perf_counter_ns() - t0) / 1e6)
++        end.record()
++        torch.cuda.synchronize()
++        gpu.append(start.elapsed_time(end))
++    return statistics.median(wall), statistics.median(gpu)
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    sample = bank[3]
++    batch = pipeline.sample(sample)
++    print("batch keys", list(batch.keys()))
++    for key, value in batch.items():
++        if torch.is_tensor(value):
++            print(" ", key, tuple(value.shape), value.dtype, value.device)
++        else:
++            print(" ", key, type(value), value if isinstance(value, str) else "")
++    instruction = batch["task"][0] if isinstance(batch["task"], (list, tuple)) else batch["task"]
++    print("instruction", instruction)
++
++    # Drop the dead modules like solution.py.
++    model = policy.model
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++    policy.model.qwen.model.lm_head = torch.nn.Identity()
++    model.action_model.num_inference_timesteps = 2
++
++    graphed = GraphedPolicy(policy, use_compile=True, dense=True)
++    policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.graphed = graphed
++
++    def select():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.select_action(batch)
++
++    def chunk():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.predict_action_chunk(batch)
++
++    def prepare():
++        return policy._prepare_model_inputs(batch, training=False)
++
++    # Build the plan once.
++    chunk()
++    plan = graphed.plans[instruction]
++    print("plan images", tuple(plan.images.shape), plan.images.dtype)
++
++    def copies():
++        inputs = policy._prepare_model_inputs(batch, training=False)
++        images, state = inputs["images"][0], inputs["state"]
++        plan.images.copy_(torch.stack(images))
++        plan.state.copy_(state)
++        plan.noise.copy_(
++            torch.randn(1, plan.noise.shape[1], plan.noise.shape[2], dtype=torch.float32, device=plan.noise.device)
++        )
++
++    def replay_only():
++        plan.graph.replay()
++
++    def randn_only():
++        torch.randn(1, plan.noise.shape[1], plan.noise.shape[2], dtype=torch.float32, device=plan.noise.device)
++
++    print("select_action  wall/gpu", timed(select))
++    print("predict_chunk  wall/gpu", timed(chunk))
++    print("prepare_inputs wall/gpu", timed(prepare))
++    print("copies+noise   wall/gpu", timed(copies))
++    print("graph replay   wall/gpu", timed(replay_only))
++    print("randn only     wall/gpu", timed(randn_only))
++
++    # Flow1 timing.
++    model.action_model.num_inference_timesteps = 1
++    graphed.plans.clear()
++    chunk()
++    print("flow1 select   wall/gpu", timed(select))
++    model.action_model.num_inference_timesteps = 2
++    graphed.plans.clear()
++    chunk()
++
++    # No-compile timing.
++    graphed2 = GraphedPolicy(policy, use_compile=False, dense=True)
++    policy.predict_action_chunk = graphed2.predict_action_chunk
++    policy.graphed = graphed2
++    chunk()
++    print("nocompile select wall/gpu", timed(select))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe_time2.py b/probe_time2.py
+new file mode 100644
+index 0000000..bf9232b
+--- /dev/null
++++ b/probe_time2.py
+@@ -0,0 +1,130 @@
++"""Timing breakdown, direct select override, equivalence shapes, and kernel profile."""
++
++from __future__ import annotations
++
++import statistics
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.compression.latency_guards import equivalence
++from evaluation.compression.latency_timing import Limits
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from fastpath import GraphedPolicy
++
++
++def timed(fn, count=30, warm=5):
++    for _ in range(warm):
++        fn()
++    torch.cuda.synchronize()
++    wall = []
++    gpu = []
++    for _ in range(count):
++        start = torch.cuda.Event(enable_timing=True)
++        end = torch.cuda.Event(enable_timing=True)
++        torch.cuda.synchronize()
++        start.record()
++        t0 = time.perf_counter_ns()
++        fn()
++        torch.cuda.synchronize()
++        wall.append((time.perf_counter_ns() - t0) / 1e6)
++        end.record()
++        torch.cuda.synchronize()
++        gpu.append(start.elapsed_time(end))
++    return round(statistics.median(wall), 3), round(statistics.median(gpu), 3)
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    sample = bank[3]
++    batch = pipeline.sample(sample)
++    instruction = batch["task"][0]
++
++    model = policy.model
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++    policy.model.qwen.model.lm_head = torch.nn.Identity()
++    model.action_model.num_inference_timesteps = 2
++
++    graphed = GraphedPolicy(policy, use_compile=True, dense=True)
++    policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.graphed = graphed
++
++    def select():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.select_action(batch)
++
++    def chunk():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.predict_action_chunk(batch)
++
++    def direct():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.predict_action_chunk(batch)[:, 0]
++
++    chunk()
++    plan = graphed.plans[instruction]
++    print("plan images", tuple(plan.images.shape), plan.images.dtype)
++    print("select_action  wall/gpu", timed(select))
++    print("predict_chunk  wall/gpu", timed(chunk))
++    print("direct_select  wall/gpu", timed(direct))
++
++    with torch.inference_mode():
++        inputs = policy._prepare_model_inputs(batch, training=False)
++        images, state = inputs["images"][0], inputs["state"]
++
++        def copies():
++            plan.images.copy_(torch.stack(images))
++            plan.state.copy_(state)
++            plan.noise.copy_(
++                torch.randn(1, plan.noise.shape[1], plan.noise.shape[2], dtype=torch.float32, device=plan.noise.device)
++            )
++
++        print("copies+noise   wall/gpu", timed(copies))
++
++    # Equivalence check on three bank frames of task 0 (same call shape as the evaluator).
++    import json
++
++    with open("/tmp/repo/studies/program-v4/protocol.json", encoding="utf-8") as handle:
++        protocol = json.load(handle)
++    limits = Limits.from_protocol(protocol, "check")
++    frames = [pipeline.sample(bank[i]) for i in range(3)]
++    eq = equivalence(policy, frames, limits, 1000)
++    print("equivalence", {k: v for k, v in eq.items() if k != "violations"}, eq["violations"])
++    first = policy.select_action(frames[0])
++    chunk_value = policy.predict_action_chunk(frames[0])
++    print("select shape", tuple(first.shape), "chunk shape", tuple(chunk_value.shape))
++
++    # Kernel profile of one replay.
++    with torch.inference_mode():
++        for _ in range(3):
++            plan.graph.replay()
++        torch.cuda.synchronize()
++        from torch.profiler import ProfilerActivity, profile
++
++        with profile(activities=[ProfilerActivity.CUDA]) as prof:
++            for _ in range(5):
++                plan.graph.replay()
++            torch.cuda.synchronize()
++    rows = []
++    for event in prof.key_averages():
++        if event.device_time_total > 0:
++            rows.append((event.device_time_total / 5.0, event.key, event.count // 5))
++    rows.sort(reverse=True)
++    print("top kernels (us per replay):")
++    for us, key, count in rows[:25]:
++        print(f"  {us:9.1f}  x{count:<4d} {key[:90]}")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/proposal.md b/proposal.md
+index b06a8eb..4f8bfc3 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,42 +1,48 @@
+-# Proposal: compiled CUDA graphs with two flow steps
+-
+-## Change relative to the parent (`iter_001-b0-a0`)
+-
+-The parent captured one CUDA graph per instruction and replayed the stock arithmetic exactly
+-(`use_compile=False`), scoring 2.578460. This node keeps that graph machinery and adds two changes
+-inside the graph:
+-
+-1. `fastpath.GraphedPolicy` is constructed with `use_compile=True`, so `torch.compile` fuses the
+-   elementwise kernels (RMSNorm, RoPE, SiLU, residual adds) and the small GEMMs of the vision
+-   tower, decoder and action head. The compiled body is still captured into one CUDA graph per
+-   instruction, so the timed call is one graph replay. `fastpath.py` gains a `compile_kwargs`
+-   attribute for this.
+-2. The flow-matching head runs two steps instead of four (`num_inference_timesteps = 2`).
+-
+-The parent's memory changes stay: the inference-dead V-JEPA world model and the tied vocabulary
+-output head are dropped, so peak CUDA stays below the reference's.
+-
+-## Why it passes the guards
+-
+-Offline probe on 30 bank frames covering all ten tasks (same seed and `Pipeline.sample` batches
+-as the frozen references), worst task over the ten:
+-
+-| variant | median ms | worst physical arm MSE | max normalized diff |
+-|---|---|---|---|
+-| parent graph (`use_compile=False`) | 26.37 | 0.000000 | 0.000 |
+-| compile only | 19.39 | 0.000009 | 0.016 |
+-| **compile + 2 flow steps (this node)** | **18.45** | **0.000042** | **0.027** |
+-| compile + 2 steps + vision 16-22 + text 3-5 | 14.86 | 0.002781 | 0.258 |
+-
+-The more aggressive block removal was rejected: its evaluator check scored 4.6785 but failed the
+-guards (arm error 0.0127 on fresh task-0 frames against 0.01, and perturbation correlations as low
+-as 0.082 against 0.5). The approximation error was comparable to the small pixel-perturbation
+-signal. The two-step head changes actions by two orders of magnitude less, so the perturbation
+-response stays with the reference's (0.928). `torch.compile` changes only bf16 rounding.
+-
+-The equivalence checks are internal to the candidate and hold because `select_action` delegates to
+-the same graphed `predict_action_chunk`. No answers are stored and each replay consumes the
+-current observation and a fresh noise draw.
++# Proposal: queue-preserving fast `select_action` on the compiled CUDA graph
++
++## Change relative to the parent (`iter_001-b0-a1`)
++
++The parent already replays one compiled CUDA graph per instruction with two flow steps and scores
++3.939648. This node keeps that execution engine and removes the remaining host overhead in the
++timed observation-to-action call:
++
++1. `policy.select_action` is replaced by the same action-queue logic without the per-call
++   `self.eval()` recursive module walk and without `populate_queues` (which only has the `ACTION`
++   key and is called with `exclude_keys=[ACTION]`, so it is a no-op). The queue is preserved: an
++   episode still plans one chunk and executes its `n_action_steps` actions, so episode behaviour
++   is bit-identical to the parent's.
++2. Everything else is unchanged: the inference-dead V-JEPA world model and the tied vocabulary
++   head are dropped, the graphed body is compiled with `torch.compile`, and the flow head runs
++   two steps.
++
++## Why it should pass the guards
++
++The change is host-side only and does not alter the numbers the policy returns. The stock
++`select_action` calls `self.eval()` on every call; the policy is already in eval mode (the
++evaluator loads it with `.eval()`), so the walk is a no-op. `populate_queues` cannot add anything
++because `_queues` only holds `ACTION`, which is excluded. The action queue is kept, so the
++episode rollout still executes seven actions per planned chunk exactly as the parent did.
++
++Local timing on a fixed bank frame, same graph and same flow steps:
++
++| call | median wall | median GPU |
++|---|---|---|
++| stock `select_action` | 18.49 ms | 18.51 ms |
++| `predict_action_chunk` | 17.08 ms | 17.10 ms |
++| **fast `select_action` (this node)** | **17.10 ms** | **17.11 ms** |
++
++The 1.4 ms difference is the `self.eval()` walk plus queue bookkeeping, not GPU work. The graph
++body itself is unchanged, so the parent's guard figures carry over: worst-task arm action error
++4.25e-05 (limit 0.01), perturbation correlation 0.928 (minimum 0.5), 8/10 smoke successes, peak
++CUDA 5.42 GB against the reference's 6.30 GB.
++
++I also measured more aggressive variants, but did not use them because the smoke gate has no
++margin. One flow step gives worst-task arm MSE 2.0e-4 and correlation 0.884; one flow step plus a
++one-step action prompt gives arm MSE 1.2e-3 and correlation 0.774; skipping action-head layers
++3-11 with two flow steps gives arm MSE 5.3e-3 and correlation 0.671. Block skipping in the text or
++vision decoder destroys the perturbation response (text 3-5: correlation 0.401; vision 16-22:
++0.199), so it stays out. The chosen node keeps the parent's proven flow-2 arithmetic and only
++removes host overhead.
+ 
+ ## Last check output
+ 
+@@ -45,35 +51,25 @@ current observation and a fresh noise draw.
+ ```
+ status: ok
+ memory removed: 14.2% (resident 5296030720 of baseline 6169967616 bytes)
+-score: 4.0736 (latency_speedup)
+-speedup: point 4.0964, 95% [4.0736, 4.1188], 6+6 blocks, interleaved
+-speedup per task: 0 4.107, 1 4.110, 2 4.098, 3 4.100, 4 4.105, 5 4.129, 6 4.064, 7 4.068, 8 4.098, 9 4.083
+-latency ms: reference median 74.42, candidate median 18.45, p95 19.23
+-arm action error (worst task): 4.24779e-05 (limit 0.01)
+-perturbation correlation (worst task): 0.928 (min 0.5)
++score: 4.4326 (latency_speedup)
++speedup: point 4.4511, 95% [4.4326, 4.4760], 6+6 blocks, interleaved
++speedup per task: 0 4.459, 1 4.519, 2 4.446, 3 4.449, 4 4.438, 5 4.447, 6 4.439, 7 4.488, 8 4.446, 9 4.382
++latency ms: reference median 75.05, candidate median 17.03, p95 17.59
++arm action error (worst task): 4.04965e-05 (limit 0.01)
++perturbation correlation (worst task): 0.914 (min 0.5)
+ other GPU use: max 0.0 %, 12 samples
+ ```
+ 
+-Full ten-episode smoke phase (`--phase smoke`, one episode per task):
+-
+-```
+-status: ok, successes 8/10, violations []
+-score: 4.0195 (latency_speedup)
+-speedup: point 4.0517, 95% [4.0195, 4.0947], 6+6 blocks, interleaved
+-per-task speedup: 4.027 .. 4.075
+-latency ms: reference median 74.42, candidate median 18.88, p95 19.55
+-peak CUDA: candidate 5421900800 B, reference 6295837696 B
+-arm action error 4.25e-05, perturbation correlation 0.928
+-per-task successes: tasks 0 and 8 fail, exactly as the untouched reference
+-```
++The parent's check scored 4.0736 at 18.45 ms; this node's 17.03 ms and 4.4326 are the same
++graph body with the host-side `select_action` overhead removed. The arm error and perturbation
++correlation are unchanged within run-to-run noise, as expected for a host-only change.
+ 
+ ## What I would try next
+ 
+-- Fuse the host-side input preparation (`to_pixel_values`, image stack, state reshape) into the
+-  graph's static buffers; it is now a visible fraction of the 18.9 ms call.
+-- Revisit block removal only with a correction that preserves the perturbation response: prune
+-  blocks whose contribution is nearly constant across the perturbation, or fine-tune the remaining
+-  weights against the reference's action and perturbation deltas. The 14.86 ms aggressive variant
+-  shows the headroom (about 4.7x) if the perturbation guard can be kept.
+-- Try compile modes (`max-autotune`) once the cache is warm; the first probe showed no gain over
+-  the default mode.
++- Validate one flow step (arm MSE 2.0e-4, correlation 0.884) with a full ten-episode smoke run;
++  it saves about 0.4 ms of graph time and is the next safe increment.
++- Move the 256->224 area resize and the raw image copy into the graph's static buffers, removing
++  the host-side `_prepare_model_inputs` path entirely (about 0.1 ms).
++- Try `max-autotune` GEMM selection for the decoder MLP shapes once a warm compile cache is
++  available; the profile is dominated by cuBLAS/cutlass GEMMs at about 83% of the 3090's bf16
++  peak, so kernel choice is the remaining lever.
+diff --git a/solution.py b/solution.py
+index 418c5ac..b42349e 100644
+--- a/solution.py
++++ b/solution.py
+@@ -8,14 +8,18 @@ CUDA graph per instruction. On top of that, this solution
+ 1. drops the inference-dead V-JEPA world model and the tied vocabulary output head, which the
+    policy never calls (it invokes the inner `Qwen3VLModel`), lowering peak CUDA memory;
+ 2. compiles the graphed body with `torch.compile`, so the elementwise and small GEMM kernels of
+-   the vision tower, decoder and action head are fused instead of dispatched one by one; and
+-3. runs two flow-matching steps instead of four.
++   the vision tower, decoder and action head are fused instead of dispatched one by one;
++3. runs two flow-matching steps instead of four; and
++4. replaces `select_action` with the same action-queue logic without the per-call `self.eval()`
++   module walk and the no-op `populate_queues` loop. The queue is preserved, so episode behaviour
++   is unchanged; only the host overhead of the timed observation-to-action call disappears.
+ 
+ The approximation is deliberately small: on 30 bank frames covering all ten tasks the worst-task
+ mean squared physical arm-action difference against the untouched policy is 4.2e-5 (guard limit
+-0.01) and the maximum normalized action difference is 0.027. More aggressive block removal was
+-measured (worst arm MSE 0.0028) but it decorrelated the small pixel-perturbation response from the
+-reference's, so it is not used.
++0.01) and the maximum normalized action difference is 0.027. The perturbation-response
++correlation is 0.93 (guard minimum 0.5). More aggressive block removal and one flow step were
++measured but are not used: they move the arm error or the perturbation response too close to the
++guards, and the smoke gate has no margin.
+ """
+ 
+ from __future__ import annotations
+@@ -23,10 +27,31 @@ from __future__ import annotations
+ import torch
+ 
+ from fastpath import GraphedPolicy
++from lerobot.utils.constants import ACTION
++
++
++def _fast_select_action(policy):
++    """`select_action` without the per-call module walk and the no-op queue population.
++
++    The stock method calls `self.eval()` (a recursive walk over every submodule) and
++    `populate_queues` (which only has the ACTION key, excluded here) before delegating to
++    `predict_action_chunk`. Both are no-ops for an already-evaluating policy, but they cost about
++    1.4 ms of host time per timed call. The action queue itself is kept: an episode still plans
++    one chunk and executes its `n_action_steps` actions.
++    """
++
++    def select_action(batch, noise=None):
++        queue = policy._queues[ACTION]
++        if len(queue) == 0:
++            actions = policy.predict_action_chunk(batch)
++            queue.extend(actions.transpose(0, 1)[: policy.config.n_action_steps])
++        return queue.popleft()
++
++    return select_action
+ 
+ 
+ def compress(policy, calibration):
+-    """Drop inference-dead modules, halve the flow steps, then replay compiled CUDA graphs."""
++    """Drop inference-dead modules, halve the flow steps, replay compiled CUDA graphs."""
+     model = policy.model
+     model.video_encoder = None
+     model.video_predictor = None
+@@ -37,7 +62,9 @@ def compress(policy, calibration):
+ 
+     model.action_model.num_inference_timesteps = 2
+ 
++    policy.eval()
+     graphed = GraphedPolicy(policy, use_compile=True, dense=True)
+     policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.select_action = _fast_select_action(policy)
+     policy.graphed = graphed
+     return policy

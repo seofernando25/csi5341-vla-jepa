@@ -1,0 +1,584 @@
+diff --git a/fastpath.py b/fastpath.py
+index d68ac09..49e61e5 100644
+--- a/fastpath.py
++++ b/fastpath.py
+@@ -93,6 +93,51 @@ def _dense_linear(self, x):
+     return torch.nn.functional.linear(x, self.dense_weight, self.bias)
+ 
+ 
++def _fused_attn_forward(
++    self, hidden_states, position_embeddings, attention_mask, past_key_values=None, **kwargs
++):
++    """Qwen3VL text attention with q/k/v projected by one GEMM."""
++    from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS
++    from transformers.models.qwen3_vl.modeling_qwen3_vl import (
++        apply_rotary_pos_emb,
++        eager_attention_forward,
++    )
++
++    input_shape = hidden_states.shape[:-1]
++    hidden_shape = (*input_shape, -1, self.head_dim)
++    qkv = torch.nn.functional.linear(hidden_states, self.qkv_weight, self.qkv_bias)
++    query, key, value = qkv.split([self.q_size, self.kv_size, self.kv_size], dim=-1)
++    query_states = self.q_norm(query.view(hidden_shape)).transpose(1, 2)
++    key_states = self.k_norm(key.view(hidden_shape)).transpose(1, 2)
++    value_states = value.view(hidden_shape).transpose(1, 2)
++    cos, sin = position_embeddings
++    query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)
++    if past_key_values is not None:
++        key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx)
++    attention_interface = ALL_ATTENTION_FUNCTIONS.get_interface(
++        self.config._attn_implementation, eager_attention_forward
++    )
++    attn_output, attn_weights = attention_interface(
++        self,
++        query_states,
++        key_states,
++        value_states,
++        attention_mask,
++        dropout=0.0 if not self.training else self.attention_dropout,
++        scaling=self.scaling,
++        **kwargs,
++    )
++    attn_output = attn_output.reshape(*input_shape, -1).contiguous()
++    return self.o_proj(attn_output), attn_weights
++
++
++def _fused_mlp_forward(self, x):
++    """Qwen3VL text MLP with gate/up projected by one GEMM."""
++    gate_up = torch.nn.functional.linear(x, self.gate_up_weight)
++    gate, up = gate_up.chunk(2, dim=-1)
++    return self.down_proj(self.act_fn(gate) * up)
++
++
+ class GraphedPolicy:
+     """Drop-in `predict_action_chunk` for a loaded B16 or Q4 `VLAJEPAPolicy`, one graph per prompt."""
+ 
+@@ -150,6 +195,46 @@ class GraphedPolicy:
+             else:
+                 linear.forward = types.MethodType(_nf4_linear, linear)
+ 
++    # -- decoder GEMM fusion: one q/k/v GEMM and one gate/up GEMM per layer --
++
++    def fuse_decoder(self):
++        """Concatenate the decoder's q/k/v and gate/up NF4-dense weights.
++
++        The fused GEMM computes the same dot products as the three (two) separate ones, but with
++        one larger N it keeps the tensor cores busier and removes two kernel launches per layer.
++        The per-module dense copies are dropped, so the resident weight memory is unchanged.
++        """
++        def dense(module):
++            return getattr(module, "dense_weight", module.weight)
++
++        def drop(module):
++            if hasattr(module, "dense_weight"):
++                module.dense_weight = None
++            else:
++                module.weight = None
++
++        for layer in self.decoder.layers:
++            attn = layer.self_attn
++            q, k, v = attn.q_proj, attn.k_proj, attn.v_proj
++            attn.qkv_weight = torch.cat([dense(q), dense(k), dense(v)], dim=0)
++            if q.bias is not None:
++                attn.qkv_bias = torch.cat([q.bias, k.bias, v.bias], dim=0)
++            else:
++                attn.qkv_bias = None
++            attn.q_size = dense(q).shape[0]
++            attn.kv_size = dense(k).shape[0]
++            for module in (q, k, v):
++                drop(module)
++            attn.forward = types.MethodType(_fused_attn_forward, attn)
++            mlp = layer.mlp
++            mlp.gate_up_weight = torch.cat(
++                [dense(mlp.gate_proj), dense(mlp.up_proj)], dim=0
++            )
++            for module in (mlp.gate_proj, mlp.up_proj):
++                drop(module)
++            mlp.forward = types.MethodType(_fused_mlp_forward, mlp)
++        torch.cuda.empty_cache()
++
+     # -- plan construction (once per instruction, eager) --
+ 
+     @torch.inference_mode()
+diff --git a/probe_profile.py b/probe_profile.py
+new file mode 100644
+index 0000000..9f95dc6
+--- /dev/null
++++ b/probe_profile.py
+@@ -0,0 +1,169 @@
++"""Profile the current graph: host prep vs replay, and vision/decoder/head GPU split."""
++
++from __future__ import annotations
++
++import statistics
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++from fastpath import GraphedPolicy
++
++
++def timed(fn, count=30, warm=5):
++    for _ in range(warm):
++        fn()
++    torch.cuda.synchronize()
++    wall = []
++    for _ in range(count):
++        torch.cuda.synchronize()
++        t0 = time.perf_counter_ns()
++        fn()
++        torch.cuda.synchronize()
++        wall.append((time.perf_counter_ns() - t0) / 1e6)
++    return round(statistics.median(wall), 3)
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    batch = pipeline.sample(bank[3])
++    instruction = batch["task"][0]
++
++    model = policy.model
++    model.video_encoder = None
++    model.video_predictor = None
++    model.video_processor = None
++    policy.model.qwen.model.lm_head = torch.nn.Identity()
++    model.action_model.num_inference_timesteps = 2
++
++    graphed = GraphedPolicy(policy, use_compile=True, dense=True)
++    graphed.fuse_decoder()
++    policy.predict_action_chunk = graphed.predict_action_chunk
++    policy.graphed = graphed
++
++    def chunk():
++        policy.reset()
++        torch.manual_seed(1000)
++        return policy.predict_action_chunk(batch)
++
++    chunk()
++    plan = graphed.plans[instruction]
++    print("plan images", tuple(plan.images.shape), plan.images.dtype)
++    print("lengths", plan.lengths, "text tokens", tuple(plan.text_embeds.shape),
++          "action index", tuple(plan.action_index.shape))
++    print("decoder layers", len(graphed.decoder.layers), "vision blocks", len(graphed.vision.blocks),
++          "head blocks", len(graphed.head.model.transformer_blocks))
++    print("hidden", graphed.decoder.config.hidden_size, "vision hidden", graphed.vision.config.hidden_size)
++
++    def prepare():
++        return policy._prepare_model_inputs(batch, training=False)
++
++    with torch.inference_mode():
++        inputs = prepare()
++        images, state = inputs["images"][0], inputs["state"]
++
++        def copies():
++            plan.images.copy_(torch.stack(images))
++            plan.state.copy_(state)
++            plan.noise.copy_(
++                torch.randn(1, plan.noise.shape[1], plan.noise.shape[2],
++                            dtype=torch.float32, device=plan.noise.device)
++            )
++
++        print("prepare_inputs ms", timed(prepare))
++        print("copies+noise   ms", timed(copies))
++        print("replay only    ms", timed(plan.graph.replay))
++        print("predict_chunk  ms", timed(chunk))
++
++        # GPU split with events around sections of the eager body.
++        def sectioned():
++            vision, decoder = graphed.vision, graphed.decoder
++            ev = [torch.cuda.Event(enable_timing=True) for _ in range(5)]
++            ev[0].record()
++            pixels = graphed._pixels(plan).to(vision.dtype)
++            hidden = vision.patch_embed(pixels) + plan.vision_position
++            deep = []
++            for number, block in enumerate(vision.blocks):
++                hidden = block(hidden, cu_seqlens=None, position_embeddings=plan.vision_rope)
++                if number in vision.deepstack_visual_indexes:
++                    position = vision.deepstack_visual_indexes.index(number)
++                    deep.append(vision.deepstack_merger_list[position](hidden))
++            image_embeds = vision.merger(hidden)
++            ev[1].record()
++            hidden = plan.text_embeds.clone()
++            hidden[0, plan.visual_index] = image_embeds.to(hidden.dtype)
++            for number, layer in enumerate(decoder.layers):
++                hidden = layer(hidden, attention_mask=None, position_ids=plan.text_position_ids,
++                               position_embeddings=plan.rope)
++                if number < len(deep):
++                    hidden = hidden.clone()
++                    hidden[0, plan.visual_index] = hidden[0, plan.visual_index] + deep[number].to(hidden.dtype)
++            tokens = hidden[:, plan.action_index].float()
++            ev[2].record()
++            actions = graphed._flow(tokens, plan)
++            ev[3].record()
++            return actions
++
++        for _ in range(3):
++            with torch.autocast("cuda", dtype=torch.bfloat16):
++                sectioned()
++        torch.cuda.synchronize()
++        with torch.autocast("cuda", dtype=torch.bfloat16):
++            evs = [torch.cuda.Event(enable_timing=True) for _ in range(4)]
++            evs[0].record()
++            pixels = graphed._pixels(plan).to(graphed.vision.dtype)
++            hidden = graphed.vision.patch_embed(pixels) + plan.vision_position
++            deep = []
++            for number, block in enumerate(graphed.vision.blocks):
++                hidden = block(hidden, cu_seqlens=None, position_embeddings=plan.vision_rope)
++                if number in graphed.vision.deepstack_visual_indexes:
++                    position = graphed.vision.deepstack_visual_indexes.index(number)
++                    deep.append(graphed.vision.deepstack_merger_list[position](hidden))
++            image_embeds = graphed.vision.merger(hidden)
++            evs[1].record()
++            hidden = plan.text_embeds.clone()
++            hidden[0, plan.visual_index] = image_embeds.to(hidden.dtype)
++            for number, layer in enumerate(graphed.decoder.layers):
++                hidden = layer(hidden, attention_mask=None, position_ids=plan.text_position_ids,
++                               position_embeddings=plan.rope)
++                if number < len(deep):
++                    hidden = hidden.clone()
++                    hidden[0, plan.visual_index] = hidden[0, plan.visual_index] + deep[number].to(hidden.dtype)
++            tokens = hidden[:, plan.action_index].float()
++            evs[2].record()
++            actions = graphed._flow(tokens, plan)
++            evs[3].record()
++        torch.cuda.synchronize()
++        print("eager split ms: vision", evs[0].elapsed_time(evs[1]),
++              "decoder", evs[1].elapsed_time(evs[2]), "head", evs[2].elapsed_time(evs[3]))
++
++        # Kernel profile of one replay.
++        from torch.profiler import ProfilerActivity, profile
++
++        for _ in range(3):
++            plan.graph.replay()
++        torch.cuda.synchronize()
++        with profile(activities=[ProfilerActivity.CUDA]) as prof:
++            for _ in range(5):
++                plan.graph.replay()
++            torch.cuda.synchronize()
++        rows = []
++        for event in prof.key_averages():
++            if event.device_time_total > 0:
++                rows.append((event.device_time_total / 5.0, event.key, event.count // 5))
++        rows.sort(reverse=True)
++        print("top kernels (us per replay):")
++        for us, key, count in rows[:30]:
++            print(f"  {us:9.1f}  x{count:<4d} {key[:100]}")
++        print("total kernel us", sum(r[0] for r in rows))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/probe_res.py b/probe_res.py
+new file mode 100644
+index 0000000..9e34d8e
+--- /dev/null
++++ b/probe_res.py
+@@ -0,0 +1,129 @@
++"""Screen input-resolution variants on the stock path: arm error and perturbation correlation."""
++
++from __future__ import annotations
++
++import collections
++import statistics
++import time
++
++import torch
++
++from evaluation.compression import calibration as calib
++from evaluation.compression.latency_guards import bank_indices, perturbation_pairs
++from evaluation.models import load_policy
++from evaluation.pipeline import Pipeline, observation_bank
++
++
++def physical(pipeline, chunk):
++    return pipeline.post(chunk.float().clone()).float()[..., :6]
++
++
++def chunk_for(policy, pipeline, sample, seed):
++    policy.reset()
++    torch.manual_seed(seed)
++    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++        return policy.predict_action_chunk(pipeline.sample(sample))
++
++
++def correlation(left, right):
++    left = torch.cat(left).double()
++    right = torch.cat(right).double()
++    left = left - left.mean()
++    right = right - right.mean()
++    denom = float(left.norm() * right.norm())
++    return float((left * right).sum() / denom) if denom else 0.0
++
++
++def main():
++    calib.setup()
++    torch.manual_seed(0)
++    bank = observation_bank()
++    refs = torch.load(calib.REFERENCES, weights_only=True)
++    policy, _ = load_policy("B16")
++    pipeline = Pipeline(policy)
++    ip = policy.model.qwen.processor.image_processor
++    print("processor", type(ip).__name__, "size", ip.size, "patch", ip.patch_size,
++          "merge", ip.merge_size, flush=True)
++    tasks = list(range(10))
++    seed = 1000
++
++    arm_indices = []
++    seen = collections.Counter()
++    for i, sample in enumerate(bank):
++        task = sample["task_id"]
++        seen[task] += 1
++        if 2 <= seen[task] <= 9:
++            arm_indices.append(i)
++    p_indices = bank_indices(bank, 4, tuple(tasks))
++    pairs = perturbation_pairs(bank, p_indices, 8, seed + 7000)
++    p_labels = [int(bank[i]["task_id"]) for i in p_indices]
++    print("arm", len(arm_indices), "pairs", len(pairs), flush=True)
++
++    # Reference deltas from the untouched stock policy (4 steps, default resolution).
++    started = time.perf_counter()
++    reference_deltas = []
++    with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++        for index, (original, changed) in enumerate(pairs):
++            before = physical(pipeline, chunk_for(policy, pipeline, original, seed + 900 + index))
++            after = physical(pipeline, chunk_for(policy, pipeline, changed, seed + 900 + index))
++            reference_deltas.append((after - before).flatten())
++    print(f"reference deltas {time.perf_counter()-started:.1f}s", flush=True)
++
++    original_size = dict(ip.size)
++
++    def evaluate(name, side, steps):
++        ip.size = {"shortest_edge": side * side, "longest_edge": side * side}
++        policy.model.action_model.num_inference_timesteps = steps
++        started = time.perf_counter()
++        errs = collections.defaultdict(list)
++        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
++            for index in arm_indices:
++                out = chunk_for(policy, pipeline, bank[index], seed + index)
++                ref = refs[index : index + 1].to("cuda")
++                errs[bank[index]["task_id"]].append(
++                    float((physical(pipeline, out) - physical(pipeline, ref)).square().mean())
++                )
++            deltas = []
++            for index, (original, changed) in enumerate(pairs):
++                before = physical(pipeline, chunk_for(policy, pipeline, original, seed + 900 + index))
++                after = physical(pipeline, chunk_for(policy, pipeline, changed, seed + 900 + index))
++                deltas.append((after - before).flatten())
++        per_task = {task: sum(v) / len(v) for task, v in sorted(errs.items())}
++        by_task = {}
++        for task in tasks:
++            own = [d for d, label in zip(deltas, p_labels) if label == task]
++            ref_own = [d for d, label in zip(reference_deltas, p_labels) if label == task]
++            by_task[task] = correlation(ref_own, own)
++        # timing on one fixed frame
++        sample = bank[3]
++        for _ in range(5):
++            chunk_for(policy, pipeline, sample, 1000)
++        torch.cuda.synchronize()
++        times = []
++        for _ in range(10):
++            torch.cuda.synchronize()
++            t0 = time.perf_counter_ns()
++            chunk_for(policy, pipeline, sample, 1000)
++            torch.cuda.synchronize()
++            times.append((time.perf_counter_ns() - t0) / 1e6)
++        print(
++            f"{name:20s} side {side} steps {steps} arm {max(per_task.values()):.6f} "
++            f"corr {min(by_task.values()):.3f} ms {statistics.median(times):.1f} "
++            f"secs {time.perf_counter()-started:.1f}",
++            flush=True,
++        )
++        print("    arm ", " ".join(f"{t}:{v:.4f}" for t, v in per_task.items()), flush=True)
++        print("    corr", " ".join(f"{t}:{v:.3f}" for t, v in by_task.items()), flush=True)
++
++    try:
++        evaluate("stock", 256, 4)
++        evaluate("flow2", 256, 2)
++        evaluate("flow2_224", 224, 2)
++        evaluate("flow2_192", 192, 2)
++    finally:
++        ip.size = original_size
++        policy.model.action_model.num_inference_timesteps = 4
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/proposal.md b/proposal.md
+index 4f8bfc3..da53991 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,75 +1,67 @@
+-# Proposal: queue-preserving fast `select_action` on the compiled CUDA graph
++# Proposal: one flow-matching step on the compiled CUDA graph
+ 
+-## Change relative to the parent (`iter_001-b0-a1`)
++## Change relative to the parent (`iter_001-b0-a2`)
+ 
+-The parent already replays one compiled CUDA graph per instruction with two flow steps and scores
+-3.939648. This node keeps that execution engine and removes the remaining host overhead in the
+-timed observation-to-action call:
++The parent replays one compiled CUDA graph per instruction with two flow steps and scores
++4.409840. This node keeps that execution engine unchanged and changes exactly one thing:
+ 
+-1. `policy.select_action` is replaced by the same action-queue logic without the per-call
+-   `self.eval()` recursive module walk and without `populate_queues` (which only has the `ACTION`
+-   key and is called with `exclude_keys=[ACTION]`, so it is a no-op). The queue is preserved: an
+-   episode still plans one chunk and executes its `n_action_steps` actions, so episode behaviour
+-   is bit-identical to the parent's.
+-2. Everything else is unchanged: the inference-dead V-JEPA world model and the tied vocabulary
+-   head are dropped, the graphed body is compiled with `torch.compile`, and the flow head runs
+-   two steps.
++1. `model.action_model.num_inference_timesteps = 1` instead of `2`, so the action head runs one
++   flow-matching step instead of two. The graph body, the compiled kernels, the NF4-dense decoder,
++   the dropped V-JEPA world model / tied vocabulary head, and the queue-preserving fast
++   `select_action` are all the parent's.
+ 
+-## Why it should pass the guards
++No weights are changed, no work is moved to `reset`, the CPU or another process, no files are
++opened during `compress`, and no answers are stored: each replay consumes the current observation
++and a fresh noise draw.
+ 
+-The change is host-side only and does not alter the numbers the policy returns. The stock
+-`select_action` calls `self.eval()` on every call; the policy is already in eval mode (the
+-evaluator loads it with `.eval()`), so the walk is a no-op. `populate_queues` cannot add anything
+-because `_queues` only holds `ACTION`, which is excluded. The action queue is kept, so the
+-episode rollout still executes seven actions per planned chunk exactly as the parent did.
++## Why it should pass the guards
+ 
+-Local timing on a fixed bank frame, same graph and same flow steps:
++The image path is untouched, which is what the perturbation guard measures. I screened the more
++aggressive levers on the evaluator's own guard frames (8 arm frames and 4 perturbation pairs per
++task, same seeds as `latency_guards`) and rejected them:
+ 
+-| call | median wall | median GPU |
++| variant | worst-task arm MSE | worst-task perturbation corr |
+ |---|---|---|
+-| stock `select_action` | 18.49 ms | 18.51 ms |
+-| `predict_action_chunk` | 17.08 ms | 17.10 ms |
+-| **fast `select_action` (this node)** | **17.10 ms** | **17.11 ms** |
+-
+-The 1.4 ms difference is the `self.eval()` walk plus queue bookkeeping, not GPU work. The graph
+-body itself is unchanged, so the parent's guard figures carry over: worst-task arm action error
+-4.25e-05 (limit 0.01), perturbation correlation 0.928 (minimum 0.5), 8/10 smoke successes, peak
+-CUDA 5.42 GB against the reference's 6.30 GB.
++| stock (reference) | 0.000000 | 1.000 |
++| parent, flow 2 | 0.000035 | 0.930 |
++| **this node, flow 1** | **0.000166** | **0.868** |
++| flow 2, input resized 224 | 0.009483 | -0.478 |
++| flow 2, input resized 192 | 0.009252 | -0.761 |
+ 
+-I also measured more aggressive variants, but did not use them because the smoke gate has no
+-margin. One flow step gives worst-task arm MSE 2.0e-4 and correlation 0.884; one flow step plus a
+-one-step action prompt gives arm MSE 1.2e-3 and correlation 0.774; skipping action-head layers
+-3-11 with two flow steps gives arm MSE 5.3e-3 and correlation 0.671. Block skipping in the text or
+-vision decoder destroys the perturbation response (text 3-5: correlation 0.401; vision 16-22:
+-0.199), so it stays out. The chosen node keeps the parent's proven flow-2 arithmetic and only
+-removes host overhead.
++The resolution variants stay inside the arm limit but destroy the perturbation response, so they
++are out. I also tried fusing the decoder's q/k/v and gate/up GEMMs (one larger GEMM per layer,
++same weights); it was slower on this GPU (graph replay 17.3 ms vs 16.7 ms), so it is not used.
++One flow step is the only lever that removes real work while keeping the perturbation response
++comfortably above 0.5: its arm error is 60x below the 0.01 limit and its correlation is 0.868
++against a 0.5 minimum.
+ 
+ ## Last check output
+ 
+-`/tmp/venv/bin/python tools/check.py` (phase `check`, task 0 episode, all ten tasks timed):
++`/tmp/venv/bin/python tools/check.py` (phase `check`, all ten tasks timed):
+ 
+ ```
+ status: ok
+ memory removed: 14.2% (resident 5296030720 of baseline 6169967616 bytes)
+-score: 4.4326 (latency_speedup)
+-speedup: point 4.4511, 95% [4.4326, 4.4760], 6+6 blocks, interleaved
+-speedup per task: 0 4.459, 1 4.519, 2 4.446, 3 4.449, 4 4.438, 5 4.447, 6 4.439, 7 4.488, 8 4.446, 9 4.382
+-latency ms: reference median 75.05, candidate median 17.03, p95 17.59
+-arm action error (worst task): 4.04965e-05 (limit 0.01)
+-perturbation correlation (worst task): 0.914 (min 0.5)
++score: 4.7316 (latency_speedup)
++speedup: point 4.7529, 95% [4.7316, 4.7713], 6+6 blocks, interleaved
++speedup per task: 0 4.837, 1 4.811, 2 4.773, 3 4.748, 4 4.735, 5 4.732, 6 4.736, 7 4.726, 8 4.701, 9 4.731
++latency ms: reference median 75.09, candidate median 16.01, p95 16.59
++arm action error (worst task): 0.000165551 (limit 0.01)
++perturbation correlation (worst task): 0.868 (min 0.5)
+ other GPU use: max 0.0 %, 12 samples
+ ```
+ 
+-The parent's check scored 4.0736 at 18.45 ms; this node's 17.03 ms and 4.4326 are the same
+-graph body with the host-side `select_action` overhead removed. The arm error and perturbation
+-correlation are unchanged within run-to-run noise, as expected for a host-only change.
++The parent's check was 4.4326 at 17.03 ms; this node is 16.01 ms and 4.7316 with the same graph
++body and one fewer action-head pass. The check phase does not run the ten-episode smoke gate; the
++arm error and perturbation correlation above are the guard figures the evaluator will also read.
+ 
+ ## What I would try next
+ 
+-- Validate one flow step (arm MSE 2.0e-4, correlation 0.884) with a full ten-episode smoke run;
+-  it saves about 0.4 ms of graph time and is the next safe increment.
+-- Move the 256->224 area resize and the raw image copy into the graph's static buffers, removing
+-  the host-side `_prepare_model_inputs` path entirely (about 0.1 ms).
+-- Try `max-autotune` GEMM selection for the decoder MLP shapes once a warm compile cache is
+-  available; the profile is dominated by cuBLAS/cutlass GEMMs at about 83% of the 3090's bf16
+-  peak, so kernel choice is the remaining lever.
++- Run the full ten-episode smoke phase to confirm the flow-1 arithmetic still passes 8/10; the
++  arm error is small, but the gate has no margin.
++- Measure the one-step action prompt (8 instead of 24 action tokens) combined with flow 1; the
++  parent measured arm MSE 1.2e-3 and correlation 0.774, which would save another ~7% of decoder
++  tokens.
++- Try `torch.compile` `max-autotune-no-cudagraphs` on the final graph once a warm inductor cache
++  is available; the profile is dominated by cuBLAS/cutlass bf16 GEMMs, so kernel selection is the
++  remaining lever.
+diff --git a/solution.py b/solution.py
+index b42349e..973b289 100644
+--- a/solution.py
++++ b/solution.py
+@@ -9,17 +9,16 @@ CUDA graph per instruction. On top of that, this solution
+    policy never calls (it invokes the inner `Qwen3VLModel`), lowering peak CUDA memory;
+ 2. compiles the graphed body with `torch.compile`, so the elementwise and small GEMM kernels of
+    the vision tower, decoder and action head are fused instead of dispatched one by one;
+-3. runs two flow-matching steps instead of four; and
++3. runs one flow-matching step instead of four; and
+ 4. replaces `select_action` with the same action-queue logic without the per-call `self.eval()`
+    module walk and the no-op `populate_queues` loop. The queue is preserved, so episode behaviour
+    is unchanged; only the host overhead of the timed observation-to-action call disappears.
+ 
+-The approximation is deliberately small: on 30 bank frames covering all ten tasks the worst-task
+-mean squared physical arm-action difference against the untouched policy is 4.2e-5 (guard limit
+-0.01) and the maximum normalized action difference is 0.027. The perturbation-response
+-correlation is 0.93 (guard minimum 0.5). More aggressive block removal and one flow step were
+-measured but are not used: they move the arm error or the perturbation response too close to the
+-guards, and the smoke gate has no margin.
++The approximation is deliberately small: on the evaluator's guard frames the worst-task mean
++squared physical arm-action difference against the untouched policy is 1.7e-4 (guard limit 0.01)
++and the perturbation-response correlation is 0.868 (guard minimum 0.5). More aggressive block
++removal and input-resolution changes were measured but are not used: they move the arm error or
++the perturbation response too close to the guards, and the smoke gate has no margin.
+ """
+ 
+ from __future__ import annotations
+@@ -51,7 +50,7 @@ def _fast_select_action(policy):
+ 
+ 
+ def compress(policy, calibration):
+-    """Drop inference-dead modules, halve the flow steps, replay compiled CUDA graphs."""
++    """Drop inference-dead modules, run one flow step, replay compiled CUDA graphs."""
+     model = policy.model
+     model.video_encoder = None
+     model.video_predictor = None
+@@ -60,7 +59,7 @@ def compress(policy, calibration):
+     # vocabulary output head is dead at inference. Identity keeps the attribute well formed.
+     policy.model.qwen.model.lm_head = torch.nn.Identity()
+ 
+-    model.action_model.num_inference_timesteps = 2
++    model.action_model.num_inference_timesteps = 1
+ 
+     policy.eval()
+     graphed = GraphedPolicy(policy, use_compile=True, dense=True)
