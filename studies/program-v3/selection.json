@@ -1,0 +1,53 @@
+{
+  "program": "program-v3",
+  "protocol": "program-v3-debiased",
+  "frozen_at": "2026-11-17",
+  "source": "cycles/iter_00*/live_cycle_manifest.json and each node's development.json, read after the loop ended and before any reserved run",
+  "rule": "each cycle's best node that passed the development gate (77/100)",
+  "gate": {
+    "successes": 77,
+    "episodes": 100
+  },
+  "note": "the brief named two candidates (iter_000-b2-a2, iter_002-b2-a2); the cycle records show a third, iter_001-b2-a3 (cycle 1 best, 83/100), which also passes the rule, so all three are run",
+  "candidates": [
+    {
+      "cell_id": "iter_000-b2-a2",
+      "cycle": 0,
+      "commit": "69ec9c02f8f85b22bf3674a7b1d783ba1123bc65",
+      "search_score": 0.8194693167788111,
+      "size_removed": 0.819469,
+      "resident_bytes": 1011799552,
+      "development": {
+        "successes": 82,
+        "episodes": 100
+      },
+      "development_reused": "cycles/iter_000/nodes/iter_000-b2-a2/development.json (loop promoted)"
+    },
+    {
+      "cell_id": "iter_001-b2-a3",
+      "cycle": 1,
+      "commit": "b5f6a67a3f4814fae369c1d44c84817f093d072b",
+      "search_score": 0.8002728737294402,
+      "size_removed": 0.800273,
+      "resident_bytes": 1119387648,
+      "development": {
+        "successes": 83,
+        "episodes": 100
+      },
+      "development_reused": "cycles/iter_001/nodes/iter_001-b2-a3/development.json (loop promoted)"
+    },
+    {
+      "cell_id": "iter_002-b2-a2",
+      "cycle": 2,
+      "commit": "16917b8a4ac7043906d7ae2a4c2306e5a0001820",
+      "search_score": 0.8278075413455772,
+      "size_removed": 0.827808,
+      "resident_bytes": 965067264,
+      "development": {
+        "successes": 83,
+        "episodes": 100
+      },
+      "development_reused": "cycles/iter_002/nodes/iter_002-b2-a2/development.json (loop promoted)"
+    }
+  ]
+}
