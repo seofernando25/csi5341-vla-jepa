@@ -1,0 +1,48 @@
+% Fig. 1: the policy, the three levers we pulled, and what held up on the reserved episodes.
+\providecommand{\bignum}{\sffamily\bfseries\large}
+\begin{tikzpicture}[
+  every node/.style={font=\sffamily\footnotesize,text=ink},
+  hd/.style={font=\sffamily\bfseries\small,anchor=west,text=ink},
+  stage/.style={rounded corners=2pt,draw=ink!45,fill=white,line width=.5pt,minimum width=3.3cm,
+    minimum height=5.6mm,align=center,inner sep=2pt},
+  lever/.style={rounded corners=3pt,line width=.6pt,minimum width=5.5cm,minimum height=11mm,
+    align=left,inner sep=4pt,text width=5.2cm},
+  tile/.style={rounded corners=3pt,line width=.6pt,minimum width=4.3cm,minimum height=11mm,
+    align=left,inner sep=4pt,text width=4.05cm},
+  flow/.style={-{Stealth[length=1.8mm,width=1.5mm]},line width=.6pt,draw=ink!55},
+]
+% Column A: the released policy.
+\node[hd] at (0,0) {The released policy};
+\node[stage,anchor=north west] (in) at (0.1,-0.45) {camera image + instruction};
+\node[stage,below=1.6mm of in,draw=cgreen,fill=pgreen] (vis) {vision encoder};
+\node[stage,below=1.6mm of vis,draw=cblue,fill=pblue,line width=.9pt] (dec) {\textbf{language decoder} (2\,B)};
+\node[stage,below=1.6mm of dec,draw=corange,fill=porange] (act) {action head};
+\node[stage,below=1.6mm of act] (out) {arm motion};
+\foreach \a/\b in {in/vis,vis/dec,dec/act,act/out}{\draw[flow] (\a) -- (\b);}
+\node[anchor=north,align=center,font=\sffamily\scriptsize,text=ink2] at ($(out.south)+(0,-1.2mm)$)
+  {5.6\,GB GPU memory\,\textperiodcentered\,73\,ms per action\\95\,\% of tasks solved};
+
+% Column B: three levers.
+\node[hd] at (4.55,0) {Three ways to make it smaller or faster};
+\node[lever,draw=cblue,fill=pblue,anchor=north west] (l1) at (4.6,-0.45)
+  {\textbf{1\enspace Fewer bits per weight}\\[1pt]{\scriptsize The language decoder holds at 4 bits and breaks at 2.}};
+\node[lever,draw=corange,fill=porange,below=2.2mm of l1] (l2)
+  {\textbf{2\enspace A faster execution path}\\[1pt]{\scriptsize Replaying a recorded GPU schedule (a CUDA graph): 3.5$\times$ faster.}};
+\node[lever,draw=cgreen,fill=pgreen,below=2.2mm of l2] (l3)
+  {\textbf{3\enspace An agent searches (Dream-RSI)}\\[1pt]{\scriptsize A coding agent writes a compression, a fixed evaluator scores it, and the best ideas get explored next.}};
+\draw[flow] (dec.east) -- ++(3mm,0) |- (l1.west);
+\draw[flow] (dec.east) -- ++(3mm,0) |- (l2.west);
+\draw[flow] (dec.east) -- ++(3mm,0) |- (l3.west);
+
+% Column C: what held up.
+\node[hd] at (11.45,0) {What held up on 500 test episodes};
+\node[tile,draw=cteal,fill=pteal,anchor=north west] (t1) at (11.5,-0.45)
+  {{\bignum\color{cteal}83\,\% less memory}\\[1pt]{\scriptsize 480 of 500 solved; the original solves 475.}};
+\node[tile,draw=cteal,fill=pteal,below=2.2mm of t1] (t2)
+  {{\bignum\color{cteal}4.8$\times$ faster}\\[1pt]{\scriptsize 477 of 500 solved, from the agent's speed search.}};
+\node[tile,draw=garnet,fill=pgarnet,below=2.2mm of t2] (t3)
+  {{\bignum\color{garnet}1 loophole found}\\[1pt]{\scriptsize An agent fooled our memory score. We show how, and the fix.}};
+\draw[flow] (l3.east) -- ++(2.5mm,0) |- (t1.west);
+\draw[flow] (l3.east) -- ++(2.5mm,0) |- (t2.west);
+\draw[flow] (l3.east) -- (t3.west);
+\end{tikzpicture}

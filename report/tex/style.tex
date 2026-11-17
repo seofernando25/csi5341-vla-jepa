@@ -1,0 +1,70 @@
+% Report look: IEEE two-column body, sans headings, one accent colour, a running section map.
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{graphicx,booktabs,array,microtype}
+\usepackage[table]{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[font=footnotesize,labelfont={bf,sf},labelsep=period,justification=justified,
+  singlelinecheck=false,skip=4pt]{caption}
+\captionsetup[table]{position=top,skip=3pt}
+\usepackage{cite}
+\usepackage[colorlinks=true,linkcolor=accent,citecolor=accent,urlcolor=accent,
+  pdftitle={Where Compression Degrades VLA-JEPA},pdfauthor={Noah Sprenger, Fernando Nogueira}]{hyperref}
+
+% Palette (text colours pass WCAG AA on white).
+\definecolor{ink}{HTML}{1F2937}
+\definecolor{ink2}{HTML}{475569}
+\definecolor{accent}{HTML}{0F5E9C}
+\definecolor{panelbg}{HTML}{EEF4FA}
+\definecolor{panelrule}{HTML}{B6CBE0}
+\definecolor{cblue}{HTML}{2563EB}\definecolor{pblue}{HTML}{E8EFFD}
+\definecolor{corange}{HTML}{B45309}\definecolor{porange}{HTML}{FDF1E3}
+\definecolor{cgreen}{HTML}{047857}\definecolor{pgreen}{HTML}{E4F4EE}
+\definecolor{cteal}{HTML}{0E7490}\definecolor{pteal}{HTML}{E0F2F6}
+\definecolor{garnet}{HTML}{9F1239}\definecolor{pgarnet}{HTML}{FBE7EC}
+\definecolor{rowhi}{HTML}{E6F2F5}
+
+% Headings: sans, arabic numbers, so the running header can name them.
+\newcommand{\headingfont}{\sffamily\bfseries\color{ink}}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\titleformat{\section}{\headingfont\large\raggedright}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\headingfont\normalsize\raggedright}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.5ex plus .4ex minus .2ex}{0.7ex}
+\titlespacing*{\subsection}{0pt}{1.2ex plus .3ex minus .2ex}{0.5ex}
+
+% Running header: short title, then a clickable section map with the current section in bold.
+\newcommand{\hdrentry}[3]{\hyperref[sec:#1]{\edef\cur{\rightmark}\edef\me{#2}%
+  \ifx\cur\me\textbf{\color{accent}#3}\else{\color{ink2}#3}\fi}}
+\newcommand{\hdrsep}{\enspace{\color{panelrule}|}\enspace}
+\setlength{\headheight}{12pt}
+\fancypagestyle{report}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\headrule}{\hbox to\headwidth{\color{panelrule}\leaders\hrule height\headrulewidth\hfill}}%
+  \fancyhead[L]{\footnotesize\sffamily\textbf{\color{ink}Where Compression Degrades VLA-JEPA}}%
+  \fancyhead[R]{\footnotesize\sffamily\hdrentry{intro}{1}{Intro}\hdrsep\hdrentry{method}{3}{Method}%
+    \hdrsep\hdrentry{results}{4}{Results}\hdrsep\hdrentry{advice}{5}{Advice}\hdrsep
+    \hdrentry{conclusion}{6}{Conclusion}}%
+  \fancyfoot[C]{\footnotesize\sffamily\color{ink2}\thepage}}
+\fancypagestyle{reportfirst}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}%
+  \fancyfoot[C]{\footnotesize\sffamily\color{ink2}\thepage}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection}}
+\renewcommand{\subsectionmark}[1]{}
+
+% Lists and floats.
+\setlist{leftmargin=1.3em,itemsep=1pt,topsep=3pt,parsep=0pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
+\renewcommand{\arraystretch}{1.12}
+
+% A boxed takeaway inside the column.
+\newtcolorbox{takeaway}[1]{enhanced,colback=panelbg,colframe=panelrule,boxrule=0.5pt,arc=2pt,
+  left=6pt,right=6pt,top=4pt,bottom=4pt,fonttitle=\sffamily\bfseries\small,coltitle=ink,
+  colbacktitle=panelbg,title={#1},attach title to upper={\enspace},before skip=6pt,after skip=6pt}

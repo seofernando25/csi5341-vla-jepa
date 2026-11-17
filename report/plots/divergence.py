@@ -294,7 +294,7 @@ def fig_divergence(record: dict) -> dict | None:
     style_axes(
         ax,
         ylabel="Development success (%)",
-        xlabel="Action error vs reference (MSE)",
+        xlabel="Action error vs original (MSE, log scale)",
         yticks=[0, 25, 50, 75, 100],
     )
 
@@ -308,7 +308,7 @@ def fig_divergence(record: dict) -> dict | None:
             mfc="white" if name == "B16" else COLORS[name],
             mec=COLORS[name],
             mew=0.8,
-            label=name,
+            label="original" if name == "B16" else name,
         )
         for name in ("B16", "language", "vision", "action", "joint", "other")
         if any(cell["component"] == name for cell in cells)

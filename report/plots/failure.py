@@ -127,8 +127,8 @@ def fig_failure(record: dict) -> dict | None:
     bottom.set(xlim=(-0.4, len(ORDER) - 0.6), ylim=(low / 3, high * 3))
     bottom.set_xticks(range(len(ORDER)))
     bottom.set_xticklabels(["16"] + [str(bits) for bits in ORDER[1:]])
-    style_axes(top, ylabel="Linear CKA vs B16")
-    style_axes(bottom, ylabel="Arm action error (MSE)", xlabel="Weight bits")
+    style_axes(top, ylabel="Similarity (CKA)")
+    style_axes(bottom, ylabel="Action error (MSE)", xlabel="Language-decoder weight bits")
     top.legend(
         handles=[
             plt.Line2D([], [], color=color, lw=1.1, marker="o", ms=3, label=label)

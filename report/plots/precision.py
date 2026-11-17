@@ -10,7 +10,7 @@ Points are measured development rollouts, never pooled with smoke.
 import matplotlib.pyplot as plt
 
 from report.plots.data import recipes
-from report.plots.style import COL, COLORS, MUTED, OUT, style_axes, tint
+from report.plots.style import COL, COLORS, MUTED, OUT, style_axes, text_ink, tint
 
 MODULES = ("language", "vision", "action")
 FAMILIES = {
@@ -41,7 +41,8 @@ BIT_TICKS = (2, 3, 4, 8, 16)
 OFFSETS = {"language": -0.16, "vision": 0.0, "action": 0.16}  # category units, so bars clear
 JOINT = ("precision-joint-va-hqq2", "vision + action")
 JOINT_OFFSET = 0.30
-LABEL_DY = {"language": 18.0, "vision": 6.0, "action": -12.0}  # points; the lines meet at 16 bits
+LABEL_DY = {"language": 0.0, "vision": 15.0, "action": -15.0}  # points
+LABELS = {"language": "language decoder", "vision": "vision", "action": "action"}
 
 
 def nominal_bits(candidate: str, recipe: dict, module: str) -> int:
@@ -142,15 +143,17 @@ def fig_precision(n: dict) -> dict | None:
             zorder=3,
         )
         # The three lines meet at 16 bits, so their names fan out from the shared right end.
+        # Language breaks at 2 bits, so its name sits by that point; the others meet at 16 bits.
+        at = 0 if module == "language" else -1
         ax.annotate(
-            module,
-            (x[-1], y[-1]),
-            xytext=(-4.0, LABEL_DY[module]),
+            LABELS[module],
+            (x[at], y[at]),
+            xytext=(6.0 if module == "language" else 2.0, LABEL_DY[module]),
             textcoords="offset points",
-            ha="right",
+            ha="left" if module == "language" else "right",
             va="center",
             fontsize=7.5,
-            color=COLORS[module],
+            color=text_ink(COLORS[module]),
             annotation_clip=False,
         )
         ledger["series"][module] = {
@@ -189,7 +192,7 @@ def fig_precision(n: dict) -> dict | None:
             ha="center",
             va="center",
             fontsize=6.5,
-            color=COLORS["joint"],
+            color=text_ink(COLORS["joint"]),
             annotation_clip=False,
         )
         ledger["joint"] = {
@@ -199,13 +202,13 @@ def fig_precision(n: dict) -> dict | None:
             "wilson_pct": joint["development_wilson_pct"],
         }
 
-    ax.set(xlim=(-0.6, 5.05), ylim=(-3, 104))
+    ax.set(xlim=(-0.6, 4.6), ylim=(-3, 104))
     ax.set_xticks(range(len(BIT_TICKS)))
     ax.set_xticklabels([str(bits) for bits in BIT_TICKS])
     style_axes(
         ax,
         ylabel="Development success (%)",
-        xlabel="Weight bits (categories, not to scale)",
+        xlabel="Weight bits of one module (others stay at 16)",
         yticks=[0, 25, 50, 75, 100],
     )
 

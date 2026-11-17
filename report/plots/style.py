@@ -33,6 +33,21 @@ COLORS = {
 }
 
 
+def _luminance(rgb: tuple[float, ...]) -> float:
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def text_ink(color: str, contrast: float = 4.5) -> str:
+    """`color` darkened until text in it reaches WCAG AA contrast on white (4.5:1)."""
+    rgb = to_rgb(color)
+    for step in range(21):
+        shade = tuple(c * (1 - step * 0.04) for c in rgb)
+        if 1.05 / (_luminance(shade) + 0.05) >= contrast:
+            return to_hex(shade)
+    return INK
+
+
 def tint(color: str, amount: float = 0.45) -> str:
     """Mix `color` with white; `amount` is the white share in [0, 1]."""
     return to_hex(tuple(c + (1 - c) * amount for c in to_rgb(color)))

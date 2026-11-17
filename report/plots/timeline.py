@@ -11,7 +11,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from report.plots.data import ROOT, optional_json
-from report.plots.style import COL, COLORS, GRID, INK_2, MUTED, OUT, style_axes
+from report.plots.style import COL, COLORS, GRID, INK_2, MUTED, OUT, style_axes, text_ink
 
 RED = "#DC2626"
 LABELS = {  # node id -> what changed, for the jumps that matter
@@ -109,7 +109,7 @@ def _label_jumps(ax, points, labels, scale, color, offsets):
                 (index, points[index]["score"] * scale),
                 xytext=(dx, dy),
                 textcoords="offset points",
-                color=color,
+                color=text_ink(color),
                 fontsize=6.5,
                 va="center",
                 ha="left" if dx >= 0 else "right",
