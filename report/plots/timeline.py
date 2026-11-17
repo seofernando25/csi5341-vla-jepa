@@ -33,8 +33,8 @@ LABELS = {  # node id -> what changed, for the jumps that matter
 LATENCY_LABELS = {
     "iter_000-b0-a0": "CUDA graph",
     "iter_000-b0-a3": "compiled, 4 steps",
-    "iter_001-b0-a1": "2 flow steps",
-    "iter_001-b0-a3": "1 flow step",
+    "iter_001-b0-a2": "2 flow steps",
+    "iter_001-b1-a0": "1 flow step",
 }
 
 
@@ -182,15 +182,15 @@ def _remeasured(ax, points):
         ax.plot([i, i], [p["score"] * 100, p["remeasured"] * 100], color=INK_2, lw=0.6, zorder=3)
         ax.scatter([i], [p["remeasured"] * 100], s=14, marker="D", color=INK_2, lw=0, zorder=6)
     if marked:
-        i, p = marked[-1]
+        i, p = marked[0]
         ax.annotate(
             "re-measured",
             (i, p["remeasured"] * 100),
-            xytext=(-5, -13),
+            xytext=(7, -12),
             textcoords="offset points",
             fontsize=6.5,
             color=INK_2,
-            ha="right",
+            ha="left",
             va="center",
             annotation_clip=False,
         )
@@ -322,11 +322,11 @@ def fig_latency_timeline(n: dict, nodes_path: Path) -> dict | None:
         {
             "iter_000-b0-a0": (4, -12),
             "iter_000-b0-a3": (-5, 8),
-            "iter_001-b0-a1": (5, -11),
-            "iter_001-b0-a3": (4, 9),
+            "iter_001-b0-a2": (5, -11),
+            "iter_001-b1-a0": (4, 9),
         },
     )
-    ax.set(xlim=(-0.5, len(points) - 0.5), ylim=(-0.1, 5.4))
+    ax.set(xlim=(-0.5, len(points) - 0.5), ylim=(-0.1, 6.0))
     ax.set_xticks(range(len(points)))
     ax.set_xticklabels([str(i + 1) for i in range(len(points))])
     style_axes(

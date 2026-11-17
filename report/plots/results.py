@@ -43,17 +43,17 @@ def fig_ladder(n: dict) -> dict | None:
     ceiling = n.get("memory_ceiling") or {}
     b16_peak = rows["B16"]["benchmark_peak_allocated_gb"]
     target = 0.75 * b16_peak
-    for ax in axes:
-        ax.axvline(target, color=MUTED, lw=0.75, ls=(0, (3, 2)), zorder=1)
-        if "NF4" in ceiling:
-            ax.axvline(
-                b16_peak - ceiling["NF4"]["saved_gb"],
-                color=COLORS["Q4"],
-                lw=0.75,
-                ls=(0, (2, 2)),
-                alpha=0.85,
-                zorder=1,
-            )
+    # The GB limits belong to the memory panel only; on the latency panel they would read as ms.
+    memory.axvline(target, color=MUTED, lw=0.75, ls=(0, (3, 2)), zorder=1)
+    if "NF4" in ceiling:
+        memory.axvline(
+            b16_peak - ceiling["NF4"]["saved_gb"],
+            color=COLORS["Q4"],
+            lw=0.75,
+            ls=(0, (2, 2)),
+            alpha=0.85,
+            zorder=1,
+        )
 
     for index, (key, _, palette) in enumerate(LADDER):
         value = rows[key]["benchmark_peak_allocated_gb"]

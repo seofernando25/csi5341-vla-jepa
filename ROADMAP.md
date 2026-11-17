@@ -167,15 +167,13 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 
 ### 3.3 Report text
 
-- **T14. v3 in the search section.** Say what the search found without the hints, and whether it
-  still removes modules before it quantizes. If it finds less, say that is the cost of the hints.
-- **T15. Latency subsection.** Partial text in ("Searching for speed"); final numbers pending T4/T5. The score, the guards in one paragraph, the result, the levers used,
-  and how the best result compares with our hand-built graph.
+- **T14. v3 in the search section.** Done: the third search, with the code hidden, reached 82.8 % and 480/500
+  reserved, about what the hinted first search found.
+- **T15. Latency subsection.** Done: reserved and idle-GPU timing for the three v4 winners.
 - **T16. Trajectory paragraph** in "Why 2 bits breaks", after T6.
-- **T17. Voice pass** on every new paragraph: Haiku first, then a line-by-line check that no number
-  or claim moved.
-- **T18. Page budget.** At most 5 pages. If it overflows, merge the two timelines first, then cut the
-  action-error figure, and only then cut text.
+- **T17. Voice pass.** Done 2026-11-17: Haiku wrote v3 in, then a separate Haiku review checked
+  numbers against the evidence, plain language and every figure. Recheck after any new paragraph.
+- **T18. Page budget.** Done: 5 pages, no overfull boxes.
 - **T19. Acknowledgment.** Noah confirms the sentence about his work.
 - **T20. Final read.** Both authors read the PDF once, aloud if possible.
 
