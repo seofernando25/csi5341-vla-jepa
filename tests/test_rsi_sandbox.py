@@ -611,3 +611,22 @@ def test_evaluator_missing_result_is_failure(
 def test_evaluator_rejects_unknown_phase(tmp_path: Path) -> None:
     with pytest.raises(ValueError):
         run_sandboxed_evaluator(tmp_path, "final", tmp_path / "out", timeout=1.0)
+
+
+def test_repo_source_binds_hide_bytecode_of_excluded_modules(tmp_path: Path) -> None:
+    ev = tmp_path / "evaluation"
+    (ev / "__pycache__").mkdir(parents=True)
+    (ev / "secret").mkdir()
+    for name in ("nf4", "fastpath", "keep"):
+        (ev / f"{name}.py").write_text("", encoding="utf-8")
+        (ev / "__pycache__" / f"{name}.cpython-312.pyc").write_bytes(b"")
+        (ev / "__pycache__" / f"{name}.cpython-312.opt-1.pyc").write_bytes(b"")
+    (ev / "secret" / "a.py").write_text("", encoding="utf-8")
+    (ev / "secret" / "__pycache__").mkdir()
+    exclude = ("evaluation/nf4.py", "evaluation/fastpath.py", "evaluation/secret")
+    binds = repo_source_binds(tmp_path, exclude=exclude)
+    visible = {dest.removeprefix("/tmp/repo/") for dest in binds.values()}
+    assert "evaluation/keep.py" in visible
+    assert "evaluation/__pycache__/keep.cpython-312.pyc" in visible
+    assert "evaluation/__pycache__/keep.cpython-312.opt-1.pyc" in visible
+    assert not [v for v in visible if "nf4" in v or "fastpath" in v or "secret" in v]

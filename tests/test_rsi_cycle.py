@@ -843,3 +843,66 @@ def test_rsi_package_has_no_recipe_menu() -> None:
         if re.search(r"recipe", line, re.IGNORECASE)
     ]
     assert hits == []
+
+
+IDLE_POLICY = """
+from rsi.api import LLMDesignedMethod, finalize_result, SimResult
+
+
+class OptimalPolicy(LLMDesignedMethod):
+    NAME = "OptimalPolicy"
+
+    def solve(self, question, budget=None):
+        return finalize_result(question, SimResult())
+
+    def plan_grid(self, context):
+        return context.fallback_plan
+"""
+
+
+def _idle_cycle(tmp_path: Path, policy: Path, **kw: Any) -> dict[str, Any]:
+    return run_online_cycle(
+        cycle_id="iter_001",
+        study_dir=_study(tmp_path),
+        policy_path=policy,
+        probe_budget=1,
+        max_parallelism=1,
+        promote_top_k=0,
+        agent_cmd=_agent(tmp_path, EDIT_BODY),
+        use_bwrap=False,
+        evaluator=_stub_evaluator(),
+        **kw,
+    )
+
+
+def test_policy_with_zero_probes_falls_back_to_the_incumbent(tmp_path: Path) -> None:
+    policy = tmp_path / "idle.py"
+    policy.write_text(IDLE_POLICY, encoding="utf-8")
+    manifest = _idle_cycle(tmp_path, policy)
+    assert manifest["probes_used"] == 1
+    assert manifest["stop_reason"] is None
+    assert "idle.py" in manifest["policy_fallback"]["reason"]
+    assert manifest["policy_fallback"]["policy"].endswith("rsi/policies/optimal.py")
+    assert manifest["policy_path"].endswith("idle.py")
+
+
+def test_idle_incumbent_stops_the_cycle_naming_the_policy(tmp_path: Path, monkeypatch) -> None:
+    import rsi.online_cycle as oc
+
+    policy = tmp_path / "idle.py"
+    policy.write_text(IDLE_POLICY, encoding="utf-8")
+    monkeypatch.setattr(oc, "INCUMBENT_TEMPLATE", policy)
+    manifest = _idle_cycle(tmp_path, policy)
+    assert manifest["stop_reason"] == "policy_zero_probes"
+    assert "idle.py" in manifest["solve_error"]
+    assert manifest["policy_fallback"] is None
+    assert manifest["agent"]["cost_usd"] == 0.0
+
+
+def test_cycle_without_agent_runs_has_zero_known_cost() -> None:
+    from rsi.online_evidence import agent_totals
+
+    totals = agent_totals(None, [])
+    assert totals["cost_usd"] == 0.0
+    assert totals["num_turns"] == 0
+    assert agent_totals(None, [{"agent_cost_usd": None}])["cost_usd"] is None

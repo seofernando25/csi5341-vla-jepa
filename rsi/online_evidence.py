@@ -125,8 +125,9 @@ def agent_totals(spec: AgentSpec | None, records: list[dict[str, Any]]) -> dict[
     return {
         **base,
         "calls": len(records),
-        "num_turns": sum(turns) if turns else None,
-        "cost_usd": round(sum(costs), 6) if costs else None,
+        # No agent run is a known zero; runs without a recorded cost stay unknown.
+        "num_turns": sum(turns) if turns else (None if records else 0),
+        "cost_usd": round(sum(costs), 6) if costs else (None if records else 0.0),
         "timed_out": sum(1 for r in records if r.get("agent_timed_out")),
     }
 

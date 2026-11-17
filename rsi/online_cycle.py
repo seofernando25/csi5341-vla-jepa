@@ -179,8 +179,30 @@ def run_online_cycle(
     )
     solve_error: str | None = None
     stop_reason: str | None = None
+    policy_fallback: dict[str, str] | None = None
     try:
         policy.solve(PrefixView(question), budget=probe_budget)
+        if question.budget_spent == 0 and probe_budget > 0:
+            # A policy that probes nothing on an empty tree gives no evidence and no cost to
+            # check. Rerun the same question under the incumbent; if that is idle too, stop.
+            name = relative_path(pol_path, study_root)
+            if pol_path.resolve() == INCUMBENT_TEMPLATE.resolve():
+                stop_reason = "policy_zero_probes"
+                solve_error = f"policy {name} made no probe on an empty tree"
+            else:
+                policy_fallback = {
+                    "reason": f"policy {name} made no probe on an empty tree",
+                    "policy": relative_path(INCUMBENT_TEMPLATE, study_root),
+                }
+                load_policy_class(INCUMBENT_TEMPLATE, cycle_id)(
+                    {"grid_plan": dict(cfg.grid_plan)} if cfg.grid_plan else {}
+                ).solve(PrefixView(question), budget=probe_budget)
+                if question.budget_spent == 0:
+                    stop_reason = "policy_zero_probes"
+                    solve_error = (
+                        f"policy {name} and incumbent {policy_fallback['policy']} "
+                        "made no probe on an empty tree"
+                    )
     except AgentOutputInvalid as exc:
         solve_error = redact_error(exc, study_root)
         stop_reason = "agent_output_invalid"
@@ -211,6 +233,7 @@ def run_online_cycle(
         "policy_sha256": sha256_file(pol_path),
         "baked_in_beta": baked_beta,
         "grid_plan": plan,
+        "policy_fallback": policy_fallback,
         "rounds_cap": question.rounds_cap,
         "probes_used": question.budget_spent,
         "decision_rounds": question.decision_rounds,

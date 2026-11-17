@@ -153,6 +153,38 @@ def calibration_artifact(study_dir: Path | None = None, repo_root: Path = REPO_R
     return str(artifact) if artifact else None
 
 
+def _is_excluded(rel: str, exclude: tuple[str, ...]) -> bool:
+    """True for an excluded path or the compiled bytecode of an excluded module."""
+    if rel in exclude:
+        return True
+    parent, _, name = rel.rpartition("/")
+    if not name.endswith(".pyc") or not parent.endswith("__pycache__"):
+        return False
+    stem = name.split(".", 1)[0]
+    return f"{parent.removesuffix('/__pycache__')}/{stem}.py".lstrip("/") in exclude
+
+
+def _holds_excluded(rel: str, exclude: tuple[str, ...]) -> bool:
+    """True when a directory is, or may hold bytecode of, something excluded beneath it."""
+    if any(item.startswith(f"{rel}/") for item in exclude):
+        return True
+    if rel.rpartition("/")[2] != "__pycache__":
+        return False
+    base = rel.removesuffix("/__pycache__")
+    return any(item.endswith(".py") and item.rpartition("/")[0] == base for item in exclude)
+
+
+def _bind_visible(src: Path, rel: str, exclude: tuple[str, ...], binds: dict[Path, str]) -> None:
+    """Bind `src`, or its visible children one by one when something below it is excluded."""
+    if _is_excluded(rel, exclude):
+        return
+    if not src.is_dir() or not _holds_excluded(rel, exclude):
+        binds[src] = f"{SANDBOX_REPO}/{rel}"
+        return
+    for child in sorted(src.iterdir()):
+        _bind_visible(child, f"{rel}/{child.name}", exclude, binds)
+
+
 def repo_source_binds(
     repo_root: Path = REPO_ROOT, *, study_dir: Path | None = None, exclude: tuple[str, ...] = ()
 ) -> dict[Path, str]:
@@ -174,15 +206,8 @@ def repo_source_binds(
         paths.append(artifact)
     for rel in (*paths, *([protocol] if protocol else [])):
         src = repo / rel
-        if not src.exists() or rel in exclude:
-            continue
-        if not any(item.startswith(f"{rel}/") for item in exclude):
-            binds[src] = f"{SANDBOX_REPO}/{rel}"
-            continue
-        for child in sorted(src.iterdir()):
-            child_rel = f"{rel}/{child.name}"
-            if child_rel not in exclude:
-                binds[child] = f"{SANDBOX_REPO}/{child_rel}"
+        if src.exists():
+            _bind_visible(src, rel, exclude, binds)
     return binds
 
 
