@@ -53,9 +53,8 @@ Post-training quantization keeps language-model accuracy at 8 bits~\cite{llmint8
 calibration or a non-uniform format, at 4 bits~\cite{gptq,awq,qlora,hqq}. Pruning removes weights
 in one shot~\cite{sparsegpt,wanda}. OpenVLA~\cite{openvla} and $\pi_0$~\cite{pi0} are built on similar
 vision-language models. There, a compression cost shows up as failed grasps, which only rollouts
-measure. QuantVLA~\cite{quantvla} quantizes vision-language-action policies and
-EcoVLA~\cite{ecovla} prunes them, but they report simulator success without separating the language, vision and action
-paths. We separate them.
+measure. We test the language, vision and action paths
+separately.
 Dream-RSI~\cite{dreamrsi} improves the policy that chooses which ideas a coding agent explores. It
 replays recorded search trees. We use it to search over compressions.
 
