@@ -7,18 +7,19 @@
 \thispagestyle{reportfirst}
 \twocolumn[{%
 \begin{center}
-{\sffamily\bfseries\fontsize{21}{25}\selectfont\color{ink} Where Compression Degrades VLA-JEPA\par}
-\vspace{7pt}
-{\large Noah Sprenger \qquad Fernando Nogueira\par}
+{\fontsize{23}{27}\selectfont\bfseries Where Compression Degrades VLA-JEPA\par}
+\vspace{12pt}
+{\large Noah Sprenger$^{1}$ \qquad\qquad Fernando Nogueira$^{1}$\par}
+\vspace{3pt}
+{\small $^{1}$University of Ottawa \qquad CSI 5341 \qquad Final Project Report\par}
 \vspace{2pt}
-{\small\color{ink2} University of Ottawa \enspace\textperiodcentered\enspace CSI 5341 final project
-\enspace\textperiodcentered\enspace Code: \url{https://github.com/seofernando25/csi5341-vla-jepa}\par}
+{\small Code: \url{https://github.com/seofernando25/csi5341-vla-jepa}\par}
 \end{center}
 \vspace{4pt}
 \begin{tcolorbox}[enhanced,colback=panelbg,colframe=panelrule,boxrule=0.5pt,arc=3pt,
   left=9pt,right=9pt,top=7pt,bottom=6pt,boxsep=0pt]
 \small
-\textbf{\sffamily Abstract.}\enspace VLA-JEPA is a robot policy that solves 95\,\% of LIBERO-Spatial
+\textbf{Abstract.}\enspace VLA-JEPA is a robot policy that solves 95\,\% of LIBERO-Spatial
 tasks, but it needs 5.6\,GB of GPU memory, more than a 4\,GB card holds. We compress the released
 policy without retraining and measure what each saving costs in task success. Three levers matter
 (Fig.~\ref{fig:overview}). With fewer bits, the language decoder holds at 4 bits and breaks at 2,

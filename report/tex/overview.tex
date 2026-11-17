@@ -1,48 +1,80 @@
-% Fig. 1: the policy, the three levers we pulled, and what held up on the reserved episodes.
-\providecommand{\bignum}{\sffamily\bfseries\large}
+% Fig. 1: the released policy, the three levers, and what each lever bought.
+% Rules: text is ink (never grey); arrows start and end on anchors, with at least 3 mm of shaft;
+% one tint per lever, carried from its card to its result.
+\providecommand{\bignum}{\sffamily\bfseries\normalsize}
 \begin{tikzpicture}[
-  every node/.style={font=\sffamily\footnotesize,text=ink},
-  hd/.style={font=\sffamily\bfseries\small,anchor=west,text=ink},
-  stage/.style={rounded corners=2pt,draw=ink!45,fill=white,line width=.5pt,minimum width=3.3cm,
-    minimum height=5.6mm,align=center,inner sep=2pt},
-  lever/.style={rounded corners=3pt,line width=.6pt,minimum width=5.5cm,minimum height=11mm,
-    align=left,inner sep=4pt,text width=5.2cm},
-  tile/.style={rounded corners=3pt,line width=.6pt,minimum width=4.3cm,minimum height=11mm,
-    align=left,inner sep=4pt,text width=4.05cm},
-  flow/.style={-{Stealth[length=1.8mm,width=1.5mm]},line width=.6pt,draw=ink!55},
+  font=\sffamily\scriptsize, every node/.style={text=ink},
+  panel/.style 2 args={rounded corners=4pt,draw=#1,line width=.6pt,fill=#2},
+  badge/.style={circle,fill=#1,text=white,font=\sffamily\bfseries\footnotesize,inner sep=1.2pt,
+    minimum size=4.2mm},
+  ptitle/.style={font=\sffamily\bfseries\small,anchor=west,inner sep=0pt},
+  stage/.style={rounded corners=2pt,draw=ink!40,fill=white,line width=.5pt,minimum width=3.5cm,
+    minimum height=5.6mm,align=center,inner sep=2pt,font=\sffamily\footnotesize},
+  card/.style={rounded corners=3pt,draw=#1,fill=white,line width=.6pt,minimum width=6.9cm,
+    minimum height=1.42cm},
+  ctitle/.style={font=\sffamily\bfseries\footnotesize,anchor=north west,inner sep=0pt},
+  chip/.style={rounded corners=2pt,draw=#1,fill=#1!8,line width=.5pt,minimum height=4.6mm,
+    inner sep=2.2pt,align=center},
+  res/.style={rounded corners=3pt,draw=#1,fill=#1!7,line width=.6pt,minimum width=4.1cm,
+    minimum height=1.42cm,text width=3.8cm,align=left,inner sep=4pt},
+  flow/.style={-{Stealth[length=1.5mm,width=1.4mm]},line width=.6pt,draw=ink!70},
+  thin/.style={-{Stealth[length=1.2mm,width=1.1mm]},line width=.5pt,draw=#1},
 ]
-% Column A: the released policy.
-\node[hd] at (0,0) {The released policy};
-\node[stage,anchor=north west] (in) at (0.1,-0.45) {camera image + instruction};
-\node[stage,below=1.6mm of in,draw=cgreen,fill=pgreen] (vis) {vision encoder};
-\node[stage,below=1.6mm of vis,draw=cblue,fill=pblue,line width=.9pt] (dec) {\textbf{language decoder} (2\,B)};
-\node[stage,below=1.6mm of dec,draw=corange,fill=porange] (act) {action head};
-\node[stage,below=1.6mm of act] (out) {arm motion};
-\foreach \a/\b in {in/vis,vis/dec,dec/act,act/out}{\draw[flow] (\a) -- (\b);}
-\node[anchor=north,align=center,font=\sffamily\scriptsize,text=ink2] at ($(out.south)+(0,-1.2mm)$)
-  {5.6\,GB GPU memory\,\textperiodcentered\,73\,ms per action\\95\,\% of tasks solved};
+% ---------- panel frames ----------
+\draw[panel={ink!45}{ink!3}] (0,0) rectangle (4.2,-6.15);
+\draw[panel={accent}{accent!4}] (4.75,0) rectangle (12.15,-6.15);
+\draw[panel={cteal}{cteal!4}] (12.7,0) rectangle (17.3,-6.15);
+\node[badge=ink!75] (b1) at (0.38,-0.38) {1};
+\node[ptitle,right=1.5mm of b1] {The released policy};
+\node[badge=accent] (b2) at (5.13,-0.38) {2};
+\node[ptitle,right=1.5mm of b2] {Three ways to shrink or speed it up};
+\node[badge=cteal] (b3) at (13.08,-0.38) {3};
+\node[ptitle,right=1.5mm of b3] {What each one bought};
 
-% Column B: three levers.
-\node[hd] at (4.55,0) {Three ways to make it smaller or faster};
-\node[lever,draw=cblue,fill=pblue,anchor=north west] (l1) at (4.6,-0.45)
-  {\textbf{1\enspace Fewer bits per weight}\\[1pt]{\scriptsize The language decoder holds at 4 bits and breaks at 2.}};
-\node[lever,draw=corange,fill=porange,below=2.2mm of l1] (l2)
-  {\textbf{2\enspace A faster execution path}\\[1pt]{\scriptsize Replaying a recorded GPU schedule (a CUDA graph): 3.5$\times$ faster.}};
-\node[lever,draw=cgreen,fill=pgreen,below=2.2mm of l2] (l3)
-  {\textbf{3\enspace An agent searches (Dream-RSI)}\\[1pt]{\scriptsize A coding agent writes a compression, a fixed evaluator scores it, and the best ideas get explored next.}};
-\draw[flow] (dec.east) -- ++(3mm,0) |- (l1.west);
-\draw[flow] (dec.east) -- ++(3mm,0) |- (l2.west);
-\draw[flow] (dec.east) -- ++(3mm,0) |- (l3.west);
+% ---------- 1: policy ----------
+\node[stage] (in) at (2.1,-1.25) {\faCamera\ image\enspace+\enspace\faComment[regular]\ instruction};
+\node[stage,draw=cgreen,fill=pgreen] (vis) at (2.1,-2.35) {\faEye\ vision encoder};
+\node[stage,draw=cblue,fill=pblue,line width=.9pt] (dec) at (2.1,-3.45)
+  {\faLanguage\ \textbf{language decoder}};
+\node[stage,draw=corange,fill=porange] (act) at (2.1,-4.55) {\faWaveSquare\ action head};
+\node[stage] (arm) at (2.1,-5.65) {\faRobot\ arm motion};
+\foreach \a/\b in {in/vis,vis/dec,dec/act,act/arm}{\draw[flow] (\a.south) -- (\b.north);}
 
-% Column C: what held up.
-\node[hd] at (11.45,0) {What held up on 500 test episodes};
-\node[tile,draw=cteal,fill=pteal,anchor=north west] (t1) at (11.5,-0.45)
-  {{\bignum\color{cteal}83\,\% less memory}\\[1pt]{\scriptsize 480 of 500 solved; the original solves 475.}};
-\node[tile,draw=cteal,fill=pteal,below=2.2mm of t1] (t2)
-  {{\bignum\color{cteal}4.8$\times$ faster}\\[1pt]{\scriptsize 477 of 500 solved, from the agent's speed search.}};
-\node[tile,draw=garnet,fill=pgarnet,below=2.2mm of t2] (t3)
-  {{\bignum\color{garnet}1 loophole found}\\[1pt]{\scriptsize An agent fooled our memory score. We show how, and the fix.}};
-\draw[flow] (l3.east) -- ++(2.5mm,0) |- (t1.west);
-\draw[flow] (l3.east) -- ++(2.5mm,0) |- (t2.west);
-\draw[flow] (l3.east) -- (t3.west);
+% ---------- 2: levers ----------
+\node[card=cblue] (c1) at (8.45,-1.45) {};
+\node[ctitle] at ($(c1.north west)+(2.2mm,-1.8mm)$) {\color{cblue}\faSlidersH\enspace\color{ink}Fewer bits in the language decoder};
+\foreach \t/\c [count=\i] in {16/cgreen,8/cgreen,4/cgreen,3/cgreen,2/garnet}{
+  \node[chip=\c,minimum width=7.5mm] (k\i) at ($(c1.west)+(0.05+1.0*\i,-0.18)$) {\textbf{\t}\,bits};}
+\foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,4}{\draw[thin=ink!60] (k\i) -- (k\j);}
+\node[anchor=west,font=\sffamily\scriptsize\bfseries,text=garnet] at ($(k5.east)+(1.2mm,0)$) {breaks};
+
+\node[card=corange] (c2) at (8.45,-3.07) {};
+\node[ctitle] at ($(c2.north west)+(2.2mm,-1.8mm)$) {\color{corange}\faBolt\enspace\color{ink}A faster execution path};
+\node[chip=corange] (g1) at ($(c2.west)+(2.05,-0.2)$) {record one action's\\GPU work};
+\node[chip=corange] (g2) at ($(c2.west)+(5.0,-0.2)$) {replay it every step\\(CUDA graph)};
+\draw[thin=corange] (g1) -- (g2);
+
+\node[card=cgreen,minimum height=1.62cm] (c3) at (8.45,-4.79) {};
+\node[ctitle] at ($(c3.north west)+(2.2mm,-1.8mm)$) {\color{cgreen}\faRedo\enspace\color{ink}An agent searches (Dream-RSI)};
+\node[chip=cgreen] (s1) at ($(c3.west)+(1.25,-0.16)$) {agent writes\\a compression};
+\node[chip=cgreen] (s2) at ($(c3.west)+(3.45,-0.16)$) {fixed evaluator\\scores it};
+\node[chip=cgreen] (s3) at ($(c3.west)+(5.68,-0.16)$) {second agent\\picks next ideas};
+\draw[thin=cgreen] (s1) -- (s2);
+\draw[thin=cgreen] (s2) -- (s3);
+\draw[thin=cgreen,rounded corners=2pt] (s3.south) -- ++(0,-1.7mm) -| (s1.south);
+
+\draw[flow] (4.2,-3.45) -- (4.75,-3.45);
+
+% ---------- 3: results ----------
+\node[res=cblue] (r1) at (15.0,-1.45)
+  {{\bignum 37\,\% less memory}\\[1pt]4-bit NF4 decoder, 480 of 500 test episodes solved};
+\node[res=corange] (r2) at (15.0,-3.07)
+  {{\bignum 3.5$\times$ faster}\\[1pt]same weights, same 4 flow steps};
+\node[res=cgreen,minimum height=1.62cm] (r3) at (15.0,-4.79)
+  {{\bignum 83\,\% less memory}\\{\bignum 4.8$\times$ faster}\\[1pt]both no measurable loss};
+\draw[flow] (c1.east) -- (r1.west);
+\draw[flow] (c2.east) -- (r2.west);
+\draw[flow] (c3.east) -- (r3.west);
+\node[anchor=north,text=garnet,font=\sffamily\scriptsize] at (15.0,-5.7)
+  {\faBug\ and one agent gamed our score};
 \end{tikzpicture}
