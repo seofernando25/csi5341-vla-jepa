@@ -1425,6 +1425,289 @@
       }
     ]
   },
+  "dream_rsi_v3": {
+    "status": "ok",
+    "source": "studies/program-v3/cycles",
+    "count": 3,
+    "cycles": [
+      {
+        "cycle_id": "iter_000",
+        "iteration": 0,
+        "status": "done",
+        "best_score": 0.8194693167788111,
+        "probes_used": 6,
+        "decision_rounds": 6,
+        "effective_sequential_rounds": 6,
+        "world_nodes": 6,
+        "policy_path": "policies/v000_initial/policy.py",
+        "baked_in_beta": 0.6,
+        "recorded_utc": "2026-11-17T01:39:03.433611+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_000-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.28381836859512966,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 578.0,
+            "agent_cost_usd": 0.105762,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b0-a0/proposal.md",
+            "proposal_bytes": 2573
+          },
+          {
+            "cell_id": "iter_000-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.2839236081452854,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1123.429,
+            "agent_cost_usd": 0.082373,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b1-a0/proposal.md",
+            "proposal_bytes": 3014
+          },
+          {
+            "cell_id": "iter_000-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.7394159113612581,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 626.32,
+            "agent_cost_usd": 0.086803,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b2-a0/proposal.md",
+            "proposal_bytes": 3300
+          },
+          {
+            "cell_id": "iter_000-b2-a1",
+            "parent_id": "iter_000-b2-a0",
+            "fail_class": "ok",
+            "score": 0.7980468562653389,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1025.623,
+            "agent_cost_usd": 0.083778,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b2-a1/proposal.md",
+            "proposal_bytes": 3578
+          },
+          {
+            "cell_id": "iter_000-b2-a2",
+            "parent_id": "iter_000-b2-a1",
+            "fail_class": "ok",
+            "score": 0.8194693167788111,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 919.376,
+            "agent_cost_usd": 0.099341,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b2-a2/proposal.md",
+            "proposal_bytes": 2919,
+            "development_status": "ok",
+            "development_successes": 82,
+            "development_episodes": 100
+          },
+          {
+            "cell_id": "iter_000-b2-a3",
+            "parent_id": "iter_000-b2-a2",
+            "fail_class": "gate_near_miss",
+            "score": 0.0,
+            "successes": 7,
+            "episodes": 10,
+            "agent_seconds": 435.76,
+            "agent_cost_usd": 0.059001,
+            "proposal": "studies/program-v3/cycles/iter_000/nodes/iter_000-b2-a3/proposal.md",
+            "proposal_bytes": 4873
+          }
+        ],
+        "sources": [
+          "studies/program-v3/cycles/iter_000/tree.json",
+          "studies/program-v3/cycles/iter_000/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_001",
+        "iteration": 1,
+        "status": "done",
+        "best_score": 0.8002728737294402,
+        "probes_used": 6,
+        "decision_rounds": 6,
+        "effective_sequential_rounds": 6,
+        "world_nodes": 6,
+        "policy_path": "policies/iter_000/selected_policy.py",
+        "recorded_utc": "2026-11-17T05:04:58.767763+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_001-b0-a0",
+            "parent_id": "root",
+            "fail_class": "agent_failure",
+            "score": 0.0,
+            "agent_seconds": 520.827,
+            "agent_cost_usd": 0.069858
+          },
+          {
+            "cell_id": "iter_001-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.40509726664933987,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 677.05,
+            "agent_cost_usd": 0.075084,
+            "proposal": "studies/program-v3/cycles/iter_001/nodes/iter_001-b1-a0/proposal.md",
+            "proposal_bytes": 2825
+          },
+          {
+            "cell_id": "iter_001-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.7108213572339173,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 785.232,
+            "agent_cost_usd": 0.077715,
+            "proposal": "studies/program-v3/cycles/iter_001/nodes/iter_001-b2-a0/proposal.md",
+            "proposal_bytes": 3857
+          },
+          {
+            "cell_id": "iter_001-b2-a1",
+            "parent_id": "iter_001-b2-a0",
+            "fail_class": "ok",
+            "score": 0.7662665219013827,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1075.359,
+            "agent_cost_usd": 0.156758,
+            "proposal": "studies/program-v3/cycles/iter_001/nodes/iter_001-b2-a1/proposal.md",
+            "proposal_bytes": 3971
+          },
+          {
+            "cell_id": "iter_001-b2-a2",
+            "parent_id": "iter_001-b2-a1",
+            "fail_class": "ok",
+            "score": 0.7952228369823838,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 776.028,
+            "agent_cost_usd": 0.114733,
+            "proposal": "studies/program-v3/cycles/iter_001/nodes/iter_001-b2-a2/proposal.md",
+            "proposal_bytes": 4054
+          },
+          {
+            "cell_id": "iter_001-b2-a3",
+            "parent_id": "iter_001-b2-a2",
+            "fail_class": "ok",
+            "score": 0.8002728737294402,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1440.955,
+            "agent_cost_usd": 0.151329,
+            "proposal": "studies/program-v3/cycles/iter_001/nodes/iter_001-b2-a3/proposal.md",
+            "proposal_bytes": 5438,
+            "development_status": "ok",
+            "development_successes": 83,
+            "development_episodes": 100
+          }
+        ],
+        "sources": [
+          "studies/program-v3/cycles/iter_001/tree.json",
+          "studies/program-v3/cycles/iter_001/live_cycle_manifest.json"
+        ]
+      },
+      {
+        "cycle_id": "iter_002",
+        "iteration": 2,
+        "status": "done",
+        "best_score": 0.8278075413455772,
+        "probes_used": 6,
+        "decision_rounds": 6,
+        "effective_sequential_rounds": 6,
+        "world_nodes": 6,
+        "policy_path": "policies/iter_001/selected_policy.py",
+        "recorded_utc": "2026-11-17T07:33:04.074072+00:00",
+        "nodes": [
+          {
+            "cell_id": "iter_002-b0-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.5943683137600255,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1516.037,
+            "agent_cost_usd": 0.115026,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b0-a0/proposal.md",
+            "proposal_bytes": 3470
+          },
+          {
+            "cell_id": "iter_002-b1-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.802613266121315,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 706.278,
+            "agent_cost_usd": 0.098571,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b1-a0/proposal.md",
+            "proposal_bytes": 4085
+          },
+          {
+            "cell_id": "iter_002-b1-a1",
+            "parent_id": "iter_002-b1-a0",
+            "fail_class": "ok",
+            "score": 0.8042642115643832,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 919.41,
+            "agent_cost_usd": 0.133002,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b1-a1/proposal.md",
+            "proposal_bytes": 3758
+          },
+          {
+            "cell_id": "iter_002-b2-a0",
+            "parent_id": "root",
+            "fail_class": "ok",
+            "score": 0.802578094917487,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 457.071,
+            "agent_cost_usd": 0.083248,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b2-a0/proposal.md",
+            "proposal_bytes": 3571
+          },
+          {
+            "cell_id": "iter_002-b2-a1",
+            "parent_id": "iter_002-b2-a0",
+            "fail_class": "ok",
+            "score": 0.8049781413252053,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 404.331,
+            "agent_cost_usd": 0.081323,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b2-a1/proposal.md",
+            "proposal_bytes": 3409
+          },
+          {
+            "cell_id": "iter_002-b2-a2",
+            "parent_id": "iter_002-b2-a1",
+            "fail_class": "ok",
+            "score": 0.8278075413455772,
+            "successes": 8,
+            "episodes": 10,
+            "agent_seconds": 1791.102,
+            "agent_cost_usd": 0.185992,
+            "proposal": "studies/program-v3/cycles/iter_002/nodes/iter_002-b2-a2/proposal.md",
+            "proposal_bytes": 4654,
+            "development_status": "ok",
+            "development_successes": 83,
+            "development_episodes": 100
+          }
+        ],
+        "sources": [
+          "studies/program-v3/cycles/iter_002/tree.json",
+          "studies/program-v3/cycles/iter_002/live_cycle_manifest.json"
+        ]
+      }
+    ]
+  },
   "failure": {
     "status": "ok",
     "source": "studies/program-v1/failure/failure.json",
@@ -2448,6 +2731,72 @@
       }
     ]
   },
+  "dream_rsi_v3_reserved": {
+    "status": "ok",
+    "source": "studies/program-v3/reserved",
+    "cells": [
+      {
+        "cell": "iter_000-b2-a2",
+        "successes": 471,
+        "episodes": 500,
+        "success_pct": 94.2,
+        "wilson_pct": [
+          91.7943812143745,
+          95.93162708882429
+        ],
+        "source": "studies/program-v3/reserved/iter_000-b2-a2/final/episodes.csv",
+        "difference_pp": -0.8000000000000002,
+        "ci95_pp": [
+          -2.6,
+          1.2
+        ],
+        "resident_gb": 1.011799552,
+        "size_reduction": 0.8194693167788111,
+        "development_successes": 82,
+        "development_episodes": 100
+      },
+      {
+        "cell": "iter_001-b2-a3",
+        "successes": 477,
+        "episodes": 500,
+        "success_pct": 95.4,
+        "wilson_pct": [
+          93.19222072317267,
+          96.91548916291838
+        ],
+        "source": "studies/program-v3/reserved/iter_001-b2-a3/final/episodes.csv",
+        "difference_pp": 0.4000000000000001,
+        "ci95_pp": [
+          -1.2000000000000002,
+          2.1999999999999997
+        ],
+        "resident_gb": 1.119387648,
+        "size_reduction": 0.8002728737294402,
+        "development_successes": 83,
+        "development_episodes": 100
+      },
+      {
+        "cell": "iter_002-b2-a2",
+        "successes": 480,
+        "episodes": 500,
+        "success_pct": 96.0,
+        "wilson_pct": [
+          93.90264041651491,
+          97.39592026102227
+        ],
+        "source": "studies/program-v3/reserved/iter_002-b2-a2/final/episodes.csv",
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -0.6,
+          2.6
+        ],
+        "resident_gb": 0.965067264,
+        "size_reduction": 0.8278075413455772,
+        "development_successes": 83,
+        "development_episodes": 100
+      }
+    ]
+  },
   "reserved_figure": {
     "status": "ok",
     "memory": "peak allocated GPU memory (GB)",
@@ -2619,6 +2968,49 @@
           "probe": 5,
           "cell_id": "iter_000-b2-a2",
           "pct": 83.4
+        }
+      ]
+    },
+    "program-v3": {
+      "probes": 18,
+      "cycle_sizes": [
+        6,
+        6,
+        6
+      ],
+      "best_pct": 82.78,
+      "suspect_nodes": [],
+      "remeasured": {},
+      "jumps": [
+        {
+          "probe": 1,
+          "cell_id": "iter_000-b0-a0",
+          "pct": 28.38
+        },
+        {
+          "probe": 2,
+          "cell_id": "iter_000-b1-a0",
+          "pct": 28.39
+        },
+        {
+          "probe": 3,
+          "cell_id": "iter_000-b2-a0",
+          "pct": 73.94
+        },
+        {
+          "probe": 4,
+          "cell_id": "iter_000-b2-a1",
+          "pct": 79.8
+        },
+        {
+          "probe": 5,
+          "cell_id": "iter_000-b2-a2",
+          "pct": 81.95
+        },
+        {
+          "probe": 18,
+          "cell_id": "iter_002-b2-a2",
+          "pct": 82.78
         }
       ]
     }

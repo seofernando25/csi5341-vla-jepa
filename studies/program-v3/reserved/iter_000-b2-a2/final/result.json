@@ -1,0 +1,171 @@
+{
+  "phase": "final",
+  "time_limit_s": 900.0,
+  "stage_seconds": {
+    "hash": 0.0008977509860415012,
+    "load": 8.69944221599144,
+    "baseline": 1.744658827985404,
+    "import": 0.0018518330180086195,
+    "compress": 4.1785508440225385,
+    "measure": 1.3061598759959452,
+    "rollout": 3523.6119864089997,
+    "measure_after": 1.5269028159964364
+  },
+  "status": "ok",
+  "environment": {
+    "recorded_at": "2026-11-17T08:03:56.731485+00:00",
+    "python": "3.12.11",
+    "platform": "Linux",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.5.4",
+      "lerobot": "0.6.2",
+      "hf-libero": "0.1.4",
+      "bitsandbytes": "0.50.2",
+      "mujoco": "3.8.1",
+      "robosuite": "1.4.0",
+      "numpy": "2.2.6",
+      "matplotlib": "3.11.2"
+    },
+    "git_revision": "fe2953391e312c2beb465f82a815ebf1564b6234",
+    "cuda_available": true,
+    "torch_cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_total_bytes": 25348210688,
+    "cuda_compute_verified": true,
+    "driver": "615.78.08"
+  },
+  "workspace_sha256": "83a8ebf82f2384f7816cfe24975b362f84537e9e3fae9f7f6075bbd1939363c2",
+  "workspace_large_files": [],
+  "model": {
+    "variant": "B16",
+    "status": "published_trained_policy",
+    "logical_parameters": 2766137991,
+    "quantized_modules": [],
+    "parameter_dtypes": {
+      "torch.bfloat16": 1612
+    },
+    "chunk_size": 7,
+    "n_action_steps": 7,
+    "num_inference_timesteps": 4,
+    "world_model_loaded": true,
+    "sources": {
+      "lerobot_commit": "30074f7f1358b3c015ae1750017200e86e9c4eb6",
+      "models": {
+        "baseline": {
+          "repo": "lerobot/VLA-JEPA-LIBERO",
+          "revision": "735d9f692981e286ade093b5046627eda876e5d0"
+        },
+        "smolvlm": {
+          "repo": "HuggingFaceTB/SmolVLM2-500M-Video-Instruct",
+          "revision": "7b375e1b73b11138ff12fe22c8f2822d8fe03467"
+        },
+        "qwen": {
+          "repo": "Qwen/Qwen3-VL-2B-Instruct",
+          "revision": "89644892e4d85e24eaac8bacfd4f463576704203"
+        },
+        "world_model": {
+          "repo": "facebook/vjepa2-vitl-fpc64-256",
+          "revision": "b3c1679b7c34d3255ef3547f27c7b226aefab26f"
+        },
+        "pretrain": {
+          "repo": "lerobot/VLA-JEPA-Pretrain",
+          "revision": "e946c3e5b538d760f4b4ff239d1b1c12090c041d"
+        }
+      },
+      "simulator_assets": {
+        "repo": "lerobot/libero-assets",
+        "revision": "0b3ea86be5fe169d0fd036ae63d1070ec09e90f6"
+      }
+    },
+    "checkpoint_compatibility": {
+      "missing_keys": [],
+      "ignored_keys": [
+        "model.qwen.model.model.language_model.embed_tokens.weight",
+        "model.video_predictor.extrinsics_encoder.bias",
+        "model.video_predictor.extrinsics_encoder.weight",
+        "model.video_predictor.state_encoder.bias",
+        "model.video_predictor.state_encoder.weight"
+      ],
+      "tied_embedding_equality_verified": true,
+      "reason": "Identical tied alias and unused checkpoint-only state/extrinsics world-predictor modules"
+    },
+    "Q8_internal_activation_cast": null
+  },
+  "baseline_resident_bytes": 5604584960,
+  "baseline_walk_bytes": 5532276502,
+  "baseline_peak_cuda_bytes": 5604584960,
+  "seed": 1000,
+  "sizes": {
+    "resident_bytes": 1011799552,
+    "baseline_resident_bytes": 5604584960,
+    "size_reduction": 0.8194693167788111,
+    "peak_cuda_bytes": 1011799552,
+    "workspace_file_bytes": 0,
+    "resident_before_inference_bytes": 885227474,
+    "resident_after_inference_bytes": 885352147
+  },
+  "successes": 471,
+  "episodes": 500,
+  "rollout": {
+    "episodes": 500,
+    "successes": 471,
+    "task_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "phase": "final",
+    "task_macro_success": 0.942,
+    "per_task": {
+      "0": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "1": {
+        "successes": 48,
+        "episodes": 50
+      },
+      "2": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "3": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "4": {
+        "successes": 44,
+        "episodes": 50
+      },
+      "5": {
+        "successes": 30,
+        "episodes": 50
+      },
+      "6": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "7": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "8": {
+        "successes": 50,
+        "episodes": 50
+      },
+      "9": {
+        "successes": 49,
+        "episodes": 50
+      }
+    }
+  },
+  "wall_seconds": 3541.3829079679854
+}

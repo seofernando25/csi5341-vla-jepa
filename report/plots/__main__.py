@@ -68,11 +68,13 @@ def main() -> None:
     n["figures"]["divergence"] = build("divergence", fig_divergence, record)
     n["dream_rsi"] = dream_rsi_cycles()
     n["dream_rsi_v2"] = dream_rsi_cycles(STUDY.parent / "program-v2")
+    n["dream_rsi_v3"] = dream_rsi_cycles(STUDY.parent / "program-v3")
     n["failure"] = failure_record(STUDY)
     n["figures"]["failure"] = build("failure", fig_failure, n["failure"])
     n["reserved_summary"] = reserved_summary()
     n["dream_rsi_reserved"] = solution_reserved()
     n["dream_rsi_v2_reserved"] = solution_reserved(STUDY.parent / "program-v2")
+    n["dream_rsi_v3_reserved"] = solution_reserved(STUDY.parent / "program-v3")
     reserved = fig_reserved(n)
     if reserved is None:
         print("skip reserved: evidence absent")

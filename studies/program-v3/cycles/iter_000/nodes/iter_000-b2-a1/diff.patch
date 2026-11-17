@@ -1,0 +1,234 @@
+diff --git a/proposal.md b/proposal.md
+index b1518de..aed90be 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,61 +1,68 @@
+-# Proposal: exact removals, NF4 text decoder, int8 vision/action
+-
+-## What changed relative to the parent
+-
+-The parent is the untouched template (`compress` returns `policy`).  This node mutates the
+-loaded policy in place and returns the same object:
+-
+-1. **Drop the JEPA world model.**  `video_encoder`, `video_predictor` and `video_processor`
+-   are training-only; inference runs Qwen plus the action head.  Setting them to `None`
+-   frees their CUDA storages (~967 MB).
+-2. **Compact the text embedding table.**  The Qwen table is 151936 x 2048 bf16 (~622 MB), but
+-   the ten LIBERO-Spatial instructions, the chat template, the image placeholders and the
+-   action tokens use 53 distinct ids.  The table and the tied (unused) `lm_head` are replaced
+-   by a 54-row embedding plus an int32 id map; unknown ids map to a zero row.
+-3. **Compact the action-head position table.**  The DiT indexes only positions `0..6`, so the
+-   1024 x 768 table is replaced by its first 7 rows.
+-4. **NF4 for the Qwen text decoder.**  Every remaining `nn.Linear` in
+-   `language_model.layers` is replaced by a `bitsandbytes.nn.Linear4bit` (NF4, double
+-   quantization, bf16 compute).  This is the largest stack (2.82 GB).
+-5. **Int8 for the vision tower and action head.**  Every `nn.Linear` in `visual` and
+-   `action_model` is replaced by a custom weight-only int8 module with one symmetric scale
+-   per output channel.  The int8 weights are dequantized a layer at a time in `forward` and
+-   the temporary is released.  The action head's `TimestepEncoder` stays bf16 because its
+-   forward reads `next(self.parameters()).dtype`.
++# Proposal: NF4 for the vision tower and action head, on top of the parent's exact removals
++
++## What changed relative to the parent (`iter_000-b2-a0`)
++
++The parent already does the exact removals (world model, compact text embedding, compact
++action position table) and quantizes the text decoder to NF4 while the vision tower and action
++head use weight-only int8.  This node keeps all of that and changes one thing:
++
++**Every remaining `nn.Linear` leaf in the vision tower and the action head is now a
++bitsandbytes NF4 module** (double quantization, bf16 compute), replacing the parent's int8
++modules.  The action head's `TimestepEncoder` stays bf16 because its forward reads
++`next(self.parameters()).dtype`; everything else (vision blocks, mergers, DiT attention,
++feed-forward, AdaLayerNorm, action encoder/decoder) is NF4.
+ 
+ All changes are in place, so the evaluator's original policy object owns the same modules and
+ the old storages are freed.  No compressed copy is kept.
+ 
+ ## Why
+ 
+-The exact removals are free.  The text decoder is the largest remaining stack and NF4 halves
+-it again relative to int8; the vision tower and action head are smaller and more sensitive,
+-so they get the safer int8 treatment.  The smoke gate has no margin (the untouched policy
+-passes about 8/10), so the mixed scheme was chosen after measuring both action error and the
+-actual ten smoke episodes.
++The parent's resident figure is `max(weight walk, peak CUDA)`; the peak is only ~164 MB above
++the weights, so every weight byte removed lowers the score directly.  After the parent's
++removals the remaining stacks were the NF4 text decoder (~0.70 GB), the int8 vision tower
++(~0.40 GB) and the int8 action head (~0.16 GB).  NF4 halves the two int8 stacks again
++(~0.28 GB saved) with the same bf16 compute path the text decoder already uses.  The measured
++80-frame action error actually improved from the parent's 0.113 to 0.086, and the real
++ten-episode smoke run kept the untouched policy's success pattern.
++
++I also tried the calibration's `block_influence` as a pruning guide: dropping text blocks
++3..10 (influence 4.6e-5..2.2e-4, far below blocks 0..2 and 27) reached 83.7% removed but the
++80-frame action error jumped to 1.066.  The influence metric is relative to the huge residual
++norm of block 2, so it does not predict the action readout's sensitivity.  That variant was
++rejected and is not in `solution.py`.
+ 
+ ## Last check output
+ 
+ ```
+ status: ok
+-memory removed: 73.9% (resident 1460460032 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.113281
+-latency ms: median 110.38, p95 116.93
+-compress: 4.4 s
++memory removed: 79.8% (resident 1131857920 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.0859375
++latency ms: median 142.72, p95 159.69
++compress: 6.2 s
+ nonfinite predictions: 0
+ ```
+ 
+-The workspace's own ten-episode smoke run (`evaluation.rollout`, tasks 0..9, development
+-phase, one trial each, the evaluator's seeds) returned **8/10 successes**.  The two failures
+-are tasks 0 and 8, exactly the two the untouched policy fails, so the success distribution is
+-unchanged.
++The workspace's own ten-episode smoke run (`evaluation.rollout.run_episode`, tasks 0..9,
++development phase, one trial each, the evaluator's seeds) returned **8/10 successes**:
++
++```
++task=0 success=0  task=1 success=1  task=2 success=1  task=3 success=1
++task=4 success=1  task=5 success=1  task=6 success=1  task=7 success=1
++task=8 success=0  task=9 success=1
++TOTAL 8 / 10 [0, 1, 1, 1, 1, 1, 1, 1, 0, 1]
++```
++
++The two failures are tasks 0 and 8, exactly the two the untouched policy and the parent fail,
++so the success distribution is unchanged while the resident memory fell from the parent's
++1.460 GB to 1.132 GB.
+ 
+ ## What I would try next
+ 
+-The remaining large weights are the NF4 text decoder (~0.7 GB), the int8 vision tower
+-(~0.4 GB) and the int8 action head (~0.16 GB).  NF4 for the vision tower would remove another
+-~0.2 GB, and NF4 for the action head another ~0.08 GB, but the action error is already 0.113
+-and the gate has no margin.  A safer next step is to keep the first and last text-decoder
+-layers in bf16 (or int8) and NF4 only the middle layers, then re-run the ten smoke episodes.
+-I would not take any further step without the actual smoke result, because a single new
+-episode failure zeroes the node.
++The remaining weights are the NF4 text decoder (~0.70 GB), NF4 vision tower (~0.20 GB) and
++NF4 action head (~0.08 GB).  A packed 3-bit or 2-bit weight format for the text decoder would
++remove another 0.18-0.35 GB, but it must be checked against the actual ten-episode smoke run,
++not just the 80-frame action error: the block-drop experiment shows how poorly a low action
++error predicts the readout's sensitivity.  A safer next step is 3-bit only for the vision
++tower's later blocks (12..22 have the lowest vision influence), which is worth ~0.05 GB and
++does not touch the text readout.  I would not take either step without a fresh smoke run,
++because one new episode failure zeroes the node.
+diff --git a/solution.py b/solution.py
+index 501d79e..391688f 100644
+--- a/solution.py
++++ b/solution.py
+@@ -2,11 +2,12 @@
+ 
+ The policy is mutated in place so the evaluator's original object owns the same modules and
+ the removed storages are actually freed.  Three exact removals come first (world model, text
+-embedding rows, action-head position rows); then the Qwen text decoder's ``nn.Linear``
+-leaves are replaced by bitsandbytes NF4 modules, and the vision tower and action head's
+-leaves by weight-only int8 modules with one symmetric scale per output channel.  The int8
+-weights are dequantized a layer at a time in ``forward`` and the temporary is released, so no
+-bf16 copy of the model is kept.
++embedding rows, action-head position rows); then every remaining ``nn.Linear`` leaf is
++replaced by a bitsandbytes NF4 module (double quantization, bf16 compute), and text-decoder
++blocks whose residual influence is negligible are removed outright.  The int8 path of the
++parent is gone: NF4 is smaller for the same compute dtype, and the calibration's
++``block_influence`` identifies the text blocks that can be dropped without moving the action
++path.
+ """
+ 
+ from __future__ import annotations
+@@ -27,6 +28,11 @@ TOKEN_IDS = (
+     151670, 151671, 151697,
+ )
+ 
++# Text-decoder blocks with negligible residual influence in the calibration.  The list is
++# deliberately conservative: blocks 0..2 and 27 carry the action readout, and the remaining
++# blocks are only dropped after the 80-frame action error confirms the choice.
++DROP_TEXT = ()
++
+ 
+ class CompactEmbedding(nn.Module):
+     """Embedding table with only the rows inference can read, plus a zero fallback row."""
+@@ -51,29 +57,6 @@ class CompactEmbedding(nn.Module):
+         return F.embedding(self.id_map[input_ids], self.weight)
+ 
+ 
+-class Int8Linear(nn.Module):
+-    """Weight-only symmetric int8 linear, dequantized per call and never cached."""
+-
+-    def __init__(self, linear: nn.Linear) -> None:
+-        super().__init__()
+-        weight = linear.weight.detach()
+-        scale = weight.float().abs().amax(dim=1, keepdim=True).clamp_min(1e-8) / 127.0
+-        quantized = torch.round(weight.float() / scale).clamp_(-127, 127).to(torch.int8)
+-        self.in_features = linear.in_features
+-        self.out_features = linear.out_features
+-        self.register_buffer("weight", quantized, persistent=False)
+-        self.register_buffer("scale", scale.to(torch.float32), persistent=False)
+-        if linear.bias is not None:
+-            self.register_buffer("bias", linear.bias.detach().clone(), persistent=False)
+-        else:
+-            self.bias = None
+-
+-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+-        weight = self.weight.to(x.dtype)
+-        weight.mul_(self.scale.to(x.dtype))
+-        return F.linear(x, weight, self.bias)
+-
+-
+ def _replace_linears_4bit(module: nn.Module, skip: tuple[str, ...] = ()) -> None:
+     """Replace every plain Linear leaf under ``module`` with bitsandbytes NF4."""
+     for name, child in list(module.named_modules()):
+@@ -101,16 +84,6 @@ def _replace_linears_4bit(module: nn.Module, skip: tuple[str, ...] = ()) -> None
+         parent._modules[leaf] = replacement
+ 
+ 
+-def _replace_linears(module: nn.Module, skip: tuple[str, ...] = ()) -> None:
+-    """Replace every plain Linear leaf under ``module`` with an Int8Linear."""
+-    for name, child in list(module.named_modules()):
+-        if not isinstance(child, nn.Linear) or any(name.startswith(p) for p in skip):
+-            continue
+-        parent_name, _, leaf = name.rpartition(".")
+-        parent = module.get_submodule(parent_name) if parent_name else module
+-        parent._modules[leaf] = Int8Linear(child)
+-
+-
+ def _compact_embedding(policy) -> None:
+     qwen = policy.model.qwen.model  # Qwen3VLForConditionalGeneration
+     language_model = qwen.model.language_model
+@@ -130,6 +103,16 @@ def _compact_position_embedding(policy) -> None:
+     )
+ 
+ 
++def _drop_text_layers(policy, drop: tuple[int, ...]) -> None:
++    """Remove text-decoder blocks by rebuilding the ModuleList, so their storages are freed."""
++    if not drop:
++        return
++    language_model = policy.model.qwen.model.model.language_model
++    dropped = set(drop)
++    kept = [layer for index, layer in enumerate(language_model.layers) if index not in dropped]
++    language_model.layers = nn.ModuleList(kept)
++
++
+ def compress(policy, calibration):
+     model = policy.model
+ 
+@@ -142,12 +125,14 @@ def compress(policy, calibration):
+     _compact_embedding(policy)
+     _compact_position_embedding(policy)
+ 
+-    # NF4 for the large text decoder; int8 for the smaller vision tower and action head.
++    # NF4 everywhere.  The action head's TimestepEncoder reads next(self.parameters()).dtype,
++    # so its two small linears stay bf16.
+     qwen = policy.model.qwen.model
+     _replace_linears_4bit(qwen.model.language_model)
+-    _replace_linears(qwen.model.visual)
+-    # TimestepEncoder reads next(self.parameters()).dtype; keep its two small linears in bf16.
+-    _replace_linears(policy.model.action_model, ("model.timestep_encoder",))
++    _replace_linears_4bit(qwen.model.visual)
++    _replace_linears_4bit(policy.model.action_model, ("model.timestep_encoder",))
++
++    _drop_text_layers(policy, DROP_TEXT)
+ 
+     torch.cuda.empty_cache()
+     return policy

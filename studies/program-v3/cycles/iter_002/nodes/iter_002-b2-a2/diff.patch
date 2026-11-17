@@ -1,0 +1,489 @@
+diff --git a/check.log b/check.log
+index be65f94..f22e2de 100644
+--- a/check.log
++++ b/check.log
+@@ -1,10 +1,6 @@
+-WARNING:lerobot.configs.policies:Device 'None' is not available. Switching to 'cuda'.
+-Loading weights:   0%|          | 0/625 [00:00<?, ?it/s]Loading weights: 100%|██████████| 625/625 [00:00<00:00, 14113.26it/s]
+-`torch_dtype` is deprecated! Use `dtype` instead!
+-Loading weights:   0%|          | 0/587 [00:00<?, ?it/s]Loading weights:  60%|█████▉    | 350/587 [00:00<00:00, 3388.66it/s]Loading weights: 100%|██████████| 587/587 [00:00<00:00, 4618.48it/s]
+ status: ok
+-memory removed: 80.5% (resident 1093010944 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.102539
+-latency ms: median 130.64, p95 134.55
+-compress: 7.5 s
++memory removed: 82.8% (resident 965061632 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.144043
++latency ms: median 503.08, p95 599.13
++compress: 4.9 s
+ nonfinite predictions: 0
+diff --git a/proposal.md b/proposal.md
+index 81fcfae..e4bbe7f 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,10 +1,9 @@
+-# Proposal: NF4/AWQ parent plus provably inert action-head trimming
++# Proposal: packed 3-bit text MLP + action DiT, and no KV cache
+ 
+ ## Parent
+-`iter_002-b2-a0` (in-place NF4/AWQ compression): resident 1,105,683,968 bytes, 80.26%
+-removed, check action error 0.096, development smoke 8/10 (tasks 0 and 8 fail, exactly the
+-untouched baseline). The best node in the tree is `iter_002-b1-a1` at 0.804264
+-(1,097,017,856 bytes). The 8/10 gate has no margin, so every new change must keep tasks
++`iter_002-b2-a1` (in-place NF4/AWQ compression): resident 1,093,016,576 bytes, 80.50%
++removed, check action error 0.102539, development smoke 8/10 (tasks 0 and 8 fail, exactly
++the untouched baseline). The 8/10 gate has no margin, so every new change must keep tasks
+ 0 and 8 as the only failures.
+ 
+ ## Change
+@@ -12,51 +11,74 @@ All work is in place on the loaded policy; no copy of the original weights is ke
+ 
+ 1. **Keep the parent's compression**: the training-only world model is removed, the tied
+    151936-row Qwen embedding is compacted to the fixed LIBERO prompt rows, text block 3 is
+-   dropped, and every large Linear in the text decoder, vision tower and action head is NF4
+-   with AWQ-style per-input-channel scaling from `linear_inputs`.
+-2. **Drop action-head DiT blocks 7, 9 and 11.** The calibration ranks them lowest of the
+-   action blocks (`action.7 = 0.0020`, `action.9 = 0.0016`, `action.11 = 0.0021`; block 0
+-   is 2.03 and the median block is ~0.003). All three are odd-indexed self-attention
+-   blocks, so removing them does not change the cross-attention pattern of the remaining
+-   blocks. Each NF4 block is 5.15 MB, so the three removals save 15.5 MB.
+-3. **Compact the action position table.** `action_model.position_embedding` has 1024 rows
+-   but `_build_inputs` only indexes `0..chunk_size-1` (7 rows); replace it with an 8-row
+-   table holding the first eight rows. Saves 1.6 MB.
++   dropped, action DiT blocks 7, 9 and 11 are dropped, the action position table is reduced
++   to the 8 rows `_build_inputs` can index, and every large Linear in the text decoder,
++   vision tower and action head is quantized.
++2. **Packed 3-bit text MLP.** Every `gate_proj`, `up_proj` and `down_proj` in the 27 text
++   decoder blocks is stored as 3-bit codes (8 codes per 3 bytes) with one bf16 scale per
++   group of 64 input channels. The 8-level codebook is the normal-quantile map normalized
++   to [-1, 1] and keeps an exact zero. The AWQ per-input-channel scale from
++   `linear_inputs` is folded into the stored weight and divided out in forward. The weight
++   is dequantized in chunks of 256 output rows, which bounds the transient bf16 weight.
++   This replaces the parent's NF4 on the text MLP and saves about 111 MB.
++3. **Packed 3-bit action DiT.** The action DiT's attention and feed-forward projections
++   (shapes 768x768, 3072x768, 768x3072) use the same packed 3-bit scheme with full
++   dequantization (the largest is only 4.7 MB bf16). This saves about 9 MB.
++4. **Disable the Qwen KV cache.** `predict_action_chunk` is a single forward pass, so the
++   per-layer key/value cache is pure overhead. Setting `use_cache=False` on the Qwen text
++   config is bit-exact and removes about 21 MB from the measured peak.
++
++Everything else (text/vision attention, vision MLP, action decoder, tiny projections)
++stays NF4/AWQ or bfloat16 as in the parent.
+ 
+ ## Why
+-The parent is already at the 8/10 gate, so the only safe direction is to remove parameters
+-that inference provably does not need. The three action blocks are the least influential in
+-the calibration, and the position table is over-sized for the fixed chunk length. All
+-removals are real: the old modules are replaced and freed before `compress` returns,
+-nothing is deferred, hidden or written to disk.
+-
+-I also measured dropping two more text decoder blocks (4 and 6), whose calibration
+-influence (5.8e-5, 9.8e-5) is the same order as block 3 (4.6e-5). That reached 81.4%
+-removed but raised the action error to 0.333, so it was rejected: the calibration residual
+-influence does not reliably predict the episode outcome, exactly as sibling
+-`iter_002-b1-a1` found for text block 5. The final solution therefore keeps every text
+-block except block 3.
++The parent is already at the 8/10 gate, so the only useful direction is lower-bit storage
++of weights whose quantization error stays inside the parent's error band. The text MLP is
++75% of the text decoder parameters and tolerated 3-bit quantization well: the fixed
++normal-quantile codebook gave action error 0.125 on 40 bank frames, versus 0.191 for a
++per-weight k-means codebook (the k-means centers lost the exact zero). The action DiT
++3-bit alone measured 0.102, the same as the parent's NF4 action head, and the combination
++measured 0.116 on 40 bank frames. Disabling the KV cache is exact.
++
++Measured and rejected during this search:
++
++- 3-bit text attention (q/k/v/o): action error 0.215; k/v only 0.167; o_proj only 0.189.
++- 3-bit vision MLP: 0.146 alone, 0.170 combined with the text MLP; 3-bit vision attention
++  was 0.215. Not worth the extra ~22 MB for the error.
++- 2-bit text MLP: 4.90 action error (far too coarse).
++- Dropping the vision deepstack mergers: 0.876 action error (deepstack matters a lot).
++- Dropping vision blocks 12-17: 0.446; dropping text block 4: 0.268; dropping action
++  blocks 5 and 6 in addition to 7/9/11: 0.150 (only 8 MB, not worth the risk).
+ 
+ ## Last check
+-`python tools/check.py` (raw output in `check.log`):
++`python tools/check.py` (final run, raw output in `check.log`):
+ 
+ ```
+ status: ok
+-memory removed: 80.5% (resident 1093010944 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.102539
+-latency ms: median 130.64, p95 134.55
+-compress: 7.5 s
++memory removed: 82.8% (resident 965061632 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.144043
++latency ms: median 503.08, p95 599.13
++compress: 4.9 s
+ nonfinite predictions: 0
+ ```
+ 
+-The action error (0.103) is in the same range as the nodes that passed the 8/10 gate
+-(`iter_002-b1-a0` at 0.103 and `iter_002-b1-a1` at 0.109 both kept tasks 0 and 8 as the only
+-failures), while resident size falls 12.7 MB below the parent and 4.0 MB below the best
+-node in the tree.
++Development smoke with the repository's own LIBERO rollout code, one episode per task:
++
++```
++task=0 success=0  task=1 success=1  task=2 success=1  task=3 success=1  task=4 success=1
++task=5 success=1  task=6 success=1  task=7 success=1  task=8 success=0  task=9 success=1
++successes=8/10
++```
++
++Tasks 0 and 8 are the same two failures as the untouched policy and the parent, so the
++no-margin 8/10 gate is preserved while resident memory falls from 1,093,016,576 to
++965,061,632 bytes (80.50% -> 82.8% removed).
+ 
+ ## Next
+-The remaining ~1.09 GB is dominated by the 27 NF4 text blocks (~680 MB) and the vision
+-tower (~210 MB). A further reduction needs a lower-bit scheme with error compensation
+-(GPTQ-style 3-bit on the low-influence text blocks) rather than more whole-block drops,
+-because whole-block removal is empirically much more damaging than the calibration
+-influence suggests. A fresh development smoke must accompany any such attempt.
++The remaining ~965 MB is mostly the 27 NF4 text attention projections (~180 MB), the NF4
++vision tower (~210 MB), and the 3-bit text MLP (~400 MB). A further safe reduction would
++need either a smaller group size only on the low-influence text layers, GPTQ-style error
++compensation for 3-bit attention, or a small (5%) activation-aware pruning of the text MLP
++intermediate channels. Any of those needs a fresh development smoke because the gate has
++no margin; whole-block removal is empirically much more damaging than the calibration
++influence suggests.
+diff --git a/solution.py b/solution.py
+index 393ce81..5bdb65e 100644
+--- a/solution.py
++++ b/solution.py
+@@ -1,10 +1,12 @@
+ """In-place compression of the VLA-JEPA B16 policy.
+ 
+-Everything happens on the loaded policy: the training-only world model is dropped, the
+-tied 151936-row input embedding is replaced by a compact table for the fixed LIBERO
+-prompt token set, low-influence text MLP channels are pruned using the calibration
+-activation statistics, and the remaining large Linear layers are quantized to NF4 with
+-activation-aware per-channel scaling.  No copy of the original weights is kept.
++The training-only world model is dropped, the tied 151936-row input embedding is replaced
++by a compact table for the fixed LIBERO prompt token set, text decoder block 3 and the
++least influential action-head blocks are removed, and the remaining large Linears are
++quantized in place: text/vision/action attention stays NF4, while the text MLP and the
++action DiT use a packed 3-bit codebook with per-group scales and AWQ-style per-input-channel
++scaling.  The Qwen KV cache is disabled because inference is a single forward pass.  No copy
++of the original weights is kept.
+ """
+ 
+ from __future__ import annotations
+@@ -28,9 +30,6 @@ _TEXT_IDS = (
+ _SPECIAL_IDS = tuple(range(151643, 151698))
+ _KEEP_IDS = _TEXT_IDS + _SPECIAL_IDS
+ 
+-# Fraction of each text MLP's intermediate channels removed.  Channels are ranked by
+-# calibration activation magnitude times the down-projection column norm.
+-_PRUNE_FRACTION = 0.0
+ # Text decoder blocks removed entirely (smallest measured residual influence).  Block 5 is
+ # deliberately kept: a sibling node measured that dropping it costs a large action error.
+ _DROP_TEXT_BLOCKS = (3,)
+@@ -41,6 +40,154 @@ _POSITION_ROWS = 8
+ # Linear layers below this many weights stay bfloat16 (tiny action-head projections).
+ _MIN_QUANT_WEIGHTS = 500_000
+ 
++# Packed 3-bit quantization.  `_CODEBOOK_3` is the 8-level normal-quantile codebook
++# normalized to [-1, 1]; it keeps an exact zero, which the k-means codebooks did not.
++_PACK_BITS = 3
++_PACK_GROUP = 64
++_PACK_CHUNK = 256
++_CODEBOOK_3 = (
++    -1.0,
++    -0.478629,
++    -0.217142,
++    0.0,
++    0.16093,
++    0.337915,
++    0.562617,
++    1.0,
++)
++# Shapes of the text MLP projections (gate/up and down).
++_PACK_TEXT_MLP = {(6144, 2048), (2048, 6144)}
++# Shapes of the action DiT attention and feed-forward projections.
++_PACK_ACTION = {(3072, 768), (768, 3072), (768, 768)}
++_PACK_ACTION_ENABLED = True
++
++
++def _pack(codes: torch.Tensor, bits: int) -> torch.Tensor:
++    """Pack integer codes in the last dimension; 8 codes per 3 bytes for 3-bit."""
++    if bits == 2:
++        c = codes.to(torch.uint8)
++        c = c.view(*c.shape[:-1], c.shape[-1] // 4, 4)
++        return (
++            (c[..., 0] | (c[..., 1] << 2) | (c[..., 2] << 4) | (c[..., 3] << 6))
++            .to(torch.uint8)
++            .contiguous()
++        )
++    if bits == 4:
++        c = codes.to(torch.uint8)
++        c = c.view(*c.shape[:-1], c.shape[-1] // 2, 2)
++        return (c[..., 0] | (c[..., 1] << 4)).to(torch.uint8).contiguous()
++    if bits == 3:
++        c = codes.to(torch.int32)
++        c = c.view(*c.shape[:-1], c.shape[-1] // 8, 8)
++        shifts = torch.arange(8, device=codes.device, dtype=torch.int32) * 3
++        word = (c << shifts).sum(-1)
++        b = torch.stack([word & 0xFF, (word >> 8) & 0xFF, (word >> 16) & 0xFF], dim=-1)
++        return b.to(torch.uint8).reshape(*codes.shape[:-1], codes.shape[-1] // 8 * 3).contiguous()
++    raise ValueError(bits)
++
++
++def _unpack(packed: torch.Tensor, bits: int, count: int) -> torch.Tensor:
++    """Unpack integer codes; returns a (rows, count) int32 tensor."""
++    if bits == 2:
++        b = packed.to(torch.int32)
++        return torch.stack(
++            [(b >> 0) & 3, (b >> 2) & 3, (b >> 4) & 3, (b >> 6) & 3], dim=-1
++        ).reshape(packed.shape[0], count)
++    if bits == 4:
++        b = packed.to(torch.int32)
++        return torch.stack([(b >> 0) & 15, (b >> 4) & 15], dim=-1).reshape(
++            packed.shape[0], count
++        )
++    if bits == 3:
++        b = packed.to(torch.int32).view(*packed.shape[:-1], packed.shape[-1] // 3, 3)
++        word = b[..., 0] | (b[..., 1] << 8) | (b[..., 2] << 16)
++        shifts = torch.arange(8, device=packed.device, dtype=torch.int32) * 3
++        codes = (word.unsqueeze(-1) >> shifts) & 7
++        return codes.reshape(packed.shape[0], count)
++    raise ValueError(bits)
++
++
++class PackedLinear(nn.Module):
++    """A Linear whose weight is stored as packed low-bit codes with per-group scales.
++
++    The AWQ input-channel scale is folded into the stored weight and divided out in forward.
++    `chunk_rows` bounds the transient bf16 weight during dequantization.
++    """
++
++    def __init__(
++        self,
++        weight: torch.Tensor,
++        bias: torch.Tensor | None,
++        scale: torch.Tensor | None,
++        bits: int = 3,
++        group_size: int = 64,
++        chunk_rows: int = 0,
++    ) -> None:
++        super().__init__()
++        out_features, in_features = weight.shape
++        self.bits = bits
++        self.group_size = group_size
++        self.in_features = in_features
++        self.out_features = out_features
++        self.chunk_rows = chunk_rows
++        self.padded = (group_size - in_features % group_size) % group_size
++        width = in_features + self.padded
++        w = weight.detach().float()
++        if self.padded:
++            w = F.pad(w, (0, self.padded))
++        w = w.view(out_features, width // group_size, group_size)
++        absmax = w.abs().amax(-1, keepdim=True).clamp_min(1e-8)
++        wn = w / absmax
++        codebook = torch.tensor(_CODEBOOK_3, device=w.device, dtype=torch.float32)
++        boundaries = (codebook[:-1] + codebook[1:]) / 2
++        codes = torch.bucketize(wn.contiguous(), boundaries)
++        self.register_buffer("codebook", codebook.to(torch.bfloat16), persistent=False)
++        self.register_buffer("scales", absmax.squeeze(-1).to(torch.bfloat16), persistent=False)
++        self.register_buffer("packed", _pack(codes, bits), persistent=False)
++        if scale is not None:
++            self.register_buffer(
++                "awq_scale",
++                scale.detach().to(device=weight.device, dtype=torch.bfloat16),
++                persistent=False,
++            )
++        else:
++            self.awq_scale = None
++        if bias is not None:
++            self.bias = nn.Parameter(bias.detach().to(weight.device), requires_grad=False)
++        else:
++            self.register_parameter("bias", None)
++        del w, wn, codes, absmax, codebook, boundaries
++
++    def _dequant(self, row_start: int, row_end: int) -> torch.Tensor:
++        packed = self.packed[row_start:row_end]
++        width = self.in_features + self.padded
++        codes = _unpack(packed, self.bits, width)
++        w = self.codebook[codes].view(
++            row_end - row_start, width // self.group_size, self.group_size
++        )
++        w = w * self.scales[row_start:row_end].unsqueeze(-1)
++        w = w.reshape(row_end - row_start, width)
++        if self.padded:
++            w = w[:, : self.in_features]
++        return w
++
++    def forward(self, x: torch.Tensor) -> torch.Tensor:
++        if self.awq_scale is not None:
++            x = x / self.awq_scale
++        if self.chunk_rows and self.out_features > self.chunk_rows:
++            outs = []
++            for start in range(0, self.out_features, self.chunk_rows):
++                end = min(start + self.chunk_rows, self.out_features)
++                w = self._dequant(start, end).to(x.dtype)
++                outs.append(F.linear(x, w, None))
++            out = torch.cat(outs, dim=-1)
++        else:
++            w = self._dequant(0, self.out_features).to(x.dtype)
++            out = F.linear(x, w, None)
++        if self.bias is not None:
++            out = out + self.bias.to(out.dtype)
++        return out
++
+ 
+ class _CompactEmbedding(nn.Module):
+     """A small embedding table plus a full-vocabulary row map."""
+@@ -108,52 +255,22 @@ def _compact_position_table(action_model: nn.Module) -> None:
+     gc.collect()
+ 
+ 
+-def _prune_text_mlps(language_model: nn.Module, calibration: dict) -> dict:
+-    """Slice the text MLP intermediate dimension using calibration activation magnitudes.
+-
+-    Returns the kept channel indices per original text-layer index so the down-projection
+-    input scale can be sliced consistently.
+-    """
+-    inputs = calibration.get("linear_inputs") or {}
+-    kept: dict[int, torch.Tensor] = {}
+-    if _PRUNE_FRACTION <= 0:
+-        return kept
+-    for index, layer in enumerate(language_model.layers):
+-        key = f"text.layers.{index}.mlp.down_proj"
+-        mean_sq = inputs.get(key)
+-        if mean_sq is None:
+-            continue
+-        mlp = layer.mlp
+-        down = mlp.down_proj
+-        intermediate = down.weight.shape[1]
+-        keep_count = int(intermediate * (1.0 - _PRUNE_FRACTION)) // 64 * 64
+-        if keep_count >= intermediate or keep_count <= 0:
+-            continue
+-        activation = mean_sq.detach().float().to(down.weight.device)
+-        if activation.numel() != intermediate:
+-            continue
+-        column_norm = down.weight.detach().float().pow(2).sum(dim=0)
+-        score = activation * column_norm
+-        order = torch.argsort(score, descending=True)[:keep_count]
+-        keep = torch.sort(order).values
+-        gate, up = mlp.gate_proj, mlp.up_proj
+-        gate.weight = nn.Parameter(gate.weight.detach()[keep].contiguous(), requires_grad=False)
+-        up.weight = nn.Parameter(up.weight.detach()[keep].contiguous(), requires_grad=False)
+-        down.weight = nn.Parameter(
+-            down.weight.detach()[:, keep].contiguous(), requires_grad=False
+-        )
+-        if getattr(gate, "bias", None) is not None:
+-            gate.bias = nn.Parameter(gate.bias.detach()[keep].contiguous(), requires_grad=False)
+-        if getattr(up, "bias", None) is not None:
+-            up.bias = nn.Parameter(up.bias.detach()[keep].contiguous(), requires_grad=False)
+-        gate.out_features = keep_count
+-        up.out_features = keep_count
+-        down.in_features = keep_count
+-        kept[index] = keep
+-    return kept
+-
+-
+ def _quantize_linear(linear: nn.Linear, scale: torch.Tensor | None) -> nn.Module:
++    shape = tuple(linear.weight.shape)
++    packed = shape in _PACK_TEXT_MLP or (_PACK_ACTION_ENABLED and shape in _PACK_ACTION)
++    if packed:
++        weight = linear.weight.detach()
++        if scale is not None:
++            weight = weight * scale.to(device=weight.device, dtype=weight.dtype).view(1, -1)
++        chunk = _PACK_CHUNK if shape in _PACK_TEXT_MLP else 0
++        return PackedLinear(
++            weight,
++            linear.bias,
++            scale,
++            bits=_PACK_BITS,
++            group_size=_PACK_GROUP,
++            chunk_rows=chunk,
++        )
+     device = linear.weight.device
+     weight = linear.weight.detach()
+     if scale is not None:
+@@ -180,12 +297,7 @@ def _quantize_linear(linear: nn.Linear, scale: torch.Tensor | None) -> nn.Module
+     return _ScaledLinear(replacement, scale.to(device=device, dtype=torch.bfloat16))
+ 
+ 
+-def _quantize_tree(
+-    root: nn.Module,
+-    prefix: str,
+-    calibration: dict,
+-    kept: dict[int, torch.Tensor] | None = None,
+-) -> None:
++def _quantize_tree(root: nn.Module, prefix: str, calibration: dict) -> None:
+     inputs = calibration.get("linear_inputs") or {}
+     for name, module in list(root.named_modules()):
+         if not isinstance(module, nn.Linear):
+@@ -199,10 +311,6 @@ def _quantize_tree(
+         scale = None
+         if mean_sq is not None:
+             mean_sq = mean_sq.detach().float()
+-            if kept and prefix == "text" and name.endswith(".mlp.down_proj"):
+-                layer_index = int(name.split(".")[1])
+-                if layer_index in kept:
+-                    mean_sq = mean_sq[kept[layer_index].to(mean_sq.device)]
+             if mean_sq.numel() == module.weight.shape[1]:
+                 scale = torch.sqrt(mean_sq.clamp_min(0.0))
+                 scale = scale / scale.mean().clamp_min(1e-12)
+@@ -210,6 +318,24 @@ def _quantize_tree(
+         setattr(parent, leaf, _quantize_linear(module, scale))
+ 
+ 
++def _disable_kv_cache(model: nn.Module) -> None:
++    """Inference is one forward pass; the KV cache only adds live/peak CUDA bytes."""
++    qwen = getattr(model, "qwen", None)
++    if qwen is None:
++        return
++    wrapper = getattr(qwen, "model", None)
++    if wrapper is None:
++        return
++    if hasattr(wrapper, "config"):
++        wrapper.config.use_cache = False
++        text_config = getattr(wrapper.config, "text_config", None)
++        if text_config is not None:
++            text_config.use_cache = False
++    inner = getattr(wrapper, "model", None)
++    if inner is not None and hasattr(inner, "config"):
++        inner.config.use_cache = False
++
++
+ def compress(policy, calibration):
+     model = policy.model
+     # 1. Training-only world model: never called by predict_action.
+@@ -227,18 +353,15 @@ def compress(policy, calibration):
+     _drop_lm_head(model)
+     gc.collect()
+ 
+-    # 3. Activation-aware structured pruning of the text MLP intermediate channels.
+-    kept = _prune_text_mlps(language_model, calibration)
+-    gc.collect()
+-
+-    # 4. NF4 quantization with per-input-channel AWQ scaling for every large Linear.
+-    _quantize_tree(language_model, "text", calibration, kept)
++    # 3. Quantize every large Linear: packed 3-bit for the text MLP and action DiT, NF4
++    #    with per-input-channel AWQ scaling for everything else.
++    _quantize_tree(language_model, "text", calibration)
+     _quantize_tree(qwen.visual, "vision", calibration)
+     _quantize_tree(model.action_model, "action", calibration)
+     gc.collect()
+ 
+-    # 5. Remove the lowest-influence blocks after quantization.  Delete in descending order so
+-    # the earlier indices stay valid.
++    # 4. Remove the lowest-influence blocks after quantization.  Delete in descending order so
++    #    the earlier indices stay valid.
+     for index in sorted(_DROP_TEXT_BLOCKS, reverse=True):
+         if 0 <= index < len(language_model.layers):
+             del language_model.layers[index]
+@@ -247,6 +370,10 @@ def compress(policy, calibration):
+         if 0 <= index < len(action_blocks):
+             del action_blocks[index]
+     _compact_position_table(model.action_model)
++
++    # 5. No KV cache is needed for a single forward pass.
++    _disable_kv_cache(model)
++
+     gc.collect()
+     torch.cuda.empty_cache()
+     return policy

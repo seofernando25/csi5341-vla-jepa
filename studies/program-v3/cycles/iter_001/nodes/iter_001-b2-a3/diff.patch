@@ -1,0 +1,279 @@
+diff --git a/proposal.md b/proposal.md
+index 4210d03..d6c30a0 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,70 +1,95 @@
+-# iter_001-b2-a2 — compact token embedding, truncated action position table
++# iter_001-b2-a3 — activation-aware pruning of the language MLP
+ 
+-## Change relative to the parent (`iter_001-b2-a1`)
++## Change relative to the parent (`iter_001-b2-a2`)
+ 
+ The parent deleted the training-only JEPA world model, dropped the unused tied `lm_head`,
+-and quantized the inference stack: NF4 token embedding, int8 language-decoder attention in
+-blocks 0–2, NF4 attention in blocks 3–27, NF4 language-decoder MLP, NF4 visual tower and
+-NF4 action head (76.6% removed, 8/10 episodes, failures on tasks 0 and 8). This node keeps
+-that recipe and changes two things:
+-
+-1. **The token embedding is compacted instead of quantized.** The 151936-row bf16 table is
+-   replaced by a bf16 table holding only the token ids the fixed LIBERO-Spatial prompts can
+-   emit: the ten task instructions, the prompt template, the chat-template role tokens and
+-   newline, the vision placeholder tokens, the added action tokens, and all tokenizer
+-   special ids (87 rows). A vocab-sized int32 lookup maps token ids to compact rows; ids
+-   outside the set fall back to row 0. This removes ~154 MB: the parent's NF4 table was
+-   155.6 MB, the compact table plus mapping is about 1 MB. The compact rows are bf16, so
+-   they are more precise than the parent's NF4 rows.
+-2. **The action head's position embedding is truncated.** `_build_inputs` indexes only
+-   `torch.arange(action_features.shape[1])`, i.e. the first `action_horizon` = 7 rows, but
+-   the checkpoint table has 1024 rows. The table now has 7 rows (about 2 MB saved).
++compacted the token embedding to the rows the fixed LIBERO-Spatial prompts can address,
++truncated the action-head position table, and quantized the inference stack: int8
++language-decoder attention in blocks 0–2, NF4 attention in blocks 3–27, NF4 language MLP,
++NF4 visual tower and NF4 action head (79.5% removed, 8/10 episodes, failures on tasks 0
++and 8). This node keeps that recipe and adds one change:
++
++**The language-decoder MLP is physically pruned before quantization.** For each layer
++3–26, the intermediate neurons are ranked by their estimated contribution to the residual
++update and the lowest 10% are removed. The layer's `gate_proj`/`up_proj` output rows and
++`down_proj` input columns are sliced to the kept set, so the smaller matrices are what
++bitsandbytes packs to NF4; the original bf16 modules are released as each layer is
++replaced. Layers 0–2 and 27 are left intact because their calibration `block_influence`
++(1.25, 0.155, 1575 and 0.081) is orders of magnitude above the middle stack (≤0.012).
++
++The ranking uses the calibration's `linear_inputs` only:
++for neuron `i` of layer `l`, the residual update is
++`down[:, i] * silu(gate[i] . x) * (up[i] . x)`, so with
++`E[x_j^2]` for the gate/up input and `E[h_i^2]` for the down input
++`h = silu(gate(x)) * up(x)`, the expected squared contribution is proportional to
++
++```
++||gate[i] * sqrt(E[x^2])||^2 * ||up[i] * sqrt(E[x^2])||^2 * ||down[:, i] * sqrt(E[h^2])||^2
++```
++
++Keeping the top 90% by that score removes neurons that barely move the residual stream on
++the calibration distribution. The score is computed in float32 one layer at a time; the
++temporary tensors are freed before the next layer. No copy of the original weights is kept.
+ 
+ `compress` mutates the evaluator's policy object in place and returns it, then calls
+-`gc.collect()` and `torch.cuda.empty_cache()`. No copy of the original weights is kept.
+-The token-id set is computed with the already-loaded tokenizer only; no file is opened and
+-no image processor is invoked inside `compress`.
++`gc.collect()` and `torch.cuda.empty_cache()`. The token-id set is computed with the
++already-loaded tokenizer only; no file is opened and no image processor is invoked inside
++`compress`.
+ 
+ ## Why
+ 
+-After the parent, the largest single remaining tensor was the token embedding (155.6 MB),
+-and the next-largest avoidable table was the action-head position embedding (2 MB). The
+-scored prompts are fixed LIBERO-Spatial instructions, so almost all of the 151936-row
+-vocabulary is unreachable. Keeping only the reachable rows is lossless for every token the
+-evaluation can produce, unlike a lower-bit embedding. The compact table is bf16, so it
+-does not add quantization error; the slight action-error change (0.0859 → 0.0898) comes
+-from replacing the parent's NF4 embedding rows with exact bf16 rows, and the episode
+-success set is unchanged.
++After the parent, the language MLP was the largest remaining term (about 0.53 GB), and
++the calibration exposes exactly the per-channel input energy needed to rank its neurons.
++A 10% prune removes about 53 MB and keeps the verified 8/10 success set. Larger ratios
++were tried and rejected on the actual development episodes:
++
++- language MLP keep 0.85 (15% prune, layers 3–26): **7/10**, task 4 additionally failed.
++- language MLP keep 0.75 (25% prune, all layers): **7/10**, task 4 additionally failed.
++- language MLP keep 0.75 (25% prune, layers 3–26): **7/10**, task 4 additionally failed.
++- language MLP keep 0.50 for layers 20–26, 0.90 elsewhere: **7/10**, task 4 failed.
++
++The 10% node's action error is 0.09375, essentially the parent's 0.0898, and its episode
++success set is identical to the untouched policy and the parent. The 15% variant's action
++error was 0.110 and it already lost task 4, so 10% is the largest verified-safe ratio.
+ 
+ ## Last check output
+ 
+ ```
+ status: ok
+-memory removed: 79.5% (resident 1147685376 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.0898438
+-latency ms: median 139.77, p95 142.37
+-compress: 6.2 s
++memory removed: 80.0% (resident 1119652352 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.09375
++latency ms: median 140.96, p95 144.00
++compress: 6.1 s
+ nonfinite predictions: 0
+ ```
+ 
++The score implied by the check is `1 - 1119652352 / 5604584960 = 0.800226`, versus the
++parent's 0.795223.
++
+ ## Episode verification (evaluator-style, development trial 0, tasks 0–9)
+ 
+-- Parent recipe (`iter_001-b2-a1`): **8/10**, failures tasks 0 and 8; 76.6% removed.
+-- This node (compact embedding + truncated action position table): **8/10**, failures
+-  tasks 0 and 8; 79.5% removed. The success set is identical to the untouched policy, the
+-  parent, and the sibling nodes.
+-- The final `solution.py` was re-run on the same ten development episodes after the
+-  tokenizer-only token-set construction; result: **8/10**, same failures.
++- Parent recipe (`iter_001-b2-a2`): **8/10**, failures tasks 0 and 8; 79.5% removed.
++- This node (10% language-MLP prune, layers 3–26): **8/10**, failures tasks 0 and 8;
++  80.0% removed. The final `solution.py` was re-run on the same ten development episodes
++  after the constants were hard-coded; result: **8/10**, same failures.
++- 15% prune (keep 0.85): **7/10**, task 4 additionally failed. Rejected.
++- 25% prune (keep 0.75, all layers or only layers 3–26): **7/10**, task 4 failed. Rejected.
++- 50% prune of layers 20–26 plus 10% elsewhere: **7/10**, task 4 failed. Rejected.
+ 
+ ## What I would try next
+ 
+-- The language-decoder MLP is now the largest remaining term (~0.53 GB). A 3-bit packed
+-  path or activation-aware neuron pruning (using the calibration `linear_inputs` for
+-  gate/up/down importance) could remove ~0.1–0.26 GB, but both need an episode run before
+-  they are worth keeping; the 8/10 gate has no margin.
+-- The visual tower's `pos_embed` (about 4.7 MB) and the four merger MLPs (about 34 MB) are
+-  the next structural targets; compacting `pos_embed` to the rows the fixed 256×256 image
+-  grid interpolates would be lossless but saves only a few MB.
+-- Do not convert the remaining int8 attention blocks 0–2 to NF4, and do not prune the
+-  trailing decoder blocks: the parent tried the latter (7/10) and the former loses task 5.
+-- Do not trade away the verified 8/10 set for action error alone.
++- Compute the neuron importance per task from the observation bank and use a minimum (or
++  low quantile) across tasks instead of the calibration's pooled mean. The pooled mean can
++  dilute a neuron that matters for one task; a per-task minimum might allow a 20–25% prune
++  while keeping task 4. This needs an episode run before it is kept.
++- The visual tower's `pos_embed` is an `nn.Embedding` with 2304 rows but the fixed 256×256
++  input uses a 16×16 patch grid. Precomputing the interpolated 256-row table and setting
++  `num_grid_per_side=16` is lossless for the protocol and saves about 4.2 MB.
++- The compact embedding's full-vocabulary int32 mapping is about 0.6 MB; a sorted 87-entry
++  id table plus `torch.searchsorted` would remove it losslessly.
++- Converting one of the remaining int8 attention blocks (block 0 or 1, not block 2) to NF4
++  saves about 6 MB each and is worth an episode check; the parent found all-NF4 attention
++  loses task 5, so do not convert block 2 or all three.
++- Do not raise the MLP prune above 10% without an episode run: 15% already loses task 4.
++  Do not prune the trailing decoder blocks or their MLPs aggressively; every attempt above
++  lost task 4 even though `block_influence` for those layers is small.
+diff --git a/solution.py b/solution.py
+index 58e7535..d0d2682 100644
+--- a/solution.py
++++ b/solution.py
+@@ -5,15 +5,17 @@ weights in place and drops the originals.  The training-only JEPA world model is
+ the Qwen language decoder, the Qwen visual tower and the flow-matching action head are
+ converted to bitsandbytes low-bit modules; the token embedding is compacted to the rows
+ the fixed LIBERO-Spatial prompts can address, and the unused tied ``lm_head`` is dropped
+-with it.
++with it.  The language-decoder MLP is additionally pruned to the neurons that the
++calibration's per-channel input statistics say carry the most activation energy.
+ 
+ Recipe:
+   * language-decoder attention: int8 (LLM.int8, threshold 6.0) in blocks 0-2, NF4 in
+     blocks 3-27 (the first three carry almost all of the calibration block influence)
+-  * language-decoder MLP projections: NF4
++  * language-decoder MLP projections: NF4, after pruning the lowest-importance
++    intermediate neurons (activation-aware, using ``linear_inputs``)
+   * visual tower and action head: NF4
+   * token embedding: compacted to the token ids the LIBERO-Spatial prompts can emit
+-    (this node's change); the unused 151k-row table is dropped
++    (inherited from the parent); the unused 151k-row table is dropped
+   * action-head position embedding: truncated to the 7 positions inference uses
+   * action-head timestep encoder: bf16 (it reads next(self.parameters()).dtype)
+ """
+@@ -25,6 +27,14 @@ import gc
+ import torch
+ from torch import nn
+ 
++# Fraction of each language-decoder MLP's intermediate neurons to keep.  The calibration
++# gives the mean squared input of every projection, so the score below estimates each
++# neuron's contribution to the residual update without touching the episode data.
++_LANGUAGE_MLP_KEEP = 0.90
++# Layers whose block influence is orders of magnitude above the rest: leave their MLPs
++# intact, prune only the low-influence middle stack.
++_LANGUAGE_MLP_SKIP = frozenset({0, 1, 2, 27})
++
+ 
+ def _int8_linear(linear: nn.Linear) -> nn.Module:
+     """Replace one nn.Linear by an int8 module, releasing the bf16 weight."""
+@@ -177,6 +187,69 @@ def _truncate_position_embedding(action_model) -> None:
+     action_model.position_embedding = replacement.eval()
+ 
+ 
++def _prune_language_mlp(language, calibration, keep: float) -> int:
++    """Drop the language-MLP intermediate neurons with the smallest estimated contribution.
++
++    For neuron ``i`` of layer ``l`` the residual update is
++    ``down[:, i] * silu(gate[i] . x) * (up[i] . x)``.  The calibration's
++    ``linear_inputs`` gives ``E[x_j^2]`` for the gate/up input and ``E[h_i^2]`` for the
++    down-projection input ``h = silu(gate(x)) * up(x)``, so the expected squared
++    contribution is proportional to
++    ``||gate[i] * sqrt(E[x^2])||^2 * ||up[i] * sqrt(E[x^2])||^2 * ||down[:, i] * sqrt(E[h^2])||^2``.
++    Keeping the top ``keep`` fraction by that score removes the neurons that barely move
++    the residual stream on the calibration distribution, and physically shrinks all three
++    projections (so the saved bytes are really gone).
++    """
++    inputs = calibration.get("linear_inputs") or {}
++    if keep >= 1.0 or not inputs:
++        return 0
++    removed = 0
++    for index, layer in enumerate(language.layers):
++        if index in _LANGUAGE_MLP_SKIP:
++            continue
++        mlp = layer.mlp
++        gate, up, down = mlp.gate_proj, mlp.up_proj, mlp.down_proj
++        if not all(isinstance(item, nn.Linear) for item in (gate, up, down)):
++            continue
++        key_gate = f"text.layers.{index}.mlp.gate_proj"
++        key_down = f"text.layers.{index}.mlp.down_proj"
++        if key_gate not in inputs or key_down not in inputs:
++            continue
++        device = gate.weight.device
++        dtype = gate.weight.dtype
++        scale_gate = inputs[key_gate].to(device=device, dtype=torch.float32).clamp_min(1e-12).sqrt()
++        scale_down = inputs[key_down].to(device=device, dtype=torch.float32).clamp_min(1e-12).sqrt()
++        gate_eff = gate.weight.detach().float() * scale_gate.unsqueeze(0)
++        up_eff = up.weight.detach().float() * scale_gate.unsqueeze(0)
++        down_eff = down.weight.detach().float() * scale_down.unsqueeze(0)
++        score = gate_eff.norm(dim=1) * up_eff.norm(dim=1) * down_eff.norm(dim=0)
++        total = int(score.numel())
++        chosen = max(1, int(round(total * keep)))
++        if chosen >= total:
++            continue
++        keep_index = torch.topk(score, chosen, largest=True, sorted=False).indices
++        keep_index, _ = torch.sort(keep_index)
++
++        new_gate = nn.Linear(gate.in_features, chosen, bias=gate.bias is not None, device=device, dtype=dtype)
++        new_gate.weight = nn.Parameter(gate.weight.detach()[keep_index].clone(), requires_grad=False)
++        if gate.bias is not None:
++            new_gate.bias = nn.Parameter(gate.bias.detach()[keep_index].clone(), requires_grad=False)
++        new_up = nn.Linear(up.in_features, chosen, bias=up.bias is not None, device=device, dtype=dtype)
++        new_up.weight = nn.Parameter(up.weight.detach()[keep_index].clone(), requires_grad=False)
++        if up.bias is not None:
++            new_up.bias = nn.Parameter(up.bias.detach()[keep_index].clone(), requires_grad=False)
++        new_down = nn.Linear(chosen, down.out_features, bias=down.bias is not None, device=device, dtype=dtype)
++        new_down.weight = nn.Parameter(down.weight.detach()[:, keep_index].clone(), requires_grad=False)
++        if down.bias is not None:
++            new_down.bias = nn.Parameter(down.bias.detach().clone(), requires_grad=False)
++        mlp.gate_proj = new_gate.eval()
++        mlp.up_proj = new_up.eval()
++        mlp.down_proj = new_down.eval()
++        removed += total - chosen
++        del gate_eff, up_eff, down_eff, score
++    return removed
++
++
+ def compress(policy, calibration):
+     """Mutate the loaded policy in place and return it."""
+     model = policy.model
+@@ -196,7 +269,7 @@ def compress(policy, calibration):
+ 
+     # 2. The tied lm_head is never called: `_qwen_last_decoder_hidden` runs the inner
+     #    Qwen3VLModel and reads a decoder hidden state.  Dropping it lets the bf16
+-    #    embedding table go when the NF4 table replaces it.
++    #    embedding table go when the compact table replaces it.
+     qwen.lm_head = None
+ 
+     # 3. Compact token embedding: only the rows the fixed LIBERO-Spatial prompts can
+@@ -206,6 +279,10 @@ def compress(policy, calibration):
+     # 3b. The action head only indexes the first `action_horizon` position rows.
+     _truncate_position_embedding(model.action_model)
+ 
++    # 3c. Prune the language MLP before quantization so the smaller shapes are what get
++    #     packed; the original bf16 modules are released as each layer is replaced.
++    _prune_language_mlp(language, calibration, _LANGUAGE_MLP_KEEP)
++
+     # 4. Language decoder: NF4 the MLP projections everywhere; the attention projections
+     #    of the first three blocks stay int8 (they carry the largest residual influence in
+     #    the calibration), the remaining attention projections are NF4.

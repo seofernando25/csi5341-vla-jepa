@@ -113,6 +113,7 @@ mistake in the draft once); trusting timings taken while the GPU was shared.
 2. Run 500 reserved episodes per winner; re-measure latency on an idle GPU.
 3. List the levers each winner used (graph capture, fusion, custom kernels, fewer flow steps).
 *Done when* the results and the freeze record are committed.
+*Status.* Done: [program-v4](studies/program-v4/README.md) selection and reserved 500.
 
 #### T1. Resume the debiased size search (v3, paused)
 *Why.* The first two searches could read our compression code and were handed the 53 prompt
@@ -123,9 +124,12 @@ token ids, and most nodes used both. v3 hides both, so it shows what the search 
 3. Commit the evidence with relative paths.
 *Traps.* Comparing v3's best memory with v1's without saying v1 had the hints.
 *Done when* three cycles are recorded and the watchdog reports no leak.
+*Status.* Done: three cycles, [program-v3](studies/program-v3/README.md). Nodes still hardcode or
+re-derive the prompt token ids.
 
 #### T2. Reserved-500 for the v3 winners
 Same steps as T5, with memory measured under the fixed rule.
+*Status.* Done: reserved 500 for each cycle's best node, in [program-v3](studies/program-v3/README.md).
 
 #### T6. Episode-level failure analysis
 *Why.* The proposal promised analysis on "identical observation sequences" and "downstream action
@@ -177,8 +181,8 @@ readable at 3.5 in; a success rate starts at 0, a difference may centre on 0.
 
 ### 3.4 Codebase and docs cleanup
 
-- **T21. Branches.** Open: the v3 and v4 runs are still live. Merge each worktree branch when its
-  run ends; remove the worktree and delete the branch the same day.
+- **T21. Branches.** Done: the v3 and v4 runs ended and their evidence is on `main`; the v3
+  worktree and branch are removed (tag `program-v3-debiased` stays).
 - **T22. Handoff.** Done: the swapped v1 winner results are corrected.
 - **T23. Format figure.** Done: `fig_format` is retired and the report does not use it.
 - **T24. Study READMEs.** Done: `studies/program-v3/README.md` and `studies/program-v4/README.md`

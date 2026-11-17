@@ -24,6 +24,11 @@ LABELS = {  # node id -> what changed, for the jumps that matter
         "iter_000-b1-a0": "4-bit weights",
         "iter_000-b2-a2": "3-bit vision, action",
     },
+    "program-v3": {
+        "iter_000-b2-a0": "4-bit text, 8-bit rest",
+        "iter_000-b2-a2": "2 to 3-bit text",
+        "iter_002-b2-a2": "packed 3-bit",
+    },
 }
 LATENCY_LABELS = {
     "iter_000-b0-a0": "CUDA graph",
@@ -162,6 +167,11 @@ SIZE_OFFSETS = {
         "iter_000-b1-a0": (6, -14),
         "iter_000-b2-a2": (10, -12),
     },
+    "program-v3": {
+        "iter_000-b2-a0": (6, -12),
+        "iter_000-b2-a2": (8, 10),
+        "iter_002-b2-a2": (-8, -14),
+    },
 }
 
 
@@ -200,15 +210,31 @@ def _remeasured(ax, points):
 
 
 def fig_size_timeline(n: dict) -> dict | None:
-    """Memory removed per probe for both size searches, stacked; None without v1 and v2 cycles."""
-    studies = {"program-v1": n.get("dream_rsi") or {}, "program-v2": n.get("dream_rsi_v2") or {}}
+    """Memory removed per probe for the size searches, stacked; None without v1 and v2 cycles."""
+    studies = {
+        "program-v1": n.get("dream_rsi") or {},
+        "program-v2": n.get("dream_rsi_v2") or {},
+        "program-v3": n.get("dream_rsi_v3") or {},
+    }
     series = {name: study_points(c) for name, c in studies.items() if c.get("cycles")}
     if len(series) < 2:
         return None
-    fig, axes = plt.subplots(2, 1, figsize=(COL, 3.1), gridspec_kw={"height_ratios": [1.3, 1]})
-    fig.subplots_adjust(left=0.115, right=0.985, top=0.95, bottom=0.115, hspace=0.5)
-    colors = {"program-v1": COLORS["Q4"], "program-v2": COLORS["C1"]}
-    names = {"program-v1": "First search", "program-v2": "Second search"}
+    rows = len(series)
+    fig, axes = plt.subplots(
+        rows,
+        1,
+        figsize=(COL, 3.1 if rows == 2 else 4.2),
+        gridspec_kw={"height_ratios": [1.3, 1, 1][:rows]},
+    )
+    fig.subplots_adjust(
+        left=0.115, right=0.985, top=0.96, bottom=0.09 if rows > 2 else 0.115, hspace=0.55
+    )
+    colors = {"program-v1": COLORS["Q4"], "program-v2": COLORS["C1"], "program-v3": COLORS["Q8"]}
+    names = {
+        "program-v1": "First search",
+        "program-v2": "Second search",
+        "program-v3": "Third search, code hidden",
+    }
     ledger = {}
     for ax, (name, points) in zip(axes, series.items(), strict=True):
         draw_timeline(ax, points, colors[name], 100.0)

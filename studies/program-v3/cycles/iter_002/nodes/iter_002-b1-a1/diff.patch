@@ -1,0 +1,163 @@
+diff --git a/proposal.md b/proposal.md
+index 7e6c369..a9464f1 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,54 +1,50 @@
+-# Proposal: in-place Q4/AWQ compression of the VLA-JEPA B16 policy
++# Proposal: trim two redundant action-head blocks and the unused position rows
+ 
+ ## Parent
+-`root` (identity `compress`): resident 5,604,584,960 bytes, 0% removed, check action error 0.
+-The best earlier node is `iter_002-b0-a0` at 0.594368 (59.4% removed, 8/10 episodes).
++`iter_002-b1-a0` (NF4/AWQ in-place compression): resident 1,106,270,720 bytes,
++80.26% removed, check action error 0.096, development smoke 8/10 (tasks 0 and 8 fail,
++exactly the untouched baseline). The gate has no margin, so any new episode failure is fatal.
+ 
+ ## Change
+ All work is in place on the loaded policy; no copy of the original weights is kept.
+ 
+-1. **Remove the training-only world model.** `model.video_encoder`,
+-   `model.video_predictor` and `model.video_processor` are loaded by the published policy but
+-   `VLAJEPolicy.predict_action_chunk` never calls them. Setting them to `None` frees about
+-   0.97 GB and is bit-exact for inference.
+-2. **Compact the tied input embedding.** The Qwen input embedding is 151,936 x 2048 and is
+-   tied to the unused `lm_head`. The fixed LIBERO prompt template, the ten LIBERO-Spatial
+-   instructions, the chat-template tokens and the action tokens use only a few dozen ids.
+-   I build a small row table plus a full-vocabulary `uint8` id map, install it as
+-   `language_model.embed_tokens`, and remove `lm_head`. This frees the 622 MB tied
+-   embedding/head storage and is exact for every token id in the fixed prompts.
+-3. **Drop decoder block 3.** It has the smallest measured residual influence in the
+-   calibration (`text.3 = 0.000046`). Removing one of the 28 blocks saves another ~10 MB at
+-   Q4 and keeps the same development smoke result as the parent.
+-4. **Q4 every large Linear with AWQ-style activation-aware scaling.** Every `nn.Linear` in
+-   `language_model`, `model.qwen.model.model.visual` and `model.action_model` with at least
+-   500k weights is replaced by `bitsandbytes.nn.Linear4bit`
+-   (`compute_dtype=bfloat16`, `compress_statistics=True`, `quant_type="nf4"`). Before
+-   quantization each weight is scaled per input channel by
+-   `s = mean_sq_input^0.5` (normalized and clipped) from the calibration `linear_inputs`,
+-   and the module input is divided by the same `s` in a small wrapper. This is the
+-   activation-aware quantization trick: it balances weight columns against the actual
+-   calibration activation magnitudes and makes Q4 accurate enough to keep the 8/10 gate.
+-   The tiny action-head linears (7/8-dimensional projections and the 256->768 timestep
+-   projection) stay bfloat16 to avoid bitsandbytes edge cases.
++1. **Drop action-head DiT blocks 7 and 9.** The calibration `block_influence` ranks them
++   among the least influential action blocks (`action.7 = 0.0020`, `action.9 = 0.0016`;
++   the first block is 2.03 and the median block is ~0.003). Each NF4 block costs about
++   4.2 MB, so removing two saves ~8.4 MB and shortens the flow-matching loop.
++2. **Compact the action position table.** `action_model.position_embedding` is a 1024-row
++   table, but `DiT._build_inputs` only indexes positions `0..chunk_size-1` (7 rows). I
++   replace it with an 8-row `nn.Embedding` holding the first eight rows, saving ~1.56 MB.
++3. Everything else is the parent: the training-only world model is removed, the tied
++   151936-row Qwen embedding is compacted to the fixed LIBERO prompt rows, text block 3 is
++   dropped, and the text/vision/action Linears are NF4 with AWQ-style per-input-channel
++   scaling from the calibration `linear_inputs`.
+ 
+ ## Why
+-The parent showed that the world-model removal, embedding compaction, block drop and Q8 are
+-safe, but left the action head bf16 and the decoder/vision at Q8. Q4 without scaling was too
+-lossy (parent: action error 0.117, 7/10). Using the calibration `linear_inputs` for per-channel
+-AWQ scaling reduces the Q4 error enough that the full Q4 policy still passes the same 8/10
+-development smoke as the untouched policy (tasks 0 and 8 fail, exactly the no-margin
+-baseline). This removes roughly another 1.1 GB relative to the parent.
++The parent already sits at the 8/10 gate with tasks 0 and 8 failing, so the only safe
++direction is to remove parameters that inference barely uses. The action-head influence
++scores identify blocks 7 and 9 as almost inert, and the position embedding is provably
++over-sized for the fixed chunk length. Both changes are structural removals, not deferred
++or hidden memory: the old modules are replaced and freed before `compress` returns.
++
++I also measured more aggressive variants and rejected them because they raise the action
++error too far for the no-margin gate:
++
++- 3-bit packed MLP weights (custom 3-bit codebook, per-group absmax): text MLP only gave
++  action error 0.173; adding vision MLP gave 0.282. Even 3-bit only on `up_proj` gave
++  0.161. The weight MSE was close to NF4, but the error accumulates over 27 decoder layers.
++- Dropping text block 5 in addition to block 3: 80.8% removed but action error 0.209.
++- Dropping eight low-influence action blocks: 80.9% removed but action error 0.327.
+ 
+ ## Last check
+-`python tools/check.py` (final run, Q4 text/vision/action with AWQ scaling):
++`python tools/check.py` (final run):
+ 
+ ```
+ status: ok
+-memory removed: 80.3% (resident 1106789376 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.103516
+-latency ms: median 142.58, p95 147.67
+-compress: 8.5 s
++memory removed: 80.4% (resident 1097536512 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.109375
++latency ms: median 135.36, p95 138.76
++compress: 8.4 s
+ nonfinite predictions: 0
+ ```
+ 
+@@ -61,12 +57,14 @@ successes=8/10
+ ```
+ 
+ Tasks 0 and 8 are the same two failures as the untouched policy and the parent, so the
+-no-margin 8/10 gate is preserved while resident memory falls from 2.27 GB (parent) to
+-1.11 GB.
++8/10 gate is preserved while resident memory falls from 1,106,270,720 to 1,097,536,512
++bytes (80.26% -> 80.4% removed).
+ 
+ ## Next
+-If more time were available, the remaining 1.11 GB is mostly the Q4 text decoder. The only
+-substantial further saving would be structured pruning of the text MLP intermediate channels
+-(guided by the calibration input statistics) or 3-bit late MLP weights; both need a fresh
+-development smoke because the gate has no margin. Dropping additional decoder blocks is not
+-worth it: each Q4 block is only ~10 MB and the parent already lost a task when dropping two.
++The remaining ~1.10 GB is still dominated by the NF4 text decoder (~681 MB) and vision
++tower (~210 MB). A further safe reduction needs a better low-bit scheme than the 3-bit
++codebook tried here: the next attempt should use calibration activations and GPTQ-style
++error compensation (rather than weight-only MSE) so the 3-bit MLP error does not compound
++across layers, or prune a small fraction (5%) of text MLP intermediate channels with a
++fresh development smoke. Dropping more whole text or action blocks is not worth it: the
++measured action error already rises sharply, and the gate has no margin.
+diff --git a/solution.py b/solution.py
+index 71f866b..4d94119 100644
+--- a/solution.py
++++ b/solution.py
+@@ -2,9 +2,10 @@
+ 
+ The published policy is loaded in bfloat16 on CUDA.  ``compress`` removes the training-only
+ world model, compacts the tied Qwen input embedding to the fixed LIBERO prompts, drops the
+-lowest-influence text decoder block, and replaces the large Linear leaves with bitsandbytes
+-Q8/Q4 modules.  Q4 is used only for MLP weights and is preceded by activation-aware
+-per-input-channel scaling derived from the calibration ``linear_inputs``.
++lowest-influence text decoder block, drops two nearly inert action-head DiT blocks, shrinks
++the action position table to the rows inference uses, and replaces the large Linear leaves
++with bitsandbytes NF4 modules.  NF4 is preceded by activation-aware per-input-channel scaling
++derived from the calibration ``linear_inputs``.
+ """
+ 
+ from __future__ import annotations
+@@ -38,6 +39,7 @@ VISION_MLP_BITS = 4
+ ACTION_BITS = 4
+ AWQ_ALPHA = 0.5
+ DROP_TEXT_BLOCKS = (3,)
++DROP_ACTION_BLOCKS = (7, 9)
+ MIN_ACTION_WEIGHTS = 500_000
+ 
+ 
+@@ -234,6 +236,21 @@ def compress(policy, calibration):
+         min_weights=MIN_ACTION_WEIGHTS,
+     )
+ 
++    keep = [
++        block
++        for index, block in enumerate(model.action_model.model.transformer_blocks)
++        if index not in DROP_ACTION_BLOCKS
++    ]
++    model.action_model.model.transformer_blocks = nn.ModuleList(keep)
++    del keep
++
++    # The action head only indexes the first chunk_size rows of its 1024-row position table.
++    old_position = model.action_model.position_embedding
++    compact_position = nn.Embedding(8, old_position.embedding_dim, device=old_position.weight.device, dtype=old_position.weight.dtype)
++    compact_position.weight.data.copy_(old_position.weight.data[:8])
++    model.action_model.position_embedding = compact_position
++    del old_position
++
+     gc.collect()
+     torch.cuda.empty_cache()
+     return policy

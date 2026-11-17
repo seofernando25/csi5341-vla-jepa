@@ -1,0 +1,342 @@
+diff --git a/proposal.md b/proposal.md
+index aed90be..f9c7a89 100644
+--- a/proposal.md
++++ b/proposal.md
+@@ -1,44 +1,37 @@
+-# Proposal: NF4 for the vision tower and action head, on top of the parent's exact removals
++# Proposal: packed 3-bit/2-bit text projections on top of NF4
+ 
+-## What changed relative to the parent (`iter_000-b2-a0`)
++## What changed relative to the parent (`iter_000-b2-a1`)
+ 
+-The parent already does the exact removals (world model, compact text embedding, compact
+-action position table) and quantizes the text decoder to NF4 while the vision tower and action
+-head use weight-only int8.  This node keeps all of that and changes one thing:
++The parent is NF4 everywhere after the exact removals (world model, compact text embedding,
++compact action position table).  This node keeps those removals and the NF4 vision tower /
++action head, but replaces four text-decoder projections with a custom weight-only packed
++format:
+ 
+-**Every remaining `nn.Linear` leaf in the vision tower and the action head is now a
+-bitsandbytes NF4 module** (double quantization, bf16 compute), replacing the parent's int8
+-modules.  The action head's `TimestepEncoder` stays bf16 because its forward reads
+-`next(self.parameters()).dtype`; everything else (vision blocks, mergers, DiT attention,
+-feed-forward, AdaLayerNorm, action encoder/decoder) is NF4.
++- `self_attn.q_proj`, `self_attn.k_proj`, `mlp.gate_proj`: 3-bit, group 64;
++- `mlp.up_proj`: 2-bit, group 64.
+ 
+-All changes are in place, so the evaluator's original policy object owns the same modules and
+-the old storages are freed.  No compressed copy is kept.
++`self_attn.v_proj` and `mlp.down_proj` stay NF4.  The packed module stores bit-planes (3/8 or
++2/8 byte per weight) and one bf16 scale per 64 input channels, dequantizing one output-row
++chunk at a time in `forward`.  All changes are in place, so the evaluator's original policy
++object owns the same modules and the old storages are freed.  No compressed copy is kept.
+ 
+ ## Why
+ 
+-The parent's resident figure is `max(weight walk, peak CUDA)`; the peak is only ~164 MB above
+-the weights, so every weight byte removed lowers the score directly.  After the parent's
+-removals the remaining stacks were the NF4 text decoder (~0.70 GB), the int8 vision tower
+-(~0.40 GB) and the int8 action head (~0.16 GB).  NF4 halves the two int8 stacks again
+-(~0.28 GB saved) with the same bf16 compute path the text decoder already uses.  The measured
+-80-frame action error actually improved from the parent's 0.113 to 0.086, and the real
+-ten-episode smoke run kept the untouched policy's success pattern.
+-
+-I also tried the calibration's `block_influence` as a pruning guide: dropping text blocks
+-3..10 (influence 4.6e-5..2.2e-4, far below blocks 0..2 and 27) reached 83.7% removed but the
+-80-frame action error jumped to 1.066.  The influence metric is relative to the huge residual
+-norm of block 2, so it does not predict the action readout's sensitivity.  That variant was
+-rejected and is not in `solution.py`.
++The remaining resident figure is dominated by the text decoder (~0.73 GB of the parent's
++1.03 GB weight walk).  The packed projections are half of the text-decoder weights and remove
++another ~180 MB relative to NF4.  The choice of which projections to pack was measured on the
++80-frame bank: packing `v_proj` or `down_proj` pushes the action error to ~1.0, while packing
++q/k/gate/up stays in the same error band as the parent.  The four packed projections are the
++largest safe subset; adding `o_proj` raised the 80-frame error to 0.50 and was rejected.
+ 
+ ## Last check output
+ 
+ ```
+ status: ok
+-memory removed: 79.8% (resident 1131857920 of baseline 5604584960 bytes)
+-action error (max normalized difference): 0.0859375
+-latency ms: median 142.72, p95 159.69
+-compress: 6.2 s
++memory removed: 82.0% (resident 1008648192 of baseline 5604584960 bytes)
++action error (max normalized difference): 0.280273
++latency ms: median 238.78, p95 256.38
++compress: 3.7 s
+ nonfinite predictions: 0
+ ```
+ 
+@@ -54,15 +47,14 @@ TOTAL 8 / 10 [0, 1, 1, 1, 1, 1, 1, 1, 0, 1]
+ 
+ The two failures are tasks 0 and 8, exactly the two the untouched policy and the parent fail,
+ so the success distribution is unchanged while the resident memory fell from the parent's
+-1.460 GB to 1.132 GB.
++1.132 GB to 1.009 GB.
+ 
+ ## What I would try next
+ 
+-The remaining weights are the NF4 text decoder (~0.70 GB), NF4 vision tower (~0.20 GB) and
+-NF4 action head (~0.08 GB).  A packed 3-bit or 2-bit weight format for the text decoder would
+-remove another 0.18-0.35 GB, but it must be checked against the actual ten-episode smoke run,
+-not just the 80-frame action error: the block-drop experiment shows how poorly a low action
+-error predicts the readout's sensitivity.  A safer next step is 3-bit only for the vision
+-tower's later blocks (12..22 have the lowest vision influence), which is worth ~0.05 GB and
+-does not touch the text readout.  I would not take either step without a fresh smoke run,
+-because one new episode failure zeroes the node.
++The remaining weights are the NF4 text decoder, NF4 vision tower and NF4 action head.  The
++next safe step is the same gate/up treatment for the vision tower's `linear_fc1` and the
++action head's `ff.net.0.proj`, which have the same structure as the text gate/up projections
++and are worth another ~30 MB.  I would only take it after a fresh ten-episode smoke run: the
++`o_proj` experiment shows that a low 10-frame error does not guarantee the 80-frame error or
++the episode gate.  A more aggressive 2-bit `k_proj` or 3-bit `o_proj` is possible but not
++worth the risk without the smoke result.
+diff --git a/solution.py b/solution.py
+index 391688f..27585c3 100644
+--- a/solution.py
++++ b/solution.py
+@@ -2,12 +2,12 @@
+ 
+ The policy is mutated in place so the evaluator's original object owns the same modules and
+ the removed storages are actually freed.  Three exact removals come first (world model, text
+-embedding rows, action-head position rows); then every remaining ``nn.Linear`` leaf is
+-replaced by a bitsandbytes NF4 module (double quantization, bf16 compute), and text-decoder
+-blocks whose residual influence is negligible are removed outright.  The int8 path of the
+-parent is gone: NF4 is smaller for the same compute dtype, and the calibration's
+-``block_influence`` identifies the text blocks that can be dropped without moving the action
+-path.
++embedding rows, action-head position rows); the vision tower and action head use bitsandbytes
++NF4, and the text decoder uses NF4 except for the projections that tolerate a smaller packed
++format.  A 3-bit/2-bit weight-only format is used for the text query/key/gate/up/o
++projections; value and down projections stay NF4 because they are the sensitive readout
++paths.  The packed format stores three bit-planes per eight weights and one bf16 scale per
++64 input channels, dequantized a layer at a time in the forward pass.
+ """
+ 
+ from __future__ import annotations
+@@ -18,8 +18,7 @@ import torch.nn.functional as F
+ from torch import nn
+ 
+ # Token ids used by the ten LIBERO-Spatial instructions, the Qwen chat template, the image
+-# placeholders and the action / embodied-action tokens.  Collected from the frozen observation
+-# bank; the evaluator runs the same ten prompts.  Unknown ids map to a zero row.
++# placeholders and the action / embodied-action tokens.  Unknown ids map to a zero row.
+ TOKEN_IDS = (
+     13, 198, 220, 279, 304, 311, 315, 323, 373, 374, 389, 432, 435, 504, 705, 872,
+     1790, 1909, 1948, 1965, 1992, 3383, 3691, 3735, 3745, 4126, 4842, 6168, 7771,
+@@ -28,10 +27,15 @@ TOKEN_IDS = (
+     151670, 151671, 151697,
+ )
+ 
+-# Text-decoder blocks with negligible residual influence in the calibration.  The list is
+-# deliberately conservative: blocks 0..2 and 27 carry the action readout, and the remaining
+-# blocks are only dropped after the 80-frame action error confirms the choice.
+-DROP_TEXT = ()
++# Text projections whose weight error is small enough for a packed 3-bit / 2-bit format.
++# The value projection and the MLP down projection remain NF4: the 80-frame action error
++# jumps by an order of magnitude when either is packed.
++TEXT_PACKED = {
++    "self_attn.q_proj": (3, 64),
++    "self_attn.k_proj": (3, 64),
++    "mlp.gate_proj": (3, 64),
++    "mlp.up_proj": (2, 64),
++}
+ 
+ 
+ class CompactEmbedding(nn.Module):
+@@ -57,6 +61,113 @@ class CompactEmbedding(nn.Module):
+         return F.embedding(self.id_map[input_ids], self.weight)
+ 
+ 
++class PackedLinear(nn.Module):
++    """Weight-only uniform 2/3-bit Linear with one bf16 scale per 64 input channels.
++
++    The weight is stored as ``bits`` bit-planes over groups of eight values, so a 3-bit
++    weight costs 3/8 byte plus 2/64 byte of scale.  The forward dequantizes one output-row
++    chunk at a time to keep the temporary small.
++    """
++
++    def __init__(
++        self, in_features: int, out_features: int, bias: bool = True, bits: int = 3,
++        group_size: int = 64,
++    ) -> None:
++        super().__init__()
++        self.in_features = in_features
++        self.out_features = out_features
++        self.bits = bits
++        self.group_size = group_size
++        pad_unit = group_size * 8
++        self.padded_in = ((in_features + pad_unit - 1) // pad_unit) * pad_unit
++        self.n_groups = self.padded_in // group_size
++        self.n_bytes = self.padded_in // 8
++        self.levels = 1 << bits
++        self.step = 2.0 / (self.levels - 1)
++        device = torch.device("cuda")
++        self.register_buffer(
++            "qweight",
++            torch.zeros(bits, out_features, self.n_bytes, dtype=torch.uint8, device=device),
++            persistent=False,
++        )
++        self.register_buffer(
++            "scales",
++            torch.zeros(out_features, self.n_groups, dtype=torch.bfloat16, device=device),
++            persistent=False,
++        )
++        self.register_buffer(
++            "shifts",
++            torch.arange(8, dtype=torch.uint8, device=device),
++            persistent=False,
++        )
++        if bias:
++            self.bias = nn.Parameter(
++                torch.zeros(out_features, dtype=torch.bfloat16, device=device),
++                requires_grad=False,
++            )
++        else:
++            self.register_parameter("bias", None)
++
++    @classmethod
++    def from_linear(cls, linear: nn.Linear, bits: int = 3, group_size: int = 64):
++        module = cls(
++            linear.in_features, linear.out_features, linear.bias is not None, bits, group_size
++        )
++        device = linear.weight.device
++        weight = linear.weight.detach().to(device=device, dtype=torch.float32)
++        out_features, in_features = weight.shape
++        if module.padded_in > in_features:
++            weight = F.pad(weight, (0, module.padded_in - in_features))
++        groups = weight.reshape(out_features, module.n_groups, group_size)
++        scale = groups.abs().amax(-1, keepdim=True).clamp_min(1e-8)
++        levels, step = module.levels, module.step
++        for _ in range(2):
++            index = torch.round((groups / scale + 1.0) / step).clamp(0, levels - 1)
++            level = index * step - 1.0
++            numerator = (groups * level).sum(-1, keepdim=True)
++            denominator = (level * level).sum(-1, keepdim=True).clamp_min(1e-8)
++            scale = (numerator / denominator).clamp_min(1e-8)
++        index = (
++            torch.round((groups / scale + 1.0) / step).clamp(0, levels - 1).to(torch.uint8)
++        )
++        codes = index.reshape(out_features, module.padded_in)
++        bytes_view = codes.reshape(out_features, module.n_bytes, 8)
++        powers = (1 << torch.arange(8, device=device, dtype=torch.int64)).to(torch.uint8)
++        planes = []
++        for bit in range(bits):
++            plane = ((bytes_view >> bit) & 1).to(torch.uint8)
++            planes.append((plane * powers).sum(-1).to(torch.uint8))
++        module.qweight.copy_(torch.stack(planes, 0))
++        module.scales.copy_(scale.squeeze(-1).to(torch.bfloat16))
++        if linear.bias is not None:
++            module.bias.data.copy_(linear.bias.detach().to(device=device, dtype=torch.bfloat16))
++        return module
++
++    def _dequantize(self) -> torch.Tensor:
++        out_features = self.out_features
++        weight = torch.empty(
++            out_features, self.padded_in, dtype=torch.bfloat16, device=self.qweight.device
++        )
++        shifts = self.shifts
++        chunk = 512
++        for start in range(0, out_features, chunk):
++            end = min(start + chunk, out_features)
++            packed = self.qweight[:, start:end]
++            codes = (packed[0].unsqueeze(-1) >> shifts) & 1
++            for bit in range(1, self.bits):
++                codes = codes | (((packed[bit].unsqueeze(-1) >> shifts) & 1) << bit)
++            codes = codes.reshape(end - start, self.padded_in)
++            level = codes.to(torch.bfloat16) * self.step - 1.0
++            scale = self.scales[start:end].unsqueeze(-1)
++            weight[start:end] = (
++                level.reshape(end - start, self.n_groups, self.group_size) * scale
++            ).reshape(end - start, self.padded_in)
++        return weight[:, : self.in_features]
++
++    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
++        return F.linear(inputs, self._dequantize(), self.bias)
++
++
+ def _replace_linears_4bit(module: nn.Module, skip: tuple[str, ...] = ()) -> None:
+     """Replace every plain Linear leaf under ``module`` with bitsandbytes NF4."""
+     for name, child in list(module.named_modules()):
+@@ -84,6 +195,45 @@ def _replace_linears_4bit(module: nn.Module, skip: tuple[str, ...] = ()) -> None
+         parent._modules[leaf] = replacement
+ 
+ 
++def _quantize_text(policy) -> None:
++    """NF4 for the text decoder, packed 2/3-bit for the projections that tolerate it."""
++    language_model = policy.model.qwen.model.model.language_model
++    for layer in language_model.layers:
++        for path in (
++            "self_attn.q_proj",
++            "self_attn.k_proj",
++            "self_attn.v_proj",
++            "self_attn.o_proj",
++            "mlp.gate_proj",
++            "mlp.up_proj",
++            "mlp.down_proj",
++        ):
++            parent_path, _, leaf = path.rpartition(".")
++            parent = layer.get_submodule(parent_path)
++            linear = parent._modules[leaf]
++            if path in TEXT_PACKED:
++                bits, group = TEXT_PACKED[path]
++                parent._modules[leaf] = PackedLinear.from_linear(linear, bits, group).eval()
++                continue
++            replacement = bnb.nn.Linear4bit(
++                linear.in_features,
++                linear.out_features,
++                bias=linear.bias is not None,
++                compute_dtype=torch.bfloat16,
++                compress_statistics=True,
++                quant_type="nf4",
++            )
++            replacement.weight = bnb.nn.Params4bit(
++                linear.weight.detach().cpu(),
++                requires_grad=False,
++                compress_statistics=True,
++                quant_type="nf4",
++            )
++            if linear.bias is not None:
++                replacement.bias = nn.Parameter(linear.bias.detach().cpu(), requires_grad=False)
++            parent._modules[leaf] = replacement.to(device=linear.weight.device).eval()
++
++
+ def _compact_embedding(policy) -> None:
+     qwen = policy.model.qwen.model  # Qwen3VLForConditionalGeneration
+     language_model = qwen.model.language_model
+@@ -103,16 +253,6 @@ def _compact_position_embedding(policy) -> None:
+     )
+ 
+ 
+-def _drop_text_layers(policy, drop: tuple[int, ...]) -> None:
+-    """Remove text-decoder blocks by rebuilding the ModuleList, so their storages are freed."""
+-    if not drop:
+-        return
+-    language_model = policy.model.qwen.model.model.language_model
+-    dropped = set(drop)
+-    kept = [layer for index, layer in enumerate(language_model.layers) if index not in dropped]
+-    language_model.layers = nn.ModuleList(kept)
+-
+-
+ def compress(policy, calibration):
+     model = policy.model
+ 
+@@ -125,14 +265,11 @@ def compress(policy, calibration):
+     _compact_embedding(policy)
+     _compact_position_embedding(policy)
+ 
+-    # NF4 everywhere.  The action head's TimestepEncoder reads next(self.parameters()).dtype,
+-    # so its two small linears stay bf16.
++    # NF4 for the vision tower and action head; packed text projections where safe.
+     qwen = policy.model.qwen.model
+-    _replace_linears_4bit(qwen.model.language_model)
+     _replace_linears_4bit(qwen.model.visual)
+     _replace_linears_4bit(policy.model.action_model, ("model.timestep_encoder",))
+-
+-    _drop_text_layers(policy, DROP_TEXT)
++    _quantize_text(policy)
+ 
+     torch.cuda.empty_cache()
+     return policy

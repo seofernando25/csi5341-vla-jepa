@@ -1,0 +1,129 @@
+{
+  "protocol": "dream-rsi-policy-dev",
+  "cycle_id": "iter_002",
+  "recorded_utc": "2026-11-17T08:01:29.220324+00:00",
+  "num_worlds": 3,
+  "world_ids": [
+    "dream-iter_000",
+    "dream-iter_001",
+    "dream-iter_002"
+  ],
+  "max_parallelism": 2,
+  "lambda_parallel": 0.05,
+  "selected_slot": "m3_llm",
+  "selected_policy_path": "policies/iter_002/selected_policy.py",
+  "incumbent_in_sample_V": 0.783606,
+  "selected_in_sample_V": 0.786783,
+  "in_sample_V_by_slot": {
+    "m0_incumbent": 0.783606,
+    "m1_llm": 0.785621,
+    "m2_llm": 0.785621,
+    "m3_llm": 0.786783
+  },
+  "heldout": {
+    "num_worlds": 24,
+    "mean_V_by_slot": {
+      "m0_incumbent": 0.479607,
+      "m1_llm": 0.38932,
+      "m2_llm": 0.38932,
+      "m3_llm": 0.422999
+    }
+  },
+  "heldout_delta_vs_incumbent": -0.056608,
+  "lowo": {
+    "mean_selected_reward": 0.783606,
+    "mean_incumbent_reward": 0.783606,
+    "folds_selected_beats_incumbent": 0,
+    "folds_selected_below_incumbent": 0,
+    "mean_held_out_reward_by_policy": {
+      "m0_incumbent": 0.783606,
+      "m1_llm": 0.785621,
+      "m2_llm": 0.785621,
+      "m3_llm": 0.786783
+    }
+  },
+  "variants": [
+    {
+      "slot": "m0_incumbent",
+      "step": 0,
+      "status": "incumbent",
+      "mean_v": 0.7836062404684082,
+      "delta_vs_best": 0.0,
+      "error": null,
+      "attempts": 0,
+      "grid_plan": {
+        "max_branches": 2,
+        "max_attempts_per_branch": 5,
+        "max_parallelism": 1,
+        "rounds_cap": 6,
+        "rationale": "prior manifests: 3 with a passing refinement, 1 plateaued"
+      },
+      "policy_path": "policies/iter_002/step_00/candidate.py",
+      "policy_sha256": "f62e1884220a8f0c675c98c6fd82a1ce741526e7bfd9e8acff6d37dcf412a79e"
+    },
+    {
+      "slot": "m1_llm",
+      "step": 1,
+      "status": "accepted",
+      "mean_v": 0.785621264873727,
+      "delta_vs_best": 0.002015024405318755,
+      "error": null,
+      "attempts": 1,
+      "grid_plan": {
+        "max_branches": 2,
+        "max_attempts_per_branch": 5,
+        "max_parallelism": 1,
+        "rounds_cap": 6,
+        "rationale": "prior manifests: 3 with a passing refinement, 1 plateaued"
+      },
+      "policy_path": "policies/iter_002/step_01/candidate.py",
+      "policy_sha256": "2652d1323a6532bb7fcc28663e672181d23e06d4686df6f59a4517d353bc290c"
+    },
+    {
+      "slot": "m2_llm",
+      "step": 2,
+      "status": "not_better",
+      "mean_v": 0.785621264873727,
+      "delta_vs_best": 0.0,
+      "error": null,
+      "attempts": 2,
+      "grid_plan": {
+        "max_branches": 2,
+        "max_attempts_per_branch": 5,
+        "max_parallelism": 1,
+        "rounds_cap": 6,
+        "rationale": "prior manifests: 3 with a passing refinement, 1 plateaued"
+      },
+      "policy_path": "policies/iter_002/step_02/candidate.py",
+      "policy_sha256": "2652d1323a6532bb7fcc28663e672181d23e06d4686df6f59a4517d353bc290c"
+    },
+    {
+      "slot": "m3_llm",
+      "step": 3,
+      "status": "accepted",
+      "mean_v": 0.7867832234503144,
+      "delta_vs_best": 0.0011619585765874074,
+      "error": null,
+      "attempts": 2,
+      "grid_plan": {
+        "max_branches": 2,
+        "max_attempts_per_branch": 5,
+        "max_parallelism": 1,
+        "rounds_cap": 6,
+        "rationale": "prior manifests: 3 with a passing refinement, 1 plateaued"
+      },
+      "policy_path": "policies/iter_002/step_03/candidate.py",
+      "policy_sha256": "8d21930c725294e741c4115815c37d92b5c86e9553b589ffc9a6b343a12f0834"
+    }
+  ],
+  "agent": {
+    "backend": "pi",
+    "model": "mistral/deepseek-v4-1-flash-1017",
+    "effort": "max",
+    "tools": "read,write,edit,bash",
+    "cli_version": "1.5.2",
+    "calls": 5,
+    "num_turns": 154,
+    "cost_usd": 0.823127
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "program": "program-v3",
+  "protocol": "program-v3-debiased",
+  "phase": "reserved",
+  "trials_per_cell": 500,
+  "selection": "studies/program-v3/selection.json",
+  "reference": "studies/program-v1/measurements/B16/final/episodes.csv",
+  "complete": true,
+  "missing": [],
+  "statistics": "Wilson 95 %; task-stratified paired percentile bootstrap, 10000 resamples, seed 42, identical task/state/seed keys",
+  "cells": [
+    {
+      "cell": "iter_000-b2-a2",
+      "development": {
+        "successes": 82,
+        "episodes": 100,
+        "resident_bytes": 1011799552,
+        "size_removed": 0.8194693167788111
+      },
+      "reserved": {
+        "successes": 471,
+        "episodes": 500,
+        "wilson95": [
+          0.917943812143745,
+          0.9593162708882429
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 48,
+          "2": 50,
+          "3": 50,
+          "4": 44,
+          "5": 30,
+          "6": 50,
+          "7": 50,
+          "8": 50,
+          "9": 49
+        }
+      },
+      "paired_vs_B16": {
+        "difference_pp": -0.8000000000000002,
+        "ci95_pp": [
+          -2.6,
+          1.2
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 10,
+        "lost": 14
+      }
+    },
+    {
+      "cell": "iter_001-b2-a3",
+      "development": {
+        "successes": 83,
+        "episodes": 100,
+        "resident_bytes": 1119387648,
+        "size_removed": 0.8002728737294402
+      },
+      "reserved": {
+        "successes": 477,
+        "episodes": 500,
+        "wilson95": [
+          0.9319222072317267,
+          0.9691548916291838
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 50,
+          "4": 45,
+          "5": 37,
+          "6": 49,
+          "7": 49,
+          "8": 49,
+          "9": 48
+        }
+      },
+      "paired_vs_B16": {
+        "difference_pp": 0.4000000000000001,
+        "ci95_pp": [
+          -1.2000000000000002,
+          2.1999999999999997
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 11,
+        "lost": 9
+      }
+    },
+    {
+      "cell": "iter_002-b2-a2",
+      "development": {
+        "successes": 83,
+        "episodes": 100,
+        "resident_bytes": 965067264,
+        "size_removed": 0.8278075413455772
+      },
+      "reserved": {
+        "successes": 480,
+        "episodes": 500,
+        "wilson95": [
+          0.9390264041651492,
+          0.9739592026102227
+        ],
+        "per_task": {
+          "0": 50,
+          "1": 50,
+          "2": 50,
+          "3": 49,
+          "4": 46,
+          "5": 40,
+          "6": 50,
+          "7": 49,
+          "8": 47,
+          "9": 49
+        }
+      },
+      "paired_vs_B16": {
+        "difference_pp": 1.0,
+        "ci95_pp": [
+          -0.6,
+          2.6
+        ],
+        "method": "Task-stratified paired percentile bootstrap; 10000 resamples; seed 42",
+        "gained": 11,
+        "lost": 6
+      }
+    }
+  ]
+}

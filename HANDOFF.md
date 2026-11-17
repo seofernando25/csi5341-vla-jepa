@@ -11,11 +11,6 @@ The report is four pages and committed on `main`. Next steps and order: `ROADMAP
 |---|---|
 | Reserved-500, v1 selection | complete |
 | `program-v2` search | stopped, evidence merged to `main`; do not restart |
-| `program-v4` latency search | live since 16:05 UTC. Worktree `/home/fer/.t3/worktrees/csi5341-vla-jepa/t3-run-program-v4`, branch `t3/run-program-v4` (at `0970b90`), unit `rsi-home-fer-t3-worktrees-csi5341-vla-jepa-t3-run-program-v4-studies-program-v4.service`. Node snapshot: `studies/program-v4/nodes.json` |
-| `program-v3` debiased size search | paused (`STOP` in its study; not resumed). Worktree `/home/fer/.t3/worktrees/csi5341-vla-jepa/t3-b413d091-e2ebc1e810b892e3`, branch `t3/b413d091`, tag `program-v3-debiased`. Evidence (`cycles/`) is uncommitted there. Resume only on Fernando's decision |
-
-Neither branch is merged. Merge each when its run ends, then remove the worktree and delete the
-branch (ROADMAP T21).
 
 ## Decisions Fernando made (2026-11-15)
 
@@ -37,12 +32,6 @@ record; a half-finished cell is resumed or reported, never restarted on differen
 
 ## If the machine rebooted
 
-- v4: from its worktree, `uv run --no-sync vla-rsi start --study-dir studies/program-v4 -- --cycles 3
-  --probe-budget 8 --max-parallelism 1 --promote-top-k 1 --max-hours 8 --max-agent-usd 20
-  --policy-timeout 1200`. It resumes from `loop_state.json`; the stopped first launch is archived,
-  not resumed.
-- v3: same command from its worktree with `--study-dir studies/program-v3 --max-parallelism 2`,
-  after removing `STOP`.
 - Jupyter kernels of `csi5341-a3` stay on the GPU. Never kill another user's processes.
 - Keep `~/.pi/agent/models.json` without a `mistral` block. Policy development needs
   `--policy-timeout 1200`.

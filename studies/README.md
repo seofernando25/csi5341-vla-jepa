@@ -18,8 +18,9 @@ program-v1's, and no v1 node is used as its starting point. Result: no node beat
 both selected nodes matched the reference on the reserved 500.
 
 [program-v3/](program-v3/README.md) repeats v2 without the project's compression code and the
-prompt token ids, which v1 and v2 agents could use. Paused after one scored node; its evidence is
-not committed yet.
+prompt token ids, which v1 and v2 agents could use. Three cycles; the best node of each passed
+development and ran the reserved 500 (471, 477 and 480 of 500 against B16's 475). The best removes
+82.8 % of resident memory, about v1's and v2's level.
 
 [program-v4/](program-v4/README.md) asks a different question: make the policy fast, not small. Its
 score is the lower bound of the 95 % interval of the geometric mean of the per-task speedup over
