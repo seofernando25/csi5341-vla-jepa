@@ -1,0 +1,85 @@
+{
+ "program": "program-v4",
+ "protocol": "program-v4-latency",
+ "gpu": "RTX 3090, idle (other-process SM use at most 5 %)",
+ "method": "latency evaluator, block-interleaved per-task timing (6 blocks, 180 timed calls per side); speedup is the geometric mean over tasks of per-task median ratios, 95 % percentile cluster bootstrap over blocks. Each entry is timed against its own B16 reference in the same process, so B16 ms differs slightly by run.",
+ "sources": {
+  "iter_000-b0-a3": "final phase (reserved 500 run, rerun 2026-11-17)",
+  "others": "smoke phase on the same workspace, `vla-compress solution --phase smoke --protocol studies/program-v4/protocol.json`; smoke successes are the 10-trial gate, not evidence of success"
+ },
+ "entries": {
+  "iter_000-b0-a3": {
+   "status": "ok",
+   "phase": "final",
+   "candidate_median_ms": 19.996395999999997,
+   "reference_median_ms": 76.28105450000001,
+   "speedup": 3.8203702869268956,
+   "speedup_ci95": [
+    3.8068901901420134,
+    3.828162874262209
+   ],
+   "score": 3.8068901901420134,
+   "mode": "interleaved",
+   "blocks": 6,
+   "other_gpu_utilisation_max_pct": 5.0,
+   "other_gpu_utilisation_mean_pct": 0.4166666666666667,
+   "violations": [],
+   "smoke": "475/500"
+  },
+  "iter_001-b1-a0": {
+   "status": "ok",
+   "phase": "smoke",
+   "candidate_median_ms": 15.624265999999999,
+   "reference_median_ms": 74.5968905,
+   "speedup": 4.81147974839129,
+   "speedup_ci95": [
+    4.787298140953157,
+    4.877404310184541
+   ],
+   "score": 4.787298140953157,
+   "mode": "interleaved",
+   "blocks": 6,
+   "other_gpu_utilisation_max_pct": 4.0,
+   "other_gpu_utilisation_mean_pct": 0.6666666666666666,
+   "violations": [],
+   "smoke": "8/10"
+  },
+  "iter_001-b0-a2": {
+   "status": "ok",
+   "phase": "smoke",
+   "candidate_median_ms": 17.124924,
+   "reference_median_ms": 73.87721350000001,
+   "speedup": 4.376273686684641,
+   "speedup_ci95": [
+    4.355083087362972,
+    4.392192748434392
+   ],
+   "score": 4.355083087362972,
+   "mode": "interleaved",
+   "blocks": 6,
+   "other_gpu_utilisation_max_pct": 0.0,
+   "other_gpu_utilisation_mean_pct": 0.0,
+   "violations": [],
+   "smoke": "8/10"
+  },
+  "ladder-b16-graph-4step": {
+   "status": "ok",
+   "phase": "smoke",
+   "candidate_median_ms": 21.738096,
+   "reference_median_ms": 73.590274,
+   "speedup": 3.4783884119800152,
+   "speedup_ci95": [
+    3.460423404850194,
+    3.500027423757422
+   ],
+   "score": 0.0,
+   "mode": "interleaved",
+   "blocks": 6,
+   "other_gpu_utilisation_max_pct": 0.0,
+   "other_gpu_utilisation_mean_pct": 0.0,
+   "violations": [],
+   "smoke": "8/10",
+   "note": "hand-built CUDA-graph engine of program-v1 (fastpath.attach, 4 flow steps, world model kept) wrapped as a workspace; score 0 because peak CUDA is 1.5 % above the reference (6392192512 vs 6295837696 B), speedup still measured"
+  }
+ }
+}

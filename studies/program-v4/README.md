@@ -172,22 +172,39 @@ guard violation; the evaluator's smoke run decides the node.
 The reserved phase runs outside the search loop with a longer evaluator timeout than the
 protocol's 1800 s, as in program-v2; the search never reads reserved states.
 
-## Result so far
+## Result
 
-Partial; the run is live and no cycle is complete. The first launch was stopped because its score
-rewarded the timed tasks (node `iter_000-b1-a1` cut work on task 0 only; archived in
-[stopped/](stopped/README.md), never selected). The run restarted with every task timed. The nodes
-recorded so far are in [nodes.json](nodes.json) (a snapshot taken while the run was live): the best
-scores 2.79 (a CUDA-graph executor with no change to the model), one node fails the smoke gate at
-7/10 and none violates a guard. No development or reserved trial exists. The smoke gate is 8/10 and
-the development gate 77/100, both unchanged from program-v2.
+Three candidates, one per flow-step count, fixed from the final node table before any development
+result ([selection.json](selection.json)). Each passed the development gate (77/100) and then ran
+the reserved 500 once, on the states and seeds B16 used (475/500). The pair difference is
+task-stratified, in points, 95 % bootstrap interval; the speedup is timed on an idle GPU against
+B16 in the same process ([timing.json](timing.json)).
+
+| Candidate | Flow steps | Dev | Reserved | Paired vs B16 | ms per call | Speedup [95 %] |
+|---|---|---|---|---|---|---|
+| iter_000-b0-a3 | 4 | 82/100 | 475/500 | 0.0 [-0.8, 0.8] | 20.0 | 3.82 [3.81, 3.83] |
+| iter_001-b0-a2 | 2 | 81/100 | 476/500 | +0.2 [-1.0, 1.4] | 17.1 | 4.38 [4.36, 4.39] |
+| iter_001-b1-a0 | 1 | 79/100 | 477/500 | +0.4 [-1.2, 2.0] | 15.6 | 4.81 [4.79, 4.88] |
+
+B16 takes 74 to 76 ms per call on this GPU, the hand-built CUDA graph (program-v1, nothing else
+changed) 21.7 ms (3.48x). No candidate differs from B16 in success. The 4-step candidate beats the
+hand-built graph by 1.7 ms; the further gain of the other two comes from fewer flow steps, and for
+iter_001-b1-a0 also from skipped action-head blocks. The 2-step reserved run is recorded as
+`guard_violation` only because the program-v3 search shared the GPU during its timing; its
+episodes are valid and its speedup is the idle-GPU smoke timing above. The iter_000-b0-a3 reserved
+run first failed before any episode on a compile-cache path and was rerun once
+([note](reserved/iter_000-b0-a3/README.md)).
 
 ## Evidence
 
-- [nodes.json](nodes.json): per-node score, speedup interval, guard, smoke and title, written by
-  `vla-export-nodes` from the live run.
+- [nodes.json](nodes.json), [selection.json](selection.json): node table and the frozen selection.
+- [reserved/summary.json](reserved/summary.json): reserved counts, Wilson intervals, per-task
+  counts, paired differences (`reserved/summarize.py`).
+- [reserved/](reserved/): per-candidate `final/` records (`episodes.csv`, `result.json`).
+- [timing.json](timing.json): idle-GPU timing of the three candidates, B16 and the hand-built graph.
 - [protocol.json](protocol.json), [calibration.json](calibration.json), [discovery.md](discovery.md):
   frozen rules, calibration and prompt.
 - [stopped/](stopped/README.md): the stopped first launch.
-- Full node records (`cycles/`, `policies/`, `loop_state.json`) stay in the run's worktree until the
-  run ends.
+- `cycles/`, `policies/`: full node records of the run.
+
+Reproduce the reserved summary with `uv run --no-sync python studies/program-v4/reserved/summarize.py`.

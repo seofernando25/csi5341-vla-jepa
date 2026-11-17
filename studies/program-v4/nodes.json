@@ -1,9 +1,9 @@
 {
   "study": "program-v4",
-  "snapshot_utc": "2026-11-16T17:08Z",
-  "status": "running",
+  "snapshot_utc": "2026-11-17T00:05Z",
+  "status": "done",
   "cycles_target": 3,
-  "cycles_complete": 0,
+  "cycles_complete": 3,
   "nodes": [
     {
       "cell_id": "iter_000-b0-a0",
@@ -68,6 +68,234 @@
       "smoke": "8/10",
       "fail_class": "ok",
       "title": "bit-exact CUDA-graph execution without the per-call eval walk"
+    },
+    {
+      "cell_id": "iter_000-b0-a2",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T17:21:21.507415+00:00",
+      "score": 2.8132322239307284,
+      "speedup": {
+        "point": 2.841939095277719,
+        "low": 2.8132322239307284,
+        "high": 2.8648274303307835
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "bit-exact CUDA graph with cross-attention K/V reuse in the flow head"
+    },
+    {
+      "cell_id": "iter_000-b0-a3",
+      "cycle": 0,
+      "recorded_utc": "2026-11-16T17:47:44.308622+00:00",
+      "score": 3.7667199006784537,
+      "speedup": {
+        "point": 3.8063963785286323,
+        "low": 3.7667199006784537,
+        "high": 3.8338491102863816
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "compiled vision + decoder inside the CUDA graph, with a bit-exact flow head"
+    },
+    {
+      "cell_id": "iter_001-b0-a0",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T18:25:18.675151+00:00",
+      "score": 2.5784599317548347,
+      "speedup": {
+        "point": 2.5930433790980234,
+        "low": 2.5784599317548347,
+        "high": 2.6126325979430725
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "CUDA-graph execution of the stock VLA-JEPA forward"
+    },
+    {
+      "cell_id": "iter_001-b0-a1",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T18:51:53.193024+00:00",
+      "score": 3.9396475947958236,
+      "speedup": {
+        "point": 3.988250970621733,
+        "low": 3.9396475947958236,
+        "high": 4.031914580138887
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "compiled CUDA graphs with two flow steps"
+    },
+    {
+      "cell_id": "iter_001-b0-a2",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T19:12:47.868605+00:00",
+      "score": 4.409840382444033,
+      "speedup": {
+        "point": 4.422538903003715,
+        "low": 4.409840382444033,
+        "high": 4.43669923774845
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "queue-preserving fast `select_action` on the compiled CUDA graph"
+    },
+    {
+      "cell_id": "iter_001-b0-a3",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T19:30:09.411003+00:00",
+      "score": 4.6789529099031775,
+      "speedup": {
+        "point": 4.703495802888045,
+        "low": 4.6789529099031775,
+        "high": 4.7220057394589485
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "one flow-matching step on the compiled CUDA graph"
+    },
+    {
+      "cell_id": "iter_001-b0-a4",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T19:48:24.202300+00:00",
+      "score": 4.69088167887343,
+      "speedup": {
+        "point": 4.720850458960305,
+        "low": 4.69088167887343,
+        "high": 4.765132534764735
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "drop three early self-attention DiT blocks from the compiled graph"
+    },
+    {
+      "cell_id": "iter_001-b1-a0",
+      "cycle": 1,
+      "recorded_utc": "2026-11-16T20:22:45.151086+00:00",
+      "score": 4.70320343751189,
+      "speedup": {
+        "point": 4.857155483127654,
+        "low": 4.70320343751189,
+        "high": 4.95295228815613
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "compiled graph, one flow step, three skipped DiT blocks, one action-prompt step"
+    },
+    {
+      "cell_id": "iter_002-b0-a0",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T21:24:43.362225+00:00",
+      "score": 2.601845719280802,
+      "speedup": {
+        "point": 2.6432375784384323,
+        "low": 2.601845719280802,
+        "high": 2.672784680292538
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "Node iter_002-b0-a0 \u2014 CUDA-graph execution of VLA-JEPA"
+    },
+    {
+      "cell_id": "iter_002-b0-a1",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T21:55:24.839428+00:00",
+      "score": 0.0,
+      "speedup": {
+        "point": 2.8782315046880655,
+        "low": 2.121127324987668,
+        "high": 3.6169790718324646
+      },
+      "guard": null,
+      "violations": [
+        "the reference could not be re-timed after the candidate: the sandwich measurement is incomplete"
+      ],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "Node iter_002-b0-a1 \u2014 compiled flow loop inside the CUDA graph"
+    },
+    {
+      "cell_id": "iter_002-b0-a2",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T22:23:07.906098+00:00",
+      "score": 0.0,
+      "speedup": {
+        "point": 5.566884114837512,
+        "low": 3.701180678678457,
+        "high": 5.780146222163394
+      },
+      "guard": "smoke=7/10<8",
+      "violations": [
+        "the reference could not be re-timed after the candidate: the sandwich measurement is incomplete"
+      ],
+      "smoke": "7/10",
+      "fail_class": "gate_near_miss",
+      "title": "Node iter_002-b0-a2 \u2014 compiled vision tower and a lower peak footprint"
+    },
+    {
+      "cell_id": "iter_002-b1-a0",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T22:44:56.034978+00:00",
+      "score": 2.8169876388163573,
+      "speedup": {
+        "point": 2.8715216070964953,
+        "low": 2.8169876388163573,
+        "high": 2.9840190646899454
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "Node iter_002-b1-a0 \u2014 compiled flow plus a released embedding table"
+    },
+    {
+      "cell_id": "iter_002-b2-a0",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T23:05:40.642180+00:00",
+      "score": 2.8097018749837988,
+      "speedup": {
+        "point": 2.8399924857098804,
+        "low": 2.8097018749837988,
+        "high": 2.8680428569137235
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "Node iter_002-b2-a0 \u2014 graphed policy with a compiled flow loop and a released embedding table"
+    },
+    {
+      "cell_id": "iter_002-b1-a1",
+      "cycle": 2,
+      "recorded_utc": "2026-11-16T23:28:11.196843+00:00",
+      "score": 3.171006477190292,
+      "speedup": {
+        "point": 3.2106954788849063,
+        "low": 3.171006477190292,
+        "high": 3.2453424464075287
+      },
+      "guard": "ok",
+      "violations": [],
+      "smoke": "8/10",
+      "fail_class": "ok",
+      "title": "Node iter_002-b1-a1 \u2014 one Euler step in the compiled flow"
     }
   ]
 }

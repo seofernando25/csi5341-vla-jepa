@@ -1,0 +1,46 @@
+{
+  "program": "program-v4",
+  "protocol": "program-v4-latency",
+  "frozen_at": "2026-11-17T00:10Z",
+  "source": "studies/program-v4/nodes.json (final node table of the 3-cycle latency run, exported after the loop ended)",
+  "rule": "one candidate per flow-step count: the highest-scoring node at 4, 2 and 1 flow steps, with a nonzero score and no non-honest class other than fewer-flow-steps or smaller-or-skipped-model. Candidates are fixed before any development result; reserved trials never guide selection.",
+  "flow_steps_source": "watch logs /tmp/opencode/s2/W5..W9-STATUS.md plus each node's proposal.md (num_inference_timesteps); cross-checked against the node title and the latency speedup point.",
+  "candidates": [
+    {
+      "cell_id": "iter_000-b0-a3",
+      "cycle": 0,
+      "flow_steps": 4,
+      "score": 3.7667199006784537,
+      "speedup_point": 3.8063963785286323,
+      "class": "honest",
+      "skips_model_parts": false,
+      "commit": "07a4155ca57871c978a7b08ecd3529a53cb22a70",
+      "evidence": "compiled vision + decoder inside the CUDA graph, bit-exact flow head; drops only the inference-dead V-JEPA branch and lm_head (W5-STATUS)", 
+      "development_reused": "cycles/iter_000/nodes/iter_000-b0-a3/development.json (loop promoted; 82/100)"
+    },
+    {
+      "cell_id": "iter_001-b0-a2",
+      "cycle": 1,
+      "flow_steps": 2,
+      "score": 4.409840382444033,
+      "speedup_point": 4.422538903003715,
+      "class": "fewer-flow-steps",
+      "skips_model_parts": false,
+      "commit": "9ddc64224280da266a56dc431abca4feb4444b48",
+      "evidence": "two flow steps inherited from iter_001-b0-a1; own change is the honest host-side fast select_action (W7-STATUS); drops only the inference-dead world model and lm_head",
+      "development_reused": null
+    },
+    {
+      "cell_id": "iter_001-b1-a0",
+      "cycle": 1,
+      "flow_steps": 1,
+      "score": 4.70320343751189,
+      "speedup_point": 4.857155483127654,
+      "class": "fewer-flow-steps + smaller-or-skipped-model",
+      "skips_model_parts": true,
+      "commit": "78493b919435992a5903fced8e7ccc27b5b87afa",
+      "evidence": "one flow step (num_inference_timesteps=1), three skipped action-head DiT blocks (3,5,7), one action-prompt step instead of three; drops the inference-dead world model and lm_head (W9-STATUS, proposal)",
+      "development_reused": "cycles/iter_001/nodes/iter_001-b1-a0/development.json (loop promoted; 79/100)"
+    }
+  ]
+}
