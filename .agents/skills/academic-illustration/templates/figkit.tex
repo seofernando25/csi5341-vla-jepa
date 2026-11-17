@@ -1,0 +1,105 @@
+% Shared standard for all TikZ explainer figures (include after \documentclass[tikz,border=6pt]{standalone}).
+% Rules: final width 16.5 cm (= \linewidth, scale 1.0); body text 8 pt, labels >= 7 pt, never smaller;
+% every arrow starts/ends on a node anchor (never floats over text); edge labels use `fill=white` or sit
+% above/below the arrow with at least 2 mm clearance; every box has inner sep >= 4 pt and its text fits
+% inside (use text width / align=left / manual line breaks, then check the render); >= 5 mm gap between boxes;
+% >= 4 mm padding between content and panel border; one accent colour per meaning (garnet = mismatch/bug).
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}
+\setsansfont{Liberation Sans}
+\setmonofont[Scale=0.9]{Liberation Mono}
+\renewcommand{\familydefault}{\sfdefault}% figure labels in sans; code chips stay mono
+\usepackage{fontawesome5}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc,shapes.geometric,shapes.symbols,decorations.pathreplacing}
+\definecolor{garnet}{HTML}{8F001A}\definecolor{ink}{HTML}{2D2D2C}
+\definecolor{cblue}{HTML}{2B6CB0}\definecolor{corange}{HTML}{D9822B}\definecolor{cgreen}{HTML}{2F855A}
+\definecolor{pblue}{HTML}{EAF1FA}\definecolor{porange}{HTML}{FCEFE1}\definecolor{pgreen}{HTML}{E6F3EC}
+\definecolor{accent}{HTML}{0072B2}\definecolor{stepblue}{HTML}{0072B2}\definecolor{pgrey}{HTML}{F2F2F2}\definecolor{pgarnet}{HTML}{F7E6E9}\definecolor{rule}{HTML}{B8B8B8}
+\tikzset{
+  every node/.style={font=\footnotesize,text=ink},
+  small/.style={font=\scriptsize},
+  panel/.style={rounded corners=5pt,draw=rule,line width=.4pt,inner sep=7pt},
+  box/.style={rounded corners=3pt,draw=ink!60,fill=white,line width=.5pt,inner sep=4.5pt,align=center,minimum height=6mm},
+  bug/.style={box,draw=garnet,fill=pgarnet,text=garnet,line width=.8pt},
+  ok/.style={box,draw=cgreen,fill=pgreen},
+  arr/.style={-{Stealth[length=2.2mm,width=1.8mm]},line width=.7pt,draw=corange},
+  lab/.style={font=\scriptsize\itshape,fill=white,inner sep=1.5pt,text=ink!80},
+  title/.style={font=\footnotesize\bfseries,anchor=north west},
+  % Step badge: filled accent disc with a white number (white on #0072B2 is 5.2:1).
+  badge/.style={circle,fill=stepblue,text=white,font=\bfseries\fontsize{8}{8}\selectfont,
+    inner sep=0pt,minimum size=4.4mm},
+  stepbadge/.style={circle,fill=stepblue,text=white,font=\bfseries\fontsize{7}{7}\selectfont,
+    inner sep=0pt,minimum size=3.5mm},
+  % Role chips: baseline execution = blue, transformed variant = orange, neutral = grey.
+  basechip/.style={rounded corners=2pt,draw=cblue,fill=pblue,line width=.5pt,inner sep=2.5pt,
+    font=\ttfamily\fontsize{7}{8.5}\selectfont,align=center,minimum height=5mm},
+  varchip/.style={rounded corners=2pt,draw=corange,fill=porange,line width=.5pt,inner sep=2.5pt,
+    font=\ttfamily\fontsize{7}{8.5}\selectfont,align=center,minimum height=5mm},
+}
+
+% Inline step badge for panel titles: \stepnum{1}Original query
+\newcommand{\stepnum}[1]{\tikz[baseline=0pt]\node[stepbadge,anchor=base](sn){#1};\enspace}
+
+% ---------------------------------------------------------------------------------------------
+% Explainer kit. Every explainer is built from these pieces, so headers, widths and the
+% comparison footer line up across figures. Rules (see the academic-illustration skill):
+%   * two nesting levels at most: tinted stage panel -> white items. No dashed wrappers.
+%   * items in one panel share one text width (\itemw), so their edges align.
+%   * content is placed with positioning (below=of), never by guessing absolute y values.
+\definecolor{okgreen}{HTML}{1E5631}\definecolor{vartext}{HTML}{A84800}
+\tikzset{
+  role base/.style={fill=pblue, draw=cblue!45},
+  role derive/.style={fill=pgrey, draw=ink!28},
+  role variant/.style={fill=porange, draw=corange!55},
+  stagebox/.style={rounded corners=5pt, line width=.6pt, inner sep=0pt, role #1},
+  stagetitle/.style={font=\bfseries\fontsize{9}{11}\selectfont, inner sep=0pt},
+  stagesub/.style={font=\itshape\fontsize{7.2}{8.8}\selectfont, text=ink!78, inner sep=0pt,
+    align=left},
+  item/.style={rounded corners=3pt, draw=ink!35, fill=white, line width=.5pt, inner xsep=5pt,
+    inner ysep=3.5pt, align=left, font=\ttfamily\fontsize{7}{8.8}\selectfont},
+  note/.style={font=\fontsize{7.2}{8.8}\selectfont, inner sep=0pt, align=center},
+  outcome/.style={rounded corners=4pt, draw=ink!45, fill=pgrey, line width=.6pt,
+    font=\bfseries\fontsize{7.5}{9}\selectfont, minimum width=3.0cm, minimum height=6mm},
+  flow/.style={-{Stealth[length=1.8mm,width=1.6mm]}, ink!60, line width=.7pt,
+    rounded corners=3pt},
+  busline/.style={ink!60, line width=.7pt, line cap=round},
+  elab/.style={font=\itshape\fontsize{7}{8.5}\selectfont, text=ink!78, inner sep=1.5pt},
+  dia/.style={diamond, draw=ink!60, fill=white, aspect=2.0, minimum width=1.4cm,
+    inner sep=1pt, font=\bfseries\fontsize{8}{9}\selectfont, line width=.7pt},
+  pill/.style={rounded corners=7pt, minimum width=2.7cm, minimum height=.66cm,
+    font=\bfseries\fontsize{8}{9.5}\selectfont, line width=.8pt},
+  cyl/.style={cylinder, shape border rotate=90, draw=ink!55, fill=white, aspect=.22,
+    minimum height=.85cm, minimum width=1.3cm, font=\fontsize{7.2}{8.6}\selectfont,
+    line width=.6pt},
+}
+
+% \StagePanel{name}{x}{y top}{width cm}{height cm}{base|derive|variant}{step}{title}{subtitle}
+% Defines (name-in): the top centre of the content area, below the subtitle.
+\newcommand{\StagePanel}[9]{%
+  \pgfmathsetlengthmacro{\stagesubw}{(#4-0.6)*1cm}%
+  \node[stagebox=#6, minimum width=#4cm, minimum height=#5cm, anchor=north west]
+    (#1) at (#2,#3) {};
+  \node[stepbadge] (#1-n) at ($(#1.north west)+(0.48,-0.42)$) {#7};
+  \node[stagetitle, anchor=west] at ($(#1-n.east)+(0.13,0)$) {#8};
+  \node[stagesub, anchor=north west, text width=\stagesubw] (#1-s)
+    at ($(#1.north west)+(0.3,-0.72)$) {#9};
+  \coordinate (#1-in) at ($(#1.north |- #1-s.south)+(0,-0.22)$);
+}
+
+% \CompareFooter{left outcome}{right outcome}{bug text}: one bus, one decision, two pills.
+\newcommand{\CompareFooter}[3]{%
+  \coordinate (busL) at ($(#1.south)+(0,-0.42)$);
+  \coordinate (busR) at (#2.south |- busL);
+  \coordinate (busM) at ($(busL)!0.5!(busR)$);
+  \draw[busline] (#1.south) -- (busL) -- (busR) -- (#2.south);
+  \node[dia] (eq) at ($(busM)+(0,-0.78)$) {equal?};
+  \draw[flow] (busM) -- (eq.north);
+  \node[pill, draw=okgreen, fill=pgreen, text=okgreen] (fine) at ($(eq)+(-3.3,-0.95)$)
+    {\faCheck\enspace fine};
+  \node[pill, draw=garnet, fill=pgarnet, text=garnet] (bug) at ($(eq)+(3.3,-0.95)$)
+    {\faBug\enspace #3};
+  \draw[flow, okgreen, line width=.8pt] (eq.west) -| (fine.north);
+  \draw[flow, garnet, line width=.8pt] (eq.east) -| (bug.north);
+  \node[elab, text=okgreen, anchor=south] at ($(eq.west)!0.5!(eq.west -| fine.north)$) {yes};
+  \node[elab, text=garnet, anchor=south] at ($(eq.east)!0.5!(eq.east -| bug.north)$) {no};
+}

@@ -1,0 +1,26 @@
+% Template: three-stage differential explainer (baseline -> derivation -> variant, then compare).
+% Build: xelatex explainer.tex   (figkit.tex must sit next to this file)
+\documentclass[tikz,border=4pt]{standalone}
+\input{figkit.tex}
+\begin{document}
+\begin{tikzpicture}[font=\fontsize{7.5}{9}\selectfont, text=ink]
+  \def\itemw{4.15cm}                       % one text width for every item in a panel
+  \StagePanel{P1}{0}{0}{4.9}{3.6}{base}{1}{Baseline}{what the first execution sees}
+  \StagePanel{P2}{5.85}{0}{4.9}{3.6}{derive}{2}{Derivation}{how the variant is produced}
+  \StagePanel{P3}{11.7}{0}{4.9}{3.6}{variant}{3}{Variant}{what the second execution sees}
+
+  \node[item, text width=\itemw, anchor=north] (a1) at (P1-in) {SELECT * FROM t\\WHERE x > 1};
+  \node[item, text width=\itemw, anchor=north] (b1) at (P2-in) {rewrite rule};
+  \node[item, text width=\itemw, below=1.6mm of b1] (b2) {second step};
+  \node[item, text width=\itemw, anchor=north] (c1) at (P3-in) {SELECT * FROM t\\WHERE NOT (x <= 1)};
+
+  \draw[flow] (P1.east) -- node[elab, above] {derive} (P2.west);   % edge labels: one short word
+  \draw[flow] (P2.east) -- node[elab, above] {build} (P3.west);
+
+  \node[outcome] (o1) at ($(P1.south)+(0,-0.95)$) {baseline result};
+  \node[outcome] (o3) at ($(P3.south)+(0,-0.95)$) {variant result};
+  \draw[flow] (P1.south) -- node[elab, right] {run} (o1.north);
+  \draw[flow] (P3.south) -- node[elab, left] {run} (o3.north);
+  \CompareFooter{o1}{o3}{candidate bug}
+\end{tikzpicture}
+\end{document}

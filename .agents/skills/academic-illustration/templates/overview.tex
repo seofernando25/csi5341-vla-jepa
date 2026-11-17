@@ -1,0 +1,27 @@
+% Template: page-1 overview in three numbered columns (input -> levers -> results).
+% Each lever card points at exactly one result card in the same colour.
+\documentclass[tikz,border=4pt]{standalone}
+\input{figkit.tex}
+\begin{document}
+\begin{tikzpicture}[font=\fontsize{7.5}{9}\selectfont, text=ink,
+  col/.style 2 args={rounded corners=4pt, draw=#1, fill=#2, line width=.6pt},
+  ctitle/.style={font=\bfseries\fontsize{9}{11}\selectfont, anchor=west, inner sep=0pt},
+  card/.style={rounded corners=3pt, draw=#1, fill=white, line width=.6pt, minimum width=6.4cm,
+    minimum height=1.35cm},
+  res/.style={rounded corners=3pt, draw=#1, fill=#1!7, line width=.6pt, minimum width=4.0cm,
+    minimum height=1.35cm, text width=3.7cm, align=left, inner sep=4pt}]
+  \draw[col={ink!40}{ink!3}] (0,0) rectangle (4.0,-5.0);
+  \draw[col={stepblue}{stepblue!4}] (4.6,0) rectangle (11.6,-5.0);
+  \draw[col={cgreen}{cgreen!4}] (12.2,0) rectangle (16.6,-5.0);
+  \foreach \x/\n/\t in {0.4/1/Input, 5.0/2/Three levers, 12.6/3/What each bought}
+    {\node[badge] (b\n) at (\x,-0.4) {\n}; \node[ctitle] at ($(b\n.east)+(0.15,0)$) {\t};}
+  \foreach \y/\c/\t/\r in {-1.45/cblue/Lever one/Result one, -2.95/corange/Lever two/Result two,
+                           -4.4/cgreen/Lever three/Result three} {
+    \node[card=\c] (L) at (8.1,\y) {\bfseries\t};
+    \node[res=\c] (R) at (14.4,\y) {{\bfseries\fontsize{10}{12}\selectfont\t}\\\r};
+    \draw[flow] (L.east) -- (R.west);
+  }
+  \node[item, text width=3.2cm, align=center] at (2.0,-2.9) {the thing\\being studied};
+  \draw[flow] (4.0,-2.9) -- (4.6,-2.9);
+\end{tikzpicture}
+\end{document}

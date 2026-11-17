@@ -1,0 +1,40 @@
+# Shared plot style (matches the TikZ explainers): sans labels, ink text, light horizontal grid that
+# replaces the y spine, direct labels instead of legends.
+font.family: sans-serif
+font.sans-serif: Liberation Sans, Arial, DejaVu Sans
+mathtext.fontset: custom
+mathtext.rm: Liberation Sans
+mathtext.it: Liberation Sans:italic
+mathtext.bf: Liberation Sans:bold
+font.size: 8
+axes.labelsize: 8
+axes.titlesize: 8
+xtick.labelsize: 7.5
+ytick.labelsize: 7.5
+legend.fontsize: 7.5
+legend.frameon: False
+text.color: 2D2D2C
+axes.labelcolor: 3F3F3E
+axes.edgecolor: B8B8B8
+xtick.color: 3F3F3E
+ytick.color: 3F3F3E
+axes.spines.top: False
+axes.spines.right: False
+axes.spines.left: False
+axes.axisbelow: True
+axes.grid: True
+axes.grid.axis: y
+grid.color: E3E3E3
+grid.linewidth: 0.6
+axes.linewidth: 0.7
+xtick.major.width: 0.7
+xtick.major.size: 3
+ytick.major.size: 0
+ytick.major.pad: 3
+lines.linewidth: 1.5
+lines.markersize: 3.6
+pdf.fonttype: 42
+ps.fonttype: 42
+savefig.bbox: tight
+savefig.pad_inches: 0.03
+figure.dpi: 150

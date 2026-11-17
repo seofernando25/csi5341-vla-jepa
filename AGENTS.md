@@ -85,6 +85,7 @@ Project skills live in `.agents/skills/` (`.claude/skills` links there):
 - `auto-research`: bounded Dream-RSI compression rounds, stop rules, and reserved-500 lock.
 - `dream-rsi`: paper specification (`arXiv:2609.14858v2`), fidelity boundaries (`docs/DREAM_RSI.md`), and `rsi/` invariants.
 - `ui-critique`: review of a rendered page, figure or slide.
+- `academic-illustration`: house style, TikZ kit and templates for report figures, with the layout mistakes to check.
 - `untangle-codebase`: whole-codebase refactor procedure (run only when asked).
 
 ## Coordination
