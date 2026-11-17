@@ -7,8 +7,7 @@
 \usepackage{cite}
 
 \begin{document}
-\title{Where Compression Costs in VLA-JEPA:\\
-Precision, Execution, and Replay-Guided Search}
+\title{Where Compression Degrades VLA-JEPA}
 \author{\IEEEauthorblockN{Noah Sprenger \qquad Fernando Nogueira}
 \IEEEauthorblockA{CSI 5341, University of Ottawa \quad Code: \url{https://github.com/seofernando25/csi5341-vla-jepa}}}
 \maketitle
@@ -21,9 +20,11 @@ success. The language decoder is the only fragile part: its linear layers hold a
 and break at 2, while vision and action show no drop detected at 2 bits in 100 development
 episodes (the 5-point non-inferiority is not established at that size). A CUDA graph, which
 replays one recorded GPU schedule, makes the policy 3.5 times faster with the same weights. A
-replay-guided search for speed finds policies 3.8 to 4.8 times faster that match the original on
-500 reserved episodes. A packed 4-bit format under the graph runs at 28\,ms in 1.5\,GB and scores
-97.8\,\% on 500 reserved episodes. A replay-guided search that may remove whole modules finds a policy with 83\,\% less
+packed 4-bit format under the graph runs at 28\,ms in 1.5\,GB and scores 97.8\,\% on 500 reserved
+episodes. We also ran Dream-RSI, a search in which a coding agent proposes compressions. Searching
+for speed, it finds policies
+3.8 to 4.8 times faster that match the original on 500 reserved episodes. Allowed to remove whole
+modules, it finds a policy with 83\,\% less
 resident memory that scores 1.6 points below the original on the same 500 episodes (interval
 $-3.6$ to $+0.2$). In its third cycle the same search found a hole in our memory score and used
 it; we describe the exploit and the fix.
@@ -43,7 +44,7 @@ by at least 25\,\% and keep success within 5 points of the original. We contribu
 \item that test, and a precision map over the language, vision and action modules;
 \item an execution ladder that separates the speed of a CUDA graph from the memory of
   quantization;
-\item a replay-guided search~\cite{dreamrsi} that removes 83\,\% of resident memory, and a
+\item a Dream-RSI search~\cite{dreamrsi} that removes 83\,\% of resident memory, and a
   documented case of that search gaming our score.
 \end{enumerate}
 
@@ -88,6 +89,7 @@ against the reference uses a task-stratified paired percentile bootstrap (10{,}0
 seed 42): both policies start from the same task and initial state. We never pool phases.
 
 \subsection{The search loop}
+\label{sec:search}
 In Dream-RSI, a coding agent proposes a compression, written as a \texttt{compress} function,
 and a fixed evaluator scores it. Each proposal is a node in a search tree. A node scores the
 fraction of memory it removes if it passes smoke, and zero otherwise. Between rounds, a second
@@ -322,6 +324,12 @@ INT8 and NF4 are within 5 points on reserved episodes; 3-bit decoder weights are
 development-tested. Past that, it takes removing modules. The execution path sets its speed. A
 search removed 83\,\% of resident memory and, in its third cycle, found the flaw in the score that
 judged it. We now review the score as carefully as the model.
+
+\section*{AI Usage Declaration}
+We used Claude Code to prepare figures, verify and debug code, and fix grammar and \LaTeX{}
+formatting. The Dream-RSI agents are part of the method: DeepSeek V4.1 Flash wrote the compressions
+and search rules in Section~\ref{sec:search}, and our fixed evaluator scored them. We designed the
+study, checked every number against its records and take responsibility for the report.
 
 \section*{Acknowledgment}
 Noah Sprenger brought Dream-RSI into the project, built its first engine and ran the early searches.
