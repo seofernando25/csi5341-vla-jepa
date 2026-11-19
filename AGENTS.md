@@ -77,7 +77,8 @@ where intended.
 
 Project skills live in `.agents/skills/` (`.claude/skills` links there):
 
-- `terse-writing`: all prose, including the report, READMEs, commits and board records.
+- `terse-writing`: concise technical text for READMEs, commits, docstrings and board records.
+- `human-academic-prose`: natural, human-voiced prose for papers, reports and abstracts (no number dumps, em dashes or AI telltales).
 - `reporting-results`: checklist before any number leaves the terminal.
 - `agent-board`: reading and posting coordination records.
 - `mastermind`: delegating to subagents and gating their output.
