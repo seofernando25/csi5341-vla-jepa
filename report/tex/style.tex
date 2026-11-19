@@ -5,7 +5,11 @@
 \usepackage[table]{xcolor}
 \usepackage[most]{tcolorbox}
 \usepackage{tikz}
-\usepackage{fontawesome5}
+\IfFileExists{fontawesome5.sty}{\usepackage{fontawesome5}}{%
+  \newcommand{\faCamera}{}\newcommand{\faComment}[1][]{}\newcommand{\faEye}{}%
+  \newcommand{\faLanguage}{}\newcommand{\faWaveSquare}{}\newcommand{\faRobot}{}%
+  \newcommand{\faSlidersH}{}\newcommand{\faBolt}{}\newcommand{\faRedo}{}%
+  \newcommand{\faBug}{}}
 \usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
 \usepackage{enumitem}
 \usepackage{titlesec}
